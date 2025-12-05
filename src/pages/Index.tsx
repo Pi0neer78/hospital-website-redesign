@@ -302,7 +302,7 @@ const Index = () => {
               />
               <div>
                 <p className="text-[10px] text-muted-foreground leading-tight">ГУ АЦГМБ ЛНР</p>
-                <h1 className="text-sm font-bold text-primary leading-tight">Антрацитовская центральная<br />городская многопрофильная больница</h1>
+                <h1 className="text-sm font-bold text-primary leading-tight">ГБУЗ Антрацитовская центральная<br />городская многопрофильная больница</h1>
               </div>
             </div>
             <nav className="hidden lg:flex gap-4 text-sm">
@@ -360,7 +360,7 @@ const Index = () => {
             className="w-48 h-48 mx-auto mb-8 object-contain animate-fade-in mix-blend-multiply"
           />
           <p className="text-lg text-muted-foreground mb-2 animate-fade-in">Государственное учреждение</p>
-          <h2 className="text-5xl font-bold mb-2 text-foreground animate-fade-in">Антрацитовская центральная городская многопрофильная больница</h2>
+          <h2 className="text-5xl font-bold mb-2 text-foreground animate-fade-in">ГБУЗ Антрацитовская центральная городская многопрофильная больница</h2>
           <p className="text-lg text-muted-foreground mb-8 animate-fade-in">Луганской Народной Республики</p>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in">
             Современная медицинская помощь с заботой о каждом пациенте. Квалифицированные специалисты и передовые технологии.
@@ -1180,7 +1180,7 @@ const Index = () => {
       <footer className="bg-primary text-white py-8">
         <div className="container mx-auto px-4">
           <div className="text-center text-white/90">
-            <p className="text-sm">&copy; 2024 Государственное учреждение «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
+            <p className="text-sm">&copy; 2024 Государственное учреждение «ГБУЗ Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
             <p className="text-xs mt-2 text-white/70">Все права защищены</p>
             <a href="/doctor" className="text-xs mt-2 text-white/70 hover:text-white transition-colors inline-block">
               Вход для врача
