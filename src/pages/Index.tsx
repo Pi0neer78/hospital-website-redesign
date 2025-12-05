@@ -52,7 +52,7 @@ const Index = () => {
     if (!bannerClosed) {
       const timer = setTimeout(() => {
         setIsMaxBannerVisible(true);
-      }, 15000);
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, []);
