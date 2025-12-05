@@ -1182,6 +1182,9 @@ const Index = () => {
           <div className="text-center text-white/90">
             <p className="text-sm">&copy; 2024 Государственное учреждение «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
             <p className="text-xs mt-2 text-white/70">Все права защищены</p>
+            <a href="/doctor" className="text-xs mt-2 text-white/70 hover:text-white transition-colors inline-block">
+              Вход для врача
+            </a>
           </div>
         </div>
       </footer>
