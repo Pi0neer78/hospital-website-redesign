@@ -660,11 +660,11 @@ const Index = () => {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                   <Icon name="Award" size={32} className="text-primary" />
                 </div>
-                <CardTitle>Опыт более 25 лет</CardTitle>
+                <CardTitle>Огромный опыт работы</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base">
-                  Наша клиника работает с 1998 года, предоставляя качественную медицинскую помощь тысячам пациентов.
+                  Наша больница предоставляет качественную медицинскую помощь тысячам пациентов.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -678,7 +678,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base">
-                  В нашем центре работают квалифицированные специалисты высшей категории с многолетним стажем.
+                  В нашей больнице работают квалифицированные специалисты высшей категории с многолетним стажем.
                 </CardDescription>
               </CardContent>
             </Card>
