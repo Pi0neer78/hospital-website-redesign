@@ -547,24 +547,38 @@ const Index = () => {
                             <div className="w-4 h-4 bg-red-100 border-2 border-red-500 rounded"></div>
                             <span>Занято</span>
                           </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 bg-orange-100 border-2 border-orange-500 rounded"></div>
+                            <span>Перерыв</span>
+                          </div>
                         </div>
                         <div className="grid grid-cols-4 md:grid-cols-6 gap-2 max-h-64 overflow-y-auto">
                           {allTimeSlotsForDate.length > 0 ? (
-                            allTimeSlotsForDate.map((slot: any) => (
-                              <Button
-                                key={slot.time}
-                                variant="outline"
-                                className={`${
-                                  !slot.available 
-                                    ? 'bg-red-100 border-red-500 text-red-700 hover:bg-red-200 cursor-not-allowed' 
-                                    : 'hover:bg-primary hover:text-white'
-                                }`}
-                                onClick={() => slot.available && setAppointmentForm({ ...appointmentForm, appointment_time: slot.time })}
-                                disabled={!slot.available}
-                              >
-                                {slot.time}
-                              </Button>
-                            ))
+                            allTimeSlotsForDate.map((slot: any) => {
+                              const isBreak = slot.status === 'break';
+                              const isBooked = slot.status === 'booked';
+                              const isAvailable = slot.status === 'available';
+                              
+                              return (
+                                <Button
+                                  key={slot.time}
+                                  variant="outline"
+                                  className={`${
+                                    isBreak
+                                      ? 'bg-orange-100 border-orange-500 text-orange-700 hover:bg-orange-200 cursor-not-allowed'
+                                      : isBooked 
+                                      ? 'bg-red-100 border-red-500 text-red-700 hover:bg-red-200 cursor-not-allowed' 
+                                      : 'hover:bg-primary hover:text-white'
+                                  }`}
+                                  onClick={() => slot.available && setAppointmentForm({ ...appointmentForm, appointment_time: slot.time })}
+                                  disabled={!slot.available}
+                                  title={isBreak ? 'Перерыв' : isBooked ? 'Занято' : 'Доступно'}
+                                >
+                                  {slot.time}
+                                  {isBreak && <Icon name="Coffee" size={12} className="ml-1" />}
+                                </Button>
+                              );
+                            })
                           ) : (
                             availableSlots.map((slot: string) => (
                               <Button

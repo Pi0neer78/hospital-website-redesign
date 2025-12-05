@@ -25,7 +25,9 @@ const Doctor = () => {
   const [scheduleForm, setScheduleForm] = useState({
     day_of_week: 0,
     start_time: '08:00',
-    end_time: '17:00'
+    end_time: '17:00',
+    break_start_time: '',
+    break_end_time: ''
   });
   const [isOpen, setIsOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<any>(null);
@@ -109,7 +111,7 @@ const Doctor = () => {
       
       if (response.ok && data.success) {
         toast({ title: "Успешно", description: "Расписание обновлено" });
-        setScheduleForm({ day_of_week: 0, start_time: '08:00', end_time: '17:00' });
+        setScheduleForm({ day_of_week: 0, start_time: '08:00', end_time: '17:00', break_start_time: '', break_end_time: '' });
         setIsOpen(false);
         loadSchedules(doctorInfo.id);
       } else {
@@ -353,6 +355,27 @@ const Doctor = () => {
                           required
                         />
                       </div>
+                      <div className="border-t pt-4">
+                        <label className="text-sm font-medium mb-2 block">Перерыв (необязательно)</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Начало перерыва</label>
+                            <Input
+                              type="time"
+                              value={scheduleForm.break_start_time}
+                              onChange={(e) => setScheduleForm({ ...scheduleForm, break_start_time: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Конец перерыва</label>
+                            <Input
+                              type="time"
+                              value={scheduleForm.break_end_time}
+                              onChange={(e) => setScheduleForm({ ...scheduleForm, break_end_time: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                      </div>
                       <Button type="submit" className="w-full">Сохранить</Button>
                     </form>
                   </DialogContent>
@@ -392,6 +415,27 @@ const Doctor = () => {
                           required
                         />
                       </div>
+                      <div className="border-t pt-4">
+                        <label className="text-sm font-medium mb-2 block">Перерыв (необязательно)</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Начало перерыва</label>
+                            <Input
+                              type="time"
+                              value={editingSchedule.break_start_time?.slice(0, 5) || ''}
+                              onChange={(e) => setEditingSchedule({ ...editingSchedule, break_start_time: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Конец перерыва</label>
+                            <Input
+                              type="time"
+                              value={editingSchedule.break_end_time?.slice(0, 5) || ''}
+                              onChange={(e) => setEditingSchedule({ ...editingSchedule, break_end_time: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                      </div>
                       <Button type="submit" className="w-full">Сохранить изменения</Button>
                     </form>
                   )}
@@ -422,9 +466,17 @@ const Doctor = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-lg mb-4">
-                          {schedule.start_time.slice(0, 5)} - {schedule.end_time.slice(0, 5)}
-                        </p>
+                        <div className="mb-4">
+                          <p className="text-lg font-medium">
+                            {schedule.start_time.slice(0, 5)} - {schedule.end_time.slice(0, 5)}
+                          </p>
+                          {schedule.break_start_time && schedule.break_end_time && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              <Icon name="Coffee" size={14} className="inline mr-1" />
+                              Перерыв: {schedule.break_start_time.slice(0, 5)} - {schedule.break_end_time.slice(0, 5)}
+                            </p>
+                          )}
+                        </div>
                         <div className="flex gap-2 flex-wrap">
                           <Button 
                             size="sm" 

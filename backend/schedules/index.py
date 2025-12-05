@@ -69,6 +69,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             day_of_week = body.get('day_of_week')
             start_time = body.get('start_time')
             end_time = body.get('end_time')
+            break_start_time = body.get('break_start_time')
+            break_end_time = body.get('break_end_time')
             
             if not all([doctor_id, day_of_week is not None, start_time, end_time]):
                 return {
@@ -85,13 +87,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if existing:
                 cursor.execute(
-                    "UPDATE doctor_schedules SET start_time = %s, end_time = %s, is_active = true WHERE doctor_id = %s AND day_of_week = %s RETURNING *",
-                    (start_time, end_time, doctor_id, day_of_week)
+                    "UPDATE doctor_schedules SET start_time = %s, end_time = %s, break_start_time = %s, break_end_time = %s, is_active = true WHERE doctor_id = %s AND day_of_week = %s RETURNING *",
+                    (start_time, end_time, break_start_time, break_end_time, doctor_id, day_of_week)
                 )
             else:
                 cursor.execute(
-                    "INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time) VALUES (%s, %s, %s, %s) RETURNING *",
-                    (doctor_id, day_of_week, start_time, end_time)
+                    "INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time, break_start_time, break_end_time) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *",
+                    (doctor_id, day_of_week, start_time, end_time, break_start_time, break_end_time)
                 )
             
             schedule = cursor.fetchone()
@@ -111,6 +113,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             is_active = body.get('is_active')
             start_time = body.get('start_time')
             end_time = body.get('end_time')
+            break_start_time = body.get('break_start_time')
+            break_end_time = body.get('break_end_time')
             
             if not schedule_id:
                 return {
@@ -125,7 +129,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if is_active is not None:
                 cursor.execute("UPDATE doctor_schedules SET is_active = %s WHERE id = %s RETURNING *", (is_active, schedule_id))
             elif start_time and end_time:
-                cursor.execute("UPDATE doctor_schedules SET start_time = %s, end_time = %s WHERE id = %s RETURNING *", (start_time, end_time, schedule_id))
+                cursor.execute("UPDATE doctor_schedules SET start_time = %s, end_time = %s, break_start_time = %s, break_end_time = %s WHERE id = %s RETURNING *", (start_time, end_time, break_start_time, break_end_time, schedule_id))
             else:
                 cursor.close()
                 return {

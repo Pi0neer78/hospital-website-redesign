@@ -65,7 +65,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 
                 cursor.execute(
-                    "SELECT start_time, end_time FROM doctor_schedules WHERE doctor_id = %s AND day_of_week = %s AND is_active = true",
+                    "SELECT start_time, end_time, break_start_time, break_end_time FROM doctor_schedules WHERE doctor_id = %s AND day_of_week = %s AND is_active = true",
                     (doctor_id, day_of_week)
                 )
                 schedule = cursor.fetchone()
@@ -88,6 +88,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 start_time = schedule['start_time']
                 end_time = schedule['end_time']
+                break_start = schedule.get('break_start_time')
+                break_end = schedule.get('break_end_time')
                 
                 current_time = datetime.combine(date_obj, start_time)
                 end_datetime = datetime.combine(date_obj, end_time)
@@ -97,11 +99,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 while current_time < end_datetime:
                     slot_time = current_time.time()
                     time_str = slot_time.strftime('%H:%M')
-                    is_available = slot_time not in booked_times
+                    
+                    is_break = False
+                    if break_start and break_end:
+                        if break_start <= slot_time < break_end:
+                            is_break = True
+                    
+                    is_booked = slot_time in booked_times
+                    is_available = not is_booked and not is_break
+                    
+                    status = 'break' if is_break else ('booked' if is_booked else 'available')
                     
                     all_slots.append({
                         'time': time_str,
-                        'available': is_available
+                        'available': is_available,
+                        'status': status
                     })
                     
                     if is_available:
