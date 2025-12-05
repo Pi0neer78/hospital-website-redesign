@@ -6,6 +6,7 @@
       "body": {
         "name": "Алексей Козлов",
         "email": "kozlov@example.com",
+        "phone": "+7-999-123-45-67",
         "message": "Долгое ожидание в очереди"
       },
       "expectedStatus": 201,

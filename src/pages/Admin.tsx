@@ -623,7 +623,7 @@ const Admin = () => {
         <tr>
           <td style="border: 1px solid #ddd; padding: 8px;">${date}</td>
           <td style="border: 1px solid #ddd; padding: 8px;">${complaint.name}</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${complaint.email}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${complaint.phone || '-'}</td>
           <td style="border: 1px solid #ddd; padding: 8px;">${complaint.message}</td>
         </tr>
       `;
@@ -655,7 +655,7 @@ const Admin = () => {
             <tr>
               <th>Дата</th>
               <th>ФИО</th>
-              <th>Email</th>
+              <th>Телефон</th>
               <th>Текст жалобы</th>
             </tr>
           </thead>
@@ -1575,6 +1575,10 @@ const Admin = () => {
                             <div className="flex items-center gap-2 mt-1">
                               <Icon name="Mail" size={14} />
                               {complaint.email}
+                            </div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Icon name="Phone" size={14} />
+                              {complaint.phone || 'Не указан'}
                             </div>
                             <div className="flex items-center gap-2 mt-1">
                               <Icon name="Calendar" size={14} />

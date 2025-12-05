@@ -41,9 +41,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body = json.loads(event.get('body', '{}'))
             name = body.get('name')
             email = body.get('email')
+            phone = body.get('phone')
             message = body.get('message')
             
-            if not all([name, email, message]):
+            if not all([name, email, phone, message]):
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -53,8 +54,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             cursor.execute(
-                "INSERT INTO complaints (name, email, message, status) VALUES (%s, %s, %s, %s) RETURNING id, created_at",
-                (name, email, message, 'new')
+                "INSERT INTO complaints (name, email, phone, message, status) VALUES (%s, %s, %s, %s, %s) RETURNING id, created_at",
+                (name, email, phone, message, 'new')
             )
             result = cursor.fetchone()
             conn.commit()

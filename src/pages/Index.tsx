@@ -30,7 +30,7 @@ const Index = () => {
     appointment_time: '',
     description: '' 
   });
-  const [complaintForm, setComplaintForm] = useState({ name: '', email: '', message: '' });
+  const [complaintForm, setComplaintForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
   const [maxTextIndex, setMaxTextIndex] = useState(0);
@@ -270,7 +270,7 @@ const Index = () => {
           title: "Жалоба отправлена",
           description: "Мы рассмотрим ваше обращение в ближайшее время.",
         });
-        setComplaintForm({ name: '', email: '', message: '' });
+        setComplaintForm({ name: '', email: '', phone: '', message: '' });
       } else {
         toast({
           title: "Ошибка",
@@ -953,6 +953,13 @@ const Index = () => {
                     type="email"
                     value={complaintForm.email}
                     onChange={(e) => setComplaintForm({ ...complaintForm, email: e.target.value })}
+                    required
+                  />
+                  <Input
+                    placeholder="Номер телефона"
+                    type="tel"
+                    value={complaintForm.phone}
+                    onChange={(e) => setComplaintForm({ ...complaintForm, phone: e.target.value })}
                     required
                   />
                   <Textarea
