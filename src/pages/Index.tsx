@@ -316,30 +316,29 @@ const Index = () => {
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
             Прием граждан по личным вопросам осуществляется руководством и специалистами больницы
           </p>
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
                   <Icon name="UserCheck" size={32} className="text-white" />
                 </div>
-                <CardTitle>Главный врач</CardTitle>
-                <CardDescription className="text-base font-medium">Высшая квалификационная категория</CardDescription>
+                <CardTitle className="text-lg">Бровкин Е.В.</CardTitle>
+                <CardDescription className="text-base font-medium">Главный врач</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
                   <Icon name="Calendar" size={20} className="text-primary mt-1" />
                   <div>
-                    <p className="font-semibold">Понедельник, Среда, Пятница</p>
-                    <p className="text-sm text-muted-foreground">14:00 - 17:00</p>
+                    <p className="font-semibold text-sm">Понедельник</p>
+                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Icon name="MapPin" size={20} className="text-primary mt-1" />
-                  <p className="text-sm">Кабинет № 201, 2 этаж, административный корпус</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="Phone" size={20} className="text-primary mt-1" />
-                  <p className="text-sm">Запись по телефону: +7 (XXX) XXX-XX-XX</p>
+                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold text-sm">Среда</p>
+                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -349,24 +348,49 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
                   <Icon name="Briefcase" size={32} className="text-white" />
                 </div>
-                <CardTitle>Заместитель главного врача</CardTitle>
-                <CardDescription className="text-base font-medium">По медицинской части</CardDescription>
+                <CardTitle className="text-lg">Суялкин О.П.</CardTitle>
+                <CardDescription className="text-base font-medium">Зам. главного врача по медицинской части</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
                   <Icon name="Calendar" size={20} className="text-primary mt-1" />
                   <div>
-                    <p className="font-semibold">Вторник, Четверг</p>
-                    <p className="text-sm text-muted-foreground">14:00 - 17:00</p>
+                    <p className="font-semibold text-sm">Вторник</p>
+                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Icon name="MapPin" size={20} className="text-primary mt-1" />
-                  <p className="text-sm">Кабинет № 203, 2 этаж, административный корпус</p>
+                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold text-sm">Четверг</p>
+                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
+                  <Icon name="ClipboardCheck" size={32} className="text-white" />
+                </div>
+                <CardTitle className="text-lg">Авдеева А.В.</CardTitle>
+                <CardDescription className="text-base font-medium">Зам. главного врача по экспертизе ВН</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold text-sm">Среда</p>
+                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                  </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Icon name="Phone" size={20} className="text-primary mt-1" />
-                  <p className="text-sm">Запись по телефону: +7 (XXX) XXX-XX-XX</p>
+                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold text-sm">Пятница</p>
+                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -376,24 +400,23 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
                   <Icon name="Stethoscope" size={32} className="text-white" />
                 </div>
-                <CardTitle>Заведующие отделениями</CardTitle>
-                <CardDescription className="text-base font-medium">По профилю отделения</CardDescription>
+                <CardTitle className="text-lg">Чумак А.А.</CardTitle>
+                <CardDescription className="text-base font-medium">Зам. главного врача по мед. обслуживанию</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
                   <Icon name="Calendar" size={20} className="text-primary mt-1" />
                   <div>
-                    <p className="font-semibold">Понедельник - Пятница</p>
-                    <p className="text-sm text-muted-foreground">13:00 - 15:00</p>
+                    <p className="font-semibold text-sm">Четверг</p>
+                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Icon name="MapPin" size={20} className="text-primary mt-1" />
-                  <p className="text-sm">По месту нахождения отделения</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="Info" size={20} className="text-primary mt-1" />
-                  <p className="text-sm">Предварительная запись через регистратуру</p>
+                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold text-sm">Пятница</p>
+                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -401,26 +424,32 @@ const Index = () => {
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
-                  <Icon name="FileText" size={32} className="text-white" />
+                  <Icon name="HeartPulse" size={32} className="text-white" />
                 </div>
-                <CardTitle>Юридическая служба</CardTitle>
-                <CardDescription className="text-base font-medium">Консультации по правовым вопросам</CardDescription>
+                <CardTitle className="text-lg">Станкевич Л.К.</CardTitle>
+                <CardDescription className="text-base font-medium">Главная медицинская сестра</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
                   <Icon name="Calendar" size={20} className="text-primary mt-1" />
                   <div>
-                    <p className="font-semibold">Вторник, Четверг</p>
-                    <p className="text-sm text-muted-foreground">10:00 - 13:00</p>
+                    <p className="font-semibold text-sm">Вторник</p>
+                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Icon name="MapPin" size={20} className="text-primary mt-1" />
-                  <p className="text-sm">Кабинет № 105, 1 этаж</p>
+                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold text-sm">Четверг</p>
+                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                  </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Icon name="Phone" size={20} className="text-primary mt-1" />
-                  <p className="text-sm">Запись по телефону: +7 (XXX) XXX-XX-XX</p>
+                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold text-sm">Пятница</p>
+                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
