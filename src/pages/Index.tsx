@@ -55,7 +55,7 @@ const Index = () => {
     
     try {
       const response = await fetch(
-        `${BACKEND_URLS.appointments}/available-slots?doctor_id=${selectedDoctor.id}&date=${selectedDate}`
+        `${BACKEND_URLS.appointments}?action=available-slots&doctor_id=${selectedDoctor.id}&date=${selectedDate}`
       );
       const data = await response.json();
       setAvailableSlots(data.available_slots || []);

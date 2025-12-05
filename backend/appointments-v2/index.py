@@ -46,7 +46,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             query_params = event.get('queryStringParameters') or {}
             path = event.get('path', '/')
             
-            if '/available-slots' in path:
+            # Check for available-slots endpoint via query param or path
+            if '/available-slots' in path or query_params.get('action') == 'available-slots':
                 doctor_id = query_params.get('doctor_id')
                 date_str = query_params.get('date')
                 
