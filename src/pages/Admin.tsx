@@ -14,6 +14,7 @@ const API_URLS = {
   faq: 'https://functions.poehali.dev/fb5160e8-f170-4c21-97a9-3afbcb6f78a9',
   userQuestions: 'https://functions.poehali.dev/816ff0e8-3dcc-4eeb-a985-36603a12894c',
   forumModeration: 'https://functions.poehali.dev/70286923-439c-45b7-9744-403f0827a0c1',
+  complaints: 'https://functions.poehali.dev/a6c04c63-0223-4bcc-b146-24acdef33536',
 };
 
 const Admin = () => {
@@ -51,6 +52,9 @@ const Admin = () => {
   const [forumTopics, setForumTopics] = useState([]);
   const [blockReason, setBlockReason] = useState('');
   const [hideReason, setHideReason] = useState('');
+  const [complaints, setComplaints] = useState([]);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   useEffect(() => {
     const auth = localStorage.getItem('admin_auth');
@@ -61,6 +65,7 @@ const Admin = () => {
       loadUserQuestions();
       loadForumUsers();
       loadForumTopics();
+      loadComplaints();
     }
   }, []);
 
@@ -473,6 +478,16 @@ const Admin = () => {
     }
   };
 
+  const loadComplaints = async () => {
+    try {
+      const response = await fetch(API_URLS.complaints);
+      const data = await response.json();
+      setComplaints(data.complaints || []);
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Не удалось загрузить жалобы", variant: "destructive" });
+    }
+  };
+
   const loadForumUsers = async () => {
     try {
       const response = await fetch(`${API_URLS.forumModeration}?action=getUsers`, {
@@ -582,6 +597,81 @@ const Admin = () => {
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
     }
+  };
+
+  const getFilteredComplaints = () => {
+    return complaints.filter(complaint => {
+      const complaintDate = new Date(complaint.created_at);
+      const from = dateFrom ? new Date(dateFrom) : null;
+      const to = dateTo ? new Date(dateTo + 'T23:59:59') : null;
+      
+      if (from && complaintDate < from) return false;
+      if (to && complaintDate > to) return false;
+      return true;
+    });
+  };
+
+  const handlePrintComplaints = () => {
+    const filteredComplaints = getFilteredComplaints();
+    
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    
+    const tableRows = filteredComplaints.map(complaint => {
+      const date = new Date(complaint.created_at).toLocaleString('ru-RU');
+      return `
+        <tr>
+          <td style="border: 1px solid #ddd; padding: 8px;">${date}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${complaint.name}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${complaint.email}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${complaint.message}</td>
+        </tr>
+      `;
+    }).join('');
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Книга жалоб</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { text-align: center; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th { background-color: #f2f2f2; border: 1px solid #ddd; padding: 8px; text-align: left; }
+          td { border: 1px solid #ddd; padding: 8px; }
+          @media print {
+            body { padding: 0; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Книга жалоб и предложений</h1>
+        <p>ГБУЗ Антрацитовская центральная городская многопрофильная больница</p>
+        ${dateFrom || dateTo ? `<p>Период: ${dateFrom || 'начало'} - ${dateTo || 'сегодня'}</p>` : ''}
+        <table>
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>ФИО</th>
+              <th>Email</th>
+              <th>Текст жалобы</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `;
+    
+    printWindow.document.write(html);
+    printWindow.document.close();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
   };
 
   const handleToggleTopicLock = async (topicId: number, lock: boolean) => {
@@ -695,7 +785,7 @@ const Admin = () => {
       <section className="py-12">
         <div className="container mx-auto px-4">
           <Tabs defaultValue="doctors" className="w-full">
-            <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4 mb-8">
+            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-5 mb-8">
               <TabsTrigger value="doctors">Врачи</TabsTrigger>
               <TabsTrigger value="faq">FAQ</TabsTrigger>
               <TabsTrigger value="questions" className="relative">
@@ -707,6 +797,7 @@ const Admin = () => {
                 )}
               </TabsTrigger>
               <TabsTrigger value="forum">Форум</TabsTrigger>
+              <TabsTrigger value="complaints">Жалобы</TabsTrigger>
             </TabsList>
 
             <TabsContent value="doctors">
@@ -1415,6 +1506,105 @@ const Admin = () => {
                 </div>
               )}
             </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="complaints">
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-bold">Книга жалоб и предложений</h2>
+              <Button onClick={handlePrintComplaints}>
+                <Icon name="Printer" size={20} className="mr-2" />
+                Печать отчета
+              </Button>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Фильтр по датам</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">С даты</label>
+                    <Input
+                      type="date"
+                      value={dateFrom}
+                      onChange={(e) => setDateFrom(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">По дату</label>
+                    <Input
+                      type="date"
+                      value={dateTo}
+                      onChange={(e) => setDateTo(e.target.value)}
+                    />
+                  </div>
+                </div>
+                {(dateFrom || dateTo) && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-4"
+                    onClick={() => { setDateFrom(''); setDateTo(''); }}
+                  >
+                    <Icon name="X" size={16} className="mr-2" />
+                    Сбросить фильтр
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+
+            <div className="space-y-4">
+              {getFilteredComplaints().length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center text-muted-foreground">
+                    <Icon name="MessageSquare" size={48} className="mx-auto mb-4 opacity-30" />
+                    <p>Жалобы не найдены</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                getFilteredComplaints().map((complaint: any) => (
+                  <Card key={complaint.id}>
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">{complaint.name}</CardTitle>
+                          <CardDescription>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Icon name="Mail" size={14} />
+                              {complaint.email}
+                            </div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Icon name="Calendar" size={14} />
+                              {new Date(complaint.created_at).toLocaleString('ru-RU')}
+                            </div>
+                          </CardDescription>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          complaint.status === 'new' ? 'bg-blue-100 text-blue-700' :
+                          complaint.status === 'processed' ? 'bg-green-100 text-green-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {complaint.status === 'new' ? 'Новая' :
+                           complaint.status === 'processed' ? 'Обработана' : complaint.status}
+                        </span>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm whitespace-pre-wrap">{complaint.message}</p>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+
+            {getFilteredComplaints().length > 0 && (
+              <div className="text-center text-sm text-muted-foreground">
+                Всего жалоб: {getFilteredComplaints().length}
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>
