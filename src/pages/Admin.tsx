@@ -13,6 +13,7 @@ const API_URLS = {
   doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
   faq: 'https://functions.poehali.dev/fb5160e8-f170-4c21-97a9-3afbcb6f78a9',
   userQuestions: 'https://functions.poehali.dev/816ff0e8-3dcc-4eeb-a985-36603a12894c',
+  forumModeration: 'https://functions.poehali.dev/70286923-439c-45b7-9744-403f0827a0c1',
 };
 
 const Admin = () => {
@@ -46,6 +47,10 @@ const Admin = () => {
   const [isFaqEditOpen, setIsFaqEditOpen] = useState(false);
   const [userQuestions, setUserQuestions] = useState([]);
   const [newQuestionsCount, setNewQuestionsCount] = useState(0);
+  const [forumUsers, setForumUsers] = useState([]);
+  const [forumTopics, setForumTopics] = useState([]);
+  const [blockReason, setBlockReason] = useState('');
+  const [hideReason, setHideReason] = useState('');
 
   useEffect(() => {
     const auth = localStorage.getItem('admin_auth');
@@ -54,6 +59,8 @@ const Admin = () => {
       loadDoctors();
       loadFaqs();
       loadUserQuestions();
+      loadForumUsers();
+      loadForumTopics();
     }
   }, []);
 
@@ -466,6 +473,169 @@ const Admin = () => {
     }
   };
 
+  const loadForumUsers = async () => {
+    try {
+      const response = await fetch(`${API_URLS.forumModeration}/users`, {
+        headers: { 'X-Admin-Token': 'admin123' },
+      });
+      const data = await response.json();
+      setForumUsers(data.users || []);
+    } catch (error) {
+      console.error('Failed to load forum users:', error);
+    }
+  };
+
+  const loadForumTopics = async () => {
+    try {
+      const response = await fetch(`${API_URLS.forumModeration}/topics`, {
+        headers: { 'X-Admin-Token': 'admin123' },
+      });
+      const data = await response.json();
+      setForumTopics(data.topics || []);
+    } catch (error) {
+      console.error('Failed to load forum topics:', error);
+    }
+  };
+
+  const handleBlockUser = async (userId: number, reason: string) => {
+    if (!reason.trim()) {
+      toast({ title: "Ошибка", description: "Укажите причину блокировки", variant: "destructive" });
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${API_URLS.forumModeration}/users/block`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Token': 'admin123',
+        },
+        body: JSON.stringify({ user_id: userId, reason }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast({ title: "Успешно", description: data.message || "Пользователь заблокирован" });
+        loadForumUsers();
+        setBlockReason('');
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось заблокировать", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const handleUnblockUser = async (userId: number) => {
+    try {
+      const response = await fetch(`${API_URLS.forumModeration}/users/unblock`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Token': 'admin123',
+        },
+        body: JSON.stringify({ user_id: userId }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast({ title: "Успешно", description: data.message || "Пользователь разблокирован" });
+        loadForumUsers();
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось разблокировать", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const handleToggleTopicVisibility = async (topicId: number, hide: boolean) => {
+    const action = hide ? 'hide' : 'show';
+    const reason = hide ? hideReason : '';
+    
+    if (hide && !reason.trim()) {
+      toast({ title: "Ошибка", description: "Укажите причину скрытия", variant: "destructive" });
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${API_URLS.forumModeration}/topics/${action}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Token': 'admin123',
+        },
+        body: JSON.stringify({ topic_id: topicId, reason }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast({ title: "Успешно", description: data.message || `Тема ${hide ? 'скрыта' : 'показана'}` });
+        loadForumTopics();
+        setHideReason('');
+      } else {
+        toast({ title: "Ошибка", description: data.error, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const handleToggleTopicLock = async (topicId: number, lock: boolean) => {
+    const action = lock ? 'lock' : 'unlock';
+    
+    try {
+      const response = await fetch(`${API_URLS.forumModeration}/topics/${action}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Token': 'admin123',
+        },
+        body: JSON.stringify({ topic_id: topicId }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast({ title: "Успешно", description: data.message || `Тема ${lock ? 'заблокирована' : 'разблокирована'}` });
+        loadForumTopics();
+      } else {
+        toast({ title: "Ошибка", description: data.error, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const handleToggleTopicPin = async (topicId: number, pin: boolean) => {
+    const action = pin ? 'pin' : 'unpin';
+    
+    try {
+      const response = await fetch(`${API_URLS.forumModeration}/topics/${action}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Token': 'admin123',
+        },
+        body: JSON.stringify({ topic_id: topicId }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast({ title: "Успешно", description: data.message || `Тема ${pin ? 'закреплена' : 'откреплена'}` });
+        loadForumTopics();
+      } else {
+        toast({ title: "Ошибка", description: data.error, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex items-center justify-center p-4">
@@ -525,7 +695,7 @@ const Admin = () => {
       <section className="py-12">
         <div className="container mx-auto px-4">
           <Tabs defaultValue="doctors" className="w-full">
-            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-8">
+            <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4 mb-8">
               <TabsTrigger value="doctors">Врачи</TabsTrigger>
               <TabsTrigger value="faq">FAQ</TabsTrigger>
               <TabsTrigger value="questions" className="relative">
@@ -536,6 +706,7 @@ const Admin = () => {
                   </span>
                 )}
               </TabsTrigger>
+              <TabsTrigger value="forum">Форум</TabsTrigger>
             </TabsList>
 
             <TabsContent value="doctors">
@@ -1054,6 +1225,197 @@ const Admin = () => {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="forum">
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-3xl font-bold mb-6">Пользователи форума</h2>
+              {forumUsers.length === 0 ? (
+                <Card>
+                  <CardContent className="py-8 text-center text-muted-foreground">
+                    Нет зарегистрированных пользователей
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-4">
+                  {forumUsers.map((user: any) => (
+                    <Card key={user.id}>
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <CardTitle className="text-lg">{user.username}</CardTitle>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                            <div className="flex gap-2 text-xs text-muted-foreground">
+                              <span>Тем: {user.topics_count || 0}</span>
+                              <span>•</span>
+                              <span>Сообщений: {user.posts_count || 0}</span>
+                              <span>•</span>
+                              <span>Регистрация: {new Date(user.created_at).toLocaleDateString('ru-RU')}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            {user.is_blocked ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleUnblockUser(user.id)}
+                              >
+                                <Icon name="Unlock" size={14} className="mr-1" />
+                                Разблокировать
+                              </Button>
+                            ) : (
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="destructive" size="sm">
+                                    <Icon name="Ban" size={14} className="mr-1" />
+                                    Заблокировать
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Блокировка пользователя {user.username}</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="space-y-4">
+                                    <Textarea
+                                      placeholder="Причина блокировки"
+                                      value={blockReason}
+                                      onChange={(e) => setBlockReason(e.target.value)}
+                                      rows={3}
+                                    />
+                                    <Button
+                                      onClick={() => handleBlockUser(user.id, blockReason)}
+                                      className="w-full"
+                                    >
+                                      Заблокировать
+                                    </Button>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </div>
+                        </div>
+                        {user.is_blocked && (
+                          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
+                            <p className="text-sm text-red-800">
+                              <strong>Заблокирован:</strong> {user.blocked_reason || 'Причина не указана'}
+                            </p>
+                            <p className="text-xs text-red-600 mt-1">
+                              {new Date(user.blocked_at).toLocaleString('ru-RU')}
+                            </p>
+                          </div>
+                        )}
+                      </CardHeader>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <h2 className="text-3xl font-bold mb-6">Темы форума</h2>
+              {forumTopics.length === 0 ? (
+                <Card>
+                  <CardContent className="py-8 text-center text-muted-foreground">
+                    Нет созданных тем
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-4">
+                  {forumTopics.map((topic: any) => (
+                    <Card key={topic.id}>
+                      <CardHeader>
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center gap-2">
+                              <CardTitle className="text-lg">{topic.title}</CardTitle>
+                              {topic.is_pinned && (
+                                <Icon name="Pin" size={16} className="text-primary" />
+                              )}
+                              {topic.is_locked && (
+                                <Icon name="Lock" size={16} className="text-yellow-600" />
+                              )}
+                              {topic.is_hidden && (
+                                <Icon name="EyeOff" size={16} className="text-red-600" />
+                              )}
+                            </div>
+                            {topic.description && (
+                              <p className="text-sm text-muted-foreground">{topic.description}</p>
+                            )}
+                            <div className="flex gap-3 text-xs text-muted-foreground">
+                              <span>Автор: {topic.author_username || 'Удален'}</span>
+                              <span>•</span>
+                              <span>Просмотров: {topic.views_count || 0}</span>
+                              <span>•</span>
+                              <span>Сообщений: {topic.posts_count || 0}</span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex gap-2">
+                              <Button
+                                variant={topic.is_pinned ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => handleToggleTopicPin(topic.id, !topic.is_pinned)}
+                              >
+                                <Icon name="Pin" size={14} className="mr-1" />
+                                {topic.is_pinned ? 'Открепить' : 'Закрепить'}
+                              </Button>
+                              <Button
+                                variant={topic.is_locked ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => handleToggleTopicLock(topic.id, !topic.is_locked)}
+                              >
+                                <Icon name={topic.is_locked ? "Unlock" : "Lock"} size={14} className="mr-1" />
+                                {topic.is_locked ? 'Разблокировать' : 'Заблокировать'}
+                              </Button>
+                            </div>
+                            {topic.is_hidden ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleToggleTopicVisibility(topic.id, false)}
+                              >
+                                <Icon name="Eye" size={14} className="mr-1" />
+                                Показать
+                              </Button>
+                            ) : (
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="destructive" size="sm">
+                                    <Icon name="EyeOff" size={14} className="mr-1" />
+                                    Скрыть
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Скрыть тему</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="space-y-4">
+                                    <Textarea
+                                      placeholder="Причина скрытия"
+                                      value={hideReason}
+                                      onChange={(e) => setHideReason(e.target.value)}
+                                      rows={3}
+                                    />
+                                    <Button
+                                      onClick={() => handleToggleTopicVisibility(topic.id, true)}
+                                      className="w-full"
+                                    >
+                                      Скрыть тему
+                                    </Button>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </div>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
         </div>
