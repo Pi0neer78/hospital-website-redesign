@@ -7,7 +7,7 @@ from typing import Dict, Any
 def get_user_from_token(conn, token: str):
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     cursor.execute(
-        "SELECT id, username, is_blocked FROM forum_users WHERE verification_code = %s AND is_verified = TRUE",
+        "SELECT id, username, is_blocked FROM forum_users WHERE auth_token = %s AND is_verified = TRUE",
         (token,)
     )
     user = cursor.fetchone()

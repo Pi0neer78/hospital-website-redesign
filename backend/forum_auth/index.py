@@ -131,7 +131,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 user_token = secrets.token_urlsafe(32)
                 
                 cursor.execute(
-                    "UPDATE forum_users SET is_verified = TRUE, verification_code = %s, last_login = CURRENT_TIMESTAMP WHERE id = %s",
+                    "UPDATE forum_users SET is_verified = TRUE, auth_token = %s, last_login = CURRENT_TIMESTAMP WHERE id = %s",
                     (user_token, user_id)
                 )
                 conn.commit()
@@ -200,7 +200,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 user_token = secrets.token_urlsafe(32)
                 cursor.execute(
-                    "UPDATE forum_users SET verification_code = %s, last_login = CURRENT_TIMESTAMP WHERE id = %s",
+                    "UPDATE forum_users SET auth_token = %s, last_login = CURRENT_TIMESTAMP WHERE id = %s",
                     (user_token, user['id'])
                 )
                 conn.commit()
@@ -233,7 +233,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
-                cursor.execute("SELECT id, username, email, is_blocked FROM forum_users WHERE verification_code = %s AND is_verified = TRUE", (token,))
+                cursor.execute("SELECT id, username, email, is_blocked FROM forum_users WHERE auth_token = %s AND is_verified = TRUE", (token,))
                 user = cursor.fetchone()
                 cursor.close()
                 
