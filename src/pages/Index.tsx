@@ -176,6 +176,28 @@ const Index = () => {
                 </form>
               </DialogContent>
             </Dialog>
+
+            <Button 
+              size="lg" 
+              className="gap-2 shadow-lg hover:shadow-xl transition-shadow bg-red-600 hover:bg-red-700"
+              asChild
+            >
+              <a href="#complaints">
+                <Icon name="MessageSquare" size={20} />
+                Книга жалоб
+              </a>
+            </Button>
+
+            <Button 
+              size="lg" 
+              className="gap-2 shadow-lg hover:shadow-xl transition-shadow bg-green-600 hover:bg-green-700"
+              asChild
+            >
+              <a href="#forum">
+                <Icon name="Users" size={20} />
+                Больничный форум
+              </a>
+            </Button>
           </div>
         </div>
       </section>
