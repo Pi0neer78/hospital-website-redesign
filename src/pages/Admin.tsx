@@ -128,8 +128,28 @@ const Admin = () => {
     }
   };
 
+  const handleToggleStatus = async (id: number, newStatus: boolean) => {
+    try {
+      const response = await fetch(API_URLS.doctors, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, is_active: newStatus }),
+      });
+      
+      if (response.ok) {
+        const statusText = newStatus ? 'активирован' : 'деактивирован';
+        toast({ title: "Успешно", description: `Врач ${statusText}` });
+        loadDoctors();
+      } else {
+        toast({ title: "Ошибка", description: "Не удалось изменить статус", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
   const handleDeleteDoctor = async (id: number) => {
-    if (!confirm('Вы уверены, что хотите деактивировать этого врача?')) return;
+    if (!confirm('Вы уверены, что хотите удалить этого врача? Это действие необратимо.')) return;
     
     try {
       const response = await fetch(`${API_URLS.doctors}?id=${id}`, {
@@ -137,11 +157,11 @@ const Admin = () => {
       });
       
       if (response.ok) {
-        toast({ title: "Успешно", description: "Врач деактивирован" });
+        toast({ title: "Успешно", description: "Врач удален" });
         loadDoctors();
       }
     } catch (error) {
-      toast({ title: "Ошибка", description: "Не удалось деактивировать врача", variant: "destructive" });
+      toast({ title: "Ошибка", description: "Не удалось удалить врача", variant: "destructive" });
     }
   };
 
@@ -548,29 +568,47 @@ const Admin = () => {
                   {doctor.specialization && <p className="text-sm"><strong>Специализация:</strong> {doctor.specialization}</p>}
                   {doctor.phone && <p className="text-sm"><strong>Телефон:</strong> {doctor.phone}</p>}
                   <p className="text-sm"><strong>Логин:</strong> {doctor.login}</p>
-                  <p className="text-sm"><strong>Статус:</strong> {doctor.is_active ? 'Активен' : 'Деактивирован'}</p>
-                  {doctor.is_active && (
-                    <div className="flex gap-2 mt-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => openEditDialog(doctor)}
-                        className="flex-1"
-                      >
-                        <Icon name="Edit" size={14} className="mr-1" />
-                        Изменить
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        size="sm" 
-                        onClick={() => handleDeleteDoctor(doctor.id)}
-                        className="flex-1"
-                      >
-                        <Icon name="Trash2" size={14} className="mr-1" />
-                        Удалить
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-between mt-3 p-3 bg-muted/30 rounded">
+                    <span className="text-sm font-medium">Статус:</span>
+                    <button
+                      onClick={() => handleToggleStatus(doctor.id, !doctor.is_active)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        doctor.is_active ? 'bg-primary' : 'bg-gray-300'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          doctor.is_active ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                    <span className={`text-xs font-semibold px-2 py-1 rounded ${
+                      doctor.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {doctor.is_active ? 'Активен' : 'Неактивен'}
+                    </span>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => openEditDialog(doctor)}
+                      className="flex-1"
+                    >
+                      <Icon name="Edit" size={14} className="mr-1" />
+                      Изменить
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      onClick={() => handleDeleteDoctor(doctor.id)}
+                      className="flex-1"
+                      disabled={!doctor.is_active}
+                    >
+                      <Icon name="Trash2" size={14} className="mr-1" />
+                      Удалить
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
