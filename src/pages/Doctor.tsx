@@ -33,6 +33,9 @@ const Doctor = () => {
   const [editingSchedule, setEditingSchedule] = useState<any>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [copyFromSchedule, setCopyFromSchedule] = useState<any>(null);
+  const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
+  const [selectedDaysToCopy, setSelectedDaysToCopy] = useState<number[]>([]);
 
   useEffect(() => {
     const auth = localStorage.getItem('doctor_auth');
@@ -227,6 +230,60 @@ const Doctor = () => {
     setDoctorInfo(null);
   };
 
+  const handleCopySchedule = (schedule: any) => {
+    setCopyFromSchedule(schedule);
+    setSelectedDaysToCopy([]);
+    setIsCopyDialogOpen(true);
+  };
+
+  const handleApplyCopy = async () => {
+    if (!copyFromSchedule || selectedDaysToCopy.length === 0) {
+      toast({ title: "Ошибка", description: "Выберите дни для копирования", variant: "destructive" });
+      return;
+    }
+
+    try {
+      let successCount = 0;
+      for (const dayOfWeek of selectedDaysToCopy) {
+        const response = await fetch(API_URLS.schedules, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            doctor_id: doctorInfo.id,
+            day_of_week: dayOfWeek,
+            start_time: copyFromSchedule.start_time,
+            end_time: copyFromSchedule.end_time,
+            break_start_time: copyFromSchedule.break_start_time || null,
+            break_end_time: copyFromSchedule.break_end_time || null
+          }),
+        });
+        
+        if (response.ok) {
+          successCount++;
+        }
+      }
+      
+      toast({ 
+        title: "Успешно", 
+        description: `Расписание скопировано на ${successCount} ${successCount === 1 ? 'день' : 'дней'}` 
+      });
+      setIsCopyDialogOpen(false);
+      setCopyFromSchedule(null);
+      setSelectedDaysToCopy([]);
+      loadSchedules(doctorInfo.id);
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const toggleDaySelection = (dayOfWeek: number) => {
+    setSelectedDaysToCopy(prev => 
+      prev.includes(dayOfWeek) 
+        ? prev.filter(d => d !== dayOfWeek)
+        : [...prev, dayOfWeek]
+    );
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex items-center justify-center p-4">
@@ -319,7 +376,7 @@ const Doctor = () => {
                       <p className="text-sm text-blue-900 font-medium mb-2">✨ Гибкое расписание для каждого дня недели</p>
                       <p className="text-sm text-blue-700 mb-3">
                         Настраивайте индивидуальное время работы и перерывы для каждого дня. 
-                        Например: понедельник 8:00-17:00 с перерывом 12:00-13:00, а суббота 9:00-14:00 без перерыва.
+                        Используйте кнопку "Копировать" для быстрого переноса расписания на другие дни недели.
                       </p>
                       <div className="flex flex-wrap gap-2 text-xs">
                         <span className="px-2 py-1 bg-white/60 rounded-md text-blue-800">
@@ -330,9 +387,9 @@ const Doctor = () => {
                           <Icon name="Coffee" size={12} className="inline mr-1" />
                           Индивидуальные перерывы
                         </span>
-                        <span className="px-2 py-1 bg-white/60 rounded-md text-green-800">
-                          <Icon name="CheckCircle" size={12} className="inline mr-1" />
-                          Полный контроль
+                        <span className="px-2 py-1 bg-white/60 rounded-md text-purple-800">
+                          <Icon name="Copy" size={12} className="inline mr-1" />
+                          Быстрое копирование
                         </span>
                       </div>
                     </div>
@@ -473,6 +530,100 @@ const Doctor = () => {
                 </DialogContent>
               </Dialog>
 
+              <Dialog open={isCopyDialogOpen} onOpenChange={setIsCopyDialogOpen}>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Копировать расписание</DialogTitle>
+                    <DialogDescription>
+                      Выберите дни, на которые хотите скопировать это расписание
+                    </DialogDescription>
+                  </DialogHeader>
+                  {copyFromSchedule && (
+                    <div className="space-y-4">
+                      <Card className="bg-blue-50 border-blue-200">
+                        <CardContent className="pt-4 space-y-2">
+                          <p className="text-sm font-medium text-blue-900">
+                            Копируется: {DAYS_OF_WEEK[copyFromSchedule.day_of_week]}
+                          </p>
+                          <p className="text-sm text-blue-700">
+                            <Icon name="Clock" size={14} className="inline mr-1" />
+                            {copyFromSchedule.start_time.slice(0, 5)} - {copyFromSchedule.end_time.slice(0, 5)}
+                          </p>
+                          {copyFromSchedule.break_start_time && copyFromSchedule.break_end_time && (
+                            <p className="text-sm text-orange-700">
+                              <Icon name="Coffee" size={14} className="inline mr-1" />
+                              Перерыв: {copyFromSchedule.break_start_time.slice(0, 5)} - {copyFromSchedule.break_end_time.slice(0, 5)}
+                            </p>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Выберите дни недели:</p>
+                        <div className="grid grid-cols-1 gap-2">
+                          {DAYS_OF_WEEK.map((day, index) => {
+                            const hasSchedule = schedules.some(s => s.day_of_week === index);
+                            const isCurrentDay = index === copyFromSchedule.day_of_week;
+                            
+                            return (
+                              <label
+                                key={index}
+                                className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                                  isCurrentDay 
+                                    ? 'opacity-50 cursor-not-allowed bg-gray-50' 
+                                    : selectedDaysToCopy.includes(index)
+                                    ? 'bg-primary/10 border-primary'
+                                    : 'hover:bg-gray-50'
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selectedDaysToCopy.includes(index)}
+                                  onChange={() => toggleDaySelection(index)}
+                                  disabled={isCurrentDay}
+                                  className="w-4 h-4"
+                                />
+                                <div className="flex-1">
+                                  <span className="font-medium">{day}</span>
+                                  {hasSchedule && !isCurrentDay && (
+                                    <span className="ml-2 text-xs text-orange-600">
+                                      (будет перезаписан)
+                                    </span>
+                                  )}
+                                  {isCurrentDay && (
+                                    <span className="ml-2 text-xs text-gray-500">
+                                      (текущий день)
+                                    </span>
+                                  )}
+                                </div>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          className="flex-1"
+                          onClick={() => setIsCopyDialogOpen(false)}
+                        >
+                          Отмена
+                        </Button>
+                        <Button 
+                          className="flex-1"
+                          onClick={handleApplyCopy}
+                          disabled={selectedDaysToCopy.length === 0}
+                        >
+                          <Icon name="Copy" size={16} className="mr-2" />
+                          Копировать на {selectedDaysToCopy.length} {selectedDaysToCopy.length === 1 ? 'день' : 'дней'}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
+
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {schedules.length === 0 ? (
                   <Card className="col-span-full">
@@ -534,6 +685,14 @@ const Doctor = () => {
                           >
                             <Icon name="Edit" size={16} className="mr-1" />
                             Изменить
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="secondary"
+                            onClick={() => handleCopySchedule(schedule)}
+                          >
+                            <Icon name="Copy" size={16} className="mr-1" />
+                            Копировать
                           </Button>
                           <Button 
                             size="sm" 
