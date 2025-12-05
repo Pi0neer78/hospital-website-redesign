@@ -107,9 +107,7 @@ const Doctor = () => {
       
       console.log('📋 Загружено записей:', newAppointments.length, 'checkForNew:', checkForNew, 'lastIds.size:', lastAppointmentIds.size);
       
-      setAppointments(newAppointments);
-      setLastCheckTime(new Date());
-      
+      // Проверяем новые записи ДО обновления состояния
       if (checkForNew && lastAppointmentIds.size > 0) {
         const currentIds = Array.from(lastAppointmentIds);
         const newIds = newAppointments.map((a: any) => a.id);
@@ -150,7 +148,13 @@ const Doctor = () => {
         }
       }
       
+      // Обновляем состояние ПОСЛЕ проверки
+      setAppointments(newAppointments);
+      setLastCheckTime(new Date());
+      
+      // Всегда обновляем список ID в конце
       const newIds = new Set(newAppointments.map((a: any) => a.id));
+      console.log('💾 Сохранено ID записей:', newIds.size);
       setLastAppointmentIds(newIds);
     } catch (error) {
       console.error('Ошибка загрузки записей:', error);
