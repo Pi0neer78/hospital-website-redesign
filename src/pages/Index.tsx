@@ -1191,6 +1191,44 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-center gap-2 animate-bounce-slow pointer-events-none">
+        <div className="text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border-2 border-green-500">
+          <p className="text-green-700 font-bold text-sm whitespace-nowrap">С Новым Годом! 🎉</p>
+        </div>
+        <div className="text-6xl animate-swing">
+          🎄
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes bounce-slow {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+        
+        @keyframes swing {
+          0%, 100% {
+            transform: rotate(-5deg);
+          }
+          50% {
+            transform: rotate(5deg);
+          }
+        }
+        
+        .animate-bounce-slow {
+          animation: bounce-slow 3s ease-in-out infinite;
+        }
+        
+        .animate-swing {
+          animation: swing 2s ease-in-out infinite;
+          transform-origin: top center;
+        }
+      `}</style>
     </div>
   );
 };
