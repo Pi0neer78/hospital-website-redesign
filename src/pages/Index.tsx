@@ -992,12 +992,6 @@ const Index = () => {
                     Часто задаваемые вопросы
                   </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-3" asChild>
-                  <a href="#services">
-                    <Icon name="FileText" size={20} />
-                    Прайс-лист услуг
-                  </a>
-                </Button>
               </CardContent>
             </Card>
           </div>
