@@ -159,25 +159,46 @@ const Admin = () => {
     setIsUploading(true);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string;
+        
+        try {
+          const response = await fetch('https://api.poehali.dev/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              file: base64,
+              filename: file.name
+            }),
+          });
 
-      const response = await fetch('https://cdn.poehali.dev/upload', {
-        method: 'POST',
-        body: formData,
-      });
+          const data = await response.json();
 
-      const data = await response.json();
-
-      if (response.ok && data.url) {
-        setDoctorForm({ ...doctorForm, photo_url: data.url });
-        toast({ title: "Успешно", description: "Фото загружено" });
-      } else {
-        toast({ title: "Ошибка", description: "Не удалось загрузить файл", variant: "destructive" });
-      }
+          if (response.ok && data.url) {
+            setDoctorForm({ ...doctorForm, photo_url: data.url });
+            toast({ title: "Успешно", description: "Фото загружено" });
+          } else {
+            toast({ title: "Ошибка", description: "Не удалось загрузить файл", variant: "destructive" });
+          }
+        } catch (error) {
+          toast({ title: "Ошибка", description: "Проблема с загрузкой файла", variant: "destructive" });
+        } finally {
+          setIsUploading(false);
+        }
+      };
+      
+      reader.onerror = () => {
+        toast({ title: "Ошибка", description: "Не удалось прочитать файл", variant: "destructive" });
+        setIsUploading(false);
+      };
+      
+      reader.readAsDataURL(file);
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с загрузкой файла", variant: "destructive" });
-    } finally {
       setIsUploading(false);
     }
   };
