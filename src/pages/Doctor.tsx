@@ -36,6 +36,7 @@ const Doctor = () => {
   const [copyFromSchedule, setCopyFromSchedule] = useState<any>(null);
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
   const [selectedDaysToCopy, setSelectedDaysToCopy] = useState<number[]>([]);
+  const [lastAppointmentIds, setLastAppointmentIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const auth = localStorage.getItem('doctor_auth');
@@ -45,8 +46,14 @@ const Doctor = () => {
       setIsAuthenticated(true);
       loadSchedules(doctor.id);
       loadAppointments(doctor.id);
+      
+      const interval = setInterval(() => {
+        loadAppointments(doctor.id, true);
+      }, 15000);
+      
+      return () => clearInterval(interval);
     }
-  }, []);
+  }, [lastAppointmentIds]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,13 +92,48 @@ const Doctor = () => {
     }
   };
 
-  const loadAppointments = async (doctorId: number) => {
+  const loadAppointments = async (doctorId: number, checkForNew = false) => {
     try {
       const today = new Date().toISOString().split('T')[0];
       const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       const response = await fetch(`${API_URLS.appointments}?doctor_id=${doctorId}&start_date=${today}&end_date=${nextWeek}`);
       const data = await response.json();
-      setAppointments(data.appointments || []);
+      const newAppointments = data.appointments || [];
+      
+      if (checkForNew && lastAppointmentIds.size > 0) {
+        const newIds = new Set(newAppointments.map((a: any) => a.id));
+        const addedAppointments = newAppointments.filter((a: any) => !lastAppointmentIds.has(a.id));
+        
+        if (addedAppointments.length > 0) {
+          const latestAppointment = addedAppointments[0];
+          playNotificationSound();
+          
+          const appointmentDate = new Date(latestAppointment.appointment_date).toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            weekday: 'short'
+          });
+          const appointmentTime = latestAppointment.appointment_time.slice(0, 5);
+          const phoneNumber = latestAppointment.patient_phone || 'не указан';
+          
+          let description = `Пациент: ${latestAppointment.patient_name}\\nТелефон: ${phoneNumber}\\nДата: ${appointmentDate} в ${appointmentTime}`;
+          if (latestAppointment.description) {
+            description += `\\nОписание: ${latestAppointment.description}`;
+          }
+          
+          toast({
+            title: "🔔 Новая запись на прием!",
+            description: description,
+            duration: 10000,
+          });
+        }
+        
+        setLastAppointmentIds(newIds);
+      } else if (!checkForNew) {
+        setLastAppointmentIds(new Set(newAppointments.map((a: any) => a.id)));
+      }
+      
+      setAppointments(newAppointments);
     } catch (error) {
       toast({ title: "Ошибка", description: "Не удалось загрузить записи", variant: "destructive" });
     }
@@ -222,6 +264,24 @@ const Doctor = () => {
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
     }
+  };
+
+  const playNotificationSound = () => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
   };
 
   const handleLogout = () => {
@@ -711,6 +771,19 @@ const Doctor = () => {
             </TabsContent>
 
             <TabsContent value="appointments" className="mt-6">
+              <Card className="mb-6 bg-green-50 border-green-200">
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <Icon name="Bell" size={20} className="text-green-600" />
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    </div>
+                    <p className="text-sm text-green-900">
+                      <span className="font-medium">Автообновление активно:</span> новые записи появятся автоматически с уведомлением и звуковым сигналом
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h2 className="text-3xl font-bold">Записи пациентов</h2>
                 <div className="flex gap-2 flex-wrap">
