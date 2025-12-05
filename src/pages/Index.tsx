@@ -34,7 +34,7 @@ const Index = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
   const [maxTextIndex, setMaxTextIndex] = useState(0);
-  const [isMaxBannerVisible, setIsMaxBannerVisible] = useState(true);
+  const [isMaxBannerVisible, setIsMaxBannerVisible] = useState(false);
 
   const maxTexts = [
     'Максимум возможностей для жизни',
@@ -47,6 +47,14 @@ const Index = () => {
 
   useEffect(() => {
     loadDoctors();
+    
+    const bannerClosed = localStorage.getItem('maxBannerClosed');
+    if (!bannerClosed) {
+      const timer = setTimeout(() => {
+        setIsMaxBannerVisible(true);
+      }, 15000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   useEffect(() => {
@@ -332,6 +340,7 @@ const Index = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   setIsMaxBannerVisible(false);
+                  localStorage.setItem('maxBannerClosed', 'true');
                 }}
                 className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200/80 transition-colors text-gray-500 hover:text-gray-700"
                 aria-label="Закрыть баннер"

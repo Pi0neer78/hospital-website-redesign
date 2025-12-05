@@ -24,7 +24,7 @@ const Faq = () => {
   const [questionForm, setQuestionForm] = useState({ name: '', question: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [maxTextIndex, setMaxTextIndex] = useState(0);
-  const [isMaxBannerVisible, setIsMaxBannerVisible] = useState(true);
+  const [isMaxBannerVisible, setIsMaxBannerVisible] = useState(false);
 
   const maxTexts = [
     'Максимум возможностей для жизни',
@@ -37,6 +37,11 @@ const Faq = () => {
 
   useEffect(() => {
     loadFaqs();
+    
+    const bannerClosed = localStorage.getItem('maxBannerClosed');
+    if (!bannerClosed) {
+      setIsMaxBannerVisible(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -147,6 +152,7 @@ const Faq = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   setIsMaxBannerVisible(false);
+                  localStorage.setItem('maxBannerClosed', 'true');
                 }}
                 className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200/80 transition-colors text-gray-500 hover:text-gray-700"
                 aria-label="Закрыть баннер"
