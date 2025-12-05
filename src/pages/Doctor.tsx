@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,7 +36,7 @@ const Doctor = () => {
   const [copyFromSchedule, setCopyFromSchedule] = useState<any>(null);
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
   const [selectedDaysToCopy, setSelectedDaysToCopy] = useState<number[]>([]);
-  const [lastAppointmentIds, setLastAppointmentIds] = useState<Set<number>>(new Set());
+  const lastAppointmentIdsRef = useRef<Set<number>>(new Set());
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const saved = localStorage.getItem('doctor_sound_enabled');
     return saved !== null ? saved === 'true' : true;
@@ -105,16 +105,16 @@ const Doctor = () => {
       const data = await response.json();
       const newAppointments = data.appointments || [];
       
-      console.log('📋 Загружено записей:', newAppointments.length, 'checkForNew:', checkForNew, 'lastIds.size:', lastAppointmentIds.size);
+      console.log('📋 Загружено записей:', newAppointments.length, 'checkForNew:', checkForNew, 'lastIds.size:', lastAppointmentIdsRef.current.size);
       
-      // Проверяем новые записи ДО обновления состояния
-      if (checkForNew && lastAppointmentIds.size > 0) {
-        const currentIds = Array.from(lastAppointmentIds);
+      // Проверяем новые записи ДО обновления
+      if (checkForNew && lastAppointmentIdsRef.current.size > 0) {
+        const currentIds = Array.from(lastAppointmentIdsRef.current);
         const newIds = newAppointments.map((a: any) => a.id);
         console.log('🔍 Текущие ID:', currentIds);
         console.log('🔍 Новые ID:', newIds);
         
-        const addedAppointments = newAppointments.filter((a: any) => !lastAppointmentIds.has(a.id));
+        const addedAppointments = newAppointments.filter((a: any) => !lastAppointmentIdsRef.current.has(a.id));
         console.log('✨ Добавлено записей:', addedAppointments.length);
         
         if (addedAppointments.length > 0) {
@@ -152,10 +152,10 @@ const Doctor = () => {
       setAppointments(newAppointments);
       setLastCheckTime(new Date());
       
-      // Всегда обновляем список ID в конце
+      // Всегда обновляем список ID в ref (синхронно!)
       const newIds = new Set(newAppointments.map((a: any) => a.id));
       console.log('💾 Сохранено ID записей:', newIds.size);
-      setLastAppointmentIds(newIds);
+      lastAppointmentIdsRef.current = newIds;
     } catch (error) {
       console.error('Ошибка загрузки записей:', error);
       toast({ title: "Ошибка", description: "Не удалось загрузить записи", variant: "destructive" });
