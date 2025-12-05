@@ -147,7 +147,7 @@ const Index = () => {
             <img 
               src="https://cdn.poehali.dev/files/d1c15da6-7ffe-46bb-b5db-3d114b408cec.jpg" 
               alt="Логотип АЦГМБ ЛНР" 
-              className="w-12 h-12 object-contain"
+              className="w-12 h-12 object-contain mix-blend-multiply"
             />
             <div>
               <p className="text-[10px] text-muted-foreground leading-tight">ГУ АЦГМБ ЛНР</p>
@@ -168,7 +168,7 @@ const Index = () => {
           <img 
             src="https://cdn.poehali.dev/files/d1c15da6-7ffe-46bb-b5db-3d114b408cec.jpg" 
             alt="Логотип АЦГМБ ЛНР" 
-            className="w-48 h-48 mx-auto mb-8 object-contain animate-fade-in"
+            className="w-48 h-48 mx-auto mb-8 object-contain animate-fade-in mix-blend-multiply"
           />
           <p className="text-lg text-muted-foreground mb-2 animate-fade-in">Государственное учреждение</p>
           <h2 className="text-5xl font-bold mb-2 text-foreground animate-fade-in">Антрацитовская центральная городская многопрофильная больница</h2>
