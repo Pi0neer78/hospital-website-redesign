@@ -1,0 +1,269 @@
+import json
+import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from typing import Dict, Any
+from datetime import datetime, timedelta, time
+
+def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+    """
+    Управление записями пациентов
+    GET /?doctor_id=X&date=YYYY-MM-DD - получить записи врача на дату
+    GET /?doctor_id=X&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD - получить записи за период
+    GET /available-slots?doctor_id=X&date=YYYY-MM-DD - получить свободные слоты
+    POST / - создать запись
+    PUT / - обновить статус записи
+    DELETE /?id=X - удалить запись
+    """
+    method = event.get('httpMethod', 'GET')
+    
+    if method == 'OPTIONS':
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Max-Age': '86400'
+            },
+            'body': '',
+            'isBase64Encoded': False
+        }
+    
+    database_url = os.environ.get('DATABASE_URL')
+    if not database_url:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Database configuration missing'}),
+            'isBase64Encoded': False
+        }
+    
+    conn = psycopg2.connect(database_url)
+    
+    try:
+        if method == 'GET':
+            query_params = event.get('queryStringParameters') or {}
+            path = event.get('path', '/')
+            
+            if '/available-slots' in path:
+                doctor_id = query_params.get('doctor_id')
+                date_str = query_params.get('date')
+                
+                if not doctor_id or not date_str:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'doctor_id and date are required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+                day_of_week = date_obj.weekday()
+                
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                
+                cursor.execute(
+                    "SELECT start_time, end_time FROM doctor_schedules WHERE doctor_id = %s AND day_of_week = %s AND is_active = true",
+                    (doctor_id, day_of_week)
+                )
+                schedule = cursor.fetchone()
+                
+                if not schedule:
+                    cursor.close()
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'available_slots': [], 'message': 'Doctor does not work on this day'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    "SELECT appointment_time FROM appointments_v2 WHERE doctor_id = %s AND appointment_date = %s AND status != 'cancelled'",
+                    (doctor_id, date_str)
+                )
+                booked_times = [row['appointment_time'] for row in cursor.fetchall()]
+                cursor.close()
+                
+                start_time = schedule['start_time']
+                end_time = schedule['end_time']
+                
+                current_time = datetime.combine(date_obj, start_time)
+                end_datetime = datetime.combine(date_obj, end_time)
+                
+                available_slots = []
+                while current_time < end_datetime:
+                    slot_time = current_time.time()
+                    if slot_time not in booked_times:
+                        available_slots.append(slot_time.strftime('%H:%M'))
+                    current_time += timedelta(minutes=15)
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'available_slots': available_slots,
+                        'start_time': start_time.strftime('%H:%M'),
+                        'end_time': end_time.strftime('%H:%M')
+                    }),
+                    'isBase64Encoded': False
+                }
+            
+            else:
+                doctor_id = query_params.get('doctor_id')
+                date_str = query_params.get('date')
+                start_date = query_params.get('start_date')
+                end_date = query_params.get('end_date')
+                
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                
+                if doctor_id and date_str:
+                    cursor.execute(
+                        "SELECT a.*, d.full_name as doctor_name FROM appointments_v2 a JOIN doctors d ON a.doctor_id = d.id WHERE a.doctor_id = %s AND a.appointment_date = %s ORDER BY a.appointment_time",
+                        (doctor_id, date_str)
+                    )
+                elif doctor_id and start_date and end_date:
+                    cursor.execute(
+                        "SELECT a.*, d.full_name as doctor_name FROM appointments_v2 a JOIN doctors d ON a.doctor_id = d.id WHERE a.doctor_id = %s AND a.appointment_date BETWEEN %s AND %s ORDER BY a.appointment_date, a.appointment_time",
+                        (doctor_id, start_date, end_date)
+                    )
+                elif doctor_id:
+                    cursor.execute(
+                        "SELECT a.*, d.full_name as doctor_name FROM appointments_v2 a JOIN doctors d ON a.doctor_id = d.id WHERE a.doctor_id = %s ORDER BY a.appointment_date DESC, a.appointment_time",
+                        (doctor_id,)
+                    )
+                else:
+                    cursor.execute(
+                        "SELECT a.*, d.full_name as doctor_name FROM appointments_v2 a JOIN doctors d ON a.doctor_id = d.id ORDER BY a.appointment_date DESC, a.appointment_time LIMIT 100"
+                    )
+                
+                appointments = cursor.fetchall()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'appointments': appointments}, default=str),
+                    'isBase64Encoded': False
+                }
+        
+        elif method == 'POST':
+            body = json.loads(event.get('body', '{}'))
+            doctor_id = body.get('doctor_id')
+            patient_name = body.get('patient_name')
+            patient_phone = body.get('patient_phone')
+            appointment_date = body.get('appointment_date')
+            appointment_time = body.get('appointment_time')
+            description = body.get('description', '')
+            
+            if not all([doctor_id, patient_name, patient_phone, appointment_date, appointment_time]):
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Missing required fields'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            
+            cursor.execute(
+                "SELECT id FROM appointments_v2 WHERE doctor_id = %s AND appointment_date = %s AND appointment_time = %s AND status != 'cancelled'",
+                (doctor_id, appointment_date, appointment_time)
+            )
+            existing = cursor.fetchone()
+            
+            if existing:
+                cursor.close()
+                return {
+                    'statusCode': 409,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'This time slot is already booked'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute(
+                "INSERT INTO appointments_v2 (doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *",
+                (doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description)
+            )
+            appointment = cursor.fetchone()
+            conn.commit()
+            cursor.close()
+            
+            return {
+                'statusCode': 201,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'appointment': appointment}, default=str),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'PUT':
+            body = json.loads(event.get('body', '{}'))
+            appointment_id = body.get('id')
+            status = body.get('status')
+            
+            if not appointment_id or not status:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Appointment ID and status are required'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            cursor.execute(
+                "UPDATE appointments_v2 SET status = %s WHERE id = %s RETURNING *",
+                (status, appointment_id)
+            )
+            appointment = cursor.fetchone()
+            conn.commit()
+            cursor.close()
+            
+            if not appointment:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Appointment not found'}),
+                    'isBase64Encoded': False
+                }
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'appointment': appointment}, default=str),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'DELETE':
+            query_params = event.get('queryStringParameters') or {}
+            appointment_id = query_params.get('id')
+            
+            if not appointment_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Appointment ID is required'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor = conn.cursor()
+            cursor.execute("UPDATE appointments_v2 SET status = 'cancelled' WHERE id = %s", (appointment_id,))
+            conn.commit()
+            cursor.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'message': 'Appointment cancelled'}),
+                'isBase64Encoded': False
+            }
+        
+        else:
+            return {
+                'statusCode': 405,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Method not allowed'}),
+                'isBase64Encoded': False
+            }
+    
+    finally:
+        conn.close()

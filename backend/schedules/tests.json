@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Get doctor schedule",
+      "method": "GET",
+      "path": "/?doctor_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "schedules": []
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
