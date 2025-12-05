@@ -1024,10 +1024,20 @@ const Index = () => {
                   Адрес
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
+              <CardContent className="pt-6 space-y-4">
                 <p className="text-lg">
                   <span className="font-semibold">294613</span>, Российская Федерация, Луганская Народная Республика, город Антрацит, улица Толстоусова, дом 1
                 </p>
+                <div className="w-full h-[400px] rounded-lg overflow-hidden border-2 border-primary/10">
+                  <iframe
+                    src="https://yandex.ru/map-widget/v1/?ll=39.092612%2C48.125307&z=17.4&l=map&pt=39.092612,48.125307,pm2rdm"
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    allowFullScreen
+                    style={{ position: 'relative' }}
+                  ></iframe>
+                </div>
               </CardContent>
             </Card>
 
