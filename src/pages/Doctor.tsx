@@ -41,6 +41,10 @@ const Doctor = () => {
     const saved = localStorage.getItem('doctor_sound_enabled');
     return saved !== null ? saved === 'true' : true;
   });
+  const [checkInterval, setCheckInterval] = useState(() => {
+    const saved = localStorage.getItem('doctor_check_interval');
+    return saved ? parseInt(saved) : 15;
+  });
   const [lastCheckTime, setLastCheckTime] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -54,11 +58,11 @@ const Doctor = () => {
       
       const interval = setInterval(() => {
         loadAppointments(doctor.id, true);
-      }, 15000);
+      }, checkInterval * 1000);
       
       return () => clearInterval(interval);
     }
-  }, []);
+  }, [checkInterval]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -318,6 +322,16 @@ const Doctor = () => {
     toast({ 
       title: newValue ? 'Звук включен' : 'Звук выключен',
       description: newValue ? 'Вы будете слышать уведомления о новых записях' : 'Звуковые уведомления отключены',
+      duration: 3000,
+    });
+  };
+
+  const changeCheckInterval = (seconds: number) => {
+    setCheckInterval(seconds);
+    localStorage.setItem('doctor_check_interval', String(seconds));
+    toast({ 
+      title: 'Интервал обновлен',
+      description: `Проверка новых записей каждые ${seconds} секунд`,
       duration: 3000,
     });
   };
@@ -823,12 +837,12 @@ const Doctor = () => {
                         </p>
                         {lastCheckTime && (
                           <p className="text-xs text-green-700 mt-1">
-                            Последняя проверка: {lastCheckTime.toLocaleTimeString('ru-RU')}
+                            Последняя проверка: {lastCheckTime.toLocaleTimeString('ru-RU')} • Интервал: {checkInterval} сек
                           </p>
                         )}
                       </div>
                     </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
+                    <div className="flex gap-2 w-full sm:w-auto flex-wrap">
                       {soundEnabled && (
                         <Button
                           size="sm"
@@ -850,6 +864,39 @@ const Doctor = () => {
                         <Icon name={soundEnabled ? "Volume2" : "VolumeX"} size={16} className="mr-2" />
                         {soundEnabled ? 'Звук вкл' : 'Звук выкл'}
                       </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 sm:flex-initial"
+                          >
+                            <Icon name="Clock" size={16} className="mr-2" />
+                            {checkInterval}с
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-sm">
+                          <DialogHeader>
+                            <DialogTitle>Интервал проверки</DialogTitle>
+                            <DialogDescription>
+                              Выберите как часто проверять наличие новых записей
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid grid-cols-2 gap-3">
+                            {[15, 30, 60, 90, 120].map((seconds) => (
+                              <Button
+                                key={seconds}
+                                variant={checkInterval === seconds ? 'default' : 'outline'}
+                                onClick={() => changeCheckInterval(seconds)}
+                                className="h-16 flex flex-col"
+                              >
+                                <span className="text-2xl font-bold">{seconds}</span>
+                                <span className="text-xs">секунд</span>
+                              </Button>
+                            ))}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </CardContent>
