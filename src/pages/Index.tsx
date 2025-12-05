@@ -33,9 +33,26 @@ const Index = () => {
   const [complaintForm, setComplaintForm] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
+  const [maxTextIndex, setMaxTextIndex] = useState(0);
+
+  const maxTexts = [
+    'Максимум возможностей для жизни',
+    'Быстрое и лёгкое приложение для общения и решения повседневных задач',
+    'Высокое качество звонков. Общайтесь в удовольствие благодаря высокому качеству связи и быстрому соединению даже в сетях со слабым сигналом',
+    'Общение на максимум. Анимированные стикеры, реакции в чатах, возможность отправки файлов до 4 ГБ – все необходимое для того, чтобы делиться настроением и важной информацией',
+    'Чат боты и мини приложения. Предоставляют прямой доступ к партнерским сервисам и позволяют быстро и легко решать множество ежедневных задач',
+    'Скачайте MAX на любое устройство',
+  ];
 
   useEffect(() => {
     loadDoctors();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMaxTextIndex((prev) => (prev + 1) % maxTexts.length);
+    }, 4000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -266,24 +283,48 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/f3cad472-e990-4101-9d1b-163dee97656f.jpg)' }}>
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img 
-              src="https://cdn.poehali.dev/files/d1c15da6-7ffe-46bb-b5db-3d114b408cec.jpg" 
-              alt="Логотип АЦГМБ ЛНР" 
-              className="w-12 h-12 object-contain mix-blend-multiply"
-            />
-            <div>
-              <p className="text-[10px] text-muted-foreground leading-tight">ГУ АЦГМБ ЛНР</p>
-              <h1 className="text-sm font-bold text-primary leading-tight">Антрацитовская центральная<br />городская многопрофильная больница</h1>
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img 
+                src="https://cdn.poehali.dev/files/d1c15da6-7ffe-46bb-b5db-3d114b408cec.jpg" 
+                alt="Логотип АЦГМБ ЛНР" 
+                className="w-12 h-12 object-contain mix-blend-multiply"
+              />
+              <div>
+                <p className="text-[10px] text-muted-foreground leading-tight">ГУ АЦГМБ ЛНР</p>
+                <h1 className="text-sm font-bold text-primary leading-tight">Антрацитовская центральная<br />городская многопрофильная больница</h1>
+              </div>
             </div>
+            <nav className="hidden lg:flex gap-4 text-sm">
+              <a href="#about" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">О нас</a>
+              <a href="#doctors" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">График приема граждан</a>
+              <a href="/structure" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Структура ГУ "АЦГМБ" ЛНР</a>
+              <a href="#contacts" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Контакты</a>
+            </nav>
           </div>
-          <nav className="hidden lg:flex gap-4 text-sm">
-            <a href="#about" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">О нас</a>
-            <a href="#doctors" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">График приема граждан</a>
-            <a href="/structure" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Структура ГУ "АЦГМБ" ЛНР</a>
-            <a href="#contacts" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Контакты</a>
-          </nav>
+          
+          <a 
+            href="https://max.ru/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 mt-3 p-3 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg border border-blue-200 transition-all duration-300 group"
+          >
+            <img 
+              src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/d6005286-66a2-4d52-91f2-27beec5e16cc.jpg" 
+              alt="MAX" 
+              className="w-10 h-10 rounded-lg shadow-sm group-hover:scale-105 transition-transform"
+            />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-bold text-blue-600 text-sm">MAX</span>
+                <Icon name="ExternalLink" size={14} className="text-blue-500" />
+              </div>
+              <p className="text-xs text-gray-700 leading-tight line-clamp-2 transition-all duration-500">
+                {maxTexts[maxTextIndex]}
+              </p>
+            </div>
+          </a>
         </div>
       </header>
 
