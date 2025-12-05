@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,6 +23,9 @@ const ForumTopic = () => {
   const [user, setUser] = useState<any>(null);
   const [newPost, setNewPost] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingPost, setEditingPost] = useState<any>(null);
+  const [editContent, setEditContent] = useState('');
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -71,6 +75,105 @@ const ForumTopic = () => {
       setPosts(data.posts || []);
     } catch (error) {
       console.error('Failed to load posts:', error);
+    }
+  };
+
+  const handleEditPost = (post: any) => {
+    setEditingPost(post);
+    setEditContent(post.content);
+    setIsEditOpen(true);
+  };
+
+  const handleUpdatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!editContent.trim()) {
+      toast({
+        title: "Ошибка",
+        description: "Сообщение не может быть пустым",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const token = localStorage.getItem('forum_token');
+      const response = await fetch(API_URLS.posts, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Token': token || '',
+        },
+        body: JSON.stringify({
+          id: editingPost.id,
+          content: editContent,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({
+          title: "Успешно!",
+          description: "Сообщение обновлено",
+        });
+        setIsEditOpen(false);
+        setEditingPost(null);
+        setEditContent('');
+        loadPosts();
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.error || "Не удалось обновить сообщение",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Проблема с подключением к серверу",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeletePost = async (postId: number) => {
+    if (!confirm('Вы уверены, что хотите удалить это сообщение?')) return;
+
+    try {
+      const token = localStorage.getItem('forum_token');
+      const response = await fetch(`${API_URLS.posts}?id=${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-User-Token': token || '',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({
+          title: "Успешно!",
+          description: "Сообщение удалено",
+        });
+        loadPosts();
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.error || "Не удалось удалить сообщение",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Проблема с подключением к серверу",
+        variant: "destructive",
+      });
     }
   };
 
@@ -225,7 +328,7 @@ const ForumTopic = () => {
             posts.map((post) => (
               <Card key={post.id}>
                 <CardContent className="pt-6">
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-3">
                         <Icon name="User" size={16} className="text-muted-foreground" />
@@ -233,9 +336,34 @@ const ForumTopic = () => {
                         <span className="text-sm text-muted-foreground">
                           {formatDate(post.created_at)}
                         </span>
+                        {post.updated_at !== post.created_at && (
+                          <span className="text-xs text-muted-foreground italic">
+                            (изменено)
+                          </span>
+                        )}
                       </div>
                       <p className="whitespace-pre-wrap">{post.content}</p>
                     </div>
+                    {user && user.id === post.author_id && (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditPost(post)}
+                        >
+                          <Icon name="Edit" size={14} className="mr-1" />
+                          Изменить
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeletePost(post.id)}
+                        >
+                          <Icon name="Trash2" size={14} className="mr-1" />
+                          Удалить
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -276,6 +404,36 @@ const ForumTopic = () => {
             </CardContent>
           </Card>
         )}
+
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Редактировать сообщение</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleUpdatePost} className="space-y-4">
+              <Textarea
+                placeholder="Введите текст сообщения..."
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                rows={5}
+                disabled={isSubmitting}
+              />
+              <div className="flex gap-2">
+                <Button type="submit" disabled={isSubmitting || !editContent.trim()}>
+                  {isSubmitting ? 'Сохранение...' : 'Сохранить'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditOpen(false)}
+                  disabled={isSubmitting}
+                >
+                  Отмена
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

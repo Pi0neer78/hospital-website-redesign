@@ -23,6 +23,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     GET /?topic_id=X - получить сообщения темы
     POST / - создать сообщение (требуется авторизация)
     PUT / - обновить сообщение (автор)
+    DELETE /?id=X - удалить сообщение (автор)
     """
     method = event.get('httpMethod', 'GET')
     
@@ -31,7 +32,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Token',
                 'Access-Control-Max-Age': '86400'
             },
@@ -229,6 +230,71 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'success': True, 'post': updated_post}, default=str),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'DELETE':
+            headers = event.get('headers') or {}
+            token = headers.get('x-user-token') or headers.get('X-User-Token')
+            
+            if not token:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            user = get_user_from_token(conn, token)
+            if not user:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Недействительный токен'}),
+                    'isBase64Encoded': False
+                }
+            
+            query_params = event.get('queryStringParameters') or {}
+            post_id = query_params.get('id')
+            
+            if not post_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'ID сообщения обязателен'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            cursor.execute("SELECT * FROM forum_posts WHERE id = %s", (post_id,))
+            post = cursor.fetchone()
+            
+            if not post:
+                cursor.close()
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Сообщение не найдено'}),
+                    'isBase64Encoded': False
+                }
+            
+            if post['author_id'] != user['id']:
+                cursor.close()
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Нет прав на удаление'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute("UPDATE forum_posts SET is_hidden = TRUE, hidden_reason = %s WHERE id = %s", ('Удалено автором', post_id))
+            conn.commit()
+            cursor.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'message': 'Сообщение удалено'}),
                 'isBase64Encoded': False
             }
         
