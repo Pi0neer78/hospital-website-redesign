@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,13 +11,20 @@ import { useToast } from '@/hooks/use-toast';
 const API_URLS = {
   auth: 'https://functions.poehali.dev/5453d7ba-4709-4da4-9761-5372c5aa776a',
   topics: 'https://functions.poehali.dev/e1e111a6-e824-4bf1-9416-b5c145b37906',
+  posts: 'https://functions.poehali.dev/0352645c-ae3d-4c45-8081-4f7a347244a6',
 };
 
 const Forum = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { topicId } = useParams();
+  
   const [topics, setTopics] = useState<any[]>([]);
+  const [currentTopic, setCurrentTopic] = useState<any>(null);
+  const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isVerifyOpen, setIsVerifyOpen] = useState(false);
@@ -27,12 +35,18 @@ const Forum = () => {
   const [verifyForm, setVerifyForm] = useState({ user_id: '', code: '' });
   const [verificationCode, setVerificationCode] = useState('');
   const [newTopicForm, setNewTopicForm] = useState({ title: '', description: '' });
+  const [newPostContent, setNewPostContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    loadTopics();
     checkAuth();
-  }, []);
+    if (topicId) {
+      loadTopic(topicId);
+      loadPosts(topicId);
+    } else {
+      loadTopics();
+    }
+  }, [topicId]);
 
   const checkAuth = () => {
     const token = localStorage.getItem('forum_token');
@@ -44,12 +58,36 @@ const Forum = () => {
   };
 
   const loadTopics = async () => {
+    setLoading(true);
     try {
       const response = await fetch(API_URLS.topics);
       const data = await response.json();
       setTopics(data.topics || []);
     } catch (error) {
       console.error('Failed to load topics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadTopic = async (id: string) => {
+    try {
+      const response = await fetch(`${API_URLS.topics}?id=${id}`);
+      const data = await response.json();
+      setCurrentTopic(data.topic);
+    } catch (error) {
+      console.error('Failed to load topic:', error);
+    }
+  };
+
+  const loadPosts = async (id: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URLS.posts}?topic_id=${id}`);
+      const data = await response.json();
+      setPosts(data.posts || []);
+    } catch (error) {
+      console.error('Failed to load posts:', error);
     } finally {
       setLoading(false);
     }
@@ -232,6 +270,71 @@ const Forum = () => {
     }
   };
 
+  const handleCreatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newPostContent.trim()) {
+      toast({
+        title: "Ошибка",
+        description: "Сообщение не может быть пустым",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    const token = localStorage.getItem('forum_token');
+
+    try {
+      const response = await fetch(API_URLS.posts, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Token': token || '',
+        },
+        body: JSON.stringify({
+          topic_id: topicId,
+          content: newPostContent,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({
+          title: "Сообщение отправлено!",
+          description: "Ваш ответ опубликован",
+        });
+        setNewPostContent('');
+        loadPosts(topicId!);
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.error || "Не удалось отправить сообщение",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Проблема с подключением к серверу",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
@@ -244,14 +347,30 @@ const Forum = () => {
             />
             <div>
               <p className="text-[10px] text-muted-foreground leading-tight">ГУ АЦГМБ ЛНР</p>
-              <h1 className="text-sm font-bold text-primary leading-tight">Форум пациентов</h1>
+              <h1 className="text-sm font-bold text-primary leading-tight">
+                {topicId ? 'Обсуждение' : 'Форум пациентов'}
+              </h1>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+              <Icon name="Home" size={16} className="mr-2" />
+              На главную
+            </Button>
+            
+            {topicId && (
+              <Button variant="outline" size="sm" onClick={() => navigate('/forum')}>
+                <Icon name="ArrowLeft" size={16} className="mr-2" />
+                К темам
+              </Button>
+            )}
+            
             {user ? (
               <>
-                <span className="text-sm text-muted-foreground">Привет, <strong>{user.username}</strong>!</span>
+                <span className="text-sm text-muted-foreground hidden sm:inline">
+                  Привет, <strong>{user.username}</strong>!
+                </span>
                 <Button variant="outline" onClick={handleLogout} size="sm">
                   <Icon name="LogOut" size={16} className="mr-2" />
                   Выход
@@ -269,6 +388,9 @@ const Forum = () => {
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Вход на форум</DialogTitle>
+                      <DialogDescription>
+                        Войдите с помощью email и пароля
+                      </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleLogin} className="space-y-4">
                       <Input
@@ -303,7 +425,7 @@ const Forum = () => {
                     <DialogHeader>
                       <DialogTitle>Регистрация на форуме</DialogTitle>
                       <DialogDescription>
-                        После регистрации вы получите код подтверждения
+                        Создайте аккаунт для участия в обсуждениях
                       </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleRegister} className="space-y-4">
@@ -315,6 +437,7 @@ const Forum = () => {
                         required
                       />
                       <Input
+                        type="text"
                         placeholder="Имя пользователя"
                         value={registerForm.username}
                         onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
@@ -322,11 +445,10 @@ const Forum = () => {
                       />
                       <Input
                         type="password"
-                        placeholder="Пароль (минимум 6 символов)"
+                        placeholder="Пароль"
                         value={registerForm.password}
                         onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
                         required
-                        minLength={6}
                       />
                       <Button type="submit" className="w-full" disabled={isSubmitting}>
                         {isSubmitting ? 'Регистрация...' : 'Зарегистрироваться'}
@@ -336,32 +458,268 @@ const Forum = () => {
                 </Dialog>
               </>
             )}
-            
-            <Button variant="outline" asChild size="sm">
-              <a href="/">
-                <Icon name="Home" size={16} className="mr-2" />
-                На главную
-              </a>
-            </Button>
           </div>
         </div>
       </header>
 
+      <main className="container mx-auto px-4 py-8">
+        {!topicId ? (
+          <>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-3xl font-bold">Темы форума</h2>
+                <p className="text-muted-foreground mt-1">
+                  Обсуждайте вопросы здоровья с другими пациентами
+                </p>
+              </div>
+              
+              {user && (
+                <Dialog open={isNewTopicOpen} onOpenChange={setIsNewTopicOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Icon name="Plus" size={20} className="mr-2" />
+                      Создать тему
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Новая тема</DialogTitle>
+                      <DialogDescription>
+                        Создайте новую тему для обсуждения
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleCreateTopic} className="space-y-4">
+                      <Input
+                        placeholder="Заголовок темы"
+                        value={newTopicForm.title}
+                        onChange={(e) => setNewTopicForm({ ...newTopicForm, title: e.target.value })}
+                        required
+                      />
+                      <Textarea
+                        placeholder="Описание темы"
+                        value={newTopicForm.description}
+                        onChange={(e) => setNewTopicForm({ ...newTopicForm, description: e.target.value })}
+                        rows={5}
+                      />
+                      <Button type="submit" className="w-full" disabled={isSubmitting}>
+                        {isSubmitting ? 'Создание...' : 'Создать тему'}
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
+
+            {loading ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Загрузка тем...</p>
+              </div>
+            ) : topics.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Icon name="MessageSquare" size={48} className="mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">
+                    Пока нет тем. {user ? 'Создайте первую!' : 'Войдите, чтобы создать первую тему.'}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {topics.map((topic) => (
+                  <Card 
+                    key={topic.id} 
+                    className="hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => navigate(`/forum/${topic.id}`)}
+                  >
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <CardTitle className="text-xl mb-2 flex items-center gap-2">
+                            {topic.is_pinned && (
+                              <Icon name="Pin" size={18} className="text-primary" />
+                            )}
+                            {topic.title}
+                            {topic.is_locked && (
+                              <Icon name="Lock" size={16} className="text-muted-foreground" />
+                            )}
+                          </CardTitle>
+                          {topic.description && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {topic.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Icon name="Eye" size={14} />
+                            {topic.views_count || 0}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Icon name="MessageSquare" size={14} />
+                            {topic.posts_count || 0}
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Автор: <strong>{topic.author_username || 'Неизвестен'}</strong></span>
+                        <span>{formatDate(topic.created_at)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {currentTopic && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    {currentTopic.is_pinned && (
+                      <Icon name="Pin" size={20} className="text-primary" />
+                    )}
+                    {currentTopic.title}
+                    {currentTopic.is_locked && (
+                      <Icon name="Lock" size={18} className="text-muted-foreground" />
+                    )}
+                  </CardTitle>
+                  {currentTopic.description && (
+                    <p className="text-muted-foreground mt-2">{currentTopic.description}</p>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>Автор: <strong>{currentTopic.author_username || 'Неизвестен'}</strong></span>
+                    <div className="flex items-center gap-4">
+                      <span className="flex items-center gap-1">
+                        <Icon name="Eye" size={14} />
+                        {currentTopic.views_count || 0} просмотров
+                      </span>
+                      <span>{formatDate(currentTopic.created_at)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <h3 className="text-xl font-bold mb-4">Сообщения ({posts.length})</h3>
+
+            {loading ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Загрузка сообщений...</p>
+              </div>
+            ) : (
+              <div className="space-y-4 mb-6">
+                {posts.length === 0 ? (
+                  <Card>
+                    <CardContent className="py-8 text-center">
+                      <p className="text-muted-foreground">
+                        Пока нет сообщений. {user ? 'Будьте первым!' : 'Войдите, чтобы ответить.'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  posts.map((post) => (
+                    <Card key={post.id}>
+                      <CardContent className="pt-6">
+                        <div className="flex gap-4">
+                          <div className="flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Icon name="User" size={20} className="text-primary" />
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                              <strong className="text-sm">{post.author_username || 'Неизвестен'}</strong>
+                              <span className="text-xs text-muted-foreground">
+                                {formatDate(post.created_at)}
+                              </span>
+                            </div>
+                            <p className="text-sm whitespace-pre-wrap">{post.content}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            )}
+
+            {user && !currentTopic?.is_locked ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Ответить</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleCreatePost} className="space-y-4">
+                    <Textarea
+                      placeholder="Напишите ваш ответ..."
+                      value={newPostContent}
+                      onChange={(e) => setNewPostContent(e.target.value)}
+                      rows={5}
+                      required
+                    />
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? 'Отправка...' : 'Отправить ответ'}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            ) : !user ? (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground mb-4">
+                    Войдите или зарегистрируйтесь, чтобы ответить в этой теме
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <Button variant="outline" onClick={() => setIsLoginOpen(true)}>
+                      Вход
+                    </Button>
+                    <Button onClick={() => setIsRegisterOpen(true)}>
+                      Регистрация
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : currentTopic?.is_locked && (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <Icon name="Lock" size={32} className="mx-auto text-muted-foreground mb-3" />
+                  <p className="text-muted-foreground">
+                    Эта тема заблокирована. Новые сообщения недоступны.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </>
+        )}
+      </main>
+
       <Dialog open={isVerifyOpen} onOpenChange={setIsVerifyOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Подтверждение email</DialogTitle>
+            <DialogTitle>Подтверждение Email</DialogTitle>
             <DialogDescription>
-              Ваш код подтверждения: <strong className="text-lg text-primary">{verificationCode}</strong>
+              Введите код подтверждения из уведомления
+              {verificationCode && (
+                <div className="mt-3 p-3 bg-green-50 rounded-md">
+                  <p className="text-green-800 font-mono text-sm">
+                    Ваш код: <strong>{verificationCode}</strong>
+                  </p>
+                </div>
+              )}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleVerify} className="space-y-4">
             <Input
-              placeholder="Введите код подтверждения"
+              type="text"
+              placeholder="Код подтверждения"
               value={verifyForm.code}
               onChange={(e) => setVerifyForm({ ...verifyForm, code: e.target.value })}
               required
-              maxLength={6}
             />
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? 'Проверка...' : 'Подтвердить'}
@@ -369,118 +727,6 @@ const Forum = () => {
           </form>
         </DialogContent>
       </Dialog>
-
-      <section className="py-8">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Форум пациентов</h1>
-              <p className="text-muted-foreground">Общение, вопросы и обсуждения</p>
-            </div>
-            
-            {user && (
-              <Dialog open={isNewTopicOpen} onOpenChange={setIsNewTopicOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Icon name="Plus" size={18} className="mr-2" />
-                    Создать тему
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Новая тема</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleCreateTopic} className="space-y-4">
-                    <Input
-                      placeholder="Заголовок темы"
-                      value={newTopicForm.title}
-                      onChange={(e) => setNewTopicForm({ ...newTopicForm, title: e.target.value })}
-                      required
-                    />
-                    <Textarea
-                      placeholder="Описание (необязательно)"
-                      value={newTopicForm.description}
-                      onChange={(e) => setNewTopicForm({ ...newTopicForm, description: e.target.value })}
-                      rows={4}
-                    />
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                      {isSubmitting ? 'Создание...' : 'Создать тему'}
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            )}
-          </div>
-
-          {loading ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <Icon name="Loader2" size={32} className="animate-spin mx-auto mb-4 text-primary" />
-                <p className="text-muted-foreground">Загрузка...</p>
-              </CardContent>
-            </Card>
-          ) : topics.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <Icon name="MessageSquare" size={48} className="mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground text-lg mb-4">Пока нет тем для обсуждения</p>
-                {user && (
-                  <Button onClick={() => setIsNewTopicOpen(true)}>
-                    Создать первую тему
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {topics.map((topic) => (
-                <Card key={topic.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {topic.is_pinned && (
-                            <Icon name="Pin" size={16} className="text-primary" />
-                          )}
-                          {topic.is_locked && (
-                            <Icon name="Lock" size={16} className="text-muted-foreground" />
-                          )}
-                          <CardTitle className="text-lg">
-                            <a href={`/forum/${topic.id}`} className="hover:text-primary transition-colors">
-                              {topic.title}
-                            </a>
-                          </CardTitle>
-                        </div>
-                        {topic.description && (
-                          <p className="text-sm text-muted-foreground mb-2">{topic.description}</p>
-                        )}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Icon name="User" size={14} />
-                            {topic.author_username}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Icon name="MessageCircle" size={14} />
-                            {topic.posts_count || 0} сообщений
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Icon name="Eye" size={14} />
-                            {topic.views_count || 0} просмотров
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Icon name="Clock" size={14} />
-                            {new Date(topic.created_at).toLocaleDateString('ru-RU')}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
     </div>
   );
 };
