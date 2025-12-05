@@ -41,6 +41,7 @@ const Doctor = () => {
     const saved = localStorage.getItem('doctor_sound_enabled');
     return saved !== null ? saved === 'true' : true;
   });
+  const [lastCheckTime, setLastCheckTime] = useState<Date | null>(null);
 
   useEffect(() => {
     const auth = localStorage.getItem('doctor_auth');
@@ -104,15 +105,25 @@ const Doctor = () => {
       const data = await response.json();
       const newAppointments = data.appointments || [];
       
+      console.log('📋 Загружено записей:', newAppointments.length, 'checkForNew:', checkForNew, 'lastIds.size:', lastAppointmentIds.size);
+      
       setAppointments(newAppointments);
+      setLastCheckTime(new Date());
       
       if (checkForNew && lastAppointmentIds.size > 0) {
+        const currentIds = Array.from(lastAppointmentIds);
+        const newIds = newAppointments.map((a: any) => a.id);
+        console.log('🔍 Текущие ID:', currentIds);
+        console.log('🔍 Новые ID:', newIds);
+        
         const addedAppointments = newAppointments.filter((a: any) => !lastAppointmentIds.has(a.id));
+        console.log('✨ Добавлено записей:', addedAppointments.length);
         
         if (addedAppointments.length > 0) {
           const latestAppointment = addedAppointments[addedAppointments.length - 1];
           
           console.log('🔔 Новая запись обнаружена:', latestAppointment);
+          console.log('🔊 Звук включен:', soundEnabled);
           
           if (soundEnabled) {
             playNotificationSound();
@@ -802,9 +813,16 @@ const Doctor = () => {
                         <Icon name="Bell" size={20} className="text-green-600" />
                         <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                       </div>
-                      <p className="text-sm text-green-900">
-                        <span className="font-medium">Автообновление активно:</span> новые записи появятся автоматически с уведомлением {soundEnabled ? 'и звуковым сигналом' : '(звук выключен)'}
-                      </p>
+                      <div className="text-sm text-green-900">
+                        <p>
+                          <span className="font-medium">Автообновление активно:</span> новые записи появятся автоматически с уведомлением {soundEnabled ? 'и звуковым сигналом' : '(звук выключен)'}
+                        </p>
+                        {lastCheckTime && (
+                          <p className="text-xs text-green-700 mt-1">
+                            Последняя проверка: {lastCheckTime.toLocaleTimeString('ru-RU')}
+                          </p>
+                        )}
+                      </div>
                     </div>
                     <div className="flex gap-2 w-full sm:w-auto">
                       {soundEnabled && (
