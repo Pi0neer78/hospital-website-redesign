@@ -33,7 +33,7 @@ const Structure = () => {
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-4">Структура ГБУЗ "АЦГМБ" ЛНР</h1>
             <p className="text-muted-foreground max-w-3xl mx-auto">
-              ГБУЗ Антрацитовская центральная многопрофильная больница Луганской Народной Республики
+              ГБУЗ Антрацитовская центральная городская многопрофильная больница Луганской Народной Республики
             </p>
             <p className="text-sm text-muted-foreground mt-2">г. Антрацит, ул. Толстоусова, д.1, 294613</p>
           </div>
