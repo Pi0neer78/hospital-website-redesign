@@ -677,36 +677,180 @@ const Index = () => {
         </div>
       </section>
 
-      <footer id="contacts" className="bg-primary text-white py-12">
+      <section id="contacts" className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Icon name="MapPin" size={24} />
-                Адрес
-              </h3>
-              <p className="text-white/90">г. Москва, ул. Здоровья, д. 25</p>
-              <p className="text-white/90 mt-2">Метро "Университет"</p>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Icon name="Phone" size={24} />
-                Контакты
-              </h3>
-              <p className="text-white/90">+7 (495) 123-45-67</p>
-              <p className="text-white/90 mt-2">info@medcentr.ru</p>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Icon name="Clock" size={24} />
-                Режим работы
-              </h3>
-              <p className="text-white/90">Пн-Пт: 8:00 - 20:00</p>
-              <p className="text-white/90 mt-2">Сб-Вс: 9:00 - 18:00</p>
-            </div>
+          <h2 className="text-4xl font-bold text-center mb-4">Контактные данные</h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Связь с администрацией и специалистами ГУ «АЦГМБ» ЛНР
+          </p>
+
+          <div className="max-w-5xl mx-auto space-y-8">
+            <Card className="border-2 border-primary/20">
+              <CardHeader className="bg-primary/5">
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Icon name="MapPin" size={28} className="text-primary" />
+                  Адрес
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <p className="text-lg">
+                  <span className="font-semibold">294613</span>, Российская Федерация, Луганская Народная Республика, город Антрацит, улица Толстоусова, дом 1
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <Icon name="Phone" size={24} className="text-primary" />
+                  Административно-управленческий персонал
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <Icon name="Phone" size={20} className="text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold text-sm text-muted-foreground">Приемная главного врача</p>
+                        <p className="text-base">+7-857-312-51-02</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Icon name="Mail" size={20} className="text-primary mt-1" />
+                      <div>
+                        <p className="text-base break-all">antrasit_1gorbolnica@mail.ru</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <Icon name="Phone" size={20} className="text-primary mt-1" />
+                      <div>
+                        <p className="font-semibold text-sm text-muted-foreground">Коммутатор ГУ «АЦГМБ» ЛНР</p>
+                        <p className="text-base">+7-857-312-60-57</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6 pt-4">
+                  <Card className="border-primary/20">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                          <Icon name="UserCheck" size={24} className="text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold">Главный врач</p>
+                          <p className="text-lg font-bold text-primary">Бровкин Евгений Владимирович</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="Phone" size={16} className="text-primary" />
+                        <span className="text-sm">+7-857-312-60-62</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-primary/20">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                          <Icon name="Briefcase" size={24} className="text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">Зам. главного врача</p>
+                          <p className="text-sm text-muted-foreground">по медицинской части</p>
+                          <p className="text-base font-bold text-primary">Суялкин Олег Павлович</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="Phone" size={16} className="text-primary" />
+                        <span className="text-sm">+7-857-312-93-77</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-primary/20">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                          <Icon name="Stethoscope" size={24} className="text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">Зам. главного врача</p>
+                          <p className="text-sm text-muted-foreground">по мед. обслуживанию</p>
+                          <p className="text-base font-bold text-primary">Чумак Анна Анатольевна</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="Phone" size={16} className="text-primary" />
+                        <span className="text-sm">+7-857-312-60-57 (коммутатор)</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-primary/20">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                          <Icon name="Shield" size={24} className="text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold">Отдел кадров</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Icon name="Phone" size={16} className="text-primary" />
+                        <span className="text-sm">+7-857-312-56-28</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className="bg-primary/5 border-primary/20">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                        <Icon name="Calculator" size={24} className="text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-lg">Централизованная бухгалтерия</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Icon name="Phone" size={16} className="text-primary" />
+                      <span className="text-sm">+7-857-312-88-95</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Icon name="Mail" size={16} className="text-primary" />
+                      <span className="text-sm">buh1gb@mail.ru</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CardContent>
+            </Card>
           </div>
-          <div className="mt-8 pt-8 border-t border-white/20 text-center text-white/80">
-            <p>&copy; 2024 МедЦентр Здоровье. Все права защищены.</p>
+        </div>
+      </section>
+
+      <footer className="bg-primary text-white py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center text-white/90">
+            <p className="text-sm">&copy; 2024 Государственное учреждение «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
+            <p className="text-xs mt-2 text-white/70">Все права защищены</p>
           </div>
         </div>
       </footer>
