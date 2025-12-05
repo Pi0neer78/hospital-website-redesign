@@ -12,6 +12,7 @@ const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
   doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
   faq: 'https://functions.poehali.dev/fb5160e8-f170-4c21-97a9-3afbcb6f78a9',
+  userQuestions: 'https://functions.poehali.dev/816ff0e8-3dcc-4eeb-a985-36603a12894c',
 };
 
 const Admin = () => {
@@ -43,6 +44,7 @@ const Admin = () => {
   const [editingFaq, setEditingFaq] = useState<any>(null);
   const [isFaqOpen, setIsFaqOpen] = useState(false);
   const [isFaqEditOpen, setIsFaqEditOpen] = useState(false);
+  const [userQuestions, setUserQuestions] = useState([]);
 
   useEffect(() => {
     const auth = localStorage.getItem('admin_auth');
@@ -50,6 +52,7 @@ const Admin = () => {
       setIsAuthenticated(true);
       loadDoctors();
       loadFaqs();
+      loadUserQuestions();
     }
   }, []);
 
@@ -395,6 +398,50 @@ const Admin = () => {
     setIsFaqEditOpen(true);
   };
 
+  const loadUserQuestions = async () => {
+    try {
+      const response = await fetch(API_URLS.userQuestions);
+      const data = await response.json();
+      setUserQuestions(data.questions || []);
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Не удалось загрузить вопросы", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteUserQuestion = async (id: number) => {
+    if (!confirm('Удалить этот вопрос пользователя?')) return;
+    
+    try {
+      const response = await fetch(`${API_URLS.userQuestions}?id=${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        toast({ title: "Успешно", description: "Вопрос удален" });
+        loadUserQuestions();
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Не удалось удалить вопрос", variant: "destructive" });
+    }
+  };
+
+  const handleUpdateQuestionStatus = async (id: number, status: string) => {
+    try {
+      const response = await fetch(API_URLS.userQuestions, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status }),
+      });
+      
+      if (response.ok) {
+        toast({ title: "Успешно", description: `Статус изменен на: ${status}` });
+        loadUserQuestions();
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Не удалось изменить статус", variant: "destructive" });
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex items-center justify-center p-4">
@@ -454,9 +501,10 @@ const Admin = () => {
       <section className="py-12">
         <div className="container mx-auto px-4">
           <Tabs defaultValue="doctors" className="w-full">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-8">
               <TabsTrigger value="doctors">Врачи</TabsTrigger>
               <TabsTrigger value="faq">FAQ</TabsTrigger>
+              <TabsTrigger value="questions">Вопросы</TabsTrigger>
             </TabsList>
 
             <TabsContent value="doctors">
@@ -912,6 +960,69 @@ const Admin = () => {
               </Card>
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="questions">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold">Вопросы пользователей</h2>
+            <Button variant="outline" onClick={loadUserQuestions}>
+              <Icon name="RefreshCw" size={18} className="mr-2" />
+              Обновить
+            </Button>
+          </div>
+
+          {userQuestions.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Icon name="Inbox" size={48} className="mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground text-lg">Нет вопросов от пользователей</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {userQuestions.map((q: any) => (
+                <Card key={q.id}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg mb-2">От: {q.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(q.created_at).toLocaleString('ru-RU')}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={q.status}
+                          onChange={(e) => handleUpdateQuestionStatus(q.id, e.target.value)}
+                          className="text-xs px-2 py-1 rounded border"
+                        >
+                          <option value="pending">Ожидает</option>
+                          <option value="answered">Отвечено</option>
+                          <option value="archived">В архиве</option>
+                        </select>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="p-3 bg-muted/30 rounded">
+                      <p className="text-sm font-medium mb-1">Вопрос:</p>
+                      <p className="text-base">{q.question}</p>
+                    </div>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteUserQuestion(q.id)}
+                      >
+                        <Icon name="Trash2" size={14} className="mr-1" />
+                        Удалить
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
         </div>

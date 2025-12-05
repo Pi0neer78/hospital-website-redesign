@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 import {
   Accordion,
   AccordionContent,
@@ -10,10 +14,15 @@ import {
 } from "@/components/ui/accordion";
 
 const FAQ_URL = 'https://functions.poehali.dev/fb5160e8-f170-4c21-97a9-3afbcb6f78a9';
+const USER_QUESTIONS_URL = 'https://functions.poehali.dev/816ff0e8-3dcc-4eeb-a985-36603a12894c';
 
 const Faq = () => {
+  const { toast } = useToast();
   const [faqs, setFaqs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isQuestionOpen, setIsQuestionOpen] = useState(false);
+  const [questionForm, setQuestionForm] = useState({ name: '', question: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadFaqs();
@@ -28,6 +37,44 @@ const Faq = () => {
       console.error('Failed to load FAQs:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSubmitQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(USER_QUESTIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(questionForm),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({
+          title: "Вопрос отправлен",
+          description: "Спасибо! Мы ответим на ваш вопрос в ближайшее время.",
+        });
+        setQuestionForm({ name: '', question: '' });
+        setIsQuestionOpen(false);
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.error || "Не удалось отправить вопрос",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Проблема с подключением к серверу",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -130,22 +177,50 @@ const Faq = () => {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Свяжитесь с нами любым удобным способом, и мы с радостью поможем вам
+                Задайте вопрос, и мы постараемся ответить как можно скорее
               </p>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild>
-                  <a href="/#complaints">
+              <Dialog open={isQuestionOpen} onOpenChange={setIsQuestionOpen}>
+                <DialogTrigger asChild>
+                  <Button>
                     <Icon name="Send" size={18} className="mr-2" />
                     Задать вопрос
-                  </a>
-                </Button>
-                <Button variant="outline" asChild>
-                  <a href="/#contacts">
-                    <Icon name="Phone" size={18} className="mr-2" />
-                    Контакты
-                  </a>
-                </Button>
-              </div>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Задать вопрос</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleSubmitQuestion} className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Ваше имя</label>
+                      <Input
+                        placeholder="Иван Иванов"
+                        value={questionForm.name}
+                        onChange={(e) => setQuestionForm({ ...questionForm, name: e.target.value })}
+                        required
+                        maxLength={100}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Ваш вопрос (до 200 символов)</label>
+                      <Textarea
+                        placeholder="Введите ваш вопрос..."
+                        value={questionForm.question}
+                        onChange={(e) => setQuestionForm({ ...questionForm, question: e.target.value })}
+                        required
+                        maxLength={200}
+                        rows={4}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {questionForm.question.length}/200 символов
+                      </p>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting ? 'Отправка...' : 'Отправить вопрос'}
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </div>
