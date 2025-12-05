@@ -5,8 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
 
 const API_URLS = {
   topics: 'https://functions.poehali.dev/e1e111a6-e824-4bf1-9416-b5c145b37906',
@@ -153,11 +151,9 @@ const ForumTopic = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-        <Navigation />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">Загрузка...</div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -168,8 +164,6 @@ const ForumTopic = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      <Navigation />
-      
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <Link to="/forum">
@@ -283,8 +277,6 @@ const ForumTopic = () => {
           </Card>
         )}
       </main>
-      
-      <Footer />
     </div>
   );
 };
