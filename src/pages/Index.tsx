@@ -312,113 +312,286 @@ const Index = () => {
 
       <section id="doctors" className="py-16 bg-muted/50">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">График приема врачей</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {doctors.map((doctor, index) => (
-              <Card key={index} className="hover:shadow-xl transition-shadow">
-                <CardHeader>
-                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4 mx-auto">
-                    <Icon name="Stethoscope" size={36} className="text-white" />
+          <h2 className="text-4xl font-bold text-center mb-4">График приема граждан</h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Прием граждан по личным вопросам осуществляется руководством и специалистами больницы
+          </p>
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <Card className="hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
+                  <Icon name="UserCheck" size={32} className="text-white" />
+                </div>
+                <CardTitle>Главный врач</CardTitle>
+                <CardDescription className="text-base font-medium">Высшая квалификационная категория</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold">Понедельник, Среда, Пятница</p>
+                    <p className="text-sm text-muted-foreground">14:00 - 17:00</p>
                   </div>
-                  <CardTitle className="text-center">{doctor.name}</CardTitle>
-                  <CardDescription className="text-center text-base font-medium">{doctor.specialty}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Icon name="Clock" size={16} className="text-primary" />
-                    <span>{doctor.schedule}</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Icon name="MapPin" size={20} className="text-primary mt-1" />
+                  <p className="text-sm">Кабинет № 201, 2 этаж, административный корпус</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Icon name="Phone" size={20} className="text-primary mt-1" />
+                  <p className="text-sm">Запись по телефону: +7 (XXX) XXX-XX-XX</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
+                  <Icon name="Briefcase" size={32} className="text-white" />
+                </div>
+                <CardTitle>Заместитель главного врача</CardTitle>
+                <CardDescription className="text-base font-medium">По медицинской части</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold">Вторник, Четверг</p>
+                    <p className="text-sm text-muted-foreground">14:00 - 17:00</p>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Icon name="Briefcase" size={16} className="text-primary" />
-                    <span>Опыт: {doctor.experience}</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Icon name="MapPin" size={20} className="text-primary mt-1" />
+                  <p className="text-sm">Кабинет № 203, 2 этаж, административный корпус</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Icon name="Phone" size={20} className="text-primary mt-1" />
+                  <p className="text-sm">Запись по телефону: +7 (XXX) XXX-XX-XX</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
+                  <Icon name="Stethoscope" size={32} className="text-white" />
+                </div>
+                <CardTitle>Заведующие отделениями</CardTitle>
+                <CardDescription className="text-base font-medium">По профилю отделения</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold">Понедельник - Пятница</p>
+                    <p className="text-sm text-muted-foreground">13:00 - 15:00</p>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+                <div className="flex items-start gap-3">
+                  <Icon name="MapPin" size={20} className="text-primary mt-1" />
+                  <p className="text-sm">По месту нахождения отделения</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Icon name="Info" size={20} className="text-primary mt-1" />
+                  <p className="text-sm">Предварительная запись через регистратуру</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
+                  <Icon name="FileText" size={32} className="text-white" />
+                </div>
+                <CardTitle>Юридическая служба</CardTitle>
+                <CardDescription className="text-base font-medium">Консультации по правовым вопросам</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold">Вторник, Четверг</p>
+                    <p className="text-sm text-muted-foreground">10:00 - 13:00</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Icon name="MapPin" size={20} className="text-primary mt-1" />
+                  <p className="text-sm">Кабинет № 105, 1 этаж</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Icon name="Phone" size={20} className="text-primary mt-1" />
+                  <p className="text-sm">Запись по телефону: +7 (XXX) XXX-XX-XX</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       <section id="services" className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Наши услуги</h2>
-          <Tabs defaultValue="consultation" className="max-w-4xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-4">Структура ГУ "АЦГМБ" ЛНР</h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            В состав больницы входят специализированные отделения и службы, обеспечивающие комплексную медицинскую помощь
+          </p>
+          <Tabs defaultValue="clinical" className="max-w-5xl mx-auto">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="consultation">Консультации</TabsTrigger>
-              <TabsTrigger value="diagnostics">Диагностика</TabsTrigger>
-              <TabsTrigger value="treatment">Лечение</TabsTrigger>
+              <TabsTrigger value="clinical">Клинические отделения</TabsTrigger>
+              <TabsTrigger value="diagnostic">Диагностические службы</TabsTrigger>
+              <TabsTrigger value="administration">Администрация</TabsTrigger>
             </TabsList>
-            <TabsContent value="consultation" className="mt-6">
+            <TabsContent value="clinical" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Консультации специалистов</CardTitle>
+                  <CardTitle>Клинические отделения</CardTitle>
+                  <CardDescription>Основные лечебные подразделения</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>Прием терапевта, кардиолога, педиатра, хирурга</p>
+                    <Icon name="Activity" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Терапевтическое отделение</p>
+                      <p className="text-sm text-muted-foreground">Лечение заболеваний внутренних органов, 40 коек</p>
+                    </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>Онлайн-консультации с врачами в удобное время</p>
+                    <Icon name="Heart" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Кардиологическое отделение</p>
+                      <p className="text-sm text-muted-foreground">Диагностика и лечение сердечно-сосудистых заболеваний, 25 коек</p>
+                    </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>Повторные консультации по результатам анализов</p>
+                    <Icon name="Scissors" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Хирургическое отделение</p>
+                      <p className="text-sm text-muted-foreground">Плановые и экстренные операции, 30 коек</p>
+                    </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>Профилактические осмотры и диспансеризация</p>
+                    <Icon name="Baby" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Педиатрическое отделение</p>
+                      <p className="text-sm text-muted-foreground">Лечение детей от 0 до 18 лет, 35 коек</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Icon name="Users" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Отделение реанимации и интенсивной терапии</p>
+                      <p className="text-sm text-muted-foreground">Круглосуточная помощь тяжелобольным, 10 коек</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Icon name="Ambulance" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Приемное отделение</p>
+                      <p className="text-sm text-muted-foreground">Круглосуточный прием экстренных пациентов</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
-            <TabsContent value="diagnostics" className="mt-6">
+            <TabsContent value="diagnostic" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Диагностика</CardTitle>
+                  <CardTitle>Диагностические службы</CardTitle>
+                  <CardDescription>Подразделения для диагностики заболеваний</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>Лабораторные анализы крови, мочи</p>
+                    <Icon name="TestTube" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Клиническая лаборатория</p>
+                      <p className="text-sm text-muted-foreground">Общеклинические, биохимические анализы</p>
+                    </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>УЗИ-диагностика всех органов</p>
+                    <Icon name="ScanLine" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Рентгенологическое отделение</p>
+                      <p className="text-sm text-muted-foreground">Рентгенография, флюорография, маммография</p>
+                    </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>ЭКГ и холтеровское мониторирование</p>
+                    <Icon name="Waves" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Отделение УЗИ-диагностики</p>
+                      <p className="text-sm text-muted-foreground">Ультразвуковое исследование всех органов</p>
+                    </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>Рентгенография и флюорография</p>
+                    <Icon name="Activity" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Кабинет функциональной диагностики</p>
+                      <p className="text-sm text-muted-foreground">ЭКГ, холтеровское мониторирование, спирометрия</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Icon name="Microscope" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Патологоанатомическое отделение</p>
+                      <p className="text-sm text-muted-foreground">Гистологические и цитологические исследования</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Icon name="Pill" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Аптека</p>
+                      <p className="text-sm text-muted-foreground">Обеспечение медикаментами стационарных пациентов</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
-            <TabsContent value="treatment" className="mt-6">
+            <TabsContent value="administration" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Лечение</CardTitle>
+                  <CardTitle>Административно-управленческий персонал</CardTitle>
+                  <CardDescription>Руководство и обслуживающие службы</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>Амбулаторное и стационарное лечение</p>
+                    <Icon name="UserCheck" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Администрация</p>
+                      <p className="text-sm text-muted-foreground">Главный врач, заместители, заведующие отделениями</p>
+                    </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>Физиотерапевтические процедуры</p>
+                    <Icon name="ClipboardList" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Регистратура</p>
+                      <p className="text-sm text-muted-foreground">Запись на прием, оформление документов</p>
+                    </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>Хирургические операции различной сложности</p>
+                    <Icon name="FileText" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Юридическая служба</p>
+                      <p className="text-sm text-muted-foreground">Правовое сопровождение деятельности</p>
+                    </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Icon name="Check" size={20} className="text-primary mt-1" />
-                    <p>Реабилитационные программы</p>
+                    <Icon name="Calculator" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Бухгалтерия</p>
+                      <p className="text-sm text-muted-foreground">Финансовый учет и отчетность</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Icon name="Wrench" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Хозяйственная служба</p>
+                      <p className="text-sm text-muted-foreground">Обслуживание зданий и оборудования</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Icon name="Shield" size={20} className="text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">Отдел кадров</p>
+                      <p className="text-sm text-muted-foreground">Управление персоналом, документооборот</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
