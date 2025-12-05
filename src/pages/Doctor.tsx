@@ -37,6 +37,10 @@ const Doctor = () => {
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
   const [selectedDaysToCopy, setSelectedDaysToCopy] = useState<number[]>([]);
   const [lastAppointmentIds, setLastAppointmentIds] = useState<Set<number>>(new Set());
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    const saved = localStorage.getItem('doctor_sound_enabled');
+    return saved !== null ? saved === 'true' : true;
+  });
 
   useEffect(() => {
     const auth = localStorage.getItem('doctor_auth');
@@ -106,7 +110,9 @@ const Doctor = () => {
         
         if (addedAppointments.length > 0) {
           const latestAppointment = addedAppointments[0];
-          playNotificationSound();
+          if (soundEnabled) {
+            playNotificationSound();
+          }
           
           const appointmentDate = new Date(latestAppointment.appointment_date).toLocaleDateString('ru-RU', {
             day: 'numeric',
@@ -267,21 +273,36 @@ const Doctor = () => {
   };
 
   const playNotificationSound = () => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.5);
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (error) {
+      console.error('Failed to play sound:', error);
+    }
+  };
+
+  const toggleSound = () => {
+    const newValue = !soundEnabled;
+    setSoundEnabled(newValue);
+    localStorage.setItem('doctor_sound_enabled', String(newValue));
+    toast({ 
+      title: newValue ? 'Звук включен' : 'Звук выключен',
+      description: newValue ? 'Вы будете слышать уведомления о новых записях' : 'Звуковые уведомления отключены',
+      duration: 3000,
+    });
   };
 
   const handleLogout = () => {
@@ -773,14 +794,39 @@ const Doctor = () => {
             <TabsContent value="appointments" className="mt-6">
               <Card className="mb-6 bg-green-50 border-green-200">
                 <CardContent className="pt-4">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <Icon name="Bell" size={20} className="text-green-600" />
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex-shrink-0">
+                        <Icon name="Bell" size={20} className="text-green-600" />
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                      </div>
+                      <p className="text-sm text-green-900">
+                        <span className="font-medium">Автообновление активно:</span> новые записи появятся автоматически с уведомлением {soundEnabled ? 'и звуковым сигналом' : '(звук выключен)'}
+                      </p>
                     </div>
-                    <p className="text-sm text-green-900">
-                      <span className="font-medium">Автообновление активно:</span> новые записи появятся автоматически с уведомлением и звуковым сигналом
-                    </p>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      {soundEnabled && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={playNotificationSound}
+                          className="flex-shrink-0"
+                          title="Тест звука"
+                        >
+                          <Icon name="Play" size={16} className="mr-1" />
+                          <span className="hidden sm:inline">Тест</span>
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={toggleSound}
+                        className="flex-1 sm:flex-initial"
+                      >
+                        <Icon name={soundEnabled ? "Volume2" : "VolumeX"} size={16} className="mr-2" />
+                        {soundEnabled ? 'Звук вкл' : 'Звук выкл'}
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
