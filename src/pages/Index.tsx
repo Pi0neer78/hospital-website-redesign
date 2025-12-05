@@ -144,9 +144,11 @@ const Index = () => {
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-lg">
-              <Icon name="HeartPulse" size={24} className="text-white" />
-            </div>
+            <img 
+              src="https://cdn.poehali.dev/files/d1c15da6-7ffe-46bb-b5db-3d114b408cec.jpg" 
+              alt="Логотип АЦГМБ ЛНР" 
+              className="w-12 h-12 object-contain"
+            />
             <div>
               <p className="text-[10px] text-muted-foreground leading-tight">ГУ АЦГМБ ЛНР</p>
               <h1 className="text-sm font-bold text-primary leading-tight">Антрацитовская центральная<br />городская многопрофильная больница</h1>
@@ -163,9 +165,11 @@ const Index = () => {
 
       <section className="py-20 text-center">
         <div className="container mx-auto px-4">
-          <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-primary via-accent to-secondary rounded-full flex items-center justify-center shadow-2xl animate-fade-in">
-            <Icon name="Hospital" size={64} className="text-white" />
-          </div>
+          <img 
+            src="https://cdn.poehali.dev/files/d1c15da6-7ffe-46bb-b5db-3d114b408cec.jpg" 
+            alt="Логотип АЦГМБ ЛНР" 
+            className="w-48 h-48 mx-auto mb-8 object-contain animate-fade-in"
+          />
           <p className="text-lg text-muted-foreground mb-2 animate-fade-in">Государственное учреждение</p>
           <h2 className="text-5xl font-bold mb-2 text-foreground animate-fade-in">Антрацитовская центральная городская многопрофильная больница</h2>
           <p className="text-lg text-muted-foreground mb-8 animate-fade-in">Луганской Народной Республики</p>
