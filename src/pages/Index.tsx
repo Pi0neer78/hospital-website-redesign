@@ -867,7 +867,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-muted/50">
+      <section id="complaints" className="py-16 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <Card>
