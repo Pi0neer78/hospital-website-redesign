@@ -31,6 +31,9 @@ const Index = () => {
     appointment_time: '',
     description: '' 
   });
+  const [verificationStep, setVerificationStep] = useState<'form' | 'code' | 'verified'>('form');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [sentCode, setSentCode] = useState('');
   const [complaintForm, setComplaintForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
@@ -210,8 +213,73 @@ const Index = () => {
     }
   };
 
+  const handleSendVerificationCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(BACKEND_URLS.smsVerify, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: appointmentForm.patient_phone }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSentCode(data.code);
+        setVerificationStep('code');
+        toast({
+          title: "Код отправлен",
+          description: "Проверьте сообщения в мессенджере MAX",
+        });
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.error || "Не удалось отправить код",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Проблема с подключением к серверу",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleVerifyCode = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (verificationCode === sentCode) {
+      setVerificationStep('verified');
+      toast({
+        title: "Номер подтвержден",
+        description: "Теперь вы можете завершить запись",
+      });
+    } else {
+      toast({
+        title: "Неверный код",
+        description: "Проверьте введенный код и попробуйте снова",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (verificationStep !== 'verified') {
+      toast({
+        title: "Требуется верификация",
+        description: "Сначала подтвердите номер телефона",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -234,6 +302,9 @@ const Index = () => {
           description: `Вы записаны к ${selectedDoctor.full_name} на ${selectedDate} в ${appointmentForm.appointment_time}`,
         });
         setAppointmentForm({ patient_name: '', patient_phone: '', appointment_time: '', description: '' });
+        setVerificationStep('form');
+        setVerificationCode('');
+        setSentCode('');
         setSelectedDoctor(null);
         setSelectedDate('');
         setIsAppointmentOpen(false);
@@ -618,7 +689,7 @@ const Index = () => {
                         </div>
                       </div>
                     ) : (
-                      <form onSubmit={handleAppointment} className="space-y-4">
+                      <div className="space-y-4">
                         <Card className="bg-primary/5">
                           <CardContent className="pt-4">
                             <p className="text-sm"><strong>Врач:</strong> {selectedDoctor.full_name}</p>
@@ -635,33 +706,108 @@ const Index = () => {
                             </Button>
                           </CardContent>
                         </Card>
-                        <Input
-                          placeholder="Ваше ФИО"
-                          value={appointmentForm.patient_name}
-                          onChange={(e) => setAppointmentForm({ ...appointmentForm, patient_name: e.target.value })}
-                          required
-                        />
-                        <Input
-                          placeholder="Телефон (+79991234567)"
-                          type="tel"
-                          value={appointmentForm.patient_phone}
-                          onChange={(e) => setAppointmentForm({ ...appointmentForm, patient_phone: e.target.value })}
-                          required
-                        />
-                        <Textarea
-                          placeholder="Краткое описание проблемы (необязательно)"
-                          value={appointmentForm.description}
-                          onChange={(e) => setAppointmentForm({ ...appointmentForm, description: e.target.value })}
-                          rows={3}
-                        />
-                        <Button 
-                          type="submit" 
-                          className="w-full" 
-                          disabled={isSubmitting}
-                        >
-                          {isSubmitting ? 'Отправка...' : 'Записаться на прием'}
-                        </Button>
-                      </form>
+
+                        {verificationStep === 'form' && (
+                          <form onSubmit={handleSendVerificationCode} className="space-y-4">
+                            <Input
+                              placeholder="Ваше ФИО"
+                              value={appointmentForm.patient_name}
+                              onChange={(e) => setAppointmentForm({ ...appointmentForm, patient_name: e.target.value })}
+                              required
+                            />
+                            <Input
+                              placeholder="Телефон (+79991234567)"
+                              type="tel"
+                              value={appointmentForm.patient_phone}
+                              onChange={(e) => setAppointmentForm({ ...appointmentForm, patient_phone: e.target.value })}
+                              required
+                            />
+                            <Textarea
+                              placeholder="Краткое описание проблемы (необязательно)"
+                              value={appointmentForm.description}
+                              onChange={(e) => setAppointmentForm({ ...appointmentForm, description: e.target.value })}
+                              rows={3}
+                            />
+                            <Button 
+                              type="submit" 
+                              className="w-full" 
+                              disabled={isSubmitting}
+                            >
+                              {isSubmitting ? 'Отправка кода...' : 'Отправить код в MAX'}
+                            </Button>
+                          </form>
+                        )}
+
+                        {verificationStep === 'code' && (
+                          <form onSubmit={handleVerifyCode} className="space-y-4">
+                            <Card className="bg-blue-50 border-blue-200">
+                              <CardContent className="pt-4">
+                                <div className="flex items-start gap-3">
+                                  <Icon name="MessageSquare" size={24} className="text-blue-600 mt-1" />
+                                  <div>
+                                    <p className="font-medium text-blue-900 mb-1">Проверьте сообщения в MAX</p>
+                                    <p className="text-sm text-blue-700">
+                                      Мы отправили код подтверждения на номер {appointmentForm.patient_phone} через мессенджер MAX
+                                    </p>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                            <Input
+                              placeholder="Введите код из MAX"
+                              value={verificationCode}
+                              onChange={(e) => setVerificationCode(e.target.value)}
+                              required
+                              maxLength={6}
+                            />
+                            <div className="flex gap-2">
+                              <Button 
+                                type="submit" 
+                                className="flex-1"
+                              >
+                                Подтвердить
+                              </Button>
+                              <Button 
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                  setVerificationStep('form');
+                                  setVerificationCode('');
+                                }}
+                              >
+                                Назад
+                              </Button>
+                            </div>
+                          </form>
+                        )}
+
+                        {verificationStep === 'verified' && (
+                          <form onSubmit={handleAppointment} className="space-y-4">
+                            <Card className="bg-green-50 border-green-200">
+                              <CardContent className="pt-4">
+                                <div className="flex items-center gap-2">
+                                  <Icon name="CheckCircle" size={20} className="text-green-600" />
+                                  <p className="font-medium text-green-900">Номер подтвержден</p>
+                                </div>
+                              </CardContent>
+                            </Card>
+                            <div className="space-y-2 text-sm">
+                              <p><strong>ФИО:</strong> {appointmentForm.patient_name}</p>
+                              <p><strong>Телефон:</strong> {appointmentForm.patient_phone}</p>
+                              {appointmentForm.description && (
+                                <p><strong>Описание:</strong> {appointmentForm.description}</p>
+                              )}
+                            </div>
+                            <Button 
+                              type="submit" 
+                              className="w-full" 
+                              disabled={isSubmitting}
+                            >
+                              {isSubmitting ? 'Отправка...' : 'Подтвердить запись'}
+                            </Button>
+                          </form>
+                        )}
+                      </div>
                     )}
                   </div>
                 )}
