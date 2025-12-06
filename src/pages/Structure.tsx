@@ -39,11 +39,31 @@ const Structure = () => {
           </div>
 
           <Tabs defaultValue="clinics" className="max-w-7xl mx-auto">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="clinics">Поликлиники</TabsTrigger>
-              <TabsTrigger value="ambulatory">Амбулатории и ФАПы</TabsTrigger>
-              <TabsTrigger value="departments">Отделения</TabsTrigger>
-              <TabsTrigger value="services">Службы</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-2 h-auto bg-transparent p-0">
+              <TabsTrigger value="clinics" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3 px-4 rounded-lg shadow-sm border border-border bg-white">
+                <div className="flex items-center gap-2">
+                  <Icon name="Building2" size={18} />
+                  <span className="text-sm font-medium">Поликлиники</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger value="ambulatory" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3 px-4 rounded-lg shadow-sm border border-border bg-white">
+                <div className="flex items-center gap-2">
+                  <Icon name="Home" size={18} />
+                  <span className="text-sm font-medium">Амбулатории</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger value="departments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3 px-4 rounded-lg shadow-sm border border-border bg-white">
+                <div className="flex items-center gap-2">
+                  <Icon name="Hospital" size={18} />
+                  <span className="text-sm font-medium">Отделения</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger value="services" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3 px-4 rounded-lg shadow-sm border border-border bg-white">
+                <div className="flex items-center gap-2">
+                  <Icon name="Users" size={18} />
+                  <span className="text-sm font-medium">Службы</span>
+                </div>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="clinics" className="mt-6">
