@@ -83,6 +83,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             message_sent = False
             show_code_on_screen = False
             
+            # Логирование для отладки
+            token_preview = max_token[:15] + '...' if len(max_token) > 15 else max_token
+            print(f"DEBUG: Token preview: {token_preview}")
+            print(f"DEBUG: Token length: {len(max_token)}")
+            print(f"DEBUG: Phone (user_id): {clean_phone}")
+            
             try:
                 # Отправка через MAX API
                 request_data = json.dumps({
@@ -91,6 +97,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 # user_id передается в URL как параметр
                 url = f'https://platform-api.max.ru/messages?user_id={clean_phone}'
+                
+                print(f"DEBUG: Request URL: {url}")
+                print(f"DEBUG: Request body: {request_data.decode('utf-8')}")
                 
                 req = urllib.request.Request(
                     url,
@@ -104,10 +113,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 with urllib.request.urlopen(req, timeout=10) as response:
                     result = json.loads(response.read().decode('utf-8'))
+                    print(f"DEBUG: MAX API Response: {result}")
                     message_sent = True
                     
             except urllib.error.HTTPError as e:
                 error_body = e.read().decode('utf-8')
+                print(f"DEBUG: HTTP Error {e.code}: {error_body}")
+                
                 # Если пользователь не найден в МАКС - покажем код на экране
                 if 'not.found' in error_body or 'not found' in error_body.lower():
                     show_code_on_screen = True
@@ -119,6 +131,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
             except Exception as e:
+                print(f"DEBUG: Exception: {type(e).__name__}: {str(e)}")
                 return {
                     'statusCode': 500,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
