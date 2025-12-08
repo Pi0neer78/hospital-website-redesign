@@ -1380,7 +1380,7 @@ const Index = () => {
       <footer className="bg-primary text-white py-8">
         <div className="container mx-auto px-4">
           <div className="text-center text-white/90">
-            <p className="text-sm">&copy; 2024 «ГБУЗ Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
+            <p className="text-sm">© 2024 ГБУЗ «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
             <p className="text-xs mt-2 text-white/70">Все права защищены</p>
             <a href="/doctor" className="text-xs mt-2 text-white/70 hover:text-white transition-colors inline-block">
               Вход для врача
