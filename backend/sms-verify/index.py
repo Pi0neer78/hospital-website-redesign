@@ -128,12 +128,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             try:
                 # Отправка через MAX API
                 request_data = json.dumps({
-                    'chat_id': clean_phone,
                     'text': message_text
                 }).encode('utf-8')
                 
+                # user_id передается в URL как параметр
+                url = f'https://platform-api.max.ru/messages?user_id={clean_phone}'
+                
                 req = urllib.request.Request(
-                    'https://platform-api.max.ru/messages',
+                    url,
                     data=request_data,
                     headers={
                         'Authorization': max_token,
