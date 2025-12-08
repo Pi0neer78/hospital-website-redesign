@@ -54,6 +54,13 @@ const Doctor = () => {
     appointmentDate: '',
     appointmentTime: ''
   });
+  const [cancelDialog, setCancelDialog] = useState<{open: boolean, appointmentId: number | null, patientName: string, appointmentDate: string, appointmentTime: string}>({
+    open: false,
+    appointmentId: null,
+    patientName: '',
+    appointmentDate: '',
+    appointmentTime: ''
+  });
 
   useEffect(() => {
     const auth = localStorage.getItem('doctor_auth');
@@ -1045,11 +1052,13 @@ const Doctor = () => {
                                       <Button 
                                         size="sm" 
                                         variant="ghost"
-                                        onClick={() => {
-                                          if (confirm('Вы уверены, что хотите отменить эту запись?')) {
-                                            handleUpdateAppointmentStatus(appointment.id, 'cancelled');
-                                          }
-                                        }}
+                                        onClick={() => setCancelDialog({
+                                          open: true,
+                                          appointmentId: appointment.id,
+                                          patientName: appointment.patient_name,
+                                          appointmentDate: new Date(appointment.appointment_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }),
+                                          appointmentTime: appointment.appointment_time.slice(0, 5)
+                                        })}
                                         title="Отменить"
                                       >
                                         <Icon name="XCircle" size={16} className="text-red-600" />
@@ -1093,7 +1102,7 @@ const Doctor = () => {
               className="flex-1"
               onClick={() => setConfirmDialog({...confirmDialog, open: false})}
             >
-              Отмена
+              Нет
             </Button>
             <Button
               className="flex-1 bg-green-600 hover:bg-green-700"
@@ -1105,7 +1114,48 @@ const Doctor = () => {
               }}
             >
               <Icon name="CheckCircle" size={18} className="mr-2" />
-              Завершить
+              Да
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={cancelDialog.open} onOpenChange={(open) => setCancelDialog({...cancelDialog, open})}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl">Отменить запись?</DialogTitle>
+            <DialogDescription className="text-center pt-4 space-y-2">
+              <div className="bg-red-50 rounded-lg p-4 space-y-2 border border-red-200">
+                <p className="font-semibold text-foreground text-lg">{cancelDialog.patientName}</p>
+                <p className="text-sm text-muted-foreground">
+                  {cancelDialog.appointmentDate} в {cancelDialog.appointmentTime}
+                </p>
+              </div>
+              <p className="text-base text-foreground pt-2">
+                Вы уверены, что хотите отменить запись этого пациента?
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 mt-4">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setCancelDialog({...cancelDialog, open: false})}
+            >
+              Нет
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={() => {
+                if (cancelDialog.appointmentId) {
+                  handleUpdateAppointmentStatus(cancelDialog.appointmentId, 'cancelled');
+                  setCancelDialog({...cancelDialog, open: false});
+                }
+              }}
+            >
+              <Icon name="XCircle" size={18} className="mr-2" />
+              Да
             </Button>
           </div>
         </DialogContent>
