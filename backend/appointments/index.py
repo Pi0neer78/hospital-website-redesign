@@ -39,23 +39,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         if method == 'POST':
             body = json.loads(event.get('body', '{}'))
-            name = body.get('name')
-            phone = body.get('phone')
-            doctor = body.get('doctor')
-            appointment_date = body.get('date')
+            doctor_id = body.get('doctor_id')
+            patient_name = body.get('patient_name')
+            patient_phone = body.get('patient_phone')
+            appointment_date = body.get('appointment_date')
+            appointment_time = body.get('appointment_time')
+            description = body.get('description', '')
             
-            if not all([name, phone, doctor, appointment_date]):
+            if not all([doctor_id, patient_name, patient_phone, appointment_date, appointment_time]):
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Missing required fields'}),
+                    'body': json.dumps({'error': 'Missing required fields', 'success': False}),
                     'isBase64Encoded': False
                 }
             
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             cursor.execute(
-                "INSERT INTO appointments (name, phone, doctor, appointment_date) VALUES (%s, %s, %s, %s) RETURNING id, created_at",
-                (name, phone, doctor, appointment_date)
+                """INSERT INTO t_p30358746_hospital_website_red.appointments_v2 
+                   (doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description, status) 
+                   VALUES (%s, %s, %s, %s, %s, %s, 'scheduled') 
+                   RETURNING id, created_at""",
+                (doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description)
             )
             result = cursor.fetchone()
             conn.commit()
@@ -74,7 +79,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif method == 'GET':
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute("SELECT * FROM appointments ORDER BY appointment_date DESC, created_at DESC LIMIT 100")
+            cursor.execute("SELECT * FROM t_p30358746_hospital_website_red.appointments_v2 ORDER BY appointment_date DESC, created_at DESC LIMIT 100")
             appointments = cursor.fetchall()
             cursor.close()
             
