@@ -83,61 +83,79 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             message_sent = False
             show_code_on_screen = False
             
+            # Получаем MAX user_id из базы данных
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            cursor.execute(
+                "SELECT max_user_id, max_chat_id FROM t_p30358746_hospital_website_red.max_users WHERE phone_number = %s",
+                (clean_phone,)
+            )
+            max_user_record = cursor.fetchone()
+            cursor.close()
+            
+            if not max_user_record or not max_user_record.get('max_user_id'):
+                print(f"MAX user_id не найден для телефона {clean_phone}")
+                show_code_on_screen = True
+            else:
+                max_user_id = max_user_record['max_user_id']
+                print(f"Найден MAX user_id={max_user_id} для телефона {clean_phone}")
+            
             # Логирование для отладки
             token_preview = max_token[:15] + '...' if len(max_token) > 15 else max_token
             print(f"DEBUG: Token preview: {token_preview}")
             print(f"DEBUG: Token length: {len(max_token)}")
-            print(f"DEBUG: Phone (user_id): {clean_phone}")
+            print(f"DEBUG: Phone: {clean_phone}")
+            print(f"DEBUG: MAX user_id: {max_user_id if not show_code_on_screen else 'not found'}")
             
-            try:
-                # Отправка через MAX API
-                request_data = json.dumps({
-                    'text': message_text
-                }).encode('utf-8')
-                
-                # user_id передается в URL как параметр
-                url = f'https://platform-api.max.ru/messages?user_id={clean_phone}'
-                
-                print(f"DEBUG: Request URL: {url}")
-                print(f"DEBUG: Request body: {request_data.decode('utf-8')}")
-                
-                req = urllib.request.Request(
-                    url,
-                    data=request_data,
-                    headers={
-                        'Authorization': max_token,
-                        'Content-Type': 'application/json'
-                    },
-                    method='POST'
-                )
-                
-                with urllib.request.urlopen(req, timeout=10) as response:
-                    result = json.loads(response.read().decode('utf-8'))
-                    print(f"DEBUG: MAX API Response: {result}")
-                    message_sent = True
+            if not show_code_on_screen:
+                try:
+                    # Отправка через MAX API
+                    request_data = json.dumps({
+                        'text': message_text
+                    }).encode('utf-8')
                     
-            except urllib.error.HTTPError as e:
-                error_body = e.read().decode('utf-8')
-                print(f"DEBUG: HTTP Error {e.code}: {error_body}")
+                    # user_id передается в URL как параметр
+                    url = f'https://platform-api.max.ru/messages?user_id={max_user_id}'
+                    
+                    print(f"DEBUG: Request URL: {url}")
+                    print(f"DEBUG: Request body: {request_data.decode('utf-8')}")
                 
-                # Если пользователь не найден в МАКС - покажем код на экране
-                if 'not.found' in error_body or 'not found' in error_body.lower():
-                    show_code_on_screen = True
-                else:
+                    req = urllib.request.Request(
+                        url,
+                        data=request_data,
+                        headers={
+                            'Authorization': max_token,
+                            'Content-Type': 'application/json'
+                        },
+                        method='POST'
+                    )
+                    
+                    with urllib.request.urlopen(req, timeout=10) as response:
+                        result = json.loads(response.read().decode('utf-8'))
+                        print(f"DEBUG: MAX API Response: {result}")
+                        message_sent = True
+                        
+                except urllib.error.HTTPError as e:
+                    error_body = e.read().decode('utf-8')
+                    print(f"DEBUG: HTTP Error {e.code}: {error_body}")
+                    
+                    # Если пользователь не найден в МАКС - покажем код на экране
+                    if 'not.found' in error_body or 'not found' in error_body.lower():
+                        show_code_on_screen = True
+                    else:
+                        return {
+                            'statusCode': 500,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': f'Не удалось отправить сообщение в МАКС: {error_body}'}),
+                            'isBase64Encoded': False
+                        }
+                except Exception as e:
+                    print(f"DEBUG: Exception: {type(e).__name__}: {str(e)}")
                     return {
                         'statusCode': 500,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': f'Не удалось отправить сообщение в МАКС: {error_body}'}),
+                        'body': json.dumps({'error': f'Ошибка отправки: {str(e)}'}),
                         'isBase64Encoded': False
                     }
-            except Exception as e:
-                print(f"DEBUG: Exception: {type(e).__name__}: {str(e)}")
-                return {
-                    'statusCode': 500,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': f'Ошибка отправки: {str(e)}'}),
-                    'isBase64Encoded': False
-                }
             
             # Сохраняем в БД ТОЛЬКО если отправка удалась или нужен fallback
             cursor = conn.cursor(cursor_factory=RealDictCursor)

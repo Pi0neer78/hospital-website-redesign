@@ -1,11 +1,14 @@
 import json
 import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Webhook для MAX бота - обрабатывает входящие сообщения от пользователей
     Приветствует новых пользователей и обрабатывает команды
+    Сохраняет MAX user_id пользователей в базу данных
     """
     method = event.get('httpMethod', 'POST')
     
@@ -27,11 +30,44 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Получаем данные о сообщении от MAX
         message_text = body.get('text', '').strip()
-        user_id = body.get('from', {}).get('id', '')
+        sender = body.get('from', {})
+        user_id = sender.get('id', '')
+        username = sender.get('username', '')
+        phone = sender.get('phone', '')
         chat_id = body.get('chat', {}).get('id', '')
         message_type = body.get('type', '')
         
-        print(f"Получено сообщение от user_id={user_id}, chat_id={chat_id}: {message_text}")
+        print(f"Получено сообщение от user_id={user_id}, chat_id={chat_id}, phone={phone}: {message_text}")
+        
+        # Сохраняем user_id в базу данных, если есть номер телефона
+        if phone and user_id:
+            try:
+                database_url = os.environ.get('DATABASE_URL')
+                if database_url:
+                    conn = psycopg2.connect(database_url)
+                    cursor = conn.cursor()
+                    
+                    # Очищаем номер телефона (только цифры)
+                    clean_phone = ''.join(filter(str.isdigit, phone))
+                    
+                    # Сохраняем или обновляем запись
+                    cursor.execute("""
+                        INSERT INTO t_p30358746_hospital_website_red.max_users 
+                        (phone_number, max_user_id, max_chat_id, last_contact)
+                        VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+                        ON CONFLICT (phone_number) 
+                        DO UPDATE SET 
+                            max_user_id = EXCLUDED.max_user_id,
+                            max_chat_id = EXCLUDED.max_chat_id,
+                            last_contact = CURRENT_TIMESTAMP
+                    """, (clean_phone, user_id, chat_id))
+                    
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+                    print(f"Сохранен user_id={user_id} для телефона {clean_phone}")
+            except Exception as db_error:
+                print(f"Ошибка сохранения в БД: {db_error}")
         
         # Определяем ответ на основе команды
         response_text = ""
