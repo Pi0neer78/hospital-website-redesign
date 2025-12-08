@@ -904,9 +904,11 @@ const Index = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
-                  <Icon name="UserCheck" size={32} className="text-white" />
-                </div>
+                <img 
+                  src="https://cdn.poehali.dev/files/Бровкин ЕВ.jpg" 
+                  alt="Бровкин Е.В."
+                  className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
+                />
                 <CardTitle className="text-lg">Бровкин Е.В.</CardTitle>
                 <CardDescription className="text-base font-medium">Главный врач</CardDescription>
               </CardHeader>
