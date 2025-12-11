@@ -49,14 +49,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             action = params.get('action', '')
             
             if action == 'get-chats':
+                status_filter = params.get('status', 'active')
+                
                 cursor.execute('''
                     SELECT c.id, c.patient_name, c.patient_phone, c.status, c.created_at, c.updated_at,
                            (SELECT COUNT(*) FROM chat_messages WHERE chat_id = c.id) as message_count,
                            (SELECT message FROM chat_messages WHERE chat_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message
                     FROM chats c
-                    WHERE c.status = 'active'
+                    WHERE c.status = %s
                     ORDER BY c.updated_at DESC
-                ''')
+                ''', (status_filter,))
                 
                 chats = []
                 for row in cursor.fetchall():

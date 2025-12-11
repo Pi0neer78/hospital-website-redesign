@@ -59,12 +59,16 @@ const Admin = () => {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [chats, setChats] = useState([]);
+  const [archivedChats, setArchivedChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [operatorMessage, setOperatorMessage] = useState('');
   const [operatorName, setOperatorName] = useState('');
   const [newChatsCount, setNewChatsCount] = useState(0);
   const [lastMessageCount, setLastMessageCount] = useState<{[key: number]: number}>({});
+  const [previousChatCount, setPreviousChatCount] = useState(0);
+  const [showArchived, setShowArchived] = useState(false);
+  const notificationSound = typeof Audio !== 'undefined' ? new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUQ0PVqzn7bViFg==') : null;
 
   useEffect(() => {
     const auth = localStorage.getItem('admin_auth');
@@ -761,11 +765,18 @@ const Admin = () => {
         return chat.message_count > prevCount;
       }).length;
       
+      if (silent && newCount > 0 && newChats.length > previousChatCount) {
+        if (notificationSound) {
+          notificationSound.play().catch(err => console.log('Sound play failed:', err));
+        }
+      }
+      
       if (!silent) {
         setNewChatsCount(newCount);
       }
       
       setChats(newChats);
+      setPreviousChatCount(newChats.length);
       
       const counts: {[key: number]: number} = {};
       newChats.forEach((chat: any) => {
@@ -774,6 +785,16 @@ const Admin = () => {
       setLastMessageCount(counts);
     } catch (error) {
       console.error('Failed to load chats:', error);
+    }
+  };
+
+  const loadArchivedChats = async () => {
+    try {
+      const response = await fetch(`${API_URLS.chat}?action=get-chats&status=closed`);
+      const data = await response.json();
+      setArchivedChats(data.chats || []);
+    } catch (error) {
+      console.error('Failed to load archived chats:', error);
     }
   };
 
@@ -1792,21 +1813,44 @@ const Admin = () => {
         </TabsContent>
 
         <TabsContent value="chats" onFocus={() => setNewChatsCount(0)}>
-          <h2 className="text-3xl font-bold mb-6">Чаты службы поддержки</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold">Чаты службы поддержки</h2>
+            <div className="flex gap-2">
+              <Button
+                variant={!showArchived ? "default" : "outline"}
+                onClick={() => setShowArchived(false)}
+              >
+                <Icon name="MessageCircle" size={18} className="mr-2" />
+                Активные
+              </Button>
+              <Button
+                variant={showArchived ? "default" : "outline"}
+                onClick={() => {
+                  setShowArchived(true);
+                  loadArchivedChats();
+                }}
+              >
+                <Icon name="Archive" size={18} className="mr-2" />
+                Архив
+              </Button>
+            </div>
+          </div>
           
           <div className="grid md:grid-cols-3 gap-6">
             <Card className="md:col-span-1">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Icon name="MessageCircle" size={20} />
-                  Активные чаты ({chats.length})
+                  <Icon name={showArchived ? "Archive" : "MessageCircle"} size={20} />
+                  {showArchived ? `Архив (${archivedChats.length})` : `Активные чаты (${chats.length})`}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 max-h-[600px] overflow-y-auto">
-                {chats.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">Нет активных чатов</p>
+                {(showArchived ? archivedChats : chats).length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    {showArchived ? 'Нет архивных чатов' : 'Нет активных чатов'}
+                  </p>
                 ) : (
-                  chats.map((chat: any) => (
+                  (showArchived ? archivedChats : chats).map((chat: any) => (
                     <Button
                       key={chat.id}
                       variant={selectedChat?.id === chat.id ? "default" : "outline"}
@@ -1828,6 +1872,11 @@ const Admin = () => {
                         {chat.last_message && (
                           <p className="text-xs opacity-70 truncate mt-1">{chat.last_message}</p>
                         )}
+                        {showArchived && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Закрыт: {new Date(chat.updated_at).toLocaleDateString('ru-RU')}
+                          </p>
+                        )}
                       </div>
                     </Button>
                   ))
@@ -1842,16 +1891,37 @@ const Admin = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle>{selectedChat.patient_name}</CardTitle>
-                        <CardDescription>{selectedChat.patient_phone}</CardDescription>
+                        <CardDescription>
+                          {selectedChat.patient_phone}
+                          {showArchived && (
+                            <span className="ml-2 text-xs">
+                              (Закрыт {new Date(selectedChat.updated_at).toLocaleDateString('ru-RU')})
+                            </span>
+                          )}
+                        </CardDescription>
                       </div>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleCloseChat(selectedChat.id)}
-                      >
-                        <Icon name="X" size={16} className="mr-2" />
-                        Закрыть чат
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            window.print();
+                          }}
+                        >
+                          <Icon name="Printer" size={16} className="mr-2" />
+                          Печать
+                        </Button>
+                        {!showArchived && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleCloseChat(selectedChat.id)}
+                          >
+                            <Icon name="X" size={16} className="mr-2" />
+                            Закрыть чат
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="p-0">
@@ -1892,18 +1962,20 @@ const Admin = () => {
                         </>
                       )}
                     </div>
-                    <form onSubmit={handleSendOperatorMessage} className="p-4 border-t bg-white">
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Введите сообщение..."
-                          value={operatorMessage}
-                          onChange={(e) => setOperatorMessage(e.target.value)}
-                        />
-                        <Button type="submit" size="icon" disabled={!operatorMessage.trim()}>
-                          <Icon name="Send" size={18} />
-                        </Button>
-                      </div>
-                    </form>
+                    {!showArchived && (
+                      <form onSubmit={handleSendOperatorMessage} className="p-4 border-t bg-white">
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Введите сообщение..."
+                            value={operatorMessage}
+                            onChange={(e) => setOperatorMessage(e.target.value)}
+                          />
+                          <Button type="submit" size="icon" disabled={!operatorMessage.trim()}>
+                            <Icon name="Send" size={18} />
+                          </Button>
+                        </div>
+                      </form>
+                    )}
                   </CardContent>
                 </>
               ) : (
