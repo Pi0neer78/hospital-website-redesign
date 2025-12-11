@@ -150,7 +150,7 @@ const SupportChat = () => {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 hover:scale-110 transition-transform"
+          className="fixed bottom-4 right-4 md:bottom-6 md:right-6 h-14 w-14 rounded-full shadow-lg z-50 hover:scale-110 transition-transform"
           size="icon"
         >
           <Icon name="MessageCircle" size={24} />
@@ -158,8 +158,8 @@ const SupportChat = () => {
       )}
 
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 w-96 h-[500px] shadow-2xl z-50 flex flex-col">
-          <CardHeader className="bg-primary text-primary-foreground flex flex-row items-center justify-between p-4 rounded-t-lg">
+        <Card className="fixed inset-0 md:bottom-6 md:right-6 md:left-auto md:top-auto md:w-96 md:h-[500px] w-full h-full shadow-2xl z-50 flex flex-col md:rounded-lg rounded-none">
+          <CardHeader className="bg-primary text-primary-foreground flex flex-row items-center justify-between p-4 md:rounded-t-lg">
             <div className="flex items-center gap-2">
               <Icon name="Headphones" size={20} />
               <CardTitle className="text-lg">Служба поддержки</CardTitle>
