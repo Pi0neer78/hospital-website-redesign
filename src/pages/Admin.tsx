@@ -2003,7 +2003,7 @@ const Admin = () => {
                             <span className="text-xs">{chat.message_count}</span>
                             {!showArchived && (chat.patient_message_count - (lastMessageCount[chat.id] || 0)) > 0 && (
                               <span className="bg-red-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                                /{chat.patient_message_count - (lastMessageCount[chat.id] || 0)}
+                                {chat.patient_message_count - (lastMessageCount[chat.id] || 0)}
                               </span>
                             )}
                           </div>
