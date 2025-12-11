@@ -1426,11 +1426,9 @@ const Index = () => {
                   <Card className="border-primary/20">
                     <CardHeader className="pb-3">
                       <div className="flex items-center gap-3">
-                        <img 
-                          src="https://cdn.poehali.dev/files/суялкин.jpg" 
-                          alt="Суялкин Олег Павлович"
-                          className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
-                        />
+                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20">
+                          <Icon name="User" size={32} className="text-primary" />
+                        </div>
                         <div>
                           <p className="font-semibold text-sm">Зам. главного врача</p>
                           <p className="text-sm text-muted-foreground">по медицинской части</p>
