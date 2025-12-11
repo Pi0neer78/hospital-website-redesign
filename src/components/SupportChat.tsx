@@ -38,10 +38,38 @@ const SupportChat = () => {
 
   useEffect(() => {
     if (chatId && isOpen) {
-      const interval = setInterval(() => {
-        loadMessages(chatId);
-      }, 5000);
-      return () => clearInterval(interval);
+      let interval: NodeJS.Timeout | null = null;
+      let isPageVisible = true;
+      
+      const startPolling = () => {
+        if (interval) clearInterval(interval);
+        interval = setInterval(() => {
+          if (isPageVisible) {
+            loadMessages(chatId);
+          }
+        }, 10000);
+      };
+      
+      const handleVisibilityChange = () => {
+        isPageVisible = !document.hidden;
+        if (isPageVisible) {
+          loadMessages(chatId);
+          startPolling();
+        } else {
+          if (interval) {
+            clearInterval(interval);
+            interval = null;
+          }
+        }
+      };
+      
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      startPolling();
+      
+      return () => {
+        if (interval) clearInterval(interval);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
     }
   }, [chatId, isOpen]);
 

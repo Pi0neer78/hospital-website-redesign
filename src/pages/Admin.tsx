@@ -90,16 +90,47 @@ const Admin = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
     
-    const interval = setInterval(() => {
-      loadUserQuestions(true);
-      loadChats(true);
-      if (selectedChat) {
-        loadChatMessages(selectedChat.id, true);
-      }
-    }, 30000);
+    let interval: NodeJS.Timeout | null = null;
+    let isPageVisible = true;
     
-    return () => clearInterval(interval);
-  }, [isAuthenticated]);
+    const startPolling = () => {
+      if (interval) clearInterval(interval);
+      interval = setInterval(() => {
+        if (isPageVisible) {
+          loadUserQuestions(true);
+          loadChats(true);
+          if (selectedChat) {
+            loadChatMessages(selectedChat.id, true);
+          }
+        }
+      }, 60000);
+    };
+    
+    const handleVisibilityChange = () => {
+      isPageVisible = !document.hidden;
+      if (isPageVisible) {
+        loadUserQuestions(true);
+        loadChats(true);
+        if (selectedChat) {
+          loadChatMessages(selectedChat.id, true);
+        }
+        startPolling();
+      } else {
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    startPolling();
+    
+    return () => {
+      if (interval) clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isAuthenticated, selectedChat]);
 
   useEffect(() => {
     const container = document.getElementById('chat-scroll-anchor');
