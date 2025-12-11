@@ -186,21 +186,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif action == 'login':
-                email = body.get('email', '').strip().lower()
+                username = body.get('username', '').strip()
                 password = body.get('password', '').strip()
                 
-                if not all([email, password]):
+                if not all([username, password]):
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Email и пароль обязательны'}),
+                        'body': json.dumps({'error': 'Имя пользователя и пароль обязательны'}),
                         'isBase64Encoded': False
                     }
                 
                 password_hash = hashlib.sha256(password.encode()).hexdigest()
                 
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
-                cursor.execute("SELECT * FROM forum_users WHERE email = %s AND password_hash = %s", (email, password_hash))
+                cursor.execute("SELECT * FROM forum_users WHERE username = %s AND password_hash = %s", (username, password_hash))
                 user = cursor.fetchone()
                 
                 if not user:
@@ -208,7 +208,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 401,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Неверный email или пароль'}),
+                        'body': json.dumps({'error': 'Неверное имя пользователя или пароль'}),
                         'isBase64Encoded': False
                     }
                 
@@ -217,7 +217,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 403,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Email не подтвержден'}),
+                        'body': json.dumps({'error': 'Аккаунт не подтвержден'}),
                         'isBase64Encoded': False
                     }
                 

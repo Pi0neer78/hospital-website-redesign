@@ -31,7 +31,7 @@ const Forum = () => {
   const [isVerifyOpen, setIsVerifyOpen] = useState(false);
   const [isNewTopicOpen, setIsNewTopicOpen] = useState(false);
   
-  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [registerForm, setRegisterForm] = useState({ email: '', username: '', password: '', phone: '' });
   const [phoneVerificationStep, setPhoneVerificationStep] = useState<'form' | 'code' | 'verified'>('form');
   const [phoneVerificationCode, setPhoneVerificationCode] = useState('');
@@ -732,15 +732,15 @@ const Forum = () => {
                     <DialogHeader>
                       <DialogTitle>Вход на форум</DialogTitle>
                       <DialogDescription>
-                        Войдите с помощью email и пароля
+                        Войдите с помощью имени пользователя и пароля
                       </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleLogin} className="space-y-4">
                       <Input
-                        type="email"
-                        placeholder="Email"
-                        value={loginForm.email}
-                        onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                        type="text"
+                        placeholder="Имя пользователя"
+                        value={loginForm.username}
+                        onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
                         required
                       />
                       <Input
