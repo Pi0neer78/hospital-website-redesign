@@ -108,6 +108,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body = json.loads(event.get('body', '{}'))
             topic_id = body.get('topic_id')
             content = body.get('content', '').strip()
+            images = body.get('images', [])  # Массив URL картинок
             
             if not all([topic_id, content]):
                 return {
@@ -141,10 +142,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cursor.execute("""
-                INSERT INTO forum_posts (topic_id, author_id, content, is_hidden, created_at, updated_at)
-                VALUES (%s, %s, %s, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                INSERT INTO forum_posts (topic_id, author_id, content, images, is_hidden, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 RETURNING *
-            """, (topic_id, user['id'], content))
+            """, (topic_id, user['id'], content, json.dumps(images)))
             post = cursor.fetchone()
             
             cursor.execute("""
@@ -185,6 +186,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body = json.loads(event.get('body', '{}'))
             post_id = body.get('id')
             content = body.get('content', '').strip()
+            images = body.get('images', [])  # Массив URL картинок
             
             if not all([post_id, content]):
                 return {
@@ -218,10 +220,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cursor.execute("""
                 UPDATE forum_posts 
-                SET content = %s, updated_at = CURRENT_TIMESTAMP
+                SET content = %s, images = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 RETURNING *
-            """, (content, post_id))
+            """, (content, json.dumps(images), post_id))
             updated_post = cursor.fetchone()
             conn.commit()
             cursor.close()

@@ -39,6 +39,8 @@ const Forum = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [newTopicForm, setNewTopicForm] = useState({ title: '', description: '' });
   const [newPostContent, setNewPostContent] = useState('');
+  const [postImages, setPostImages] = useState<string[]>([]);
+  const [imageUploadLoading, setImageUploadLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -463,6 +465,7 @@ const Forum = () => {
         body: JSON.stringify({
           topic_id: topicId,
           content: newPostContent,
+          images: postImages,
         }),
       });
 
@@ -474,6 +477,7 @@ const Forum = () => {
           description: "Ваш ответ опубликован",
         });
         setNewPostContent('');
+        setPostImages([]);
         loadPosts(topicId!);
       } else {
         toast({
@@ -491,6 +495,33 @@ const Forum = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Ошибка",
+        description: "Можно загружать только изображения",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setImageUploadLoading(true);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      setPostImages(prev => [...prev, base64]);
+      setImageUploadLoading(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = (index: number) => {
+    setPostImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const formatDate = (dateString: string) => {
@@ -624,6 +655,13 @@ const Forum = () => {
                           placeholder="Пароль"
                           value={registerForm.password}
                           onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                          required
+                        />
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          value={registerForm.email}
+                          onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
                           required
                         />
                         <Input
@@ -885,6 +923,19 @@ const Forum = () => {
                               </span>
                             </div>
                             <p className="text-sm whitespace-pre-wrap">{post.content}</p>
+                            {post.images && JSON.parse(post.images).length > 0 && (
+                              <div className="mt-3 grid grid-cols-2 gap-2">
+                                {JSON.parse(post.images).map((img: string, idx: number) => (
+                                  <img 
+                                    key={idx} 
+                                    src={img} 
+                                    alt={`Изображение ${idx + 1}`}
+                                    className="rounded-lg border border-border max-h-48 object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => window.open(img, '_blank')}
+                                  />
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </CardContent>
@@ -908,9 +959,49 @@ const Forum = () => {
                       rows={5}
                       required
                     />
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? 'Отправка...' : 'Отправить ответ'}
-                    </Button>
+                    
+                    {postImages.length > 0 && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {postImages.map((img, idx) => (
+                          <div key={idx} className="relative group">
+                            <img 
+                              src={img} 
+                              alt={`Изображение ${idx + 1}`}
+                              className="rounded-lg border border-border h-32 w-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(idx)}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Icon name="X" size={16} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="image-upload"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                        disabled={imageUploadLoading || postImages.length >= 4}
+                      >
+                        <Icon name="Image" size={16} className="mr-2" />
+                        {imageUploadLoading ? 'Загрузка...' : 'Добавить изображение'}
+                      </Button>
+                      <Button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Отправка...' : 'Отправить ответ'}
+                      </Button>
+                    </div>
                   </form>
                 </CardContent>
               </Card>

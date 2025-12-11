@@ -45,7 +45,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body = json.loads(event.get('body', '{}'))
             action = body.get('action')
             
-            if action == 'register':
+            if action == 'check_email':
+                email = body.get('email', '').strip().lower()
+                
+                if not email:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Email обязателен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                cursor.execute("SELECT id FROM forum_users WHERE email = %s", (email,))
+                existing = cursor.fetchone()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'exists': existing is not None}),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'register':
                 email = body.get('email', '').strip().lower()
                 username = body.get('username', '').strip()
                 password = body.get('password', '').strip()
