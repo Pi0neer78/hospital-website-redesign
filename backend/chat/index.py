@@ -54,6 +54,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cursor.execute('''
                     SELECT c.id, c.patient_name, c.patient_phone, c.status, c.created_at, c.updated_at,
                            (SELECT COUNT(*) FROM chat_messages WHERE chat_id = c.id) as message_count,
+                           (SELECT COUNT(*) FROM chat_messages WHERE chat_id = c.id AND sender_type = 'patient') as patient_message_count,
                            (SELECT message FROM chat_messages WHERE chat_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message
                     FROM chats c
                     WHERE c.status = %s
@@ -70,7 +71,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'created_at': row[4].isoformat() if row[4] else None,
                         'updated_at': row[5].isoformat() if row[5] else None,
                         'message_count': row[6],
-                        'last_message': row[7]
+                        'patient_message_count': row[7],
+                        'last_message': row[8]
                     })
                 
                 return {

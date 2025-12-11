@@ -762,10 +762,10 @@ const Admin = () => {
       
       const newCount = newChats.filter((chat: any) => {
         const prevCount = lastMessageCount[chat.id] || 0;
-        return chat.message_count > prevCount;
+        return chat.patient_message_count > prevCount;
       }).length;
       
-      if (silent && newCount > 0 && newChats.length > previousChatCount) {
+      if (silent && newCount > 0) {
         if (notificationSound) {
           notificationSound.play().catch(err => console.log('Sound play failed:', err));
         }
@@ -780,7 +780,7 @@ const Admin = () => {
       
       const counts: {[key: number]: number} = {};
       newChats.forEach((chat: any) => {
-        counts[chat.id] = chat.message_count;
+        counts[chat.id] = chat.patient_message_count;
       });
       setLastMessageCount(counts);
     } catch (error) {
