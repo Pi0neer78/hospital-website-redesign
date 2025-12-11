@@ -1540,7 +1540,7 @@ const Index = () => {
         ))}
       </div>
 
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col items-center gap-2 animate-bounce-slow pointer-events-none">
+      <div className="fixed bottom-4 left-4 z-40 flex flex-col items-center gap-2 animate-bounce-slow pointer-events-none">
         <div className="text-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border-2 border-green-500">
           <p className="text-green-700 font-bold text-sm whitespace-nowrap">С Новым Годом! 🎉</p>
         </div>
