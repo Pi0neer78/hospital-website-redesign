@@ -10,7 +10,7 @@ import urllib.parse
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
-    Верификация номера телефона через SMS-код (SMSC.ru)
+    Верификация номера телефона через GREEN-API (мессенджер MAX)
     POST /send - отправить код на телефон
     POST /verify - проверить введенный код
     """
@@ -68,14 +68,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
             expires_at = datetime.now() + timedelta(minutes=10)
             
-            # Отправка сообщения через МАКС мессенджер ПЕРЕД сохранением в БД
-            max_token = os.environ.get('MAX_BOT_TOKEN')
+            green_api_instance_id = os.environ.get('GREEN_API_INSTANCE_ID')
+            green_api_token = os.environ.get('GREEN_API_TOKEN')
             
-            if not max_token:
+            if not green_api_instance_id or not green_api_token:
                 return {
                     'statusCode': 500,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'MAX Bot Token not configured'}),
+                    'body': json.dumps({'error': 'GREEN-API credentials not configured'}),
                     'isBase64Encoded': False
                 }
             
@@ -83,83 +83,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             message_sent = False
             show_code_on_screen = False
             
-            # Получаем MAX user_id из базы данных
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute(
-                "SELECT max_user_id, max_chat_id FROM t_p30358746_hospital_website_red.max_users WHERE phone_number = %s",
-                (clean_phone,)
-            )
-            max_user_record = cursor.fetchone()
-            cursor.close()
-            
-            if not max_user_record or not max_user_record.get('max_user_id'):
-                print(f"MAX user_id не найден для телефона {clean_phone}")
-                show_code_on_screen = True
-            else:
-                max_user_id = max_user_record['max_user_id']
-                print(f"Найден MAX user_id={max_user_id} для телефона {clean_phone}")
-            
-            # Логирование для отладки
-            token_preview = max_token[:15] + '...' if len(max_token) > 15 else max_token
-            print(f"DEBUG: Token preview: {token_preview}")
-            print(f"DEBUG: Token length: {len(max_token)}")
-            print(f"DEBUG: Phone: {clean_phone}")
-            print(f"DEBUG: MAX user_id: {max_user_id if not show_code_on_screen else 'not found'}")
-            
-            if not show_code_on_screen:
-                try:
-                    # Отправка через MAX API
-                    request_data = json.dumps({
-                        'text': message_text
-                    }).encode('utf-8')
-                    
-                    # user_id передается в URL как параметр
-                    url = f'https://platform-api.max.ru/messages?user_id={max_user_id}'
-                    
-                    print(f"DEBUG: Request URL: {url}")
-                    print(f"DEBUG: Request body: {request_data.decode('utf-8')}")
-                
-                    req = urllib.request.Request(
-                        url,
-                        data=request_data,
-                        headers={
-                            'Authorization': max_token,
-                            'Content-Type': 'application/json'
-                        },
-                        method='POST'
-                    )
-                    
-                    with urllib.request.urlopen(req, timeout=10) as response:
-                        result = json.loads(response.read().decode('utf-8'))
-                        print(f"DEBUG: MAX API Response: {result}")
-                        message_sent = True
-                        
-                except urllib.error.HTTPError as e:
-                    error_body = e.read().decode('utf-8')
-                    print(f"DEBUG: HTTP Error {e.code}: {error_body}")
-                    
-                    # Если пользователь не найден в МАКС - покажем код на экране
-                    if 'not.found' in error_body or 'not found' in error_body.lower():
-                        show_code_on_screen = True
-                    else:
-                        return {
-                            'statusCode': 500,
-                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': f'Не удалось отправить сообщение в МАКС: {error_body}'}),
-                            'isBase64Encoded': False
-                        }
-                except Exception as e:
-                    print(f"DEBUG: Exception: {type(e).__name__}: {str(e)}")
-                    return {
-                        'statusCode': 500,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': f'Ошибка отправки: {str(e)}'}),
-                        'isBase64Encoded': False
-                    }
-            
-            # Сохраняем в БД ТОЛЬКО если отправка удалась или нужен fallback
-            cursor = conn.cursor(cursor_factory=RealDictCursor)
-            
             cursor.execute(
                 "DELETE FROM t_p30358746_hospital_website_red.sms_verification_codes WHERE expires_at < NOW()"
             )
@@ -183,52 +107,87 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             'body': json.dumps({'error': 'Превышен лимит отправки на сегодня (максимум 3). Попробуйте завтра.'}),
                             'isBase64Encoded': False
                         }
+            
+            try:
+                chat_id = f"{clean_phone}@c.us"
+                
+                request_data = json.dumps({
+                    'chatId': chat_id,
+                    'message': message_text
+                }).encode('utf-8')
+                
+                url = f'https://api.green-api.com/waInstance{green_api_instance_id}/sendMessage/{green_api_token}'
+                
+                print(f"DEBUG: Sending to GREEN-API: {url}")
+                print(f"DEBUG: ChatId: {chat_id}")
+                print(f"DEBUG: Message: {message_text}")
+            
+                req = urllib.request.Request(
+                    url,
+                    data=request_data,
+                    headers={
+                        'Content-Type': 'application/json'
+                    },
+                    method='POST'
+                )
+                
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    result = json.loads(response.read().decode('utf-8'))
+                    print(f"DEBUG: GREEN-API Response: {result}")
+                    message_sent = True
                     
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode('utf-8')
+                print(f"DEBUG: HTTP Error {e.code}: {error_body}")
+                
+                show_code_on_screen = True
+                print(f"Не удалось отправить через GREEN-API, показываем код на экране")
+                
+            except Exception as e:
+                print(f"DEBUG: Exception: {type(e).__name__}: {str(e)}")
+                show_code_on_screen = True
+                print(f"Ошибка отправки через GREEN-API, показываем код на экране")
+            
+            if existing_record:
+                today = datetime.now().date()
+                last_reset = existing_record['last_daily_reset']
+                
+                if last_reset == today:
                     cursor.execute(
                         "UPDATE t_p30358746_hospital_website_red.sms_verification_codes SET code = %s, expires_at = %s, verified = false, attempts = 0, daily_send_count = daily_send_count + 1 WHERE phone_number = %s",
                         (code, expires_at, clean_phone)
                     )
                 else:
                     cursor.execute(
-                        "UPDATE t_p30358746_hospital_website_red.sms_verification_codes SET code = %s, expires_at = %s, verified = false, attempts = 0, daily_send_count = 1, last_daily_reset = CURRENT_DATE WHERE phone_number = %s",
-                        (code, expires_at, clean_phone)
+                        "UPDATE t_p30358746_hospital_website_red.sms_verification_codes SET code = %s, expires_at = %s, verified = false, attempts = 0, daily_send_count = 1, last_daily_reset = %s WHERE phone_number = %s",
+                        (code, expires_at, today, clean_phone)
                     )
             else:
                 cursor.execute(
-                    "INSERT INTO t_p30358746_hospital_website_red.sms_verification_codes (phone_number, code, expires_at, daily_send_count, last_daily_reset) VALUES (%s, %s, %s, 1, CURRENT_DATE)",
-                    (clean_phone, code, expires_at)
+                    "INSERT INTO t_p30358746_hospital_website_red.sms_verification_codes (phone_number, code, expires_at, verified, attempts, daily_send_count, last_daily_reset) VALUES (%s, %s, %s, false, 0, 1, %s)",
+                    (clean_phone, code, expires_at, datetime.now().date())
                 )
             
             conn.commit()
             cursor.close()
             
-            if show_code_on_screen:
-                return {
-                    'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({
-                        'success': True, 
-                        'message': 'Установите мессенджер МАКС для получения кодов',
-                        'fallback': True
-                    }),
-                    'isBase64Encoded': False
-                }
-            
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
-                    'success': True, 
-                    'message': 'Код отправлен в мессенджер МАКС'
+                    'success': True,
+                    'message': 'Код отправлен в MAX' if message_sent else 'Код создан',
+                    'show_code': code if show_code_on_screen else None,
+                    'sent_via_max': message_sent
                 }),
                 'isBase64Encoded': False
             }
         
         elif action == 'verify':
             phone_number = body.get('phone_number', '').strip()
-            code = body.get('code', '').strip()
+            code_input = body.get('code', '').strip()
             
-            if not phone_number or not code:
+            if not phone_number or not code_input:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -241,76 +200,84 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
             cursor.execute(
-                "SELECT * FROM t_p30358746_hospital_website_red.sms_verification_codes WHERE phone_number = %s AND verified = false",
+                "SELECT code, expires_at, verified, attempts FROM t_p30358746_hospital_website_red.sms_verification_codes WHERE phone_number = %s",
                 (clean_phone,)
             )
-            verification = cursor.fetchone()
+            verification_record = cursor.fetchone()
             
-            if not verification:
+            if not verification_record:
                 cursor.close()
                 return {
                     'statusCode': 404,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Код не найден или уже использован'}),
+                    'body': json.dumps({'error': 'Код не найден. Запросите новый код.'}),
                     'isBase64Encoded': False
                 }
             
-            if datetime.now() > verification['expires_at']:
-                cursor.execute(
-                    "DELETE FROM t_p30358746_hospital_website_red.sms_verification_codes WHERE phone_number = %s",
-                    (clean_phone,)
-                )
-                conn.commit()
+            if verification_record['verified']:
                 cursor.close()
                 return {
-                    'statusCode': 410,
+                    'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Код истёк, запросите новый'}),
+                    'body': json.dumps({'error': 'Код уже использован'}),
                     'isBase64Encoded': False
                 }
             
-            if verification['attempts'] >= 3:
-                cursor.execute(
-                    "DELETE FROM t_p30358746_hospital_website_red.sms_verification_codes WHERE phone_number = %s",
-                    (clean_phone,)
-                )
-                conn.commit()
+            if datetime.now() > verification_record['expires_at']:
+                cursor.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Код истёк. Запросите новый.'}),
+                    'isBase64Encoded': False
+                }
+            
+            if verification_record['attempts'] >= 5:
                 cursor.close()
                 return {
                     'statusCode': 429,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Превышено количество попыток, запросите новый код'}),
+                    'body': json.dumps({'error': 'Превышено количество попыток. Запросите новый код.'}),
                     'isBase64Encoded': False
                 }
             
-            if verification['code'] != code:
+            if verification_record['code'] == code_input:
+                cursor.execute(
+                    "UPDATE t_p30358746_hospital_website_red.sms_verification_codes SET verified = true WHERE phone_number = %s",
+                    (clean_phone,)
+                )
+                conn.commit()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'message': 'Телефон успешно подтвержден',
+                        'phone_number': clean_phone
+                    }),
+                    'isBase64Encoded': False
+                }
+            else:
                 cursor.execute(
                     "UPDATE t_p30358746_hospital_website_red.sms_verification_codes SET attempts = attempts + 1 WHERE phone_number = %s",
                     (clean_phone,)
                 )
                 conn.commit()
-                remaining = 3 - (verification['attempts'] + 1)
+                
+                remaining_attempts = 5 - (verification_record['attempts'] + 1)
                 cursor.close()
+                
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': f'Неверный код. Осталось попыток: {remaining}'}),
+                    'body': json.dumps({
+                        'error': f'Неверный код. Осталось попыток: {remaining_attempts}',
+                        'remaining_attempts': remaining_attempts
+                    }),
                     'isBase64Encoded': False
                 }
-            
-            cursor.execute(
-                "UPDATE t_p30358746_hospital_website_red.sms_verification_codes SET verified = true WHERE phone_number = %s",
-                (clean_phone,)
-            )
-            conn.commit()
-            cursor.close()
-            
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'success': True, 'verified': True}),
-                'isBase64Encoded': False
-            }
         
         else:
             return {
@@ -320,5 +287,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
     
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        if conn:
+            conn.rollback()
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': f'Server error: {str(e)}'}),
+            'isBase64Encoded': False
+        }
     finally:
-        conn.close()
+        if conn:
+            conn.close()
