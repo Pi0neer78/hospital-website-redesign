@@ -12,6 +12,7 @@ const API_URLS = {
   auth: 'https://functions.poehali.dev/5453d7ba-4709-4da4-9761-5372c5aa776a',
   topics: 'https://functions.poehali.dev/e1e111a6-e824-4bf1-9416-b5c145b37906',
   posts: 'https://functions.poehali.dev/0352645c-ae3d-4c45-8081-4f7a347244a6',
+  smsVerify: 'https://functions.poehali.dev/7ea5c6f5-d200-4cc0-b34b-10144a995d69',
 };
 
 const Forum = () => {
@@ -31,7 +32,9 @@ const Forum = () => {
   const [isNewTopicOpen, setIsNewTopicOpen] = useState(false);
   
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [registerForm, setRegisterForm] = useState({ email: '', username: '', password: '' });
+  const [registerForm, setRegisterForm] = useState({ email: '', username: '', password: '', phone: '' });
+  const [phoneVerificationStep, setPhoneVerificationStep] = useState<'form' | 'code' | 'verified'>('form');
+  const [phoneVerificationCode, setPhoneVerificationCode] = useState('');
   const [verifyForm, setVerifyForm] = useState({ user_id: '', code: '' });
   const [verificationCode, setVerificationCode] = useState('');
   const [newTopicForm, setNewTopicForm] = useState({ title: '', description: '' });
@@ -93,8 +96,118 @@ const Forum = () => {
     }
   };
 
+  const handleSendPhoneCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!registerForm.phone) {
+      toast({
+        title: "Ошибка",
+        description: "Введите номер телефона",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(API_URLS.smsVerify, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'send',
+          phone_number: registerForm.phone 
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        if (data.show_code) {
+          toast({
+            title: "Ваш код верификации",
+            description: `Код: ${data.show_code}. Не удалось отправить в MAX, используйте этот код для подтверждения.`,
+            duration: 0,
+          });
+        } else {
+          toast({
+            title: "Код отправлен в MAX",
+            description: `Проверьте сообщения в мессенджере MAX на номере ${registerForm.phone}`,
+            duration: 10000,
+          });
+        }
+        setPhoneVerificationStep('code');
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.error || "Не удалось отправить код",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Проблема с подключением к серверу",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleVerifyPhoneCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(API_URLS.smsVerify, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'verify',
+          phone_number: registerForm.phone,
+          code: phoneVerificationCode
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setPhoneVerificationStep('verified');
+        toast({
+          title: "Телефон подтвержден",
+          description: "Теперь можно завершить регистрацию",
+        });
+      } else {
+        toast({
+          title: "Неверный код",
+          description: data.error || "Проверьте введенный код и попробуйте снова",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Проблема с подключением к серверу",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (phoneVerificationStep !== 'verified') {
+      toast({
+        title: "Требуется верификация телефона",
+        description: "Сначала подтвердите номер телефона",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
@@ -414,7 +527,14 @@ const Forum = () => {
                   </DialogContent>
                 </Dialog>
 
-                <Dialog open={isRegisterOpen} onOpenChange={setIsRegisterOpen}>
+                <Dialog open={isRegisterOpen} onOpenChange={(open) => {
+                  setIsRegisterOpen(open);
+                  if (!open) {
+                    setPhoneVerificationStep('form');
+                    setPhoneVerificationCode('');
+                    setRegisterForm({ email: '', username: '', password: '', phone: '' });
+                  }
+                }}>
                   <DialogTrigger asChild>
                     <Button size="sm">
                       <Icon name="UserPlus" size={16} className="mr-2" />
@@ -428,32 +548,103 @@ const Forum = () => {
                         Создайте аккаунт для участия в обсуждениях
                       </DialogDescription>
                     </DialogHeader>
-                    <form onSubmit={handleRegister} className="space-y-4">
-                      <Input
-                        type="email"
-                        placeholder="Email"
-                        value={registerForm.email}
-                        onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
-                        required
-                      />
-                      <Input
-                        type="text"
-                        placeholder="Имя пользователя"
-                        value={registerForm.username}
-                        onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
-                        required
-                      />
-                      <Input
-                        type="password"
-                        placeholder="Пароль"
-                        value={registerForm.password}
-                        onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
-                        required
-                      />
-                      <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? 'Регистрация...' : 'Зарегистрироваться'}
-                      </Button>
-                    </form>
+                    {phoneVerificationStep === 'form' && (
+                      <form onSubmit={handleSendPhoneCode} className="space-y-4">
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          value={registerForm.email}
+                          onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
+                          required
+                        />
+                        <Input
+                          type="text"
+                          placeholder="Имя пользователя"
+                          value={registerForm.username}
+                          onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
+                          required
+                        />
+                        <Input
+                          type="password"
+                          placeholder="Пароль"
+                          value={registerForm.password}
+                          onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                          required
+                        />
+                        <Input
+                          type="tel"
+                          placeholder="Телефон (+79991234567)"
+                          value={registerForm.phone}
+                          onChange={(e) => setRegisterForm({ ...registerForm, phone: e.target.value })}
+                          required
+                        />
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                          {isSubmitting ? 'Отправка кода...' : 'Отправить код в MAX'}
+                        </Button>
+                      </form>
+                    )}
+
+                    {phoneVerificationStep === 'code' && (
+                      <form onSubmit={handleVerifyPhoneCode} className="space-y-4">
+                        <Card className="bg-blue-50 border-blue-200">
+                          <CardContent className="pt-4">
+                            <div className="flex items-start gap-3">
+                              <Icon name="Info" size={24} className="text-blue-600 mt-1" />
+                              <div>
+                                <p className="font-medium text-blue-900 mb-1">Проверьте MAX</p>
+                                <p className="text-sm text-blue-700">
+                                  Код отправлен в мессенджер MAX на ваш номер. Введите полученный код.
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <Input
+                          placeholder="Введите 6-значный код"
+                          value={phoneVerificationCode}
+                          onChange={(e) => setPhoneVerificationCode(e.target.value)}
+                          required
+                          maxLength={6}
+                          pattern="[0-9]{6}"
+                        />
+                        <div className="flex gap-2">
+                          <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                            {isSubmitting ? 'Проверка...' : 'Подтвердить'}
+                          </Button>
+                          <Button 
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              setPhoneVerificationStep('form');
+                              setPhoneVerificationCode('');
+                            }}
+                          >
+                            Назад
+                          </Button>
+                        </div>
+                      </form>
+                    )}
+
+                    {phoneVerificationStep === 'verified' && (
+                      <form onSubmit={handleRegister} className="space-y-4">
+                        <Card className="bg-green-50 border-green-200">
+                          <CardContent className="pt-4">
+                            <div className="flex items-center gap-2">
+                              <Icon name="CheckCircle" size={20} className="text-green-600" />
+                              <p className="font-medium text-green-900">Телефон подтвержден</p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                        <div className="space-y-2 text-sm">
+                          <p><strong>Email:</strong> {registerForm.email}</p>
+                          <p><strong>Имя пользователя:</strong> {registerForm.username}</p>
+                          <p><strong>Телефон:</strong> {registerForm.phone}</p>
+                        </div>
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                          {isSubmitting ? 'Регистрация...' : 'Завершить регистрацию'}
+                        </Button>
+                      </form>
+                    )}
                   </DialogContent>
                 </Dialog>
               </>
