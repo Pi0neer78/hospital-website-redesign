@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Structure from "./pages/Structure";
 import Admin from "./pages/Admin";
 import Doctor from "./pages/Doctor";
+import DoctorGuide from "./pages/DoctorGuide";
 import Faq from "./pages/Faq";
 import Forum from "./pages/Forum";
 import HowToBook from "./pages/HowToBook";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/structure" element={<Structure />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/doctor" element={<Doctor />} />
+          <Route path="/doctor-guide" element={<DoctorGuide />} />
           <Route path="/faq" element={<Faq />} />
           <Route path="/forum" element={<Forum />} />
           <Route path="/forum/:topicId" element={<Forum />} />

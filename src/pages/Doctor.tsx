@@ -488,6 +488,19 @@ const Doctor = () => {
 
       <section className="py-12">
         <div className="container mx-auto px-4">
+          <div className="mb-6 flex justify-center">
+            <a 
+              href="/doctor-guide" 
+              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors group bg-blue-50 hover:bg-blue-100 px-4 py-3 rounded-lg border-2 border-blue-200 hover:border-blue-300"
+            >
+              <Icon name="BookOpen" size={20} className="group-hover:scale-110 transition-transform" />
+              <span className="text-sm font-medium">
+                Инструкция по работе с системой
+              </span>
+              <Icon name="ArrowRight" size={16} className="group-hover:translate-x-1 transition-transform" />
+            </a>
+          </div>
+
           <Tabs defaultValue="schedule">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="schedule">Расписание</TabsTrigger>
