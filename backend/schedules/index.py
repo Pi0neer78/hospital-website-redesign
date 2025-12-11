@@ -6,9 +6,12 @@ from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
-    Управление расписанием врачей
+    Управление расписанием врачей и календарем
     GET /?doctor_id=X - получить расписание врача
+    GET /?action=calendar&doctor_id=X&year=2025 - получить календарь врача на год
     POST / - создать/обновить расписание
+    POST {action: "calendar", doctor_id, calendar_date, is_working, note} - сохранить день календаря
+    POST {action: "bulk_calendar", doctor_id, dates, is_working} - массовое сохранение дней
     PUT / - изменить статус активности или время
     DELETE /?id=X - удалить расписание
     """
@@ -41,6 +44,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         if method == 'GET':
             query_params = event.get('queryStringParameters') or {}
+            action = query_params.get('action')
             doctor_id = query_params.get('doctor_id')
             
             if not doctor_id:
@@ -52,60 +56,146 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute("SELECT * FROM doctor_schedules WHERE doctor_id = %s ORDER BY day_of_week", (doctor_id,))
-            schedules = cursor.fetchall()
-            cursor.close()
             
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'schedules': schedules}, default=str),
-                'isBase64Encoded': False
-            }
+            if action == 'calendar':
+                year = query_params.get('year', '2025')
+                cursor.execute(
+                    "SELECT * FROM doctor_calendar WHERE doctor_id = %s AND EXTRACT(YEAR FROM calendar_date) = %s ORDER BY calendar_date",
+                    (doctor_id, year)
+                )
+                calendar_days = cursor.fetchall()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'calendar': calendar_days}, default=str),
+                    'isBase64Encoded': False
+                }
+            else:
+                cursor.execute("SELECT * FROM doctor_schedules WHERE doctor_id = %s ORDER BY day_of_week", (doctor_id,))
+                schedules = cursor.fetchall()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'schedules': schedules}, default=str),
+                    'isBase64Encoded': False
+                }
         
         elif method == 'POST':
             body = json.loads(event.get('body', '{}'))
+            action = body.get('action')
             doctor_id = body.get('doctor_id')
-            day_of_week = body.get('day_of_week')
-            start_time = body.get('start_time')
-            end_time = body.get('end_time')
-            break_start_time = body.get('break_start_time') or None
-            break_end_time = body.get('break_end_time') or None
-            
-            if not all([doctor_id, day_of_week is not None, start_time, end_time]):
-                return {
-                    'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Missing required fields: doctor_id, day_of_week, start_time, end_time'}),
-                    'isBase64Encoded': False
-                }
             
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
-            cursor.execute("SELECT id FROM doctor_schedules WHERE doctor_id = %s AND day_of_week = %s", (doctor_id, day_of_week))
-            existing = cursor.fetchone()
-            
-            if existing:
+            if action == 'calendar':
+                calendar_date = body.get('calendar_date')
+                is_working = body.get('is_working', True)
+                note = body.get('note')
+                
+                if not all([doctor_id, calendar_date]):
+                    cursor.close()
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'doctor_id and calendar_date required'}),
+                        'isBase64Encoded': False
+                    }
+                
                 cursor.execute(
-                    "UPDATE doctor_schedules SET start_time = %s, end_time = %s, break_start_time = %s, break_end_time = %s, is_active = true WHERE doctor_id = %s AND day_of_week = %s RETURNING *",
-                    (start_time, end_time, break_start_time, break_end_time, doctor_id, day_of_week)
+                    """INSERT INTO doctor_calendar (doctor_id, calendar_date, is_working, note, updated_at)
+                       VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP)
+                       ON CONFLICT (doctor_id, calendar_date) 
+                       DO UPDATE SET is_working = EXCLUDED.is_working, note = EXCLUDED.note, updated_at = CURRENT_TIMESTAMP
+                       RETURNING *""",
+                    (doctor_id, calendar_date, is_working, note)
                 )
+                calendar_day = cursor.fetchone()
+                conn.commit()
+                cursor.close()
+                
+                return {
+                    'statusCode': 201,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'calendar_day': calendar_day}, default=str),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'bulk_calendar':
+                dates = body.get('dates', [])
+                is_working = body.get('is_working', True)
+                
+                if not all([doctor_id, dates]):
+                    cursor.close()
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'doctor_id and dates required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                for date in dates:
+                    cursor.execute(
+                        """INSERT INTO doctor_calendar (doctor_id, calendar_date, is_working, updated_at)
+                           VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+                           ON CONFLICT (doctor_id, calendar_date)
+                           DO UPDATE SET is_working = EXCLUDED.is_working, updated_at = CURRENT_TIMESTAMP""",
+                        (doctor_id, date, is_working)
+                    )
+                
+                conn.commit()
+                cursor.close()
+                
+                return {
+                    'statusCode': 201,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'updated_count': len(dates)}),
+                    'isBase64Encoded': False
+                }
+            
             else:
-                cursor.execute(
-                    "INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time, break_start_time, break_end_time) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *",
-                    (doctor_id, day_of_week, start_time, end_time, break_start_time, break_end_time)
-                )
-            
-            schedule = cursor.fetchone()
-            conn.commit()
-            cursor.close()
-            
-            return {
-                'statusCode': 201,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'success': True, 'schedule': schedule}, default=str),
-                'isBase64Encoded': False
-            }
+                day_of_week = body.get('day_of_week')
+                start_time = body.get('start_time')
+                end_time = body.get('end_time')
+                break_start_time = body.get('break_start_time') or None
+                break_end_time = body.get('break_end_time') or None
+                
+                if not all([doctor_id, day_of_week is not None, start_time, end_time]):
+                    cursor.close()
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Missing required fields: doctor_id, day_of_week, start_time, end_time'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute("SELECT id FROM doctor_schedules WHERE doctor_id = %s AND day_of_week = %s", (doctor_id, day_of_week))
+                existing = cursor.fetchone()
+                
+                if existing:
+                    cursor.execute(
+                        "UPDATE doctor_schedules SET start_time = %s, end_time = %s, break_start_time = %s, break_end_time = %s, is_active = true WHERE doctor_id = %s AND day_of_week = %s RETURNING *",
+                        (start_time, end_time, break_start_time, break_end_time, doctor_id, day_of_week)
+                    )
+                else:
+                    cursor.execute(
+                        "INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time, break_start_time, break_end_time) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *",
+                        (doctor_id, day_of_week, start_time, end_time, break_start_time, break_end_time)
+                    )
+                
+                schedule = cursor.fetchone()
+                conn.commit()
+                cursor.close()
+                
+                return {
+                    'statusCode': 201,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'schedule': schedule}, default=str),
+                    'isBase64Encoded': False
+                }
         
         elif method == 'PUT':
             body = json.loads(event.get('body', '{}'))

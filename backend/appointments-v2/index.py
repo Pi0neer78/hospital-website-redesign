@@ -64,6 +64,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 
+                # ПРИОРИТЕТ 1: Проверяем календарь врача (имеет приоритет над расписанием)
+                cursor.execute(
+                    "SELECT is_working FROM doctor_calendar WHERE doctor_id = %s AND calendar_date = %s",
+                    (doctor_id, date_str)
+                )
+                calendar_record = cursor.fetchone()
+                
+                # Если в календаре отмечен выходной - возвращаем пустой список слотов
+                if calendar_record and not calendar_record['is_working']:
+                    cursor.close()
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'available_slots': [], 'message': 'Doctor does not work on this day (calendar override)'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # ПРИОРИТЕТ 2: Проверяем еженедельное расписание
                 cursor.execute(
                     "SELECT start_time, end_time, break_start_time, break_end_time FROM doctor_schedules WHERE doctor_id = %s AND day_of_week = %s AND is_active = true",
                     (doctor_id, day_of_week)

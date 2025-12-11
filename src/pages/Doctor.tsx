@@ -61,6 +61,9 @@ const Doctor = () => {
     appointmentDate: '',
     appointmentTime: ''
   });
+  const [selectedYear, setSelectedYear] = useState(2025);
+  const [calendarData, setCalendarData] = useState<{[key: string]: {is_working: boolean, note?: string}}>({});
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
 
   useEffect(() => {
     const auth = localStorage.getItem('doctor_auth');
@@ -70,6 +73,7 @@ const Doctor = () => {
       setIsAuthenticated(true);
       loadSchedules(doctor.id);
       loadAppointments(doctor.id);
+      loadCalendar(doctor.id, selectedYear);
       
       const interval = setInterval(() => {
         loadAppointments(doctor.id, true);
@@ -78,6 +82,12 @@ const Doctor = () => {
       return () => clearInterval(interval);
     }
   }, [checkInterval]);
+
+  useEffect(() => {
+    if (doctorInfo && selectedYear) {
+      loadCalendar(doctorInfo.id, selectedYear);
+    }
+  }, [selectedYear]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,6 +123,52 @@ const Doctor = () => {
       setSchedules(data.schedules || []);
     } catch (error) {
       toast({ title: "Ошибка", description: "Не удалось загрузить расписание", variant: "destructive" });
+    }
+  };
+
+  const loadCalendar = async (doctorId: number, year: number) => {
+    try {
+      const response = await fetch(`${API_URLS.schedules}?action=calendar&doctor_id=${doctorId}&year=${year}`);
+      const data = await response.json();
+      const calendarMap: {[key: string]: {is_working: boolean, note?: string}} = {};
+      (data.calendar || []).forEach((day: any) => {
+        calendarMap[day.calendar_date] = {
+          is_working: day.is_working,
+          note: day.note
+        };
+      });
+      setCalendarData(calendarMap);
+    } catch (error) {
+      console.error('Failed to load calendar:', error);
+    }
+  };
+
+  const toggleCalendarDay = async (date: string) => {
+    if (!doctorInfo) return;
+    
+    const currentStatus = calendarData[date]?.is_working ?? true;
+    const newStatus = !currentStatus;
+    
+    try {
+      const response = await fetch(API_URLS.schedules, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'calendar',
+          doctor_id: doctorInfo.id,
+          calendar_date: date,
+          is_working: newStatus
+        })
+      });
+      
+      if (response.ok) {
+        setCalendarData(prev => ({
+          ...prev,
+          [date]: { is_working: newStatus }
+        }));
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Не удалось обновить календарь", variant: "destructive" });
     }
   };
 
@@ -501,11 +557,112 @@ const Doctor = () => {
             </a>
           </div>
 
-          <Tabs defaultValue="schedule">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs defaultValue="calendar">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="calendar">Календарь</TabsTrigger>
               <TabsTrigger value="schedule">Расписание</TabsTrigger>
               <TabsTrigger value="appointments">Записи пациентов</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="calendar" className="mt-6">
+              <Card className="mb-6 bg-gradient-to-r from-green-50 to-teal-50 border-green-200">
+                <CardContent className="pt-4">
+                  <div className="flex items-start gap-3">
+                    <Icon name="Calendar" size={20} className="text-green-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm text-green-900 font-medium mb-2">📅 Годовой календарь работы</p>
+                      <p className="text-sm text-green-700 mb-2">
+                        Отметьте выходные дни, отпуска и праздники на весь год. Календарь имеет приоритет над еженедельным расписанием.
+                      </p>
+                      <div className="flex gap-3 text-xs mt-3">
+                        <div className="flex items-center gap-1">
+                          <div className="w-4 h-4 bg-green-200 border border-green-400 rounded"></div>
+                          <span className="text-green-800">Рабочий день</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-4 h-4 bg-red-200 border border-red-400 rounded"></div>
+                          <span className="text-red-800">Выходной</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="flex gap-4 mb-6 items-center">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Выберите год:</label>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(Number(e.target.value))}
+                    className="px-4 py-2 border rounded-lg"
+                  >
+                    {[2025, 2026, 2027, 2028, 2029, 2030].map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 12 }, (_, i) => i).map(monthIndex => {
+                  const monthName = new Date(selectedYear, monthIndex).toLocaleString('ru-RU', { month: 'long' });
+                  const daysInMonth = new Date(selectedYear, monthIndex + 1, 0).getDate();
+                  const firstDayOfWeek = (new Date(selectedYear, monthIndex, 1).getDay() + 6) % 7;
+                  
+                  return (
+                    <Card key={monthIndex}>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-lg capitalize">{monthName} {selectedYear}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2">
+                          <div className="font-semibold">Пн</div>
+                          <div className="font-semibold">Вт</div>
+                          <div className="font-semibold">Ср</div>
+                          <div className="font-semibold">Чт</div>
+                          <div className="font-semibold">Пт</div>
+                          <div className="font-semibold text-red-600">Сб</div>
+                          <div className="font-semibold text-red-600">Вс</div>
+                        </div>
+                        <div className="grid grid-cols-7 gap-1">
+                          {Array.from({ length: firstDayOfWeek }).map((_, i) => (
+                            <div key={`empty-${i}`} className="h-8"></div>
+                          ))}
+                          {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+                            const date = `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                            const isWorking = calendarData[date]?.is_working ?? true;
+                            const dayOfWeek = new Date(selectedYear, monthIndex, day).getDay();
+                            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                            const today = new Date().toISOString().split('T')[0];
+                            const isToday = date === today;
+                            
+                            return (
+                              <button
+                                key={day}
+                                onClick={() => toggleCalendarDay(date)}
+                                className={`h-8 text-xs rounded transition-all ${
+                                  isToday ? 'ring-2 ring-primary' : ''
+                                } ${
+                                  isWorking 
+                                    ? 'bg-green-100 hover:bg-green-200 text-green-800 border border-green-300' 
+                                    : 'bg-red-100 hover:bg-red-200 text-red-800 border border-red-300'
+                                } ${
+                                  isWeekend && isWorking ? 'opacity-70' : ''
+                                }`}
+                                title={isWorking ? 'Рабочий день (нажмите для выходного)' : 'Выходной (нажмите для рабочего)'}
+                              >
+                                {day}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </TabsContent>
 
             <TabsContent value="schedule" className="mt-6">
               <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
