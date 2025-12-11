@@ -1062,11 +1062,9 @@ const Index = () => {
 
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
-                <img 
-                  src="https://cdn.poehali.dev/files/суялкин.jpg" 
-                  alt="Суялкин О.П."
-                  className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
-                />
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20 mb-4">
+                  <Icon name="User" size={32} className="text-primary" />
+                </div>
                 <CardTitle className="text-lg">Суялкин О.П.</CardTitle>
                 <CardDescription className="text-base font-medium">Зам. главного врача по медицинской части</CardDescription>
               </CardHeader>
