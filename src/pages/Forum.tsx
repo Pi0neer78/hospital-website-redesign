@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { useRateLimiter } from '@/hooks/use-rate-limiter';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/5453d7ba-4709-4da4-9761-5372c5aa776a',
@@ -19,6 +20,9 @@ const Forum = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { topicId } = useParams();
+  const { checkRateLimit: checkRegisterLimit } = useRateLimiter({ endpoint: 'forum-register', maxRequestsPerMinute: 3 });
+  const { checkRateLimit: checkPostLimit } = useRateLimiter({ endpoint: 'forum-post', maxRequestsPerMinute: 10 });
+  const { checkRateLimit: checkTopicLimit } = useRateLimiter({ endpoint: 'forum-topic', maxRequestsPerMinute: 5 });
   
   const [topics, setTopics] = useState<any[]>([]);
   const [currentTopic, setCurrentTopic] = useState<any>(null);
@@ -103,6 +107,16 @@ const Forum = () => {
 
   const handleSendPhoneCode = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const rateLimitCheck = await checkRegisterLimit();
+    if (!rateLimitCheck.allowed) {
+      toast({
+        title: 'Ограничение запросов',
+        description: rateLimitCheck.reason || 'Слишком много попыток. Подождите немного.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     // Валидация перед отправкой SMS
     if (!registerForm.username || !registerForm.password || !registerForm.phone) {
@@ -272,6 +286,16 @@ const Forum = () => {
       return;
     }
     
+    const rateLimitCheck = await checkRegisterLimit();
+    if (!rateLimitCheck.allowed) {
+      toast({
+        title: 'Ограничение запросов',
+        description: rateLimitCheck.reason || 'Слишком много попыток регистрации. Подождите немного.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
@@ -405,6 +429,17 @@ const Forum = () => {
 
   const handleCreateTopic = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const rateLimitCheck = await checkTopicLimit();
+    if (!rateLimitCheck.allowed) {
+      toast({
+        title: 'Ограничение запросов',
+        description: rateLimitCheck.reason || 'Слишком много запросов. Подождите немного.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
 
     const token = localStorage.getItem('forum_token');
@@ -449,6 +484,16 @@ const Forum = () => {
 
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const rateLimitCheck = await checkPostLimit();
+    if (!rateLimitCheck.allowed) {
+      toast({
+        title: 'Ограничение запросов',
+        description: rateLimitCheck.reason || 'Слишком много сообщений. Подождите немного.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     if (!newPostContent.trim()) {
       toast({

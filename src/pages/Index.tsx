@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { useRateLimiter } from '@/hooks/use-rate-limiter';
 
 const BACKEND_URLS = {
   appointments: 'https://functions.poehali.dev/a7f148cd-e1c2-40e3-9762-cc8b2bc2dffb',
@@ -18,6 +19,8 @@ const BACKEND_URLS = {
 
 const Index = () => {
   const { toast } = useToast();
+  const { checkRateLimit: checkAppointmentLimit } = useRateLimiter({ endpoint: 'appointments', maxRequestsPerMinute: 5 });
+  const { checkRateLimit: checkComplaintLimit } = useRateLimiter({ endpoint: 'complaints', maxRequestsPerMinute: 3 });
   const [doctors, setDoctors] = useState([]);
   const [selectedClinic, setSelectedClinic] = useState<string | null>(null);
   const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
@@ -219,6 +222,17 @@ const Index = () => {
 
   const handleSendVerificationCode = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const rateLimitCheck = await checkAppointmentLimit();
+    if (!rateLimitCheck.allowed) {
+      toast({
+        title: 'Ограничение запросов',
+        description: rateLimitCheck.reason || 'Слишком много попыток. Подождите немного.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
 
     console.log('DEBUG: Отправляемый номер телефона:', appointmentForm.patient_phone);
@@ -323,6 +337,16 @@ const Index = () => {
       });
       return;
     }
+    
+    const rateLimitCheck = await checkAppointmentLimit();
+    if (!rateLimitCheck.allowed) {
+      toast({
+        title: 'Ограничение запросов',
+        description: rateLimitCheck.reason || 'Слишком много попыток записи. Подождите немного.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -373,6 +397,17 @@ const Index = () => {
 
   const handleComplaint = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const rateLimitCheck = await checkComplaintLimit();
+    if (!rateLimitCheck.allowed) {
+      toast({
+        title: 'Ограничение запросов',
+        description: rateLimitCheck.reason || 'Слишком много попыток отправки жалобы. Подождите немного.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {

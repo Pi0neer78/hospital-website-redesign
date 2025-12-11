@@ -87,6 +87,39 @@ const MyComponent = () => {
 };
 ```
 
+### Примеры интеграции из проекта:
+
+**Forum.tsx - регистрация:**
+```typescript
+const { checkRateLimit: checkRegisterLimit } = useRateLimiter({ 
+  endpoint: 'forum-register', 
+  maxRequestsPerMinute: 3 
+});
+
+const handleRegister = async (e: React.FormEvent) => {
+  const check = await checkRegisterLimit();
+  if (!check.allowed) {
+    toast({ title: 'Ограничение запросов', description: check.reason });
+    return;
+  }
+  // ... регистрация
+};
+```
+
+**Index.tsx - записи на прием:**
+```typescript
+const { checkRateLimit: checkAppointmentLimit } = useRateLimiter({ 
+  endpoint: 'appointments', 
+  maxRequestsPerMinute: 5 
+});
+
+const handleAppointment = async () => {
+  const check = await checkAppointmentLimit();
+  if (!check.allowed) return;
+  // ... запись на прием
+};
+```
+
 ### Временно отключить для компонента:
 
 ```typescript
@@ -94,6 +127,56 @@ const { checkRateLimit } = useRateLimiter({
   endpoint: 'my-feature',
   enabled: false  // Отключить проверку
 });
+```
+
+### В Backend функциях (Python):
+
+```python
+import psycopg2
+from psycopg2.extras import RealDictCursor
+
+def check_rate_limit(conn, ip_address: str, endpoint: str) -> tuple:
+    """Проверка rate limit"""
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    cursor.execute(
+        "SELECT COUNT(*) as count FROM rate_limit_logs WHERE ip_address = %s AND endpoint = %s AND created_at > NOW() - INTERVAL '1 minute'",
+        (ip_address, endpoint)
+    )
+    result = cursor.fetchone()
+    if result and result['count'] >= 10:
+        cursor.close()
+        return False, 'Превышен лимит запросов'
+    
+    cursor.close()
+    return True, None
+
+def record_request(conn, ip_address: str, endpoint: str):
+    """Записать запрос"""
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO rate_limit_logs (ip_address, endpoint) VALUES (%s, %s)",
+        (ip_address, endpoint)
+    )
+    conn.commit()
+    cursor.close()
+
+def handler(event, context):
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
+    
+    # Проверка лимита
+    allowed, reason = check_rate_limit(conn, ip, 'my-endpoint')
+    if not allowed:
+        return {
+            'statusCode': 429,
+            'body': json.dumps({'error': reason})
+        }
+    
+    # Запись запроса
+    record_request(conn, ip, 'my-endpoint')
+    
+    # ... ваш код
 ```
 
 ## 📈 Мониторинг
@@ -189,14 +272,14 @@ def check_rate_limit(cursor, ip_address, endpoint, fingerprint):
 ## 📝 Защищенные компоненты
 
 ✅ **Уже защищены:**
-- SupportChat (чат поддержки)
-- Admin panel polling (автообновление админки)
-
-⚠️ **Рекомендуется добавить:**
-- Forum registration (регистрация на форуме)
-- Forum post creation (создание постов)
-- SMS verification (верификация телефонов)
-- Appointment booking (запись на прием)
+- **SupportChat** - чат поддержки (10 req/min)
+- **Admin panel** - polling автообновления (60s интервал)
+- **Forum registration** - регистрация на форуме (3 req/min)
+- **Forum post creation** - создание постов (10 req/min)
+- **Forum topic creation** - создание тем (5 req/min)
+- **SMS verification** - верификация телефонов (5 req/min на IP, 3 req/hour на номер)
+- **Appointment booking** - запись на прием (5 req/min)
+- **Complaints** - отправка жалоб (3 req/min)
 
 ## 🎯 Best Practices
 

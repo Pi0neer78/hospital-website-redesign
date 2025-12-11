@@ -8,6 +8,41 @@ import random
 import urllib.request
 import urllib.parse
 
+def check_rate_limit(conn, ip_address: str, phone_number: str) -> tuple:
+    """Проверка rate limit для SMS"""
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    cursor.execute(
+        "SELECT COUNT(*) as count FROM t_p30358746_hospital_website_red.rate_limit_logs WHERE ip_address = %s AND endpoint = 'sms-verify' AND created_at > NOW() - INTERVAL '1 minute'",
+        (ip_address,)
+    )
+    result = cursor.fetchone()
+    if result and result['count'] >= 5:
+        cursor.close()
+        return False, 'Превышен лимит: более 5 SMS запросов в минуту'
+    
+    cursor.execute(
+        "SELECT COUNT(*) as count FROM t_p30358746_hospital_website_red.rate_limit_logs WHERE endpoint = 'sms-verify' AND fingerprint = %s AND created_at > NOW() - INTERVAL '1 hour'",
+        (phone_number,)
+    )
+    result = cursor.fetchone()
+    if result and result['count'] >= 3:
+        cursor.close()
+        return False, 'Превышен лимит: более 3 SMS на один номер в час'
+    
+    cursor.close()
+    return True, None
+
+def record_request(conn, ip_address: str, phone_number: str):
+    """Записать запрос"""
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO t_p30358746_hospital_website_red.rate_limit_logs (ip_address, endpoint, fingerprint) VALUES (%s, 'sms-verify', %s)",
+        (ip_address, phone_number)
+    )
+    conn.commit()
+    cursor.close()
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Верификация номера телефона через GREEN-API (мессенджер MAX)
@@ -43,9 +78,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     body = json.loads(event.get('body', '{}'))
     action = body.get('action', 'send')
     
+    ip_address = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
+    
     try:
         if action == 'send':
             phone_number = body.get('phone_number', '').strip()
+            
+            allowed, reason = check_rate_limit(conn, ip_address, phone_number)
+            if not allowed:
+                return {
+                    'statusCode': 429,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': reason}),
+                    'isBase64Encoded': False
+                }
+            
+            record_request(conn, ip_address, phone_number)
             
             if not phone_number:
                 return {
