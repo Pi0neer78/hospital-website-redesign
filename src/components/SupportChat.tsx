@@ -45,7 +45,7 @@ const SupportChat = () => {
         if (interval) clearInterval(interval);
         interval = setInterval(() => {
           if (isPageVisible) {
-            loadMessages(chatId);
+            loadMessages(chatId, true);
           }
         }, 10000);
       };
@@ -53,7 +53,7 @@ const SupportChat = () => {
       const handleVisibilityChange = () => {
         isPageVisible = !document.hidden;
         if (isPageVisible) {
-          loadMessages(chatId);
+          loadMessages(chatId, false);
           startPolling();
         } else {
           if (interval) {
@@ -81,13 +81,21 @@ const SupportChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const loadMessages = async (id: number) => {
+  const loadMessages = async (id: number, silent = false) => {
     try {
       const response = await fetch(`${CHAT_URL}?action=get-messages&chat_id=${id}`);
       const data = await response.json();
-      setMessages(data.messages || []);
+      const newMessages = data.messages || [];
+      
+      if (silent && newMessages.length === messages.length) {
+        return;
+      }
+      
+      setMessages(newMessages);
     } catch (error) {
-      console.error('Failed to load messages:', error);
+      if (!silent) {
+        console.error('Failed to load messages:', error);
+      }
     }
   };
 
