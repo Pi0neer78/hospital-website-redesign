@@ -99,18 +99,73 @@ const Forum = () => {
   const handleSendPhoneCode = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!registerForm.phone) {
+    // Валидация перед отправкой SMS
+    if (!registerForm.email || !registerForm.username || !registerForm.password || !registerForm.phone) {
       toast({
         title: "Ошибка",
-        description: "Введите номер телефона",
+        description: "Заполните все поля",
         variant: "destructive",
       });
       return;
     }
-    
-    setIsSubmitting(true);
 
+    // Проверка формата email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(registerForm.email)) {
+      toast({
+        title: "Ошибка",
+        description: "Введите корректный email адрес",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Проверка длины пароля
+    if (registerForm.password.length < 6) {
+      toast({
+        title: "Ошибка",
+        description: "Пароль должен содержать минимум 6 символов",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Проверка имени пользователя
+    if (registerForm.username.length < 3) {
+      toast({
+        title: "Ошибка",
+        description: "Имя пользователя должно содержать минимум 3 символа",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Проверяем, не занят ли email (через бэкенд)
+    setIsSubmitting(true);
+    
     try {
+      const checkResponse = await fetch(API_URLS.auth, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'check_email',
+          email: registerForm.email 
+        }),
+      });
+
+      const checkData = await checkResponse.json();
+
+      if (!checkResponse.ok || (checkData.exists)) {
+        toast({
+          title: "Ошибка",
+          description: "Этот email уже зарегистрирован",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Если все проверки пройдены - отправляем SMS
       const response = await fetch(API_URLS.smsVerify, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
