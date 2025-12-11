@@ -109,9 +109,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 password_hash = hashlib.sha256(password.encode()).hexdigest()
                 verification_code = ''.join([str(secrets.randbelow(10)) for _ in range(6)])
                 
+                email_value = email if email else f"user_{username}@noemail.local"
+                
                 cursor.execute(
                     "INSERT INTO forum_users (email, username, password_hash, verification_code, is_verified, is_blocked, created_at) VALUES (%s, %s, %s, %s, FALSE, FALSE, CURRENT_TIMESTAMP) RETURNING id",
-                    (email, username, password_hash, verification_code)
+                    (email_value, username, password_hash, verification_code)
                 )
                 user_id = cursor.fetchone()['id']
                 conn.commit()
