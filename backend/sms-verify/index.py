@@ -116,7 +116,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'message': message_text
                 }).encode('utf-8')
                 
-                url = f'https://api.green-api.com/waInstance{green_api_instance_id}/sendMessage/{green_api_token}'
+                url = f'https://api.green-api.com/v3/waInstance{green_api_instance_id}/sendMessage/{green_api_token}'
                 
                 print(f"DEBUG: Sending to GREEN-API: {url}")
                 print(f"DEBUG: ChatId: {chat_id}")
