@@ -637,13 +637,6 @@ const Forum = () => {
                     {phoneVerificationStep === 'form' && (
                       <form onSubmit={handleSendPhoneCode} className="space-y-4">
                         <Input
-                          type="email"
-                          placeholder="Email"
-                          value={registerForm.email}
-                          onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
-                          required
-                        />
-                        <Input
                           type="text"
                           placeholder="Имя пользователя"
                           value={registerForm.username}
