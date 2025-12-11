@@ -7,7 +7,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
 const RATE_LIMITER_URL = 'https://functions.poehali.dev/dd760420-6c65-41e9-bd95-171dec0f3ac9';
-const ADMIN_TOKEN = 'admin123';
+const AUTH_URL = 'https://functions.poehali.dev/c5b009b8-4d0d-4b09-91f5-1ab8bdf740bb';
 
 interface EndpointStat {
   endpoint: string;
@@ -36,12 +36,14 @@ const Security = () => {
   const [searchIP, setSearchIP] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
+  const [adminToken, setAdminToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const auth = localStorage.getItem('security_auth');
-    if (auth === ADMIN_TOKEN) {
+    const token = localStorage.getItem('security_token');
+    if (token) {
+      setAdminToken(token);
       setIsAuthenticated(true);
-      loadStatistics();
+      loadStatistics(token);
     }
   }, []);
 
@@ -55,29 +57,48 @@ const Security = () => {
     return () => clearInterval(interval);
   }, [autoRefresh, isAuthenticated]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password === ADMIN_TOKEN) {
-      localStorage.setItem('security_auth', ADMIN_TOKEN);
-      setIsAuthenticated(true);
-      loadStatistics();
-      toast({
-        title: 'Вход выполнен',
-        description: 'Добро пожаловать в панель безопасности',
+    try {
+      const response = await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
       });
-    } else {
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        const token = data.token;
+        localStorage.setItem('security_token', token);
+        setAdminToken(token);
+        setIsAuthenticated(true);
+        loadStatistics(token);
+        toast({
+          title: 'Вход выполнен',
+          description: 'Добро пожаловать в панель безопасности',
+        });
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Неверный пароль',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
       toast({
         title: 'Ошибка',
-        description: 'Неверный пароль',
+        description: 'Не удалось подключиться к серверу',
         variant: 'destructive',
       });
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('security_auth');
+    localStorage.removeItem('security_token');
     setIsAuthenticated(false);
+    setAdminToken(null);
     setStats(null);
     toast({
       title: 'Выход выполнен',
@@ -85,12 +106,15 @@ const Security = () => {
     });
   };
 
-  const loadStatistics = async () => {
+  const loadStatistics = async (token?: string) => {
+    const authToken = token || adminToken;
+    if (!authToken) return;
+    
     setLoading(true);
     try {
       const response = await fetch(`${RATE_LIMITER_URL}?action=get-stats`, {
         headers: {
-          'X-Admin-Token': ADMIN_TOKEN,
+          'X-Admin-Token': authToken,
         },
       });
 

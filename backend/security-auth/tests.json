@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Check auth with wrong password",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "password": "wrong_password"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "success": false
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
