@@ -161,7 +161,7 @@ const Index = () => {
 
   const getNext7Days = () => {
     const days = [];
-    for (let i = 1; i <= 7; i++) {
+    for (let i = 1; i <= 14; i++) {
       const date = new Date();
       date.setDate(date.getDate() + i);
       days.push({

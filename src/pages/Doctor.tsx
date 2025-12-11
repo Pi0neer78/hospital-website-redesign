@@ -119,7 +119,7 @@ const Doctor = () => {
   const loadAppointments = async (doctorId: number, checkForNew = false) => {
     try {
       const today = new Date().toISOString().split('T')[0];
-      const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const nextWeek = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       const response = await fetch(`${API_URLS.appointments}?doctor_id=${doctorId}&start_date=${today}&end_date=${nextWeek}`);
       const data = await response.json();
       const newAppointments = data.appointments || [];
