@@ -158,7 +158,7 @@ const SupportChat = () => {
       )}
 
       {isOpen && (
-        <div className="fixed inset-0 md:inset-auto md:bottom-6 md:right-6 md:w-96 md:h-[500px] z-50 flex flex-col">
+        <div className="fixed top-[80px] left-0 right-0 bottom-0 md:inset-auto md:top-auto md:bottom-6 md:right-6 md:left-auto md:w-96 md:h-[500px] z-50 flex flex-col">
           <Card className="w-full h-full md:h-auto flex flex-col shadow-2xl rounded-none md:rounded-lg overflow-hidden">
             <CardHeader className="bg-primary text-primary-foreground flex flex-row items-center justify-between p-3 md:p-4 shrink-0">
               <div className="flex items-center gap-2">
