@@ -4,6 +4,22 @@ import psycopg2
 from typing import Dict, Any, Optional, Tuple
 from datetime import datetime, timedelta
 
+def verify_admin_token(token: str, conn) -> bool:
+    """Проверка токена администратора через БД"""
+    if not token:
+        return False
+    
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT id FROM t_p30358746_hospital_website_red.admins WHERE password_hash = %s AND is_active = true",
+            (token,)
+        )
+        result = cursor.fetchone()
+        return result is not None
+    finally:
+        cursor.close()
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Centralized rate limiting and bot protection service
@@ -93,7 +109,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 headers = event.get('headers', {})
                 admin_token = headers.get('x-admin-token') or headers.get('X-Admin-Token')
                 
-                if admin_token != 'admin123':
+                if not verify_admin_token(admin_token, conn):
                     return {
                         'statusCode': 403,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
