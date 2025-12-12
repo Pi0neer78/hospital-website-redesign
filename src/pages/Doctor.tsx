@@ -1393,9 +1393,6 @@ const Doctor = () => {
           </div>
         </DialogContent>
       </Dialog>
-          </div>
-        </section>
-      </Tabs>
     </div>
   );
 };
