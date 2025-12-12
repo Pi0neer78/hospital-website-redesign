@@ -128,7 +128,7 @@ const Security = () => {
   };
 
   const loadAdmins = async (token?: string) => {
-    const authToken = token || adminToken;
+    const authToken = token || adminToken || localStorage.getItem('security_token');
     if (!authToken) return;
     
     try {
@@ -266,8 +266,15 @@ const Security = () => {
   };
 
   const loadStatistics = async (token?: string) => {
-    const authToken = token || adminToken;
-    if (!authToken) return;
+    const authToken = token || adminToken || localStorage.getItem('security_token');
+    if (!authToken) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не авторизован. Войдите заново.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     setLoading(true);
     try {
@@ -278,6 +285,9 @@ const Security = () => {
       });
 
       if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('Токен недействителен. Войдите заново.');
+        }
         throw new Error('Failed to load statistics');
       }
 
@@ -286,7 +296,7 @@ const Security = () => {
     } catch (error) {
       toast({
         title: 'Ошибка загрузки',
-        description: 'Не удалось загрузить статистику',
+        description: error instanceof Error ? error.message : 'Не удалось загрузить статистику',
         variant: 'destructive',
       });
     } finally {
@@ -377,7 +387,7 @@ const Security = () => {
                 <Icon name={autoRefresh ? "Pause" : "Play"} size={16} className="mr-2" />
                 {autoRefresh ? 'Остановить' : 'Авто-обновление'}
               </Button>
-              <Button variant="outline" size="sm" onClick={loadStatistics} disabled={loading}>
+              <Button variant="outline" size="sm" onClick={() => loadStatistics()} disabled={loading}>
                 <Icon name="RefreshCw" size={16} className="mr-2" />
                 Обновить
               </Button>
