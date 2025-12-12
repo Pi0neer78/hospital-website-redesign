@@ -567,32 +567,37 @@ const Doctor = () => {
         </div>
       </header>
 
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <Tabs defaultValue="calendar">
-            <TabsList className="grid w-full grid-cols-3 h-auto p-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
+      <Tabs defaultValue="calendar">
+        <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-border shadow-md">
+          <div className="container mx-auto px-4 py-3">
+            <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-gradient-to-r from-blue-50 to-indigo-50">
               <TabsTrigger 
                 value="calendar"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg py-3 px-6 font-semibold text-base transition-all hover:scale-105"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md py-2 px-4 font-semibold text-sm transition-all"
               >
-                <Icon name="Calendar" size={20} className="mr-2" />
+                <Icon name="Calendar" size={18} className="mr-1.5" />
                 Календарь
               </TabsTrigger>
               <TabsTrigger 
                 value="schedule"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg py-3 px-6 font-semibold text-base transition-all hover:scale-105"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md py-2 px-4 font-semibold text-sm transition-all"
               >
-                <Icon name="Clock" size={20} className="mr-2" />
+                <Icon name="Clock" size={18} className="mr-1.5" />
                 Расписание
               </TabsTrigger>
               <TabsTrigger 
                 value="appointments"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-lg py-3 px-6 font-semibold text-base transition-all hover:scale-105"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md py-2 px-4 font-semibold text-sm transition-all"
               >
-                <Icon name="Users" size={20} className="mr-2" />
+                <Icon name="Users" size={18} className="mr-1.5" />
                 Записи пациентов
               </TabsTrigger>
             </TabsList>
+          </div>
+        </div>
+
+        <section className="pb-12">
+          <div className="container mx-auto px-4 pt-6">
 
             <TabsContent value="calendar" className="mt-6">
               <Card className="mb-6 bg-gradient-to-r from-green-50 to-teal-50 border-green-200">
@@ -1388,6 +1393,9 @@ const Doctor = () => {
           </div>
         </DialogContent>
       </Dialog>
+          </div>
+        </section>
+      </Tabs>
     </div>
   );
 };
