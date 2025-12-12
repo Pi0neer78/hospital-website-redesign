@@ -44,7 +44,7 @@ const Doctor = () => {
   });
   const [checkInterval, setCheckInterval] = useState(() => {
     const saved = localStorage.getItem('doctor_check_interval');
-    return saved ? parseInt(saved) : 15;
+    return saved ? parseInt(saved) : 900;
   });
   const [lastCheckTime, setLastCheckTime] = useState<Date | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{open: boolean, appointmentId: number | null, patientName: string, appointmentDate: string, appointmentTime: string}>({
@@ -1068,7 +1068,7 @@ const Doctor = () => {
                             </DialogDescription>
                           </DialogHeader>
                           <div className="grid grid-cols-2 gap-3">
-                            {[15, 30, 60, 90, 120].map((seconds) => (
+                            {[15, 30, 60, 90, 120, 300, 600, 900].map((seconds) => (
                               <Button
                                 key={seconds}
                                 variant={checkInterval === seconds ? 'default' : 'outline'}
