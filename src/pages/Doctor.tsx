@@ -38,6 +38,10 @@ const Doctor = () => {
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
   const [selectedDaysToCopy, setSelectedDaysToCopy] = useState<number[]>([]);
   const lastAppointmentIdsRef = useRef<Set<number>>(new Set());
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(() => {
+    const saved = localStorage.getItem('doctor_auto_refresh');
+    return saved === 'true';
+  });
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const saved = localStorage.getItem('doctor_sound_enabled');
     return saved !== null ? saved === 'true' : true;
@@ -75,13 +79,15 @@ const Doctor = () => {
       loadAppointments(doctor.id);
       loadCalendar(doctor.id, selectedYear);
       
-      const interval = setInterval(() => {
-        loadAppointments(doctor.id, true);
-      }, checkInterval * 1000);
-      
-      return () => clearInterval(interval);
+      if (autoRefreshEnabled) {
+        const interval = setInterval(() => {
+          loadAppointments(doctor.id, true);
+        }, checkInterval * 1000);
+        
+        return () => clearInterval(interval);
+      }
     }
-  }, [checkInterval]);
+  }, [checkInterval, autoRefreshEnabled]);
 
   useEffect(() => {
     if (doctorInfo && selectedYear) {
@@ -403,6 +409,19 @@ const Doctor = () => {
     toast({ 
       title: 'Интервал обновлен',
       description: `Проверка новых записей каждые ${seconds} секунд`,
+      duration: 3000,
+    });
+  };
+
+  const toggleAutoRefresh = () => {
+    const newValue = !autoRefreshEnabled;
+    setAutoRefreshEnabled(newValue);
+    localStorage.setItem('doctor_auto_refresh', String(newValue));
+    toast({
+      title: newValue ? 'Автообновление включено' : 'Автообновление выключено',
+      description: newValue 
+        ? `Записи будут проверяться каждые ${checkInterval} секунд`
+        : 'Записи не будут обновляться автоматически',
       duration: 3000,
     });
   };
@@ -1008,27 +1027,46 @@ const Doctor = () => {
             </TabsContent>
 
             <TabsContent value="appointments" className="mt-6">
-              <Card className="mb-6 bg-green-50 border-green-200">
+              <Card className={`mb-6 border-2 transition-all ${autoRefreshEnabled ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300' : 'bg-gradient-to-r from-gray-50 to-slate-50 border-gray-300'}`}>
                 <CardContent className="pt-4">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="relative flex-shrink-0">
-                        <Icon name="Bell" size={20} className="text-green-600" />
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                      </div>
-                      <div className="text-sm text-green-900">
-                        <p>
-                          <span className="font-medium">Автообновление активно:</span> новые записи появятся автоматически с уведомлением {soundEnabled ? 'и звуковым сигналом' : '(звук выключен)'}
-                        </p>
-                        {lastCheckTime && (
-                          <p className="text-xs text-green-700 mt-1">
-                            Последняя проверка: {lastCheckTime.toLocaleTimeString('ru-RU')} • Интервал: {checkInterval} сек
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="relative flex-shrink-0">
+                          <Icon name={autoRefreshEnabled ? "RefreshCw" : "PauseCircle"} size={24} className={autoRefreshEnabled ? "text-green-600 animate-spin-slow" : "text-gray-500"} />
+                          {autoRefreshEnabled && (
+                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                          )}
+                        </div>
+                        <div>
+                          <p className={`font-semibold ${autoRefreshEnabled ? 'text-green-900' : 'text-gray-700'}`}>
+                            {autoRefreshEnabled ? 'Автообновление включено' : 'Автообновление выключено'}
                           </p>
-                        )}
+                          {autoRefreshEnabled ? (
+                            <p className="text-xs text-green-700 mt-0.5">
+                              {lastCheckTime && `Последняя проверка: ${lastCheckTime.toLocaleTimeString('ru-RU')} • `}
+                              Интервал: {checkInterval}с
+                            </p>
+                          ) : (
+                            <p className="text-xs text-gray-600 mt-0.5">
+                              Нажмите "Старт" для экономии ресурсов
+                            </p>
+                          )}
+                        </div>
                       </div>
+                      <Button
+                        size="lg"
+                        variant={autoRefreshEnabled ? "destructive" : "default"}
+                        onClick={toggleAutoRefresh}
+                        className="font-semibold shadow-md hover:shadow-lg transition-all"
+                      >
+                        <Icon name={autoRefreshEnabled ? "Pause" : "Play"} size={20} className="mr-2" />
+                        {autoRefreshEnabled ? 'Стоп' : 'Старт'}
+                      </Button>
                     </div>
-                    <div className="flex gap-2 w-full sm:w-auto flex-wrap">
-                      {soundEnabled && (
+
+                    <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200">
+                      {autoRefreshEnabled && soundEnabled && (
                         <Button
                           size="sm"
                           variant="ghost"
@@ -1037,13 +1075,14 @@ const Doctor = () => {
                           title="Тест звука"
                         >
                           <Icon name="Play" size={16} className="mr-1" />
-                          <span className="hidden sm:inline">Тест</span>
+                          <span className="hidden sm:inline">Тест звука</span>
                         </Button>
                       )}
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={toggleSound}
+                        disabled={!autoRefreshEnabled}
                         className="flex-1 sm:flex-initial"
                       >
                         <Icon name={soundEnabled ? "Volume2" : "VolumeX"} size={16} className="mr-2" />
@@ -1054,6 +1093,7 @@ const Doctor = () => {
                           <Button
                             size="sm"
                             variant="outline"
+                            disabled={!autoRefreshEnabled}
                             className="flex-1 sm:flex-initial"
                           >
                             <Icon name="Clock" size={16} className="mr-2" />
@@ -1082,6 +1122,15 @@ const Doctor = () => {
                           </div>
                         </DialogContent>
                       </Dialog>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => loadAppointments(doctorInfo.id)}
+                        className="flex-1 sm:flex-initial"
+                      >
+                        <Icon name="RotateCw" size={16} className="mr-2" />
+                        Обновить вручную
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
