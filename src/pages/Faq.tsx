@@ -14,15 +14,11 @@ import {
 } from "@/components/ui/accordion";
 
 const FAQ_URL = 'https://functions.poehali.dev/fb5160e8-f170-4c21-97a9-3afbcb6f78a9';
-const USER_QUESTIONS_URL = 'https://functions.poehali.dev/816ff0e8-3dcc-4eeb-a985-36603a12894c';
 
 const Faq = () => {
   const { toast } = useToast();
   const [faqs, setFaqs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isQuestionOpen, setIsQuestionOpen] = useState(false);
-  const [questionForm, setQuestionForm] = useState({ name: '', question: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [maxTextIndex, setMaxTextIndex] = useState(0);
   const [isMaxBannerVisible, setIsMaxBannerVisible] = useState(false);
 
@@ -60,44 +56,6 @@ const Faq = () => {
       console.error('Failed to load FAQs:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSubmitQuestion = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch(USER_QUESTIONS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(questionForm),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        toast({
-          title: "Вопрос отправлен",
-          description: "Спасибо! Мы ответим на ваш вопрос в ближайшее время.",
-        });
-        setQuestionForm({ name: '', question: '' });
-        setIsQuestionOpen(false);
-      } else {
-        toast({
-          title: "Ошибка",
-          description: data.error || "Не удалось отправить вопрос",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Ошибка",
-        description: "Проблема с подключением к серверу",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -233,56 +191,36 @@ const Faq = () => {
           <Card className="mt-12 bg-primary/5 border-primary/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Icon name="MessageCircle" size={24} className="text-primary" />
+                <Icon name="Phone" size={24} className="text-primary" />
                 Не нашли ответ на свой вопрос?
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Задайте вопрос, и мы постараемся ответить как можно скорее
+                Свяжитесь с нами напрямую по телефону или email
               </p>
-              <Dialog open={isQuestionOpen} onOpenChange={setIsQuestionOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Icon name="Send" size={18} className="mr-2" />
-                    Задать вопрос
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Задать вопрос</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleSubmitQuestion} className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Ваше имя</label>
-                      <Input
-                        placeholder="Иван Иванов"
-                        value={questionForm.name}
-                        onChange={(e) => setQuestionForm({ ...questionForm, name: e.target.value })}
-                        required
-                        maxLength={100}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Ваш вопрос (до 200 символов)</label>
-                      <Textarea
-                        placeholder="Введите ваш вопрос..."
-                        value={questionForm.question}
-                        onChange={(e) => setQuestionForm({ ...questionForm, question: e.target.value })}
-                        required
-                        maxLength={200}
-                        rows={4}
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {questionForm.question.length}/200 символов
-                      </p>
-                    </div>
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                      {isSubmitting ? 'Отправка...' : 'Отправить вопрос'}
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-white rounded-lg border">
+                  <Icon name="Phone" size={20} className="text-primary" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Приемная главного врача</p>
+                    <p className="text-base font-bold">+7-857-312-51-02</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-white rounded-lg border">
+                  <Icon name="Mail" size={20} className="text-primary" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Email</p>
+                    <p className="text-base font-bold break-all">antrasit_1gorbolnica@mail.ru</p>
+                  </div>
+                </div>
+                <Button variant="outline" className="w-full" asChild>
+                  <a href="/#contacts">
+                    <Icon name="MapPin" size={18} className="mr-2" />
+                    Посмотреть все контакты
+                  </a>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
