@@ -34,9 +34,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
+    # Получаем IP-адрес клиента
+    source_ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp', '')
+    
     conn = psycopg2.connect(database_url)
     
     try:
+        # Проверка блокировки IP
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            "SELECT * FROM t_p30358746_hospital_website_red.blocked_ips WHERE ip_address = %s AND blocked_until > NOW()",
+            (source_ip,)
+        )
+        blocked = cursor.fetchone()
+        cursor.close()
+        
+        if blocked:
+            return {
+                'statusCode': 403,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'error': 'Доступ заблокирован',
+                    'reason': blocked.get('reason', ''),
+                    'blocked_until': str(blocked.get('blocked_until', ''))
+                }),
+                'isBase64Encoded': False
+            }
         if method == 'POST':
             body = json.loads(event.get('body', '{}'))
             name = body.get('name')
