@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import * as XLSX from 'xlsx';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -484,6 +485,35 @@ const Doctor = () => {
         ? prev.filter(d => d !== dayOfWeek)
         : [...prev, dayOfWeek]
     );
+  };
+
+  const exportToExcel = () => {
+    const filteredAppointments = statusFilter === 'all' 
+      ? appointments 
+      : appointments.filter((app: any) => app.status === statusFilter);
+
+    const dataForExport = filteredAppointments.map((app: any) => ({
+      'Дата': new Date(app.appointment_date).toLocaleDateString('ru-RU'),
+      'Время': app.appointment_time.slice(0, 5),
+      'ФИО пациента': app.patient_name,
+      'Телефон': app.patient_phone,
+      'СНИЛС': app.patient_snils || '—',
+      'Описание': app.description || '—',
+      'Статус': app.status === 'scheduled' ? 'Запланировано' : 
+                app.status === 'completed' ? 'Завершено' : 'Отменено'
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataForExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Записи пациентов');
+
+    const fileName = `Записи_${doctorInfo.full_name}_${new Date().toLocaleDateString('ru-RU').replace(/\./g, '-')}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+
+    toast({
+      title: "Экспорт завершен",
+      description: `Файл ${fileName} успешно сохранен`,
+    });
   };
 
   if (!isAuthenticated) {
@@ -1151,7 +1181,16 @@ const Doctor = () => {
               </Card>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h2 className="text-3xl font-bold">Записи пациентов</h2>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap items-center">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={exportToExcel}
+                    className="gap-2 bg-green-50 hover:bg-green-100 border-green-300 text-green-700 hover:text-green-800"
+                  >
+                    <Icon name="Download" size={16} />
+                    Экспорт в Excel
+                  </Button>
                   <Button 
                     variant={statusFilter === 'all' ? 'default' : 'outline'} 
                     size="sm"
