@@ -14,6 +14,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     DELETE /?id=X - удалить врача
     """
     method = event.get('httpMethod', 'GET')
+    ip_address = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
+    print(f"[ACCESS] IP: {ip_address} | Method: {method}")
     
     if method == 'OPTIONS':
         return {

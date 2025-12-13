@@ -16,6 +16,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     
     method: str = event.get('httpMethod', 'GET')
+    ip_address = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
+    action = event.get('queryStringParameters', {}).get('action', 'unknown') if method == 'GET' else json.loads(event.get('body', '{}')).get('action', 'unknown')
+    print(f"[ACCESS] IP: {ip_address} | Method: {method} | Action: {action}")
     
     if method == 'OPTIONS':
         return {
