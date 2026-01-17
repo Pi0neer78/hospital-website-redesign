@@ -905,7 +905,61 @@ const Doctor = () => {
               <p className="text-sm text-muted-foreground">{doctorInfo?.position}</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border">
+              <span className="text-xs font-medium text-gray-700">Автообновление</span>
+              <Button
+                size="sm"
+                variant={autoRefreshEnabled ? "default" : "outline"}
+                onClick={toggleAutoRefresh}
+                className="h-7 px-2"
+              >
+                <Icon name={autoRefreshEnabled ? "Pause" : "Play"} size={14} />
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={toggleSound}
+                disabled={!autoRefreshEnabled}
+                className="h-7 px-2"
+                title={soundEnabled ? "Звук вкл" : "Звук выкл"}
+              >
+                <Icon name={soundEnabled ? "Volume2" : "VolumeX"} size={14} />
+              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!autoRefreshEnabled}
+                    className="h-7 px-2 text-xs"
+                  >
+                    {checkInterval}с
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-sm">
+                  <DialogHeader>
+                    <DialogTitle>Интервал проверки</DialogTitle>
+                    <DialogDescription>
+                      Выберите как часто проверять наличие новых записей
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[15, 30, 60, 90, 120, 300, 600, 900].map((seconds) => (
+                      <Button
+                        key={seconds}
+                        variant={checkInterval === seconds ? 'default' : 'outline'}
+                        onClick={() => changeCheckInterval(seconds)}
+                        className="h-16 flex flex-col"
+                      >
+                        <span className="text-2xl font-bold">{seconds}</span>
+                        <span className="text-xs">секунд</span>
+                      </Button>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
             <Button variant="default" asChild className="bg-blue-600 hover:bg-blue-700">
               <a href="/doctor-guide">
                 <Icon name="BookOpen" size={18} className="mr-2" />
@@ -1497,60 +1551,6 @@ const Doctor = () => {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h2 className="text-3xl font-bold">Записи пациентов</h2>
                 <div className="flex gap-1.5 flex-wrap items-center">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border">
-                    <span className="text-xs font-medium text-gray-700">Автообновление</span>
-                    <Button
-                      size="sm"
-                      variant={autoRefreshEnabled ? "default" : "outline"}
-                      onClick={toggleAutoRefresh}
-                      className="h-7 px-2"
-                    >
-                      <Icon name={autoRefreshEnabled ? "Pause" : "Play"} size={14} />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={toggleSound}
-                      disabled={!autoRefreshEnabled}
-                      className="h-7 px-2"
-                      title={soundEnabled ? "Звук вкл" : "Звук выкл"}
-                    >
-                      <Icon name={soundEnabled ? "Volume2" : "VolumeX"} size={14} />
-                    </Button>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={!autoRefreshEnabled}
-                          className="h-7 px-2 text-xs"
-                        >
-                          {checkInterval}с
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-sm">
-                        <DialogHeader>
-                          <DialogTitle>Интервал проверки</DialogTitle>
-                          <DialogDescription>
-                            Выберите как часто проверять наличие новых записей
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid grid-cols-2 gap-3">
-                          {[15, 30, 60, 90, 120, 300, 600, 900].map((seconds) => (
-                            <Button
-                              key={seconds}
-                              variant={checkInterval === seconds ? 'default' : 'outline'}
-                              onClick={() => changeCheckInterval(seconds)}
-                              className="h-16 flex flex-col"
-                            >
-                              <span className="text-2xl font-bold">{seconds}</span>
-                              <span className="text-xs">секунд</span>
-                            </Button>
-                          ))}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
                   <Button 
                     variant="default"
                     size="sm"
