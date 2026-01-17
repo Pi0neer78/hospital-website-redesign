@@ -225,34 +225,43 @@ const Doctor = () => {
     currentSchedules: any[]
   ) => {
     const counts: {[key: string]: {available: number, booked: number}} = {};
+    const today = new Date();
+    const endDate = new Date(today);
+    endDate.setDate(endDate.getDate() + 60);
     
-    for (let month = 0; month < 12; month++) {
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(year, month, day);
-        const dateStr = date.toISOString().split('T')[0];
-        const dayOfWeek = date.getDay();
-        const dayOfWeekAdjusted = (dayOfWeek + 6) % 7;
-        
-        const calendarOverride = calendarMap[dateStr];
-        const hasSchedule = currentSchedules.some((s: any) => s.day_of_week === dayOfWeekAdjusted && s.is_active);
-        const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
-        
-        if (isWorking) {
-          try {
-            const slotResponse = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorId}&date=${dateStr}`);
+    console.log('🔍 Загрузка слотов с', today.toISOString().split('T')[0], 'по', endDate.toISOString().split('T')[0]);
+    
+    const currentDate = new Date(today);
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const dayOfWeek = currentDate.getDay();
+      const dayOfWeekAdjusted = (dayOfWeek + 6) % 7;
+      
+      const calendarOverride = calendarMap[dateStr];
+      const hasSchedule = currentSchedules.some((s: any) => s.day_of_week === dayOfWeekAdjusted && s.is_active);
+      const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
+      
+      if (isWorking) {
+        try {
+          const slotResponse = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorId}&date=${dateStr}`);
+          if (slotResponse.ok) {
             const slotData = await slotResponse.json();
             const available = slotData.available_slots?.length || 0;
             const total = slotData.all_slots?.length || 0;
             const booked = total - available;
             counts[dateStr] = { available, booked };
-          } catch (error) {
-            counts[dateStr] = { available: 0, booked: 0 };
+            console.log('✅ Слоты для', dateStr, ':', available, '/', booked);
           }
+        } catch (error) {
+          console.error('❌ Ошибка загрузки слотов для', dateStr, error);
+          counts[dateStr] = { available: 0, booked: 0 };
         }
       }
+      
+      currentDate.setDate(currentDate.getDate() + 1);
     }
     
+    console.log('📊 Всего загружено слотов:', Object.keys(counts).length);
     setCalendarSlotCounts(counts);
   };
 
