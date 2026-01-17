@@ -53,6 +53,7 @@ const Registrar = () => {
   const [schedules, setSchedules] = useState<any[]>([]);
   const [rescheduleConfirmDialog, setRescheduleConfirmDialog] = useState<{open: boolean, data: any}>({open: false, data: null});
   const [rescheduleSuccessDialog, setRescheduleSuccessDialog] = useState<{open: boolean, data: any}>({open: false, data: null});
+  const [doctorSearchQuery, setDoctorSearchQuery] = useState('');
 
   useEffect(() => {
     const auth = localStorage.getItem('registrar_auth');
@@ -647,15 +648,49 @@ const Registrar = () => {
 
       <section className="py-8">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-6">Врачи</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold">Врачи</h2>
+            <div className="flex items-center gap-2">
+              <Input
+                type="text"
+                placeholder="Поиск врача по ФИО..."
+                value={doctorSearchQuery}
+                onChange={(e) => setDoctorSearchQuery(e.target.value)}
+                className="w-[250px] h-9"
+              />
+              {doctorSearchQuery && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDoctorSearchQuery('')}
+                  className="h-9"
+                >
+                  <Icon name="X" size={14} />
+                </Button>
+              )}
+            </div>
+          </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {doctors.map((doctor: any) => (
+            {doctors
+              .filter((doctor: any) => 
+                doctorSearchQuery === '' || 
+                doctor.full_name.toLowerCase().includes(doctorSearchQuery.toLowerCase())
+              )
+              .map((doctor: any) => (
               <Card 
                 key={doctor.id}
                 className={`cursor-pointer transition-all hover:shadow-md ${
                   selectedDoctor?.id === doctor.id ? 'ring-2 ring-primary bg-primary/5' : ''
                 }`}
-                onClick={() => setSelectedDoctor(doctor)}
+                onClick={() => {
+                  setSelectedDoctor(doctor);
+                  setTimeout(() => {
+                    const dateSection = document.getElementById('available-dates-section');
+                    if (dateSection) {
+                      dateSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
+                }}
               >
                 <CardContent className="p-3">
                   <div className="flex items-start gap-3">
@@ -705,9 +740,11 @@ const Registrar = () => {
 
           {selectedDoctor && (
             <>
-              <h3 className="text-2xl font-bold mb-4">
-                Доступные даты для записи к врачу {selectedDoctor.full_name}
-              </h3>
+              <div id="available-dates-section">
+                <h3 className="text-2xl font-bold mb-4">
+                  Доступные даты для записи к врачу {selectedDoctor.full_name}
+                </h3>
+              </div>
               <div className="grid grid-cols-7 gap-2 mb-8">
                 {availableDates.map((dateInfo) => (
                   <button
