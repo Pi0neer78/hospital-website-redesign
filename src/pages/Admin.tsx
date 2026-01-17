@@ -1727,73 +1727,89 @@ const Admin = () => {
                   <Icon name={clinic.includes('Детская') ? 'Baby' : 'Building2'} size={28} className="text-primary" />
                   {clinic}
                 </h3>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
                   {clinicDoctors.map((doctor: any) => (
                     <Card key={doctor.id} className={!doctor.is_active ? 'opacity-50' : ''}>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2 mb-2">
                           {doctor.photo_url ? (
                             <img 
                               src={doctor.photo_url} 
                               alt={doctor.full_name} 
-                              className="w-10 h-10 rounded-full object-cover"
+                              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                               }}
                             />
                           ) : (
-                            <Icon name="User" size={20} className="text-primary" />
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <Icon name="User" size={16} className="text-primary" />
+                            </div>
                           )}
-                          {doctor.full_name}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <p className="text-sm"><strong>Должность:</strong> {doctor.position}</p>
-                        {doctor.specialization && <p className="text-sm"><strong>Специализация:</strong> {doctor.specialization}</p>}
-                        {doctor.phone && <p className="text-sm"><strong>Телефон:</strong> {doctor.phone}</p>}
-                        {doctor.office_number && <p className="text-sm"><strong>Кабинет:</strong> {doctor.office_number}</p>}
-                        {doctor.education && <p className="text-sm"><strong>Образование:</strong> {doctor.education}</p>}
-                        {doctor.work_experience && <p className="text-sm"><strong>Стаж:</strong> {doctor.work_experience} лет</p>}
-                        <p className="text-sm"><strong>Логин:</strong> {doctor.login}</p>
-                  <div className="flex items-center justify-between mt-3 p-3 bg-muted/30 rounded">
-                    <span className="text-sm font-medium">Статус:</span>
-                    <button
-                      onClick={() => handleToggleStatus(doctor.id, !doctor.is_active)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        doctor.is_active ? 'bg-primary' : 'bg-gray-300'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          doctor.is_active ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                    <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                      doctor.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {doctor.is_active ? 'Активен' : 'Неактивен'}
-                    </span>
-                  </div>
-                        <div className="flex gap-2 mt-2">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm truncate">{doctor.full_name}</h4>
+                            <p className="text-xs text-muted-foreground truncate">{doctor.position}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1 text-xs mb-2">
+                          {doctor.specialization && (
+                            <p className="flex items-center gap-1">
+                              <Icon name="Stethoscope" size={12} className="text-primary flex-shrink-0" />
+                              <span className="truncate">{doctor.specialization}</span>
+                            </p>
+                          )}
+                          {doctor.office_number && (
+                            <p className="flex items-center gap-1">
+                              <Icon name="DoorOpen" size={12} className="text-primary flex-shrink-0" />
+                              <span>Каб. {doctor.office_number}</span>
+                            </p>
+                          )}
+                          {doctor.work_experience && (
+                            <p className="flex items-center gap-1">
+                              <Icon name="Briefcase" size={12} className="text-primary flex-shrink-0" />
+                              <span>Стаж {doctor.work_experience} лет</span>
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between py-1.5 px-2 bg-muted/30 rounded mb-2">
+                          <button
+                            onClick={() => handleToggleStatus(doctor.id, !doctor.is_active)}
+                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                              doctor.is_active ? 'bg-primary' : 'bg-gray-300'
+                            }`}
+                          >
+                            <span
+                              className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                                doctor.is_active ? 'translate-x-5' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+                          <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
+                            doctor.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {doctor.is_active ? 'Активен' : 'Неактивен'}
+                          </span>
+                        </div>
+
+                        <div className="flex gap-1.5">
                           <Button 
                             variant="outline" 
                             size="sm" 
                             onClick={() => openEditDialog(doctor)}
-                            className="flex-1"
+                            className="flex-1 h-7 text-xs px-2"
                           >
-                            <Icon name="Edit" size={14} className="mr-1" />
-                            Изменить
+                            <Icon name="Edit" size={12} />
                           </Button>
                           <Button 
                             variant="destructive" 
                             size="sm" 
                             onClick={() => handleDeleteDoctor(doctor.id)}
-                            className="flex-1"
+                            className="flex-1 h-7 text-xs px-2"
                             disabled={!doctor.is_active}
                           >
-                            <Icon name="Trash2" size={14} className="mr-1" />
-                            Удалить
+                            <Icon name="Trash2" size={12} />
                           </Button>
                         </div>
                       </CardContent>
