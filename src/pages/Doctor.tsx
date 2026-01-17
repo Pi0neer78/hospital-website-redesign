@@ -2060,8 +2060,13 @@ const Doctor = () => {
                   <p className="text-sm"><strong>СНИЛС:</strong> {cloneDialog.appointment.patient_snils}</p>
                 )}
                 <p className="text-sm text-muted-foreground">
-                  <strong>Текущая запись:</strong> {new Date(cloneDialog.appointment.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в {cloneDialog.appointment.appointment_time.slice(0, 5)}
+                  <strong>Запись:</strong> {new Date(cloneDialog.appointment.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в {cloneDialog.appointment.appointment_time.slice(0, 5)}
                 </p>
+                {cloneDialog.appointment.status === 'completed' && cloneDialog.appointment.completed_at && (
+                  <p className="text-sm text-blue-600">
+                    <strong>Завершено:</strong> {new Date(cloneDialog.appointment.completed_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в {new Date(cloneDialog.appointment.completed_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -2069,10 +2074,19 @@ const Doctor = () => {
                 <Input
                   type="date"
                   value={cloneDialog.newDate}
-                  onChange={(e) => setCloneDialog({...cloneDialog, newDate: e.target.value, newTime: ''})}
+                  onChange={(e) => {
+                    const selectedDate = e.target.value;
+                    setCloneDialog({...cloneDialog, newDate: selectedDate, newTime: ''});
+                  }}
                   min={new Date().toISOString().split('T')[0]}
                   required
+                  className="text-sm"
                 />
+                {cloneDialog.newDate && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Выбрано: {new Date(cloneDialog.newDate + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' })}
+                  </p>
+                )}
               </div>
 
               {cloneDialog.newDate && (
