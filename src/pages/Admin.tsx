@@ -82,7 +82,8 @@ const Admin = () => {
   const [selectedRegistrarForLogs, setSelectedRegistrarForLogs] = useState<any>(null);
   const [logFilterType, setLogFilterType] = useState<string>('all');
   const [logFilterText, setLogFilterText] = useState<string>('');
-  const [logFilterDate, setLogFilterDate] = useState<string>('');
+  const [logFilterDateFrom, setLogFilterDateFrom] = useState<string>('');
+  const [logFilterDateTo, setLogFilterDateTo] = useState<string>('');
   const notificationSound = typeof Audio !== 'undefined' ? new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUQ0PVqzn7bViFg==') : null;
 
   useEffect(() => {
@@ -223,9 +224,16 @@ const Admin = () => {
         }
       }
       
-      if (logFilterDate) {
-        const logDate = new Date(log.created_at).toISOString().split('T')[0];
-        if (logDate !== logFilterDate) return false;
+      if (logFilterDateFrom || logFilterDateTo) {
+        const logDate = new Date(log.created_at);
+        if (logFilterDateFrom) {
+          const fromDate = new Date(logFilterDateFrom + 'T00:00:00');
+          if (logDate < fromDate) return false;
+        }
+        if (logFilterDateTo) {
+          const toDate = new Date(logFilterDateTo + 'T23:59:59');
+          if (logDate > toDate) return false;
+        }
       }
       
       return true;
@@ -238,6 +246,150 @@ const Admin = () => {
       if (log.action_type) types.add(log.action_type);
     });
     return Array.from(types).sort();
+  };
+
+  const exportLogsToExcel = () => {
+    const filteredLogs = getFilteredLogs();
+    if (filteredLogs.length === 0) {
+      toast({ title: "Ошибка", description: "Нет данных для экспорта", variant: "destructive" });
+      return;
+    }
+
+    const headers = '№\tДата\tВремя\tТип операции\tОписание\tРегистратор\n';
+    
+    const rows = filteredLogs.map((log: any, index: number) => {
+      const date = new Date(log.created_at);
+      let detailsObj: any = {};
+      try {
+        detailsObj = JSON.parse(log.details || '{}');
+      } catch (e) {
+        detailsObj = { raw: log.details };
+      }
+      
+      const formatDetails = () => {
+        const parts = [];
+        if (detailsObj.patient_name) parts.push(`Пациент: ${detailsObj.patient_name}`);
+        if (detailsObj.patient_phone) parts.push(`Тел: ${detailsObj.patient_phone}`);
+        if (detailsObj.doctor_name) parts.push(`Врач: ${detailsObj.doctor_name}`);
+        if (detailsObj.appointment_date) parts.push(`Дата: ${new Date(detailsObj.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')}`);
+        if (detailsObj.appointment_time) parts.push(`Время: ${detailsObj.appointment_time.slice(0, 5)}`);
+        if (detailsObj.old_date && detailsObj.new_date) {
+          parts.push(`${new Date(detailsObj.old_date + 'T00:00:00').toLocaleDateString('ru-RU')} ${detailsObj.old_time?.slice(0, 5)} -> ${new Date(detailsObj.new_date + 'T00:00:00').toLocaleDateString('ru-RU')} ${detailsObj.new_time?.slice(0, 5)}`);
+        }
+        if (detailsObj.raw) parts.push(detailsObj.raw);
+        return parts.join(' | ');
+      };
+
+      return `${index + 1}\t${date.toLocaleDateString('ru-RU')}\t${date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}\t${log.action_type}\t${formatDetails()}\t${log.registrar_name || ''}`;
+    }).join('\n');
+
+    const csv = headers + rows;
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/tab-separated-values;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `журнал_регистраторов_${new Date().toISOString().split('T')[0]}.xls`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast({ title: "Успешно", description: `Экспортировано ${filteredLogs.length} записей` });
+  };
+
+  const printLogs = () => {
+    const filteredLogs = getFilteredLogs();
+    if (filteredLogs.length === 0) {
+      toast({ title: "Ошибка", description: "Нет данных для печати", variant: "destructive" });
+      return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const tableRows = filteredLogs.map((log: any, index: number) => {
+      const date = new Date(log.created_at);
+      let detailsObj: any = {};
+      try {
+        detailsObj = JSON.parse(log.details || '{}');
+      } catch (e) {
+        detailsObj = { raw: log.details };
+      }
+      
+      const formatDetails = () => {
+        const parts = [];
+        if (detailsObj.patient_name) parts.push(`Пациент: ${detailsObj.patient_name}`);
+        if (detailsObj.patient_phone) parts.push(`Тел: ${detailsObj.patient_phone}`);
+        if (detailsObj.doctor_name) parts.push(`Врач: ${detailsObj.doctor_name}`);
+        if (detailsObj.appointment_date) parts.push(`Дата: ${new Date(detailsObj.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')}`);
+        if (detailsObj.appointment_time) parts.push(`Время: ${detailsObj.appointment_time.slice(0, 5)}`);
+        if (detailsObj.old_date && detailsObj.new_date) {
+          parts.push(`${new Date(detailsObj.old_date + 'T00:00:00').toLocaleDateString('ru-RU')} ${detailsObj.old_time?.slice(0, 5)} → ${new Date(detailsObj.new_date + 'T00:00:00').toLocaleDateString('ru-RU')} ${detailsObj.new_time?.slice(0, 5)}`);
+        }
+        if (detailsObj.raw) parts.push(detailsObj.raw);
+        return parts.join(' • ');
+      };
+
+      return `
+        <tr>
+          <td style="border: 1px solid #ddd; padding: 8px;">${index + 1}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${date.toLocaleDateString('ru-RU')}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${log.action_type}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${formatDetails()}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${log.registrar_name || '—'}</td>
+        </tr>
+      `;
+    }).join('');
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Журнал действий регистраторов</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { text-align: center; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+          th { background-color: #f2f2f2; border: 1px solid #ddd; padding: 8px; text-align: left; }
+          td { border: 1px solid #ddd; padding: 8px; }
+          @media print {
+            body { padding: 0; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Журнал действий регистраторов</h1>
+        <p>ГБУЗ Антрацитовская ЦГМБ ЛНР</p>
+        ${selectedRegistrarForLogs?.full_name ? `<p>Регистратор: ${selectedRegistrarForLogs.full_name}</p>` : ''}
+        ${logFilterDateFrom || logFilterDateTo ? `<p>Период: ${logFilterDateFrom || 'начало'} - ${logFilterDateTo || 'сегодня'}</p>` : ''}
+        <table>
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Дата</th>
+              <th>Время</th>
+              <th>Тип операции</th>
+              <th>Описание</th>
+              <th>Регистратор</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+        <p style="margin-top: 20px; text-align: right;">Всего записей: ${filteredLogs.length}</p>
+        <p style="margin-top: 10px; text-align: right;">Дата печати: ${new Date().toLocaleString('ru-RU')}</p>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
   };
 
   const handleCreateRegistrar = async (e: React.FormEvent) => {
@@ -1778,7 +1930,8 @@ const Admin = () => {
             setSelectedRegistrarForLogs(null);
             setLogFilterType('all');
             setLogFilterText('');
-            setLogFilterDate('');
+            setLogFilterDateFrom('');
+            setLogFilterDateTo('');
           }}>
             <DialogContent className="max-w-6xl max-h-[85vh] overflow-hidden flex flex-col">
               <DialogHeader>
@@ -1788,51 +1941,89 @@ const Admin = () => {
                 </DialogTitle>
               </DialogHeader>
               
-              <div className="flex gap-2 items-center pb-4 border-b">
-                <Select value={logFilterType} onValueChange={setLogFilterType}>
-                  <SelectTrigger className="w-[200px] h-9">
-                    <SelectValue placeholder="Тип операции" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все операции</SelectItem>
-                    {getUniqueActionTypes().map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="space-y-3 pb-4 border-b">
+                <div className="flex gap-2 items-center flex-wrap">
+                  <Select value={logFilterType} onValueChange={setLogFilterType}>
+                    <SelectTrigger className="w-[180px] h-9">
+                      <SelectValue placeholder="Тип операции" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Все операции</SelectItem>
+                      {getUniqueActionTypes().map(type => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  <Input
+                    placeholder="Поиск..."
+                    value={logFilterText}
+                    onChange={(e) => setLogFilterText(e.target.value)}
+                    className="w-[180px] h-9"
+                  />
+                  
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm whitespace-nowrap">с:</label>
+                    <Input
+                      type="date"
+                      value={logFilterDateFrom}
+                      onChange={(e) => setLogFilterDateFrom(e.target.value)}
+                      className="w-[140px] h-9"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm whitespace-nowrap">по:</label>
+                    <Input
+                      type="date"
+                      value={logFilterDateTo}
+                      onChange={(e) => setLogFilterDateTo(e.target.value)}
+                      className="w-[140px] h-9"
+                    />
+                  </div>
+                  
+                  {(logFilterType !== 'all' || logFilterText || logFilterDateFrom || logFilterDateTo) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setLogFilterType('all');
+                        setLogFilterText('');
+                        setLogFilterDateFrom('');
+                        setLogFilterDateTo('');
+                      }}
+                      className="h-9"
+                    >
+                      <Icon name="X" size={14} className="mr-1" />
+                      Сбросить
+                    </Button>
+                  )}
+                </div>
                 
-                <Input
-                  placeholder="Поиск в описании..."
-                  value={logFilterText}
-                  onChange={(e) => setLogFilterText(e.target.value)}
-                  className="w-[250px] h-9"
-                />
-                
-                <Input
-                  type="date"
-                  value={logFilterDate}
-                  onChange={(e) => setLogFilterDate(e.target.value)}
-                  className="w-[150px] h-9"
-                />
-                
-                {(logFilterType !== 'all' || logFilterText || logFilterDate) && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setLogFilterType('all');
-                      setLogFilterText('');
-                      setLogFilterDate('');
-                    }}
-                    className="h-9"
-                  >
-                    <Icon name="X" size={14} className="mr-1" />
-                    Сбросить
-                  </Button>
-                )}
-                
-                <div className="ml-auto text-sm text-muted-foreground">
-                  Найдено: {getFilteredLogs().length} из {registrarLogs.length}
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={exportLogsToExcel}
+                      className="h-9"
+                    >
+                      <Icon name="FileSpreadsheet" size={16} className="mr-2" />
+                      Экспорт в Excel
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={printLogs}
+                      className="h-9"
+                    >
+                      <Icon name="Printer" size={16} className="mr-2" />
+                      Печать
+                    </Button>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Найдено: {getFilteredLogs().length} из {registrarLogs.length}
+                  </div>
                 </div>
               </div>
 
