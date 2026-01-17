@@ -110,8 +110,8 @@ const Doctor = () => {
     availableSlots: []
   });
   const [dateSlotCounts, setDateSlotCounts] = useState<{[key: string]: number}>({});
-  const [showAutoRefreshPanel, setShowAutoRefreshPanel] = useState(false);
-  const [calendarSlotCounts, setCalendarSlotCounts] = useState<{[key: string]: {available: number, booked: number}}>({});
+
+
   const [dayOffWarning, setDayOffWarning] = useState<{open: boolean, date: string, appointmentCount: number}>({open: false, date: '', appointmentCount: 0});
 
   useEffect(() => {
@@ -208,62 +208,13 @@ const Doctor = () => {
       });
       setCalendarData(calendarMap);
       
-      const schedulesResponse = await fetch(`${API_URLS.schedules}?doctor_id=${doctorId}`);
-      const schedulesData = await schedulesResponse.json();
-      const currentSchedules = schedulesData.schedules || [];
-      
-      loadCalendarSlotCounts(doctorId, year, calendarMap, currentSchedules);
+
     } catch (error) {
       console.error('Failed to load calendar:', error);
     }
   };
 
-  const loadCalendarSlotCounts = async (
-    doctorId: number, 
-    year: number, 
-    calendarMap: {[key: string]: {is_working: boolean, note?: string}},
-    currentSchedules: any[]
-  ) => {
-    const counts: {[key: string]: {available: number, booked: number}} = {};
-    const today = new Date();
-    const endDate = new Date(today);
-    endDate.setDate(endDate.getDate() + 60);
-    
-    console.log('🔍 Загрузка слотов с', today.toISOString().split('T')[0], 'по', endDate.toISOString().split('T')[0]);
-    
-    const currentDate = new Date(today);
-    while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split('T')[0];
-      const dayOfWeek = currentDate.getDay();
-      const dayOfWeekAdjusted = (dayOfWeek + 6) % 7;
-      
-      const calendarOverride = calendarMap[dateStr];
-      const hasSchedule = currentSchedules.some((s: any) => s.day_of_week === dayOfWeekAdjusted && s.is_active);
-      const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
-      
-      if (isWorking) {
-        try {
-          const slotResponse = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorId}&date=${dateStr}`);
-          if (slotResponse.ok) {
-            const slotData = await slotResponse.json();
-            const available = slotData.available_slots?.length || 0;
-            const total = slotData.all_slots?.length || 0;
-            const booked = total - available;
-            counts[dateStr] = { available, booked };
-            console.log('✅ Слоты для', dateStr, ':', available, '/', booked);
-          }
-        } catch (error) {
-          console.error('❌ Ошибка загрузки слотов для', dateStr, error);
-          counts[dateStr] = { available: 0, booked: 0 };
-        }
-      }
-      
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    
-    console.log('📊 Всего загружено слотов:', Object.keys(counts).length);
-    setCalendarSlotCounts(counts);
-  };
+
 
   const toggleCalendarDay = async (date: string) => {
     if (!doctorInfo) return;
@@ -1002,17 +953,7 @@ const Doctor = () => {
               </TabsTrigger>
             </TabsList>
           </div>
-          <div className="container mx-auto px-4 pt-3 pb-2">
-            <Button 
-              variant={showAutoRefreshPanel ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowAutoRefreshPanel(!showAutoRefreshPanel)}
-              className="gap-1.5 text-xs h-8"
-            >
-              <Icon name={showAutoRefreshPanel ? "ChevronUp" : "ChevronDown"} size={14} />
-              Автообновление
-            </Button>
-          </div>
+
         </div>
 
         <section className="pb-12">
@@ -1090,7 +1031,6 @@ const Doctor = () => {
                             const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
                             const today = new Date().toISOString().split('T')[0];
                             const isToday = date === today;
-                            const slotInfo = calendarSlotCounts[date];
                             
                             return (
                               <button
@@ -1108,13 +1048,6 @@ const Doctor = () => {
                                 title={isWorking ? 'Рабочий день (нажмите для выходного)' : 'Выходной (нажмите для рабочего)'}
                               >
                                 <span className="font-semibold">{day}</span>
-                                {isWorking && slotInfo && (slotInfo.available > 0 || slotInfo.booked > 0) && (
-                                  <span className="text-[9px] leading-tight mt-0.5">
-                                    <span className="text-green-600 font-bold">{slotInfo.available}</span>
-                                    <span className="text-gray-400">/</span>
-                                    <span className="text-red-600 font-bold">{slotInfo.booked}</span>
-                                  </span>
-                                )}
                               </button>
                             );
                           })}
@@ -1561,117 +1494,63 @@ const Doctor = () => {
             </TabsContent>
 
             <TabsContent value="appointments" className="mt-6">
-              {showAutoRefreshPanel && (
-                <Card className={`mb-6 border-2 transition-all ${autoRefreshEnabled ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300' : 'bg-gradient-to-r from-gray-50 to-slate-50 border-gray-300'}`}>
-                  <CardContent className="pt-4">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="relative flex-shrink-0">
-                          <Icon name={autoRefreshEnabled ? "RefreshCw" : "PauseCircle"} size={24} className={autoRefreshEnabled ? "text-green-600 animate-spin-slow" : "text-gray-500"} />
-                          {autoRefreshEnabled && (
-                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
-                          )}
-                        </div>
-                        <div>
-                          <p className={`font-semibold ${autoRefreshEnabled ? 'text-green-900' : 'text-gray-700'}`}>
-                            {autoRefreshEnabled ? 'Автообновление включено' : 'Автообновление выключено'}
-                          </p>
-                          {autoRefreshEnabled ? (
-                            <p className="text-xs text-green-700 mt-0.5">
-                              {lastCheckTime && `Последняя проверка: ${lastCheckTime.toLocaleTimeString('ru-RU')} • `}
-                              Интервал: {checkInterval}с
-                            </p>
-                          ) : (
-                            <p className="text-xs text-gray-600 mt-0.5">Нажмите "Старт" для автоматического обновления</p>
-                          )}
-                        </div>
-                      </div>
-                      <Button
-                        size="lg"
-                        variant={autoRefreshEnabled ? "destructive" : "default"}
-                        onClick={toggleAutoRefresh}
-                        className="font-semibold shadow-md hover:shadow-lg transition-all"
-                      >
-                        <Icon name={autoRefreshEnabled ? "Pause" : "Play"} size={20} className="mr-2" />
-                        {autoRefreshEnabled ? 'Стоп' : 'Старт'}
-                      </Button>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200">
-                      {autoRefreshEnabled && soundEnabled && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={playNotificationSound}
-                          className="flex-shrink-0"
-                          title="Тест звука"
-                        >
-                          <Icon name="Play" size={16} className="mr-1" />
-                          <span className="hidden sm:inline">Тест звука</span>
-                        </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={toggleSound}
-                        disabled={!autoRefreshEnabled}
-                        className="flex-1 sm:flex-initial"
-                      >
-                        <Icon name={soundEnabled ? "Volume2" : "VolumeX"} size={16} className="mr-2" />
-                        {soundEnabled ? 'Звук вкл' : 'Звук выкл'}
-                      </Button>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={!autoRefreshEnabled}
-                            className="flex-1 sm:flex-initial"
-                          >
-                            <Icon name="Clock" size={16} className="mr-2" />
-                            {checkInterval}с
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-sm">
-                          <DialogHeader>
-                            <DialogTitle>Интервал проверки</DialogTitle>
-                            <DialogDescription>
-                              Выберите как часто проверять наличие новых записей
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="grid grid-cols-2 gap-3">
-                            {[15, 30, 60, 90, 120, 300, 600, 900].map((seconds) => (
-                              <Button
-                                key={seconds}
-                                variant={checkInterval === seconds ? 'default' : 'outline'}
-                                onClick={() => changeCheckInterval(seconds)}
-                                className="h-16 flex flex-col"
-                              >
-                                <span className="text-2xl font-bold">{seconds}</span>
-                                <span className="text-xs">секунд</span>
-                              </Button>
-                            ))}
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => loadAppointments(doctorInfo.id)}
-                        className="flex-1 sm:flex-initial"
-                      >
-                        <Icon name="RotateCw" size={16} className="mr-2" />
-                        Обновить вручную
-                      </Button>
-                    </div>
-                  </div>
-                  </CardContent>
-                </Card>
-              )}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h2 className="text-3xl font-bold">Записи пациентов</h2>
                 <div className="flex gap-1.5 flex-wrap items-center">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border">
+                    <span className="text-xs font-medium text-gray-700">Автообновление</span>
+                    <Button
+                      size="sm"
+                      variant={autoRefreshEnabled ? "default" : "outline"}
+                      onClick={toggleAutoRefresh}
+                      className="h-7 px-2"
+                    >
+                      <Icon name={autoRefreshEnabled ? "Pause" : "Play"} size={14} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={toggleSound}
+                      disabled={!autoRefreshEnabled}
+                      className="h-7 px-2"
+                      title={soundEnabled ? "Звук вкл" : "Звук выкл"}
+                    >
+                      <Icon name={soundEnabled ? "Volume2" : "VolumeX"} size={14} />
+                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={!autoRefreshEnabled}
+                          className="h-7 px-2 text-xs"
+                        >
+                          {checkInterval}с
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-sm">
+                        <DialogHeader>
+                          <DialogTitle>Интервал проверки</DialogTitle>
+                          <DialogDescription>
+                            Выберите как часто проверять наличие новых записей
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid grid-cols-2 gap-3">
+                          {[15, 30, 60, 90, 120, 300, 600, 900].map((seconds) => (
+                            <Button
+                              key={seconds}
+                              variant={checkInterval === seconds ? 'default' : 'outline'}
+                              onClick={() => changeCheckInterval(seconds)}
+                              className="h-16 flex flex-col"
+                            >
+                              <span className="text-2xl font-bold">{seconds}</span>
+                              <span className="text-xs">секунд</span>
+                            </Button>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                   <Button 
                     variant="default"
                     size="sm"
