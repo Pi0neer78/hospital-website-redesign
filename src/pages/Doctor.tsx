@@ -207,16 +207,24 @@ const Doctor = () => {
         };
       });
       setCalendarData(calendarMap);
-      loadCalendarSlotCounts(doctorId, year);
+      
+      const schedulesResponse = await fetch(`${API_URLS.schedules}?doctor_id=${doctorId}`);
+      const schedulesData = await schedulesResponse.json();
+      const currentSchedules = schedulesData.schedules || [];
+      
+      loadCalendarSlotCounts(doctorId, year, calendarMap, currentSchedules);
     } catch (error) {
       console.error('Failed to load calendar:', error);
     }
   };
 
-  const loadCalendarSlotCounts = async (doctorId: number, year: number) => {
+  const loadCalendarSlotCounts = async (
+    doctorId: number, 
+    year: number, 
+    calendarMap: {[key: string]: {is_working: boolean, note?: string}},
+    currentSchedules: any[]
+  ) => {
     const counts: {[key: string]: {available: number, booked: number}} = {};
-    const startDate = new Date(year, 0, 1);
-    const endDate = new Date(year, 11, 31);
     
     for (let month = 0; month < 12; month++) {
       const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -226,8 +234,8 @@ const Doctor = () => {
         const dayOfWeek = date.getDay();
         const dayOfWeekAdjusted = (dayOfWeek + 6) % 7;
         
-        const calendarOverride = calendarData[dateStr];
-        const hasSchedule = schedules.some((s: any) => s.day_of_week === dayOfWeekAdjusted && s.is_active);
+        const calendarOverride = calendarMap[dateStr];
+        const hasSchedule = currentSchedules.some((s: any) => s.day_of_week === dayOfWeekAdjusted && s.is_active);
         const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
         
         if (isWorking) {
