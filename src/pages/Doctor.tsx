@@ -1105,7 +1105,7 @@ const Doctor = () => {
                 </DialogContent>
               </Dialog>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {schedules.length === 0 ? (
                   <Card className="col-span-full">
                     <CardContent className="py-8 text-center text-muted-foreground">
@@ -1115,47 +1115,45 @@ const Doctor = () => {
                 ) : (
                   schedules.map((schedule: any) => (
                     <Card key={schedule.id} className={!schedule.is_active ? 'opacity-60' : ''}>
-                      <CardHeader>
-                        <CardTitle className="flex items-center justify-between">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center justify-between text-base">
                           <div className="flex items-center gap-2">
-                            <Icon name="Calendar" size={20} className="text-primary" />
-                            {DAYS_OF_WEEK[schedule.day_of_week]}
+                            <Icon name="Calendar" size={18} className="text-primary" />
+                            <span className="font-semibold">{DAYS_OF_WEEK[schedule.day_of_week]}</span>
                           </div>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
                             schedule.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
                           }`}>
                             {schedule.is_active ? 'Активно' : 'Неактивно'}
                           </span>
                         </CardTitle>
                       </CardHeader>
-                      <CardContent>
-                        <div className="mb-4 space-y-2">
+                      <CardContent className="space-y-3">
+                        <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <Icon name="Clock" size={16} className="text-primary" />
-                            <p className="text-lg font-medium">
+                            <Icon name="Clock" size={14} className="text-primary" />
+                            <p className="text-sm font-medium">
                               {schedule.start_time.slice(0, 5)} - {schedule.end_time.slice(0, 5)}
                             </p>
                           </div>
+                          <div className="flex items-center gap-2 bg-blue-50 px-2 py-1 rounded">
+                            <Icon name="Timer" size={14} className="text-blue-600" />
+                            <p className="text-xs text-blue-900 font-medium">
+                              Слот: {schedule.slot_duration || 15} мин
+                            </p>
+                          </div>
                           {schedule.break_start_time && schedule.break_end_time ? (
-                            <div className="flex items-center gap-2 bg-orange-50 px-3 py-2 rounded-md">
+                            <div className="flex items-center gap-2 bg-orange-50 px-2 py-1 rounded">
                               <Icon name="Coffee" size={14} className="text-orange-600" />
-                              <p className="text-sm text-orange-900 font-medium">
+                              <p className="text-xs text-orange-900 font-medium">
                                 Перерыв: {schedule.break_start_time.slice(0, 5)} - {schedule.break_end_time.slice(0, 5)}
                               </p>
                             </div>
                           ) : (
-                            <p className="text-xs text-muted-foreground ml-6">Без перерыва</p>
+                            <p className="text-[10px] text-muted-foreground ml-5">Без перерыва</p>
                           )}
                         </div>
-                        <div className="flex gap-2 flex-wrap">
-                          <Button 
-                            size="sm" 
-                            variant={schedule.is_active ? "outline" : "default"}
-                            onClick={() => handleToggleActive(schedule.id, schedule.is_active)}
-                          >
-                            <Icon name={schedule.is_active ? "PauseCircle" : "PlayCircle"} size={16} className="mr-1" />
-                            {schedule.is_active ? 'Деактивировать' : 'Активировать'}
-                          </Button>
+                        <div className="grid grid-cols-2 gap-1">
                           <Button 
                             size="sm" 
                             variant="outline"
@@ -1163,25 +1161,33 @@ const Doctor = () => {
                               setEditingSchedule(schedule);
                               setIsEditOpen(true);
                             }}
+                            className="h-8 text-xs"
                           >
-                            <Icon name="Edit" size={16} className="mr-1" />
-                            Изменить
+                            <Icon name="Edit" size={14} />
                           </Button>
                           <Button 
                             size="sm" 
                             variant="secondary"
                             onClick={() => handleCopySchedule(schedule)}
+                            className="h-8 text-xs"
                           >
-                            <Icon name="Copy" size={16} className="mr-1" />
-                            Копировать
+                            <Icon name="Copy" size={14} />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant={schedule.is_active ? "outline" : "default"}
+                            onClick={() => handleToggleActive(schedule.id, schedule.is_active)}
+                            className="h-8 text-xs"
+                          >
+                            <Icon name={schedule.is_active ? "PauseCircle" : "PlayCircle"} size={14} />
                           </Button>
                           <Button 
                             size="sm" 
                             variant="destructive"
                             onClick={() => handleDeleteSchedule(schedule.id)}
+                            className="h-8 text-xs"
                           >
-                            <Icon name="Trash2" size={16} className="mr-1" />
-                            Удалить
+                            <Icon name="Trash2" size={14} />
                           </Button>
                         </div>
                       </CardContent>
