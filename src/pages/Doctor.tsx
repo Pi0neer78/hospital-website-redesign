@@ -993,10 +993,21 @@ const Doctor = () => {
               </TabsTrigger>
             </TabsList>
           </div>
+          <div className="container mx-auto px-4 pt-3 pb-2">
+            <Button 
+              variant={showAutoRefreshPanel ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowAutoRefreshPanel(!showAutoRefreshPanel)}
+              className="gap-1.5 text-xs h-8"
+            >
+              <Icon name={showAutoRefreshPanel ? "ChevronUp" : "ChevronDown"} size={14} />
+              Автообновление
+            </Button>
+          </div>
         </div>
 
         <section className="pb-12">
-          <div className="container mx-auto px-4 pt-6">
+          <div className="container mx-auto px-4">
 
             <TabsContent value="calendar" className="mt-6">
               <Card className="mb-6 bg-gradient-to-r from-green-50 to-teal-50 border-green-200">
@@ -1660,15 +1671,6 @@ const Doctor = () => {
                   >
                     <Icon name="UserPlus" size={14} />
                     Записать пациента
-                  </Button>
-                  <Button 
-                    variant={showAutoRefreshPanel ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setShowAutoRefreshPanel(!showAutoRefreshPanel)}
-                    className="gap-1.5 text-xs h-8"
-                  >
-                    <Icon name={showAutoRefreshPanel ? "ChevronUp" : "ChevronDown"} size={14} />
-                    Автообновление
                   </Button>
                   <Button 
                     variant="outline" 
