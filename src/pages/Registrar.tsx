@@ -658,7 +658,7 @@ const Registrar = () => {
                 onClick={() => setSelectedDoctor(doctor)}
               >
                 <CardContent className="p-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-start gap-3">
                     {doctor.photo_url ? (
                       <img 
                         src={doctor.photo_url} 
@@ -670,12 +670,32 @@ const Registrar = () => {
                         <Icon name="User" size={24} className="text-primary" />
                       </div>
                     )}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm truncate">{doctor.full_name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{doctor.position}</p>
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <p className="font-semibold text-sm">{doctor.full_name}</p>
+                      <p className="text-xs text-muted-foreground">{doctor.position}</p>
                       {doctor.specialization && (
-                        <p className="text-xs text-muted-foreground truncate">{doctor.specialization}</p>
+                        <p className="text-xs text-muted-foreground">{doctor.specialization}</p>
                       )}
+                      <div className="pt-1 space-y-0.5">
+                        {doctor.office_number && (
+                          <p className="text-xs flex items-center gap-1">
+                            <Icon name="DoorOpen" size={12} className="text-primary" />
+                            <span className="font-medium">Кабинет {doctor.office_number}</span>
+                          </p>
+                        )}
+                        {doctor.work_experience && (
+                          <p className="text-xs flex items-center gap-1">
+                            <Icon name="Briefcase" size={12} className="text-primary" />
+                            <span>Стаж {doctor.work_experience} лет</span>
+                          </p>
+                        )}
+                        {doctor.education && (
+                          <p className="text-xs flex items-center gap-1">
+                            <Icon name="GraduationCap" size={12} className="text-primary" />
+                            <span className="truncate" title={doctor.education}>{doctor.education}</span>
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
