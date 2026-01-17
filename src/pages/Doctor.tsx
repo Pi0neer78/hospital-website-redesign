@@ -1786,7 +1786,7 @@ const Doctor = () => {
                                     <span className="text-muted-foreground">—</span>
                                   )}
                                 </TableCell>
-                                <TableCell className="font-medium text-sm py-0.5">{appointment.patient_name}</TableCell>
+                                <TableCell className="font-medium text-xs py-0.5">{appointment.patient_name}</TableCell>
                                 <TableCell className="text-xs py-0.5">{appointment.patient_phone}</TableCell>
                                 <TableCell className="hidden lg:table-cell text-xs py-0.5">{appointment.patient_snils || '—'}</TableCell>
                                 <TableCell className="hidden md:table-cell text-xs text-muted-foreground py-0.5">
