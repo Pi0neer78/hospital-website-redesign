@@ -826,9 +826,9 @@ const Doctor = () => {
                           <label className="block text-sm font-medium mb-2">Длительность слота (минуты)</label>
                           <Input
                             type="number"
-                            min="5"
+                            min="1"
                             max="120"
-                            step="5"
+                            step="1"
                             value={bulkSlotDuration}
                             onChange={(e) => setBulkSlotDuration(parseInt(e.target.value) || 15)}
                             placeholder="15"
@@ -897,15 +897,15 @@ const Doctor = () => {
                         <label className="text-sm font-medium mb-2 block">Длительность слота (минуты)</label>
                         <Input
                           type="number"
-                          min="5"
+                          min="1"
                           max="120"
-                          step="5"
+                          step="1"
                           value={scheduleForm.slot_duration}
                           onChange={(e) => setScheduleForm({ ...scheduleForm, slot_duration: parseInt(e.target.value) || 15 })}
                           required
                         />
                         <p className="text-xs text-muted-foreground mt-1">
-                          Интервал времени для одного приёма (например, 15, 20, 30 минут)
+                          Интервал времени для одного приёма (например, 15, 20, 22, 30 минут)
                         </p>
                       </div>
                       <div className="border-t pt-4">
@@ -973,9 +973,9 @@ const Doctor = () => {
                         <label className="text-sm font-medium mb-2 block">Длительность слота (минуты)</label>
                         <Input
                           type="number"
-                          min="5"
+                          min="1"
                           max="120"
-                          step="5"
+                          step="1"
                           value={editingSchedule.slot_duration || 15}
                           onChange={(e) => setEditingSchedule({ ...editingSchedule, slot_duration: parseInt(e.target.value) || 15 })}
                           required
