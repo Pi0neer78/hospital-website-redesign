@@ -111,3 +111,20 @@
     font-family: "Montserrat", sans-serif;
   }
 }
+
+@keyframes pulse-attention {
+  0%,
+  100% {
+    transform: scale(1);
+    color: #000;
+  }
+  50% {
+    transform: scale(1.15);
+    color: #0ea5e9;
+  }
+}
+
+.animate-pulse-attention {
+  animation: pulse-attention 3s ease-in-out infinite;
+  font-weight: 700;
+}

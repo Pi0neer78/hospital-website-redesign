@@ -549,7 +549,7 @@ const Index = () => {
             <div className="flex gap-4 justify-center flex-wrap">
               <Dialog open={isAppointmentOpen} onOpenChange={setIsAppointmentOpen}>
                 <DialogTrigger asChild>
-                  <Button size="lg" className="gap-2 shadow-lg hover:shadow-xl transition-shadow w-full sm:w-auto sm:min-w-[200px]">
+                  <Button size="lg" className="gap-2 shadow-lg hover:shadow-xl transition-shadow w-full sm:w-auto sm:min-w-[200px] bg-blue-900 hover:bg-blue-800">
                     <Icon name="Calendar" size={20} />
                     Записаться на прием
                   </Button>
@@ -1043,13 +1043,13 @@ const Index = () => {
             
             <a 
               href="/how-to-book" 
-              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors group"
+              className="inline-flex items-center gap-2 group"
             >
-              <Icon name="HelpCircle" size={18} className="group-hover:scale-110 transition-transform" />
-              <span className="text-sm font-medium underline underline-offset-4 decoration-primary/30 group-hover:decoration-primary">
+              <Icon name="HelpCircle" size={18} className="text-black" />
+              <span className="animate-pulse-attention">
                 Как записаться на прием?
               </span>
-              <Icon name="ArrowRight" size={16} className="group-hover:translate-x-1 transition-transform" />
+              <Icon name="ArrowRight" size={16} className="text-black" />
             </a>
           </div>
         </div>
