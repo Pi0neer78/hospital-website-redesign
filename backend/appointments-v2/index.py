@@ -244,6 +244,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             appointment_id = body.get('id')
             status = body.get('status')
             description = body.get('description')
+            completed_at = body.get('completed_at')
             
             if not appointment_id or not status:
                 return {
@@ -255,7 +256,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
-            if description is not None:
+            if completed_at is not None and description is not None:
+                cursor.execute(
+                    "UPDATE appointments_v2 SET status = %s, description = %s, completed_at = %s WHERE id = %s RETURNING *",
+                    (status, description, completed_at, appointment_id)
+                )
+            elif completed_at is not None:
+                cursor.execute(
+                    "UPDATE appointments_v2 SET status = %s, completed_at = %s WHERE id = %s RETURNING *",
+                    (status, completed_at, appointment_id)
+                )
+            elif description is not None:
                 cursor.execute(
                     "UPDATE appointments_v2 SET status = %s, description = %s WHERE id = %s RETURNING *",
                     (status, description, appointment_id)
