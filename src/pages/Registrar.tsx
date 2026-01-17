@@ -46,6 +46,8 @@ const Registrar = () => {
   const [cloneDialog, setCloneDialog] = useState<any>(null);
   const [calendarData, setCalendarData] = useState<{[key: string]: {is_working: boolean}}>({});
   const [schedules, setSchedules] = useState<any[]>([]);
+  const [rescheduleConfirmDialog, setRescheduleConfirmDialog] = useState<{open: boolean, data: any}>({open: false, data: null});
+  const [rescheduleSuccessDialog, setRescheduleSuccessDialog] = useState<{open: boolean, data: any}>({open: false, data: null});
 
   useEffect(() => {
     const auth = localStorage.getItem('registrar_auth');
@@ -157,7 +159,7 @@ const Registrar = () => {
     }
   };
 
-  const generateAvailableDates = () => {
+  const generateAvailableDates = async () => {
     const dates = [];
     for (let i = 0; i <= 20; i++) {
       const date = new Date();
@@ -169,7 +171,16 @@ const Registrar = () => {
       const calendarOverride = calendarData[dateStr];
       const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
       
-      console.log(`Дата ${dateStr}, день недели ${dayOfWeek}, hasSchedule: ${hasSchedule}, calendar: ${calendarOverride?.is_working}, итог: ${isWorking}`);
+      let slotsCount = 0;
+      if (isWorking && selectedDoctor) {
+        try {
+          const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${selectedDoctor.id}&date=${dateStr}`);
+          const data = await response.json();
+          slotsCount = (data.available_slots || []).length;
+        } catch (error) {
+          console.error('Failed to load slots count:', error);
+        }
+      }
       
       dates.push({
         date: dateStr,
@@ -179,11 +190,9 @@ const Registrar = () => {
           month: 'short' 
         }),
         isWorking,
-        slotsCount: 0
+        slotsCount
       });
     }
-    console.log('Schedules:', schedules);
-    console.log('CalendarData:', calendarData);
     setAvailableDates(dates);
   };
 
@@ -238,6 +247,17 @@ const Registrar = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        await logAction('Создание записи', {
+          appointment_id: data.appointment.id,
+          patient_name: newAppointmentDialog.patientName,
+          patient_phone: newAppointmentDialog.patientPhone,
+          patient_snils: newAppointmentDialog.patientSnils,
+          doctor_name: selectedDoctor.full_name,
+          appointment_date: selectedDate,
+          appointment_time: newAppointmentDialog.time,
+          description: newAppointmentDialog.description
+        });
+
         toast({ 
           title: "Успешно", 
           description: `Пациент ${newAppointmentDialog.patientName} записан` 
@@ -272,6 +292,17 @@ const Registrar = () => {
       });
 
       if (response.ok) {
+        await logAction('Отмена записи', {
+          appointment_id: cancelDialog.id,
+          patient_name: cancelDialog.patient_name,
+          patient_phone: cancelDialog.patient_phone,
+          patient_snils: cancelDialog.patient_snils,
+          doctor_name: selectedDoctor.full_name,
+          appointment_date: cancelDialog.appointment_date,
+          appointment_time: cancelDialog.appointment_time,
+          description: cancelDialog.description
+        });
+
         toast({ title: "Успешно", description: "Запись отменена" });
         loadAppointments(selectedDoctor.id);
         setCancelDialog(null);
@@ -324,16 +355,43 @@ const Registrar = () => {
     }
   };
 
-  const handleRescheduleAppointment = async () => {
+  const logAction = async (actionType: string, details: any) => {
+    try {
+      await fetch(API_URLS.registrars, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'log',
+          registrar_id: registrarInfo.id,
+          action_type: actionType,
+          details: JSON.stringify(details)
+        })
+      });
+    } catch (error) {
+      console.error('Failed to log action:', error);
+    }
+  };
+
+  const handleRescheduleConfirm = () => {
     if (!rescheduleSelectedDate || !rescheduleSelectedSlot) {
       toast({ title: "Ошибка", description: "Выберите дату и время", variant: "destructive" });
       return;
     }
 
-    if (!rescheduleDialog?.id) {
-      toast({ title: "Ошибка", description: "Ошибка данных записи", variant: "destructive" });
-      return;
-    }
+    setRescheduleConfirmDialog({
+      open: true,
+      data: {
+        oldDate: rescheduleDialog.appointment_date,
+        oldTime: rescheduleDialog.appointment_time,
+        newDate: rescheduleSelectedDate,
+        newTime: rescheduleSelectedSlot,
+        patient: rescheduleDialog.patient_name
+      }
+    });
+  };
+
+  const handleRescheduleAppointment = async () => {
+    setRescheduleConfirmDialog({open: false, data: null});
 
     try {
       const response = await fetch(API_URLS.appointments, {
@@ -349,7 +407,29 @@ const Registrar = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        toast({ title: "Успешно", description: "Запись перенесена" });
+        await logAction('Перенос записи', {
+          appointment_id: rescheduleDialog.id,
+          patient_name: rescheduleDialog.patient_name,
+          patient_phone: rescheduleDialog.patient_phone,
+          patient_snils: rescheduleDialog.patient_snils,
+          doctor_name: selectedDoctor.full_name,
+          old_date: rescheduleDialog.appointment_date,
+          old_time: rescheduleDialog.appointment_time,
+          new_date: rescheduleSelectedDate,
+          new_time: rescheduleSelectedSlot
+        });
+
+        setRescheduleSuccessDialog({
+          open: true,
+          data: {
+            oldDate: rescheduleDialog.appointment_date,
+            oldTime: rescheduleDialog.appointment_time,
+            newDate: rescheduleSelectedDate,
+            newTime: rescheduleSelectedSlot,
+            patient: rescheduleDialog.patient_name
+          }
+        });
+        
         setRescheduleDialog(null);
         setRescheduleSelectedDate('');
         setRescheduleSelectedSlot('');
@@ -385,6 +465,18 @@ const Registrar = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        await logAction('Клонирование записи', {
+          original_appointment_id: cloneDialog.id,
+          new_appointment_id: data.appointment.id,
+          patient_name: cloneDialog.patient_name,
+          patient_phone: cloneDialog.patient_phone,
+          patient_snils: cloneDialog.patient_snils,
+          doctor_name: selectedDoctor.full_name,
+          appointment_date: cloneDialog.appointment_date,
+          appointment_time: cloneDialog.appointment_time,
+          description: cloneDialog.description
+        });
+
         toast({ title: "Успешно", description: "Запись клонирована" });
         setCloneDialog(null);
         loadAppointments(selectedDoctor.id);
@@ -541,6 +633,11 @@ const Registrar = () => {
                     }`}
                   >
                     <div className="font-medium">{dateInfo.label}</div>
+                    {dateInfo.isWorking && (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {dateInfo.slotsCount > 0 ? `${dateInfo.slotsCount} слот` : 'Нет слотов'}
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
@@ -572,47 +669,42 @@ const Registrar = () => {
                 </>
               )}
 
-              <div className="mb-4 space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-2xl font-bold">Записи пациентов</h3>
+              <div className="mb-4 flex justify-between items-center">
+                <h3 className="text-2xl font-bold">Записи пациентов</h3>
+                <div className="flex gap-2 items-center">
                   <Input
                     type="text"
-                    placeholder="Поиск по ФИО или телефону..."
+                    placeholder="Поиск по ФИО или телефону"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-[300px]"
+                    className="w-[180px] h-9 text-sm"
                   />
-                </div>
-                <div className="flex gap-3 items-center">
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium whitespace-nowrap">Дата с:</label>
-                    <Input
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => setDateFrom(e.target.value)}
-                      className="w-[150px]"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium whitespace-nowrap">Дата по:</label>
-                    <Input
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) => setDateTo(e.target.value)}
-                      className="w-[150px]"
-                    />
-                  </div>
-                  {(dateFrom || dateTo) && (
+                  <Input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="w-[130px] h-9 text-sm"
+                    placeholder="От"
+                  />
+                  <Input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="w-[130px] h-9 text-sm"
+                    placeholder="До"
+                  />
+                  {(dateFrom || dateTo || searchQuery) && (
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => {
                         setDateFrom('');
                         setDateTo('');
+                        setSearchQuery('');
                       }}
+                      className="h-9"
                     >
-                      <Icon name="X" size={14} className="mr-1" />
-                      Сбросить
+                      <Icon name="X" size={14} />
                     </Button>
                   )}
                 </div>
@@ -622,15 +714,15 @@ const Registrar = () => {
                 <CardContent className="p-0">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>Дата</TableHead>
-                        <TableHead>Время</TableHead>
-                        <TableHead>Пациент</TableHead>
-                        <TableHead>Телефон</TableHead>
-                        <TableHead>СНИЛС</TableHead>
-                        <TableHead>Описание</TableHead>
-                        <TableHead>Статус</TableHead>
-                        <TableHead className="text-right">Действия</TableHead>
+                      <TableRow className="text-xs">
+                        <TableHead className="py-2">Дата</TableHead>
+                        <TableHead className="py-2">Время</TableHead>
+                        <TableHead className="py-2">Пациент</TableHead>
+                        <TableHead className="py-2">Телефон</TableHead>
+                        <TableHead className="py-2">СНИЛС</TableHead>
+                        <TableHead className="py-2">Описание</TableHead>
+                        <TableHead className="py-2">Статус</TableHead>
+                        <TableHead className="text-right py-2">Действия</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -641,16 +733,16 @@ const Registrar = () => {
                           return a.appointment_time.localeCompare(b.appointment_time);
                         })
                         .map((appointment: any) => (
-                          <TableRow key={appointment.id}>
-                            <TableCell>
+                          <TableRow key={appointment.id} className="text-xs">
+                            <TableCell className="py-2">
                               {new Date(appointment.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')}
                             </TableCell>
-                            <TableCell>{appointment.appointment_time.slice(0, 5)}</TableCell>
-                            <TableCell>{appointment.patient_name}</TableCell>
-                            <TableCell>{appointment.patient_phone}</TableCell>
-                            <TableCell>{appointment.patient_snils || '—'}</TableCell>
-                            <TableCell className="text-muted-foreground">{appointment.description || '—'}</TableCell>
-                            <TableCell>
+                            <TableCell className="py-2">{appointment.appointment_time.slice(0, 5)}</TableCell>
+                            <TableCell className="py-2">{appointment.patient_name}</TableCell>
+                            <TableCell className="py-2">{appointment.patient_phone}</TableCell>
+                            <TableCell className="py-2">{appointment.patient_snils || '—'}</TableCell>
+                            <TableCell className="text-muted-foreground py-2">{appointment.description || '—'}</TableCell>
+                            <TableCell className="py-2">
                               <span className={`px-2 py-1 rounded-full text-xs ${
                                 appointment.status === 'scheduled' 
                                   ? 'bg-green-100 text-green-800' 
@@ -662,7 +754,7 @@ const Registrar = () => {
                                  appointment.status === 'completed' ? 'Завершено' : 'Отменено'}
                               </span>
                             </TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="text-right py-2">
                               <div className="flex gap-1 justify-end">
                                 {appointment.status === 'scheduled' && (
                                   <>
@@ -829,7 +921,7 @@ const Registrar = () => {
               </Button>
               <Button 
                 className="flex-1" 
-                onClick={handleRescheduleAppointment}
+                onClick={handleRescheduleConfirm}
                 disabled={!rescheduleSelectedDate || !rescheduleSelectedSlot}
               >
                 Перенести
@@ -882,6 +974,99 @@ const Registrar = () => {
               <Button type="submit" className="flex-1">Клонировать</Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={rescheduleConfirmDialog.open} onOpenChange={() => setRescheduleConfirmDialog({open: false, data: null})}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="CalendarCheck" size={24} className="text-primary" />
+              Подтверждение переноса
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex justify-center">
+              <div className="w-32 h-32 bg-gradient-to-br from-green-100 to-blue-100 rounded-full flex items-center justify-center">
+                <Icon name="UserCheck" size={64} className="text-green-600" />
+              </div>
+            </div>
+            <div className="text-center space-y-2">
+              <p className="font-semibold text-lg">Пациент: {rescheduleConfirmDialog.data?.patient}</p>
+              <div className="bg-red-50 p-3 rounded-lg">
+                <p className="text-sm text-muted-foreground">Старая дата и время:</p>
+                <p className="font-medium text-red-700">
+                  {new Date(rescheduleConfirmDialog.data?.oldDate + 'T00:00:00').toLocaleDateString('ru-RU')} в {rescheduleConfirmDialog.data?.oldTime?.slice(0, 5)}
+                </p>
+              </div>
+              <Icon name="ArrowDown" size={24} className="mx-auto text-muted-foreground" />
+              <div className="bg-green-50 p-3 rounded-lg">
+                <p className="text-sm text-muted-foreground">Новая дата и время:</p>
+                <p className="font-medium text-green-700">
+                  {new Date(rescheduleConfirmDialog.data?.newDate + 'T00:00:00').toLocaleDateString('ru-RU')} в {rescheduleConfirmDialog.data?.newTime?.slice(0, 5)}
+                </p>
+              </div>
+            </div>
+            <p className="text-center text-sm text-muted-foreground">Выполнить перенос записи?</p>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setRescheduleConfirmDialog({open: false, data: null})}
+              >
+                Отмена
+              </Button>
+              <Button 
+                className="flex-1"
+                onClick={handleRescheduleAppointment}
+              >
+                Да, перенести
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={rescheduleSuccessDialog.open} onOpenChange={() => setRescheduleSuccessDialog({open: false, data: null})}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="CheckCircle2" size={24} className="text-green-600" />
+              Запись успешно перенесена!
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex justify-center">
+              <div className="w-32 h-32 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center animate-pulse">
+                <Icon name="ThumbsUp" size={64} className="text-green-600" />
+              </div>
+            </div>
+            <div className="text-center space-y-3">
+              <p className="text-lg font-semibold text-green-700">Отлично!</p>
+              <p className="font-medium">Пациент: {rescheduleSuccessDialog.data?.patient}</p>
+              <div className="bg-muted/30 p-3 rounded-lg space-y-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">Было:</p>
+                  <p className="text-sm line-through">
+                    {new Date(rescheduleSuccessDialog.data?.oldDate + 'T00:00:00').toLocaleDateString('ru-RU')} в {rescheduleSuccessDialog.data?.oldTime?.slice(0, 5)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Стало:</p>
+                  <p className="text-sm font-semibold text-green-700">
+                    {new Date(rescheduleSuccessDialog.data?.newDate + 'T00:00:00').toLocaleDateString('ru-RU')} в {rescheduleSuccessDialog.data?.newTime?.slice(0, 5)}
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">Запись успешно перенесена!</p>
+            </div>
+            <Button 
+              className="w-full"
+              onClick={() => setRescheduleSuccessDialog({open: false, data: null})}
+            >
+              Закрыть
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
