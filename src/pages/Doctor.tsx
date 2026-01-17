@@ -1874,123 +1874,128 @@ const Doctor = () => {
       </Dialog>
 
       <Dialog open={newAppointmentDialog.open} onOpenChange={(open) => setNewAppointmentDialog({...newAppointmentDialog, open})}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Записать пациента на прием</DialogTitle>
-            <DialogDescription>
-              Создайте запись для пациента без подтверждения через MAX
-            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreateNewAppointment} className="space-y-3">
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Дата приема</label>
-              <div className="grid grid-cols-4 gap-1.5">
-                {getNext14DaysForDoctor().map((day) => {
-                  const slotCount = dateSlotCounts[day.date];
-                  const hasSlots = slotCount !== undefined && slotCount > 0;
-                  
-                  return (
-                    <Button
-                      key={day.date}
-                      type="button"
-                      variant={newAppointmentDialog.date === day.date ? 'default' : 'outline'}
-                      className={`h-16 flex flex-col text-xs p-1 ${!day.isWorking || !hasSlots ? 'opacity-40 cursor-not-allowed' : ''}`}
-                      onClick={() => day.isWorking && hasSlots && setNewAppointmentDialog({...newAppointmentDialog, date: day.date, time: ''})}
-                      disabled={!day.isWorking || !hasSlots}
-                    >
-                      <span className="text-[10px] text-muted-foreground leading-tight">{day.label.split(',')[0]}</span>
-                      <span className="text-sm font-bold leading-tight">{day.label.split(',')[1]}</span>
-                      {!day.isWorking ? (
-                        <span className="text-[9px] text-red-500 leading-tight">Выходной</span>
-                      ) : slotCount === undefined ? (
-                        <span className="text-[9px] text-muted-foreground leading-tight">...</span>
-                      ) : slotCount === 0 ? (
-                        <span className="text-[9px] text-red-500 leading-tight">Нет мест</span>
-                      ) : (
-                        <span className="text-[9px] text-green-600 leading-tight font-semibold">{slotCount} мест</span>
-                      )}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {newAppointmentDialog.date && (
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Время приема</label>
-                {newAppointmentDialog.availableSlots.length > 0 ? (
-                  <div className="grid grid-cols-4 gap-1.5 max-h-[150px] overflow-y-auto p-2 border rounded-md">
-                    {newAppointmentDialog.availableSlots.map((slot: string) => (
+                <label className="text-sm font-medium mb-1.5 block">Дата приема</label>
+                <div className="grid grid-cols-4 gap-1">
+                  {getNext14DaysForDoctor().map((day) => {
+                    const slotCount = dateSlotCounts[day.date];
+                    const hasSlots = slotCount !== undefined && slotCount > 0;
+                    
+                    return (
                       <Button
-                        key={slot}
+                        key={day.date}
                         type="button"
-                        size="sm"
-                        variant={newAppointmentDialog.time === slot ? 'default' : 'outline'}
-                        onClick={() => setNewAppointmentDialog({...newAppointmentDialog, time: slot})}
-                        className="h-8 text-xs"
+                        variant={newAppointmentDialog.date === day.date ? 'default' : 'outline'}
+                        className={`h-14 flex flex-col text-xs p-1 ${!day.isWorking || !hasSlots ? 'opacity-40 cursor-not-allowed' : ''}`}
+                        onClick={() => day.isWorking && hasSlots && setNewAppointmentDialog({...newAppointmentDialog, date: day.date, time: ''})}
+                        disabled={!day.isWorking || !hasSlots}
                       >
-                        {slot}
+                        <span className="text-[9px] text-muted-foreground leading-tight">{day.label.split(',')[0]}</span>
+                        <span className="text-xs font-bold leading-tight">{day.label.split(',')[1]}</span>
+                        {!day.isWorking ? (
+                          <span className="text-[8px] text-red-500 leading-tight">Выходной</span>
+                        ) : slotCount === undefined ? (
+                          <span className="text-[8px] text-muted-foreground leading-tight">...</span>
+                        ) : slotCount === 0 ? (
+                          <span className="text-[8px] text-red-500 leading-tight">Нет мест</span>
+                        ) : (
+                          <span className="text-[8px] text-green-600 leading-tight font-semibold">{slotCount}</span>
+                        )}
                       </Button>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/30">
-                    Нет доступных слотов на выбранную дату
-                  </p>
-                )}
+                    );
+                  })}
+                </div>
               </div>
-            )}
 
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">ФИО пациента *</label>
-              <Input
-                value={newAppointmentDialog.patientName}
-                onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, patientName: e.target.value})}
-                placeholder="Иванов Иван Иванович"
-                required
-              />
+              {newAppointmentDialog.date && (
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Время приема</label>
+                  {newAppointmentDialog.availableSlots.length > 0 ? (
+                    <div className="grid grid-cols-4 gap-1 max-h-[168px] overflow-y-auto p-1.5 border rounded-md bg-muted/20">
+                      {newAppointmentDialog.availableSlots.map((slot: string) => (
+                        <Button
+                          key={slot}
+                          type="button"
+                          size="sm"
+                          variant={newAppointmentDialog.time === slot ? 'default' : 'outline'}
+                          onClick={() => setNewAppointmentDialog({...newAppointmentDialog, time: slot})}
+                          className="h-7 text-xs"
+                        >
+                          {slot}
+                        </Button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground p-3 border rounded-md bg-muted/30 text-center">
+                      Выберите дату
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Телефон *</label>
-              <Input
-                type="tel"
-                value={newAppointmentDialog.patientPhone}
-                onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, patientPhone: e.target.value})}
-                placeholder="+79991234567"
-                required
-              />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs font-medium mb-1 block">ФИО пациента *</label>
+                <Input
+                  value={newAppointmentDialog.patientName}
+                  onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, patientName: e.target.value})}
+                  placeholder="Иванов Иван Иванович"
+                  className="h-9 text-sm"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium mb-1 block">Телефон *</label>
+                <Input
+                  type="tel"
+                  value={newAppointmentDialog.patientPhone}
+                  onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, patientPhone: e.target.value})}
+                  placeholder="+79991234567"
+                  className="h-9 text-sm"
+                  required
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">СНИЛС (необязательно)</label>
-              <Input
-                value={newAppointmentDialog.patientSnils}
-                onChange={(e) => {
-                  let value = e.target.value.replace(/\D/g, '');
-                  if (value.length > 11) value = value.slice(0, 11);
-                  if (value.length >= 3) value = value.slice(0, 3) + '-' + value.slice(3);
-                  if (value.length >= 7) value = value.slice(0, 7) + '-' + value.slice(7);
-                  if (value.length >= 11) value = value.slice(0, 11) + '-' + value.slice(11);
-                  setNewAppointmentDialog({...newAppointmentDialog, patientSnils: value});
-                }}
-                placeholder="123-456-789-01"
-                maxLength={14}
-              />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs font-medium mb-1 block">СНИЛС</label>
+                <Input
+                  value={newAppointmentDialog.patientSnils}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 11) value = value.slice(0, 11);
+                    if (value.length >= 3) value = value.slice(0, 3) + '-' + value.slice(3);
+                    if (value.length >= 7) value = value.slice(0, 7) + '-' + value.slice(7);
+                    if (value.length >= 11) value = value.slice(0, 11) + '-' + value.slice(11);
+                    setNewAppointmentDialog({...newAppointmentDialog, patientSnils: value});
+                  }}
+                  placeholder="123-456-789-01"
+                  className="h-9 text-sm"
+                  maxLength={14}
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium mb-1 block">Описание</label>
+                <Input
+                  value={newAppointmentDialog.description}
+                  onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, description: e.target.value})}
+                  placeholder="Краткое описание"
+                  className="h-9 text-sm"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Описание (необязательно)</label>
-              <Textarea
-                value={newAppointmentDialog.description}
-                onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, description: e.target.value})}
-                placeholder="Краткое описание проблемы"
-                rows={2}
-                className="text-sm"
-              />
-            </div>
-
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-1">
               <Button
                 type="button"
                 variant="outline"
