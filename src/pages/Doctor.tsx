@@ -264,7 +264,7 @@ const Doctor = () => {
       
       if (response.ok && data.success) {
         toast({ title: "Успешно", description: "Расписание обновлено" });
-        setScheduleForm({ day_of_week: 0, start_time: '08:00', end_time: '17:00', break_start_time: '', break_end_time: '' });
+        setScheduleForm({ day_of_week: 0, start_time: '08:00', end_time: '17:00', break_start_time: '', break_end_time: '', slot_duration: 15 });
         setIsOpen(false);
         loadSchedules(doctorInfo.id);
       } else {
@@ -330,7 +330,10 @@ const Doctor = () => {
         body: JSON.stringify({
           id: editingSchedule.id,
           start_time: editingSchedule.start_time,
-          end_time: editingSchedule.end_time
+          end_time: editingSchedule.end_time,
+          break_start_time: editingSchedule.break_start_time || null,
+          break_end_time: editingSchedule.break_end_time || null,
+          slot_duration: editingSchedule.slot_duration || 15
         }),
       });
       
@@ -890,6 +893,21 @@ const Doctor = () => {
                           required
                         />
                       </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Длительность слота (минуты)</label>
+                        <Input
+                          type="number"
+                          min="5"
+                          max="120"
+                          step="5"
+                          value={scheduleForm.slot_duration}
+                          onChange={(e) => setScheduleForm({ ...scheduleForm, slot_duration: parseInt(e.target.value) || 15 })}
+                          required
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Интервал времени для одного приёма (например, 15, 20, 30 минут)
+                        </p>
+                      </div>
                       <div className="border-t pt-4">
                         <label className="text-sm font-medium mb-2 block">Перерыв (необязательно)</label>
                         <div className="grid grid-cols-2 gap-2">
@@ -950,6 +968,21 @@ const Doctor = () => {
                           onChange={(e) => setEditingSchedule({ ...editingSchedule, end_time: e.target.value })}
                           required
                         />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Длительность слота (минуты)</label>
+                        <Input
+                          type="number"
+                          min="5"
+                          max="120"
+                          step="5"
+                          value={editingSchedule.slot_duration || 15}
+                          onChange={(e) => setEditingSchedule({ ...editingSchedule, slot_duration: parseInt(e.target.value) || 15 })}
+                          required
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Интервал времени для одного приёма
+                        </p>
                       </div>
                       <div className="border-t pt-4">
                         <label className="text-sm font-medium mb-2 block">Перерыв (необязательно)</label>

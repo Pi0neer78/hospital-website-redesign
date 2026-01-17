@@ -206,6 +206,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             end_time = body.get('end_time')
             break_start_time = body.get('break_start_time') or None
             break_end_time = body.get('break_end_time') or None
+            slot_duration = body.get('slot_duration', 15)
             
             if not schedule_id:
                 return {
@@ -220,7 +221,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if is_active is not None:
                 cursor.execute("UPDATE doctor_schedules SET is_active = %s WHERE id = %s RETURNING *", (is_active, schedule_id))
             elif start_time and end_time:
-                cursor.execute("UPDATE doctor_schedules SET start_time = %s, end_time = %s, break_start_time = %s, break_end_time = %s WHERE id = %s RETURNING *", (start_time, end_time, break_start_time, break_end_time, schedule_id))
+                cursor.execute("UPDATE doctor_schedules SET start_time = %s, end_time = %s, break_start_time = %s, break_end_time = %s, slot_duration = %s WHERE id = %s RETURNING *", (start_time, end_time, break_start_time, break_end_time, slot_duration, schedule_id))
             else:
                 cursor.close()
                 return {
