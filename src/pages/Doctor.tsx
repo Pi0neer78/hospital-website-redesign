@@ -90,6 +90,25 @@ const Doctor = () => {
     newDescription: '',
     availableSlots: []
   });
+  const [newAppointmentDialog, setNewAppointmentDialog] = useState<{
+    open: boolean;
+    date: string;
+    time: string;
+    patientName: string;
+    patientPhone: string;
+    patientSnils: string;
+    description: string;
+    availableSlots: string[];
+  }>({
+    open: false,
+    date: '',
+    time: '',
+    patientName: '',
+    patientPhone: '',
+    patientSnils: '',
+    description: '',
+    availableSlots: []
+  });
 
   useEffect(() => {
     const auth = localStorage.getItem('doctor_auth');
@@ -122,6 +141,12 @@ const Doctor = () => {
       loadAvailableSlotsForClone(cloneDialog.newDate);
     }
   }, [cloneDialog.newDate]);
+
+  useEffect(() => {
+    if (newAppointmentDialog.date && doctorInfo) {
+      loadAvailableSlotsForNewAppointment(newAppointmentDialog.date);
+    }
+  }, [newAppointmentDialog.date]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -623,6 +648,68 @@ const Doctor = () => {
         loadAppointments(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось клонировать запись", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const loadAvailableSlotsForNewAppointment = async (date: string) => {
+    if (!doctorInfo) return;
+    
+    try {
+      const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorInfo.id}&date=${date}`);
+      const data = await response.json();
+      setNewAppointmentDialog(prev => ({ ...prev, availableSlots: data.available_slots || [] }));
+    } catch (error) {
+      console.error('Ошибка загрузки слотов:', error);
+      toast({ title: "Ошибка", description: "Не удалось загрузить доступные слоты", variant: "destructive" });
+    }
+  };
+
+  const handleCreateNewAppointment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newAppointmentDialog.date || !newAppointmentDialog.time || !newAppointmentDialog.patientName || !newAppointmentDialog.patientPhone) {
+      toast({ title: "Ошибка", description: "Заполните все обязательные поля", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const response = await fetch(API_URLS.appointments, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          doctor_id: doctorInfo.id,
+          patient_name: newAppointmentDialog.patientName,
+          patient_phone: newAppointmentDialog.patientPhone,
+          patient_snils: newAppointmentDialog.patientSnils,
+          appointment_date: newAppointmentDialog.date,
+          appointment_time: newAppointmentDialog.time,
+          description: newAppointmentDialog.description
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({ 
+          title: "Успешно", 
+          description: `Пациент ${newAppointmentDialog.patientName} записан на ${new Date(newAppointmentDialog.date + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в ${newAppointmentDialog.time}` 
+        });
+        setNewAppointmentDialog({
+          open: false,
+          date: '',
+          time: '',
+          patientName: '',
+          patientPhone: '',
+          patientSnils: '',
+          description: '',
+          availableSlots: []
+        });
+        loadAppointments(doctorInfo.id);
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось создать запись", variant: "destructive" });
       }
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
@@ -1414,23 +1501,33 @@ const Doctor = () => {
               </Card>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h2 className="text-3xl font-bold">Записи пациентов</h2>
-                <div className="flex gap-2 flex-wrap items-center">
+                <div className="flex gap-1.5 flex-wrap items-center">
+                  <Button 
+                    variant="default"
+                    size="sm"
+                    onClick={() => setNewAppointmentDialog({...newAppointmentDialog, open: true})}
+                    className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-xs h-8"
+                  >
+                    <Icon name="UserPlus" size={14} />
+                    Записать пациента
+                  </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={exportToExcel}
-                    className="gap-2 bg-green-50 hover:bg-green-100 border-green-300 text-green-700 hover:text-green-800"
+                    className="gap-1.5 bg-green-50 hover:bg-green-100 border-green-300 text-green-700 hover:text-green-800 text-xs h-8"
                   >
-                    <Icon name="Download" size={16} />
-                    Экспорт в Excel
+                    <Icon name="Download" size={14} />
+                    Экспорт
                   </Button>
                   <Button 
                     variant={statusFilter === 'all' ? 'default' : 'outline'} 
                     size="sm"
                     onClick={() => setStatusFilter('all')}
+                    className="text-xs h-8"
                   >
                     Все
-                    <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
                       {appointments.length}
                     </span>
                   </Button>
@@ -1438,11 +1535,11 @@ const Doctor = () => {
                     variant={statusFilter === 'scheduled' ? 'default' : 'outline'} 
                     size="sm"
                     onClick={() => setStatusFilter('scheduled')}
-                    className={statusFilter === 'scheduled' ? '' : 'hover:bg-green-50'}
+                    className={`text-xs h-8 ${statusFilter === 'scheduled' ? '' : 'hover:bg-green-50'}`}
                   >
-                    <Icon name="Clock" size={14} className="mr-1" />
+                    <Icon name="Clock" size={12} className="mr-1" />
                     Запланировано
-                    <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
                       {scheduledCount}
                     </span>
                   </Button>
@@ -1450,11 +1547,11 @@ const Doctor = () => {
                     variant={statusFilter === 'completed' ? 'default' : 'outline'} 
                     size="sm"
                     onClick={() => setStatusFilter('completed')}
-                    className={statusFilter === 'completed' ? '' : 'hover:bg-blue-50'}
+                    className={`text-xs h-8 ${statusFilter === 'completed' ? '' : 'hover:bg-blue-50'}`}
                   >
-                    <Icon name="CheckCircle" size={14} className="mr-1" />
+                    <Icon name="CheckCircle" size={12} className="mr-1" />
                     Завершено
-                    <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
                       {completedCount}
                     </span>
                   </Button>
@@ -1462,11 +1559,11 @@ const Doctor = () => {
                     variant={statusFilter === 'cancelled' ? 'default' : 'outline'} 
                     size="sm"
                     onClick={() => setStatusFilter('cancelled')}
-                    className={statusFilter === 'cancelled' ? '' : 'hover:bg-gray-50'}
+                    className={`text-xs h-8 ${statusFilter === 'cancelled' ? '' : 'hover:bg-gray-50'}`}
                   >
-                    <Icon name="XCircle" size={14} className="mr-1" />
+                    <Icon name="XCircle" size={12} className="mr-1" />
                     Отменено
-                    <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
                       {cancelledCount}
                     </span>
                   </Button>
@@ -1722,6 +1819,132 @@ const Doctor = () => {
               Да
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={newAppointmentDialog.open} onOpenChange={(open) => setNewAppointmentDialog({...newAppointmentDialog, open})}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Записать пациента на прием</DialogTitle>
+            <DialogDescription>
+              Создайте запись для пациента без подтверждения через MAX
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreateNewAppointment} className="space-y-3">
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Дата приема</label>
+              <Input
+                type="date"
+                value={newAppointmentDialog.date}
+                onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, date: e.target.value, time: ''})}
+                min={new Date().toISOString().split('T')[0]}
+                required
+              />
+            </div>
+
+            {newAppointmentDialog.date && (
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Время приема</label>
+                {newAppointmentDialog.availableSlots.length > 0 ? (
+                  <div className="grid grid-cols-4 gap-1.5 max-h-[150px] overflow-y-auto p-2 border rounded-md">
+                    {newAppointmentDialog.availableSlots.map((slot: string) => (
+                      <Button
+                        key={slot}
+                        type="button"
+                        size="sm"
+                        variant={newAppointmentDialog.time === slot ? 'default' : 'outline'}
+                        onClick={() => setNewAppointmentDialog({...newAppointmentDialog, time: slot})}
+                        className="h-8 text-xs"
+                      >
+                        {slot}
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/30">
+                    Нет доступных слотов на выбранную дату
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">ФИО пациента *</label>
+              <Input
+                value={newAppointmentDialog.patientName}
+                onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, patientName: e.target.value})}
+                placeholder="Иванов Иван Иванович"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Телефон *</label>
+              <Input
+                type="tel"
+                value={newAppointmentDialog.patientPhone}
+                onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, patientPhone: e.target.value})}
+                placeholder="+79991234567"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">СНИЛС (необязательно)</label>
+              <Input
+                value={newAppointmentDialog.patientSnils}
+                onChange={(e) => {
+                  let value = e.target.value.replace(/\D/g, '');
+                  if (value.length > 11) value = value.slice(0, 11);
+                  if (value.length >= 3) value = value.slice(0, 3) + '-' + value.slice(3);
+                  if (value.length >= 7) value = value.slice(0, 7) + '-' + value.slice(7);
+                  if (value.length >= 11) value = value.slice(0, 11) + '-' + value.slice(11);
+                  setNewAppointmentDialog({...newAppointmentDialog, patientSnils: value});
+                }}
+                placeholder="123-456-789-01"
+                maxLength={14}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Описание (необязательно)</label>
+              <Textarea
+                value={newAppointmentDialog.description}
+                onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, description: e.target.value})}
+                placeholder="Краткое описание проблемы"
+                rows={2}
+                className="text-sm"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => setNewAppointmentDialog({
+                  open: false,
+                  date: '',
+                  time: '',
+                  patientName: '',
+                  patientPhone: '',
+                  patientSnils: '',
+                  description: '',
+                  availableSlots: []
+                })}
+              >
+                Отмена
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={!newAppointmentDialog.date || !newAppointmentDialog.time || !newAppointmentDialog.patientName || !newAppointmentDialog.patientPhone}
+              >
+                <Icon name="UserPlus" size={16} className="mr-2" />
+                Записать
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
 
