@@ -12,6 +12,7 @@ const API_URLS = {
   doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
   appointments: 'https://functions.poehali.dev/a7f148cd-e1c2-40e3-9762-cc8b2bc2dffb',
   schedules: 'https://functions.poehali.dev/6f53f66d-3e47-4e57-93dd-52d63c16d38f',
+  registrars: 'https://functions.poehali.dev/bda47195-c96f-4fb7-b72c-59d877add3c2',
 };
 
 const Registrar = () => {
@@ -410,7 +411,7 @@ const Registrar = () => {
 
   const logAction = async (actionType: string, details: any) => {
     try {
-      await fetch(API_URLS.registrars, {
+      const response = await fetch(API_URLS.registrars, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -420,6 +421,10 @@ const Registrar = () => {
           details: JSON.stringify(details)
         })
       });
+      
+      if (!response.ok) {
+        console.error('Log action failed:', response.status, await response.text());
+      }
     } catch (error) {
       console.error('Failed to log action:', error);
     }
