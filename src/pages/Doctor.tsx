@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
@@ -37,6 +38,14 @@ const Doctor = () => {
   const [editingSchedule, setEditingSchedule] = useState<any>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [dateFilterFrom, setDateFilterFrom] = useState<string>(() => {
+    return new Date().toISOString().split('T')[0];
+  });
+  const [dateFilterTo, setDateFilterTo] = useState<string>(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+    return date.toISOString().split('T')[0];
+  });
   const [copyFromSchedule, setCopyFromSchedule] = useState<any>(null);
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
   const [selectedDaysToCopy, setSelectedDaysToCopy] = useState<number[]>([]);
@@ -138,7 +147,7 @@ const Doctor = () => {
         return () => clearInterval(interval);
       }
     }
-  }, [checkInterval, autoRefreshEnabled]);
+  }, [checkInterval, autoRefreshEnabled, dateFilterFrom, dateFilterTo]);
 
   useEffect(() => {
     if (doctorInfo && selectedYear) {
@@ -295,9 +304,9 @@ const Doctor = () => {
 
   const loadAppointments = async (doctorId: number, checkForNew = false) => {
     try {
-      const today = new Date().toISOString().split('T')[0];
-      const nextWeek = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      const response = await fetch(`${API_URLS.appointments}?doctor_id=${doctorId}&start_date=${today}&end_date=${nextWeek}`);
+      const startDate = dateFilterFrom || new Date().toISOString().split('T')[0];
+      const endDate = dateFilterTo || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const response = await fetch(`${API_URLS.appointments}?doctor_id=${doctorId}&start_date=${startDate}&end_date=${endDate}`);
       const data = await response.json();
       const newAppointments = data.appointments || [];
       
@@ -891,9 +900,11 @@ const Doctor = () => {
     );
   }
 
-  const filteredAppointments = statusFilter === 'all' 
-    ? appointments 
-    : appointments.filter((app: any) => app.status === statusFilter);
+  const filteredAppointments = appointments.filter((app: any) => {
+    const statusMatch = statusFilter === 'all' || app.status === statusFilter;
+    const dateMatch = app.appointment_date >= dateFilterFrom && app.appointment_date <= dateFilterTo;
+    return statusMatch && dateMatch;
+  });
 
   const groupedAppointments = filteredAppointments.reduce((acc: any, app: any) => {
     if (!acc[app.appointment_date]) {
@@ -1561,74 +1572,107 @@ const Doctor = () => {
             </TabsContent>
 
             <TabsContent value="appointments" className="mt-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <h2 className="text-3xl font-bold">Записи пациентов</h2>
-                <div className="flex gap-1.5 flex-wrap items-center">
-                  <Button 
-                    variant="default"
-                    size="sm"
-                    onClick={() => setNewAppointmentDialog({...newAppointmentDialog, open: true})}
-                    className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-xs h-8"
-                  >
-                    <Icon name="UserPlus" size={14} />
-                    Записать пациента
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={exportToExcel}
-                    className="gap-1.5 bg-green-50 hover:bg-green-100 border-green-300 text-green-700 hover:text-green-800 text-xs h-8"
-                  >
-                    <Icon name="Download" size={14} />
-                    Экспорт
-                  </Button>
-                  <Button 
-                    variant={statusFilter === 'all' ? 'default' : 'outline'} 
-                    size="sm"
-                    onClick={() => setStatusFilter('all')}
-                    className="text-xs h-8"
-                  >
-                    Все
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
-                      {appointments.length}
-                    </span>
-                  </Button>
-                  <Button 
-                    variant={statusFilter === 'scheduled' ? 'default' : 'outline'} 
-                    size="sm"
-                    onClick={() => setStatusFilter('scheduled')}
-                    className={`text-xs h-8 ${statusFilter === 'scheduled' ? '' : 'hover:bg-green-50'}`}
-                  >
-                    <Icon name="Clock" size={12} className="mr-1" />
-                    Запланировано
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
-                      {scheduledCount}
-                    </span>
-                  </Button>
-                  <Button 
-                    variant={statusFilter === 'completed' ? 'default' : 'outline'} 
-                    size="sm"
-                    onClick={() => setStatusFilter('completed')}
-                    className={`text-xs h-8 ${statusFilter === 'completed' ? '' : 'hover:bg-blue-50'}`}
-                  >
-                    <Icon name="CheckCircle" size={12} className="mr-1" />
-                    Завершено
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
-                      {completedCount}
-                    </span>
-                  </Button>
-                  <Button 
-                    variant={statusFilter === 'cancelled' ? 'default' : 'outline'} 
-                    size="sm"
-                    onClick={() => setStatusFilter('cancelled')}
-                    className={`text-xs h-8 ${statusFilter === 'cancelled' ? '' : 'hover:bg-gray-50'}`}
-                  >
-                    <Icon name="XCircle" size={12} className="mr-1" />
-                    Отменено
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-background/20 text-xs font-semibold">
-                      {cancelledCount}
-                    </span>
-                  </Button>
+              <div className="flex flex-col gap-3 mb-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <h2 className="text-3xl font-bold">Записи пациентов</h2>
+                  <div className="flex gap-1.5 flex-wrap items-center">
+                    <Button 
+                      variant="default"
+                      size="sm"
+                      onClick={() => setNewAppointmentDialog({...newAppointmentDialog, open: true})}
+                      className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-xs h-8"
+                    >
+                      <Icon name="UserPlus" size={14} />
+                      Записать пациента
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={exportToExcel}
+                      className="gap-1.5 bg-green-50 hover:bg-green-100 border-green-300 text-green-700 hover:text-green-800 text-xs h-8"
+                    >
+                      <Icon name="Download" size={14} />
+                      Экспорт
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 items-center flex-wrap">
+                  <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-lg border">
+                    <Icon name="Calendar" size={14} className="text-muted-foreground" />
+                    <span className="text-xs font-medium text-muted-foreground">С</span>
+                    <Input
+                      type="date"
+                      value={dateFilterFrom}
+                      onChange={(e) => setDateFilterFrom(e.target.value)}
+                      className="h-7 w-[130px] text-xs"
+                    />
+                    <span className="text-xs font-medium text-muted-foreground">По</span>
+                    <Input
+                      type="date"
+                      value={dateFilterTo}
+                      onChange={(e) => setDateFilterTo(e.target.value)}
+                      className="h-7 w-[130px] text-xs"
+                    />
+                  </div>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+                        <Icon name="Filter" size={14} />
+                        {statusFilter === 'all' ? 'Все' : 
+                         statusFilter === 'scheduled' ? 'Запланировано' :
+                         statusFilter === 'completed' ? 'Завершено' : 'Отменено'}
+                        <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-xs font-semibold">
+                          {filteredAppointments.length}
+                        </span>
+                        <Icon name="ChevronDown" size={14} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => setStatusFilter('all')} className="cursor-pointer">
+                        <div className="flex items-center justify-between w-full">
+                          <span>Все</span>
+                          <span className="ml-2 px-1.5 py-0.5 rounded-full bg-muted text-xs font-semibold">
+                            {appointments.filter((app: any) => app.appointment_date >= dateFilterFrom && app.appointment_date <= dateFilterTo).length}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setStatusFilter('scheduled')} className="cursor-pointer">
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <Icon name="Clock" size={12} className="text-green-600" />
+                            <span>Запланировано</span>
+                          </div>
+                          <span className="ml-2 px-1.5 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+                            {appointments.filter((app: any) => app.status === 'scheduled' && app.appointment_date >= dateFilterFrom && app.appointment_date <= dateFilterTo).length}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setStatusFilter('completed')} className="cursor-pointer">
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <Icon name="CheckCircle" size={12} className="text-blue-600" />
+                            <span>Завершено</span>
+                          </div>
+                          <span className="ml-2 px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
+                            {appointments.filter((app: any) => app.status === 'completed' && app.appointment_date >= dateFilterFrom && app.appointment_date <= dateFilterTo).length}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setStatusFilter('cancelled')} className="cursor-pointer">
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <Icon name="XCircle" size={12} className="text-gray-600" />
+                            <span>Отменено</span>
+                          </div>
+                          <span className="ml-2 px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
+                            {appointments.filter((app: any) => app.status === 'cancelled' && app.appointment_date >= dateFilterFrom && app.appointment_date <= dateFilterTo).length}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
               
@@ -1636,11 +1680,11 @@ const Doctor = () => {
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
                     {statusFilter === 'all' 
-                      ? 'Нет записей на ближайшие 7 дней'
+                      ? 'Нет записей в выбранном периоде'
                       : `Нет записей со статусом "${
                           statusFilter === 'scheduled' ? 'Запланировано' :
                           statusFilter === 'completed' ? 'Завершено' : 'Отменено'
-                        }"`
+                        }" в выбранном периоде`
                     }
                   </CardContent>
                 </Card>
