@@ -1913,31 +1913,31 @@ const Doctor = () => {
                 </div>
               </div>
 
-              {newAppointmentDialog.date && (
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Время приема</label>
-                  {newAppointmentDialog.availableSlots.length > 0 ? (
-                    <div className="grid grid-cols-4 gap-1 max-h-[168px] overflow-y-auto p-1.5 border rounded-md bg-muted/20">
-                      {newAppointmentDialog.availableSlots.map((slot: string) => (
-                        <Button
-                          key={slot}
-                          type="button"
-                          size="sm"
-                          variant={newAppointmentDialog.time === slot ? 'default' : 'outline'}
-                          onClick={() => setNewAppointmentDialog({...newAppointmentDialog, time: slot})}
-                          className="h-7 text-xs"
-                        >
-                          {slot}
-                        </Button>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-muted-foreground p-3 border rounded-md bg-muted/30 text-center">
-                      Выберите дату
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Время приема</label>
+                {newAppointmentDialog.date && newAppointmentDialog.availableSlots.length > 0 ? (
+                  <div className="grid grid-cols-4 gap-1 h-[232px] overflow-y-auto p-1.5 border rounded-md bg-muted/20">
+                    {newAppointmentDialog.availableSlots.map((slot: string) => (
+                      <Button
+                        key={slot}
+                        type="button"
+                        size="sm"
+                        variant={newAppointmentDialog.time === slot ? 'default' : 'outline'}
+                        onClick={() => setNewAppointmentDialog({...newAppointmentDialog, time: slot})}
+                        className="h-7 text-xs"
+                      >
+                        {slot}
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="h-[232px] flex items-center justify-center border rounded-md bg-muted/30">
+                    <p className="text-xs text-muted-foreground text-center">
+                      {newAppointmentDialog.date ? 'Нет доступных слотов' : 'Выберите дату'}
                     </p>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
