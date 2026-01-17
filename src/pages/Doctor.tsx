@@ -290,11 +290,7 @@ const Doctor = () => {
       });
       
       if (response.ok) {
-        setCalendarData(prev => ({
-          ...prev,
-          [date]: { is_working: newStatus }
-        }));
-        loadCalendarSlotCounts(doctorInfo.id, selectedYear);
+        await loadCalendar(doctorInfo.id, selectedYear);
       }
     } catch (error) {
       toast({ title: "Ошибка", description: "Не удалось обновить календарь", variant: "destructive" });
@@ -317,16 +313,12 @@ const Doctor = () => {
       });
       
       if (response.ok) {
-        setCalendarData(prev => ({
-          ...prev,
-          [dayOffWarning.date]: { is_working: false }
-        }));
         toast({ 
           title: "День отмечен как выходной", 
           description: "Не забудьте уведомить пациентов о переносе",
           duration: 5000
         });
-        loadCalendarSlotCounts(doctorInfo.id, selectedYear);
+        await loadCalendar(doctorInfo.id, selectedYear);
       }
     } catch (error) {
       toast({ title: "Ошибка", description: "Не удалось обновить календарь", variant: "destructive" });
