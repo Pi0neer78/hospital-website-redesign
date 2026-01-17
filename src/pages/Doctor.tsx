@@ -70,6 +70,8 @@ const Doctor = () => {
   const [selectedYear, setSelectedYear] = useState(2025);
   const [calendarData, setCalendarData] = useState<{[key: string]: {is_working: boolean, note?: string}}>({});
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [bulkSlotDialogOpen, setBulkSlotDialogOpen] = useState(false);
+  const [bulkSlotDuration, setBulkSlotDuration] = useState(15);
 
   useEffect(() => {
     const auth = localStorage.getItem('doctor_auth');
@@ -458,7 +460,8 @@ const Doctor = () => {
             start_time: copyFromSchedule.start_time,
             end_time: copyFromSchedule.end_time,
             break_start_time: copyFromSchedule.break_start_time || null,
-            break_end_time: copyFromSchedule.break_end_time || null
+            break_end_time: copyFromSchedule.break_end_time || null,
+            slot_duration: copyFromSchedule.slot_duration || 15
           }),
         });
         
@@ -486,6 +489,45 @@ const Doctor = () => {
         ? prev.filter(d => d !== dayOfWeek)
         : [...prev, dayOfWeek]
     );
+  };
+
+  const handleBulkSlotUpdate = async () => {
+    if (!doctorInfo || schedules.length === 0) {
+      toast({ title: "Ошибка", description: "Сначала создайте расписание", variant: "destructive" });
+      return;
+    }
+
+    try {
+      let successCount = 0;
+      for (const schedule of schedules) {
+        const response = await fetch(API_URLS.schedules, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            doctor_id: doctorInfo.id,
+            day_of_week: schedule.day_of_week,
+            start_time: schedule.start_time,
+            end_time: schedule.end_time,
+            break_start_time: schedule.break_start_time || null,
+            break_end_time: schedule.break_end_time || null,
+            slot_duration: bulkSlotDuration
+          }),
+        });
+        
+        if (response.ok) {
+          successCount++;
+        }
+      }
+      
+      toast({ 
+        title: "Успешно", 
+        description: `Длительность слота ${bulkSlotDuration} минут применена ко всем дням` 
+      });
+      setBulkSlotDialogOpen(false);
+      loadSchedules(doctorInfo.id);
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
   };
 
   const exportToExcel = () => {
@@ -761,14 +803,56 @@ const Doctor = () => {
               </Card>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold">Рабочее расписание</h2>
-                <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="lg">
-                      <Icon name="Plus" size={20} className="mr-2" />
-                      Добавить день
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
+                <div className="flex gap-2">
+                  <Dialog open={bulkSlotDialogOpen} onOpenChange={setBulkSlotDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="lg" variant="outline" disabled={schedules.length === 0}>
+                        <Icon name="Clock" size={20} className="mr-2" />
+                        Применить слоты ко всем дням
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Применить длительность слота ко всем дням</DialogTitle>
+                        <DialogDescription>
+                          Установите одинаковую длительность слота для всех рабочих дней
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Длительность слота (минуты)</label>
+                          <Input
+                            type="number"
+                            min="5"
+                            max="120"
+                            step="5"
+                            value={bulkSlotDuration}
+                            onChange={(e) => setBulkSlotDuration(parseInt(e.target.value) || 15)}
+                            placeholder="15"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Это значение будет применено ко всем {schedules.length} дням в расписании
+                          </p>
+                        </div>
+                        <div className="flex gap-2 justify-end">
+                          <Button variant="outline" onClick={() => setBulkSlotDialogOpen(false)}>
+                            Отмена
+                          </Button>
+                          <Button onClick={handleBulkSlotUpdate}>
+                            Применить
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="lg">
+                        <Icon name="Plus" size={20} className="mr-2" />
+                        Добавить день
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Установить рабочий день</DialogTitle>
                       <DialogDescription>
@@ -830,7 +914,8 @@ const Doctor = () => {
                       <Button type="submit" className="w-full">Сохранить</Button>
                     </form>
                   </DialogContent>
-                </Dialog>
+                  </Dialog>
+                </div>
               </div>
 
               <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
