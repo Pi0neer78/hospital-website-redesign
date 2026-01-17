@@ -29,7 +29,8 @@ const Doctor = () => {
     start_time: '08:00',
     end_time: '17:00',
     break_start_time: '',
-    break_end_time: ''
+    break_end_time: '',
+    slot_duration: 15
   });
   const [isOpen, setIsOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<any>(null);

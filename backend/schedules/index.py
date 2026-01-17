@@ -162,6 +162,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 end_time = body.get('end_time')
                 break_start_time = body.get('break_start_time') or None
                 break_end_time = body.get('break_end_time') or None
+                slot_duration = body.get('slot_duration', 15)
                 
                 if not all([doctor_id, day_of_week is not None, start_time, end_time]):
                     cursor.close()
@@ -177,13 +178,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if existing:
                     cursor.execute(
-                        "UPDATE doctor_schedules SET start_time = %s, end_time = %s, break_start_time = %s, break_end_time = %s, is_active = true WHERE doctor_id = %s AND day_of_week = %s RETURNING *",
-                        (start_time, end_time, break_start_time, break_end_time, doctor_id, day_of_week)
+                        "UPDATE doctor_schedules SET start_time = %s, end_time = %s, break_start_time = %s, break_end_time = %s, slot_duration = %s, is_active = true WHERE doctor_id = %s AND day_of_week = %s RETURNING *",
+                        (start_time, end_time, break_start_time, break_end_time, slot_duration, doctor_id, day_of_week)
                     )
                 else:
                     cursor.execute(
-                        "INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time, break_start_time, break_end_time) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *",
-                        (doctor_id, day_of_week, start_time, end_time, break_start_time, break_end_time)
+                        "INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time, break_start_time, break_end_time, slot_duration) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING *",
+                        (doctor_id, day_of_week, start_time, end_time, break_start_time, break_end_time, slot_duration)
                     )
                 
                 schedule = cursor.fetchone()

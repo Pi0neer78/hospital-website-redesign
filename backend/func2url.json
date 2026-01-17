@@ -2,7 +2,6 @@
   "admin-management": "https://functions.poehali.dev/41b28850-cf23-4959-9bd7-7f728c1ad124",
   "security-auth": "https://functions.poehali.dev/c5b009b8-4d0d-4b09-91f5-1ab8bdf740bb",
   "rate_limiter": "https://functions.poehali.dev/dd760420-6c65-41e9-bd95-171dec0f3ac9",
-  "chat": "https://functions.poehali.dev/f0120272-0320-4731-8a43-e5c1362e3057",
   "sms-verify": "https://functions.poehali.dev/7ea5c6f5-d200-4cc0-b34b-10144a995d69",
   "forum_topics": "https://functions.poehali.dev/e1e111a6-e824-4bf1-9416-b5c145b37906",
   "forum_moderation": "https://functions.poehali.dev/70286923-439c-45b7-9744-403f0827a0c1",

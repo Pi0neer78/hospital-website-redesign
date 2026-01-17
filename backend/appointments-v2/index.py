@@ -83,7 +83,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 # ПРИОРИТЕТ 2: Проверяем еженедельное расписание
                 cursor.execute(
-                    "SELECT start_time, end_time, break_start_time, break_end_time FROM doctor_schedules WHERE doctor_id = %s AND day_of_week = %s AND is_active = true",
+                    "SELECT start_time, end_time, break_start_time, break_end_time, slot_duration FROM doctor_schedules WHERE doctor_id = %s AND day_of_week = %s AND is_active = true",
                     (doctor_id, day_of_week)
                 )
                 schedule = cursor.fetchone()
@@ -108,6 +108,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 end_time = schedule['end_time']
                 break_start = schedule.get('break_start_time')
                 break_end = schedule.get('break_end_time')
+                slot_duration = schedule.get('slot_duration', 15)
                 
                 current_time = datetime.combine(date_obj, start_time)
                 end_datetime = datetime.combine(date_obj, end_time)
@@ -137,7 +138,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     if is_available:
                         available_slots.append(time_str)
                     
-                    current_time += timedelta(minutes=15)
+                    current_time += timedelta(minutes=slot_duration)
                 
                 return {
                     'statusCode': 200,
