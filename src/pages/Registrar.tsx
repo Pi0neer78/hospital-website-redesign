@@ -37,6 +37,11 @@ const Registrar = () => {
   const [editDialog, setEditDialog] = useState<any>(null);
   const [cancelDialog, setCancelDialog] = useState<any>(null);
   const [rescheduleDialog, setRescheduleDialog] = useState<any>(null);
+  const [rescheduleAvailableDates, setRescheduleAvailableDates] = useState<any[]>([]);
+  const [rescheduleSelectedDate, setRescheduleSelectedDate] = useState<string>('');
+  const [rescheduleAvailableSlots, setRescheduleAvailableSlots] = useState<string[]>([]);
+  const [rescheduleSelectedSlot, setRescheduleSelectedSlot] = useState<string>('');
+  const [cloneDialog, setCloneDialog] = useState<any>(null);
   const [calendarData, setCalendarData] = useState<{[key: string]: {is_working: boolean}}>({});
   const [schedules, setSchedules] = useState<any[]>([]);
 
@@ -74,6 +79,12 @@ const Registrar = () => {
       loadAppointments(selectedDoctor.id);
     }
   }, [selectedDoctor]);
+
+  useEffect(() => {
+    if (rescheduleSelectedDate) {
+      loadRescheduleSlots(rescheduleSelectedDate);
+    }
+  }, [rescheduleSelectedDate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -262,6 +273,116 @@ const Registrar = () => {
         toast({ title: "Успешно", description: "Запись отменена" });
         loadAppointments(selectedDoctor.id);
         setCancelDialog(null);
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const openRescheduleDialog = (appointment: any) => {
+    setRescheduleDialog(appointment);
+    setRescheduleSelectedDate('');
+    setRescheduleSelectedSlot('');
+    generateRescheduleDates();
+  };
+
+  const generateRescheduleDates = () => {
+    const dates = [];
+    for (let i = 0; i <= 20; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayOfWeek = (date.getDay() + 6) % 7;
+      
+      const hasSchedule = schedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
+      const calendarOverride = calendarData[dateStr];
+      const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
+      
+      dates.push({
+        date: dateStr,
+        label: date.toLocaleDateString('ru-RU', { 
+          weekday: 'short', 
+          day: 'numeric', 
+          month: 'short' 
+        }),
+        isWorking,
+      });
+    }
+    setRescheduleAvailableDates(dates);
+  };
+
+  const loadRescheduleSlots = async (date: string) => {
+    if (!rescheduleDialog) return;
+    try {
+      const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${rescheduleDialog.doctor_id}&date=${date}`);
+      const data = await response.json();
+      setRescheduleAvailableSlots(data.available_slots || []);
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Не удалось загрузить слоты", variant: "destructive" });
+    }
+  };
+
+  const handleRescheduleAppointment = async () => {
+    if (!rescheduleSelectedDate || !rescheduleSelectedSlot) {
+      toast({ title: "Ошибка", description: "Выберите дату и время", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const response = await fetch(API_URLS.appointments, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: rescheduleDialog.id,
+          appointment_date: rescheduleSelectedDate,
+          appointment_time: rescheduleSelectedSlot
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({ title: "Успешно", description: "Запись перенесена" });
+        setRescheduleDialog(null);
+        setRescheduleSelectedDate('');
+        setRescheduleSelectedSlot('');
+        loadAppointments(selectedDoctor.id);
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось перенести запись", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const handleCloneAppointment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!cloneDialog) return;
+
+    try {
+      const response = await fetch(API_URLS.appointments, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          doctor_id: cloneDialog.doctor_id,
+          patient_name: cloneDialog.patient_name,
+          patient_phone: cloneDialog.patient_phone,
+          patient_snils: cloneDialog.patient_snils,
+          appointment_date: cloneDialog.appointment_date,
+          appointment_time: cloneDialog.appointment_time,
+          description: cloneDialog.description
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({ title: "Успешно", description: "Запись клонирована" });
+        setCloneDialog(null);
+        loadAppointments(selectedDoctor.id);
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось клонировать запись", variant: "destructive" });
       }
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
@@ -485,17 +606,36 @@ const Registrar = () => {
                               </span>
                             </TableCell>
                             <TableCell className="text-right">
-                              {appointment.status === 'scheduled' && (
-                                <div className="flex gap-1 justify-end">
-                                  <Button 
-                                    size="sm" 
-                                    variant="ghost"
-                                    onClick={() => setCancelDialog(appointment)}
-                                  >
-                                    <Icon name="XCircle" size={16} className="text-red-600" />
-                                  </Button>
-                                </div>
-                              )}
+                              <div className="flex gap-1 justify-end">
+                                {appointment.status === 'scheduled' && (
+                                  <>
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost"
+                                      onClick={() => openRescheduleDialog(appointment)}
+                                      title="Перенести запись"
+                                    >
+                                      <Icon name="Calendar" size={16} className="text-blue-600" />
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost"
+                                      onClick={() => setCancelDialog(appointment)}
+                                      title="Отменить запись"
+                                    >
+                                      <Icon name="XCircle" size={16} className="text-red-600" />
+                                    </Button>
+                                  </>
+                                )}
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  onClick={() => setCloneDialog(appointment)}
+                                  title="Клонировать запись"
+                                >
+                                  <Icon name="Copy" size={16} className="text-gray-600" />
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -557,6 +697,91 @@ const Registrar = () => {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={!!rescheduleDialog} onOpenChange={() => {
+        setRescheduleDialog(null);
+        setRescheduleSelectedDate('');
+        setRescheduleSelectedSlot('');
+      }}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Перенести запись</DialogTitle>
+            <DialogDescription>
+              {rescheduleDialog?.patient_name} • {new Date(rescheduleDialog?.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')} • {rescheduleDialog?.appointment_time.slice(0, 5)}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Выберите новую дату</label>
+              <div className="grid grid-cols-7 gap-2">
+                {rescheduleAvailableDates.map((dateInfo) => (
+                  <button
+                    key={dateInfo.date}
+                    type="button"
+                    onClick={() => dateInfo.isWorking && setRescheduleSelectedDate(dateInfo.date)}
+                    disabled={!dateInfo.isWorking}
+                    className={`p-2 rounded-lg border text-xs transition-all ${
+                      rescheduleSelectedDate === dateInfo.date
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : dateInfo.isWorking
+                        ? 'bg-white hover:bg-gray-50 border-gray-200'
+                        : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    }`}
+                  >
+                    <div className="font-medium">{dateInfo.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {rescheduleSelectedDate && (
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Выберите время на {new Date(rescheduleSelectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}
+                </label>
+                {rescheduleAvailableSlots.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Нет свободных слотов на эту дату</p>
+                ) : (
+                  <div className="grid grid-cols-6 gap-2">
+                    {rescheduleAvailableSlots.map((time) => (
+                      <Button
+                        key={time}
+                        type="button"
+                        variant={rescheduleSelectedSlot === time ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setRescheduleSelectedSlot(time)}
+                      >
+                        {time}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex gap-2 pt-4">
+              <Button 
+                variant="outline" 
+                className="flex-1" 
+                onClick={() => {
+                  setRescheduleDialog(null);
+                  setRescheduleSelectedDate('');
+                  setRescheduleSelectedSlot('');
+                }}
+              >
+                Отмена
+              </Button>
+              <Button 
+                className="flex-1" 
+                onClick={handleRescheduleAppointment}
+                disabled={!rescheduleSelectedDate || !rescheduleSelectedSlot}
+              >
+                Перенести
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!cancelDialog} onOpenChange={() => setCancelDialog(null)}>
         <DialogContent>
           <DialogHeader>
@@ -573,6 +798,33 @@ const Registrar = () => {
               Отменить запись
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!cloneDialog} onOpenChange={() => setCloneDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Клонировать запись</DialogTitle>
+            <DialogDescription>
+              Будет создана копия записи с теми же данными
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCloneAppointment} className="space-y-4">
+            <div className="space-y-2 p-4 bg-muted/30 rounded-lg">
+              <p className="text-sm"><strong>Пациент:</strong> {cloneDialog?.patient_name}</p>
+              <p className="text-sm"><strong>Телефон:</strong> {cloneDialog?.patient_phone}</p>
+              <p className="text-sm"><strong>СНИЛС:</strong> {cloneDialog?.patient_snils || '—'}</p>
+              <p className="text-sm"><strong>Дата:</strong> {new Date(cloneDialog?.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')}</p>
+              <p className="text-sm"><strong>Время:</strong> {cloneDialog?.appointment_time.slice(0, 5)}</p>
+              <p className="text-sm"><strong>Описание:</strong> {cloneDialog?.description || '—'}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setCloneDialog(null)}>
+                Отмена
+              </Button>
+              <Button type="submit" className="flex-1">Клонировать</Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
