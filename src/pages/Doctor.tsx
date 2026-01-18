@@ -131,6 +131,7 @@ const Doctor = () => {
   });
   const [dateSlotCounts, setDateSlotCounts] = useState<{[key: string]: number}>({});
   const [showTipsDialog, setShowTipsDialog] = useState(false);
+  const [tipsContentOpen, setTipsContentOpen] = useState(false);
 
   const [dayOffWarning, setDayOffWarning] = useState<{open: boolean, date: string, appointmentCount: number}>({open: false, date: '', appointmentCount: 0});
 
@@ -2578,69 +2579,81 @@ const Doctor = () => {
       <Dialog open={showTipsDialog} onOpenChange={setShowTipsDialog}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Icon name="Users" size={24} className="text-green-600" />
-              👥 Инструкция: Управление записями пациентов
-            </DialogTitle>
+            <div 
+              className="flex items-center justify-between cursor-pointer" 
+              onClick={() => setTipsContentOpen(!tipsContentOpen)}
+            >
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <Icon name="Users" size={24} className="text-green-600" />
+                👥 Инструкция: Управление записями пациентов
+              </DialogTitle>
+              <Icon 
+                name={tipsContentOpen ? "ChevronUp" : "ChevronDown"} 
+                size={20} 
+                className="text-green-600 flex-shrink-0"
+              />
+            </div>
           </DialogHeader>
           
-          <div className="space-y-3 text-sm">
-            <div className="bg-green-50 p-3 rounded-lg">
-              <p className="font-semibold mb-1 text-green-900">🎯 Что можно делать с записями?</p>
-              <p className="text-green-700">
-                Здесь отображаются все записи пациентов. Вы можете просматривать, фильтровать, редактировать статусы 
-                и экспортировать данные в Excel для отчётности.
-              </p>
-            </div>
+          {tipsContentOpen && (
+            <div className="space-y-3 text-sm">
+              <div className="bg-green-50 p-3 rounded-lg">
+                <p className="font-semibold mb-1 text-green-900">🎯 Что можно делать с записями?</p>
+                <p className="text-green-700">
+                  Здесь отображаются все записи пациентов. Вы можете просматривать, фильтровать, редактировать статусы 
+                  и экспортировать данные в Excel для отчётности.
+                </p>
+              </div>
 
-            <div className="bg-blue-50 p-3 rounded-lg">
-              <p className="font-semibold mb-2 text-blue-900">📋 Основные действия:</p>
-              <ul className="list-decimal list-inside space-y-1.5 text-blue-700 ml-2">
-                <li><strong>Записать пациента</strong> — кнопка справа вверху. Выберите дату/время, введите данные пациента</li>
-                <li><strong>Фильтры статусов</strong> — Все / Завершено / Запланировано / Отменено. Быстро находите нужные записи</li>
-                <li><strong>Поиск</strong> — введите ФИО или телефон пациента для моментального поиска</li>
-                <li><strong>Период дат</strong> — фильтруйте записи по датам (сегодня, неделя, месяц, произвольный период)</li>
-                <li><strong>Экспорт в Excel</strong> — выгружайте отфильтрованные записи для отчётов</li>
-              </ul>
-            </div>
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <p className="font-semibold mb-2 text-blue-900">📋 Основные действия:</p>
+                <ul className="list-decimal list-inside space-y-1.5 text-blue-700 ml-2">
+                  <li><strong>Записать пациента</strong> — кнопка справа вверху. Выберите дату/время, введите данные пациента</li>
+                  <li><strong>Фильтры статусов</strong> — Все / Завершено / Запланировано / Отменено. Быстро находите нужные записи</li>
+                  <li><strong>Поиск</strong> — введите ФИО или телефон пациента для моментального поиска</li>
+                  <li><strong>Период дат</strong> — фильтруйте записи по датам (сегодня, неделя, месяц, произвольный период)</li>
+                  <li><strong>Экспорт в Excel</strong> — выгружайте отфильтрованные записи для отчётов</li>
+                </ul>
+              </div>
 
-            <div className="bg-purple-50 p-3 rounded-lg">
-              <p className="font-semibold mb-2 text-purple-900">🔧 Действия с записью (меню "⋮"):</p>
-              <ul className="text-purple-700 space-y-1 ml-2 list-disc list-inside">
-                <li><strong>Завершить</strong> — отметить приём как завершённый, добавить заключение врача</li>
-                <li><strong>Перенести</strong> — изменить дату/время записи</li>
-                <li><strong>Отменить</strong> — отменить запись (например, если пациент не пришёл)</li>
-              </ul>
-            </div>
+              <div className="bg-purple-50 p-3 rounded-lg">
+                <p className="font-semibold mb-2 text-purple-900">🔧 Действия с записью (меню "⋮"):</p>
+                <ul className="text-purple-700 space-y-1 ml-2 list-disc list-inside">
+                  <li><strong>Завершить</strong> — отметить приём как завершённый, добавить заключение врача</li>
+                  <li><strong>Перенести</strong> — изменить дату/время записи</li>
+                  <li><strong>Отменить</strong> — отменить запись (например, если пациент не пришёл)</li>
+                </ul>
+              </div>
 
-            <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
-              <p className="font-semibold mb-1 text-amber-900">💡 Советы по работе:</p>
-              <ul className="text-amber-800 text-xs space-y-1 ml-2 list-disc list-inside">
-                <li>После приёма сразу завершайте запись и добавляйте описание — это важно для истории</li>
-                <li>Используйте фильтр "Запланировано" чтобы видеть только предстоящие приёмы</li>
-                <li>Экспортируйте записи в конце месяца для ведения статистики</li>
-                <li>Поиск работает мгновенно — набирайте имя пациента для быстрого доступа</li>
-              </ul>
-            </div>
+              <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                <p className="font-semibold mb-1 text-amber-900">💡 Советы по работе:</p>
+                <ul className="text-amber-800 text-xs space-y-1 ml-2 list-disc list-inside">
+                  <li>После приёма сразу завершайте запись и добавляйте описание — это важно для истории</li>
+                  <li>Используйте фильтр "Запланировано" чтобы видеть только предстоящие приёмы</li>
+                  <li>Экспортируйте записи в конце месяца для ведения статистики</li>
+                  <li>Поиск работает мгновенно — набирайте имя пациента для быстрого доступа</li>
+                </ul>
+              </div>
 
-            <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg">
-              <p className="font-semibold mb-1 text-slate-900">📊 Статусы записей:</p>
-              <div className="text-xs space-y-1 ml-2 text-slate-800">
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full font-medium text-[10px]">Запланировано</span>
-                  <span>— Пациент записан, ожидается приём</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded-full font-medium text-[10px]">Завершено</span>
-                  <span>— Приём состоялся</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 bg-red-100 text-red-800 rounded-full font-medium text-[10px]">Отменено</span>
-                  <span>— Запись отменена</span>
+              <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg">
+                <p className="font-semibold mb-1 text-slate-900">📊 Статусы записей:</p>
+                <div className="text-xs space-y-1 ml-2 text-slate-800">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full font-medium text-[10px]">Запланировано</span>
+                    <span>— Пациент записан, ожидается приём</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded-full font-medium text-[10px]">Завершено</span>
+                    <span>— Приём состоялся</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 bg-red-100 text-red-800 rounded-full font-medium text-[10px]">Отменено</span>
+                    <span>— Запись отменена</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="flex justify-end mt-4">
             <Button onClick={() => setShowTipsDialog(false)}>
