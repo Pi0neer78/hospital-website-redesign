@@ -121,6 +121,15 @@ def handler(event: dict, context) -> dict:
                 }
             
             elif action == 'log':
+                # Получение реального IP-адреса из заголовков
+                headers = event.get('headers', {})
+                ip_address = (
+                    headers.get('X-Forwarded-For', '').split(',')[0].strip() or
+                    headers.get('X-Real-IP', '') or
+                    headers.get('CF-Connecting-IP', '') or
+                    event.get('requestContext', {}).get('identity', {}).get('sourceIp', '')
+                )
+                
                 cur.execute('''
                     INSERT INTO registrar_logs (registrar_id, user_login, action_type, details, ip_address, computer_name)
                     VALUES (%s, %s, %s, %s, %s, %s)
@@ -129,7 +138,7 @@ def handler(event: dict, context) -> dict:
                     data.get('user_login'),
                     data['action_type'],
                     data.get('details'),
-                    data.get('ip_address'),
+                    ip_address,
                     data.get('computer_name')
                 ))
                 conn.commit()

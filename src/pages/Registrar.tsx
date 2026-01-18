@@ -422,7 +422,6 @@ const Registrar = () => {
           user_login: registrarInfo.login || registrarInfo.full_name,
           action_type: actionType,
           details: JSON.stringify(details),
-          ip_address: '',
           computer_name: navigator.userAgent
         })
       });

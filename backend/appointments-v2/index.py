@@ -239,8 +239,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 user_login = body.get('user_login')
                 action_type = body.get('action_type')
                 details = body.get('details')
-                ip_address = body.get('ip_address')
                 computer_name = body.get('computer_name')
+                
+                # Получение реального IP-адреса из заголовков
+                headers = event.get('headers', {})
+                ip_address = (
+                    headers.get('X-Forwarded-For', '').split(',')[0].strip() or
+                    headers.get('X-Real-IP', '') or
+                    headers.get('CF-Connecting-IP', '') or
+                    event.get('requestContext', {}).get('identity', {}).get('sourceIp', '')
+                )
                 
                 if not all([doctor_id, action_type]):
                     return {
