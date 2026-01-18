@@ -90,6 +90,7 @@ const Doctor = () => {
   const [calendarData, setCalendarData] = useState<{[key: string]: {is_working: boolean, note?: string}}>({});
   const [slotStats, setSlotStats] = useState<{[key: string]: {available: number, booked: number}}>({});
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [bulkSlotDialogOpen, setBulkSlotDialogOpen] = useState(false);
   const [bulkSlotDuration, setBulkSlotDuration] = useState(15);
@@ -621,15 +622,32 @@ const Doctor = () => {
     if (!doctorInfo) return;
     
     setIsLoadingSlots(true);
+    setLoadingProgress(0);
     const stats: {[key: string]: {available: number, booked: number}} = {};
     
-    const startDate = new Date(selectedYear, 0, 1);
-    const endDate = new Date(selectedYear, 11, 31);
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
     
+    const startDate = new Date(currentYear, currentMonth, 1);
+    const endDate = new Date(currentYear, currentMonth + 2, 0);
+    
+    const dates: string[] = [];
     const currentDate = new Date(startDate);
     
     while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split('T')[0];
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      dates.push(dateStr);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    const totalDays = dates.length;
+    
+    for (let i = 0; i < dates.length; i++) {
+      const dateStr = dates[i];
       
       try {
         const response = await fetch(
@@ -649,15 +667,17 @@ const Doctor = () => {
         stats[dateStr] = { available: 0, booked: 0 };
       }
       
-      currentDate.setDate(currentDate.getDate() + 1);
+      const progress = Math.round(((i + 1) / totalDays) * 100);
+      setLoadingProgress(progress);
+      setSlotStats({...stats});
     }
     
-    setSlotStats(stats);
     setIsLoadingSlots(false);
+    setLoadingProgress(0);
     
     toast({
       title: "Готово",
-      description: `Загружена статистика слотов на ${selectedYear} год`,
+      description: `Загружена статистика слотов на ${totalDays} дней`,
     });
   };
 
@@ -1105,7 +1125,7 @@ const Doctor = () => {
                         Отметьте выходные дни, отпуска и праздники на весь год. Календарь имеет приоритет над еженедельным расписанием.
                       </p>
                       <p className="text-xs text-green-600 mb-2 font-medium">
-                        💡 Нажмите "Получить слоты" чтобы увидеть статистику свободных/занятых слотов в формате: свободные/занятые
+                        💡 Нажмите "Получить слоты" чтобы увидеть статистику свободных/занятых слотов для текущего и следующего месяца в формате: свободные/занятые
                       </p>
                       <div className="flex gap-3 text-xs mt-3">
                         <div className="flex items-center gap-1">
@@ -1161,9 +1181,21 @@ const Doctor = () => {
                   <CardContent className="py-12 text-center">
                     <div className="flex flex-col items-center gap-4">
                       <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                      <div>
+                      <div className="w-full max-w-md">
                         <p className="text-lg font-semibold text-blue-900">Идет получение данных</p>
-                        <p className="text-sm text-blue-700 mt-1">Загружаем статистику слотов на {selectedYear} год...</p>
+                        <p className="text-sm text-blue-700 mt-1">Загружаем статистику слотов на текущий и следующий месяц...</p>
+                        <div className="mt-4">
+                          <div className="flex justify-between text-sm text-blue-800 mb-2">
+                            <span>Прогресс загрузки</span>
+                            <span className="font-bold">{loadingProgress}%</span>
+                          </div>
+                          <div className="w-full bg-blue-200 rounded-full h-3 overflow-hidden">
+                            <div 
+                              className="bg-blue-600 h-full rounded-full transition-all duration-300"
+                              style={{ width: `${loadingProgress}%` }}
+                            ></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
