@@ -140,6 +140,22 @@ const Doctor = () => {
   const [tipsContentOpen, setTipsContentOpen] = useState(false);
 
   const [dayOffWarning, setDayOffWarning] = useState<{open: boolean, date: string, appointmentCount: number}>({open: false, date: '', appointmentCount: 0});
+  
+  const [rescheduleDialog, setRescheduleDialog] = useState<{
+    open: boolean;
+    appointment: any | null;
+    newDate: string;
+    newTime: string;
+    availableSlots: string[];
+    availableDates: any[];
+  }>({
+    open: false,
+    appointment: null,
+    newDate: '',
+    newTime: '',
+    availableSlots: [],
+    availableDates: []
+  });
 
   useEffect(() => {
     const auth = localStorage.getItem('doctor_auth');
@@ -184,6 +200,18 @@ const Doctor = () => {
       preloadSlotCounts();
     }
   }, [newAppointmentDialog.open]);
+
+  useEffect(() => {
+    if (rescheduleDialog.newDate && doctorInfo) {
+      loadAvailableSlotsForReschedule(rescheduleDialog.newDate);
+    }
+  }, [rescheduleDialog.newDate]);
+
+  useEffect(() => {
+    if (rescheduleDialog.open && doctorInfo) {
+      generateRescheduleDates();
+    }
+  }, [rescheduleDialog.open]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -915,6 +943,113 @@ const Doctor = () => {
       }
     } catch (error) {
       console.error('Failed to log action:', error);
+    }
+  };
+
+  const openRescheduleDialog = (appointment: any) => {
+    setRescheduleDialog({
+      open: true,
+      appointment,
+      newDate: '',
+      newTime: '',
+      availableSlots: [],
+      availableDates: []
+    });
+  };
+
+  const generateRescheduleDates = () => {
+    const dates = [];
+    for (let i = 0; i <= 20; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayOfWeek = (date.getDay() + 6) % 7;
+      
+      const hasSchedule = schedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
+      const calendarOverride = calendarData[dateStr];
+      const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
+      
+      dates.push({
+        date: dateStr,
+        label: date.toLocaleDateString('ru-RU', { 
+          weekday: 'short', 
+          day: 'numeric', 
+          month: 'short' 
+        }),
+        isWorking,
+      });
+    }
+    setRescheduleDialog(prev => ({ ...prev, availableDates: dates }));
+  };
+
+  const loadAvailableSlotsForReschedule = async (date: string) => {
+    if (!doctorInfo) return;
+    
+    try {
+      const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorInfo.id}&date=${date}`);
+      const data = await response.json();
+      setRescheduleDialog(prev => ({ ...prev, availableSlots: data.available_slots || [] }));
+    } catch (error) {
+      console.error('Ошибка загрузки слотов:', error);
+      toast({ title: "Ошибка", description: "Не удалось загрузить доступные слоты", variant: "destructive" });
+    }
+  };
+
+  const handleRescheduleAppointment = async () => {
+    if (!rescheduleDialog.appointment || !rescheduleDialog.newDate || !rescheduleDialog.newTime) {
+      toast({ title: "Ошибка", description: "Выберите дату и время", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const oldDate = rescheduleDialog.appointment.appointment_date;
+      const oldTime = rescheduleDialog.appointment.appointment_time;
+      const newDate = rescheduleDialog.newDate;
+      const newTime = rescheduleDialog.newTime;
+
+      const response = await fetch(API_URLS.appointments, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: rescheduleDialog.appointment.id,
+          appointment_date: newDate,
+          appointment_time: newTime
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        await logAction('Перенос записи', {
+          appointment_id: rescheduleDialog.appointment.id,
+          patient_name: rescheduleDialog.appointment.patient_name,
+          patient_phone: rescheduleDialog.appointment.patient_phone,
+          patient_snils: rescheduleDialog.appointment.patient_snils,
+          old_date: oldDate,
+          old_time: oldTime,
+          new_date: newDate,
+          new_time: newTime
+        });
+
+        toast({ 
+          title: "Успешно", 
+          description: `Запись перенесена на ${new Date(newDate + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в ${newTime}` 
+        });
+        
+        setRescheduleDialog({
+          open: false,
+          appointment: null,
+          newDate: '',
+          newTime: '',
+          availableSlots: [],
+          availableDates: []
+        });
+        loadAppointments(doctorInfo.id);
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось перенести запись", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
     }
   };
 
@@ -2318,6 +2453,14 @@ const Doctor = () => {
                                       <Button 
                                         size="sm" 
                                         variant="ghost"
+                                        onClick={() => openRescheduleDialog(appointment)}
+                                        title="Перенести запись"
+                                      >
+                                        <Icon name="Calendar" size={16} className="text-purple-600" />
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        variant="ghost"
                                         onClick={() => handleOpenCloneDialog(appointment)}
                                         title="Клонировать запись"
                                       >
@@ -2760,6 +2903,90 @@ const Doctor = () => {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={rescheduleDialog.open} onOpenChange={(open) => setRescheduleDialog({...rescheduleDialog, open})}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Перенести запись</DialogTitle>
+            <DialogDescription>
+              {rescheduleDialog.appointment?.patient_name} • {rescheduleDialog.appointment && new Date(rescheduleDialog.appointment.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')} • {rescheduleDialog.appointment?.appointment_time.slice(0, 5)}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Выберите новую дату</label>
+              <div className="grid grid-cols-7 gap-2">
+                {rescheduleDialog.availableDates.map((dateInfo: any) => (
+                  <button
+                    key={dateInfo.date}
+                    type="button"
+                    onClick={() => dateInfo.isWorking && setRescheduleDialog(prev => ({ ...prev, newDate: dateInfo.date }))}
+                    disabled={!dateInfo.isWorking}
+                    className={`p-2 rounded-lg border text-xs transition-all ${
+                      rescheduleDialog.newDate === dateInfo.date
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : dateInfo.isWorking
+                        ? 'bg-white hover:bg-gray-50 border-gray-200'
+                        : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    }`}
+                  >
+                    <div className="font-medium">{dateInfo.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {rescheduleDialog.newDate && (
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Выберите время на {new Date(rescheduleDialog.newDate + 'T00:00:00').toLocaleDateString('ru-RU')}
+                </label>
+                {rescheduleDialog.availableSlots.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Нет свободных слотов на эту дату</p>
+                ) : (
+                  <div className="grid grid-cols-6 gap-2">
+                    {rescheduleDialog.availableSlots.map((time: string) => (
+                      <Button
+                        key={time}
+                        type="button"
+                        variant={rescheduleDialog.newTime === time ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setRescheduleDialog(prev => ({ ...prev, newTime: time }))}
+                      >
+                        {time}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex gap-2 pt-4">
+              <Button 
+                variant="outline" 
+                className="flex-1" 
+                onClick={() => setRescheduleDialog({
+                  open: false,
+                  appointment: null,
+                  newDate: '',
+                  newTime: '',
+                  availableSlots: [],
+                  availableDates: []
+                })}
+              >
+                Отмена
+              </Button>
+              <Button 
+                className="flex-1" 
+                onClick={handleRescheduleAppointment}
+                disabled={!rescheduleDialog.newDate || !rescheduleDialog.newTime}
+              >
+                Перенести
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
