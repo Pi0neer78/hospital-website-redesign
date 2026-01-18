@@ -48,6 +48,7 @@ const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [maxTextIndex, setMaxTextIndex] = useState(0);
   const [isMaxBannerVisible, setIsMaxBannerVisible] = useState(false);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   const maxTexts = [
     'Максимум возможностей для жизни',
@@ -140,6 +141,7 @@ const Index = () => {
   const loadAvailableSlots = async () => {
     if (!selectedDoctor || !selectedDate) return;
     
+    setIsLoadingSlots(true);
     try {
       const response = await fetch(
         `${BACKEND_URLS.appointments}?action=available-slots&doctor_id=${selectedDoctor.id}&date=${selectedDate}`
@@ -149,6 +151,8 @@ const Index = () => {
       setAllTimeSlotsForDate(data.all_slots || []);
     } catch (error) {
       console.error('Failed to load slots:', error);
+    } finally {
+      setIsLoadingSlots(false);
     }
   };
 
@@ -714,6 +718,45 @@ const Index = () => {
                         );
                       })}
                     </div>
+                  </div>
+                ) : isLoadingSlots ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {selectedDoctor.photo_url ? (
+                          <img 
+                            src={selectedDoctor.photo_url} 
+                            alt={selectedDoctor.full_name} 
+                            className="w-12 h-12 rounded-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Icon name="User" size={24} className="text-primary" />
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-semibold">{selectedDoctor.full_name}</h3>
+                          <p className="text-sm text-muted-foreground">Дата: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}</p>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => setSelectedDate('')}>
+                        Изменить дату
+                      </Button>
+                    </div>
+                    <Card className="bg-blue-50 border-blue-200">
+                      <CardContent className="py-12 text-center">
+                        <div className="flex flex-col items-center gap-4">
+                          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                          <div>
+                            <p className="text-lg font-semibold text-blue-900">Идет получение данных</p>
+                            <p className="text-sm text-blue-700 mt-1">Загружаем доступные слоты...</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 ) : availableSlots.length === 0 && !isSubmitting ? (
                   <div className="space-y-4">
