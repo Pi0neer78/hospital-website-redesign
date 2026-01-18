@@ -524,7 +524,8 @@ const Doctor = () => {
       
       if (newStatus === 'completed') {
         const now = new Date();
-        body.completed_at = now.toISOString();
+        const moscowTime = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+        body.completed_at = moscowTime.toISOString();
       }
       
       const response = await fetch(API_URLS.appointments, {
