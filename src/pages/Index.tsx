@@ -259,21 +259,11 @@ const Index = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        if (data.show_code) {
-          // Fallback: показываем код на экране, если не удалось отправить в MAX
-          toast({
-            title: "Ваш код верификации",
-            description: `Код: ${data.show_code}. Не удалось отправить в MAX, используйте этот код для подтверждения.`,
-            duration: 0,
-          });
-        } else {
-          // Код успешно отправлен в MAX
-          toast({
-            title: "Код отправлен в MAX",
-            description: `Проверьте сообщения в мессенджере MAX на номере ${appointmentForm.patient_phone}`,
-            duration: 10000,
-          });
-        }
+        toast({
+          title: "Код отправлен в MAX",
+          description: `Проверьте сообщения в мессенджере MAX на номере ${appointmentForm.patient_phone}`,
+          duration: 10000,
+        });
         setVerificationStep('code');
       } else {
         toast({
