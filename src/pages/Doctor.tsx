@@ -141,6 +141,8 @@ const Doctor = () => {
 
   const [dayOffWarning, setDayOffWarning] = useState<{open: boolean, date: string, appointmentCount: number}>({open: false, date: '', appointmentCount: 0});
   
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  
   const [rescheduleDialog, setRescheduleDialog] = useState<{
     open: boolean;
     appointment: any | null;
@@ -2362,6 +2364,83 @@ const Doctor = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  
+                  {selectedAppointment && (
+                    <div className="flex gap-2 items-center border-l pl-4 ml-2">
+                      {selectedAppointment.status === 'scheduled' && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs gap-1.5"
+                            onClick={() => openRescheduleDialog(selectedAppointment)}
+                          >
+                            <Icon name="Calendar" size={14} className="text-purple-600" />
+                            Перенести
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs gap-1.5"
+                            onClick={() => handleOpenCloneDialog(selectedAppointment)}
+                          >
+                            <Icon name="Copy" size={14} className="text-blue-600" />
+                            Клонировать
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs gap-1.5"
+                            onClick={() => setConfirmDialog({
+                              open: true,
+                              appointmentId: selectedAppointment.id,
+                              patientName: selectedAppointment.patient_name,
+                              patientPhone: selectedAppointment.patient_phone,
+                              patientSnils: selectedAppointment.patient_snils || '',
+                              appointmentDate: new Date(selectedAppointment.appointment_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }),
+                              appointmentDateRaw: selectedAppointment.appointment_date,
+                              appointmentTime: selectedAppointment.appointment_time.slice(0, 5),
+                              description: selectedAppointment.description || '',
+                              newDescription: selectedAppointment.description || ''
+                            })}
+                          >
+                            <Icon name="CheckCircle" size={14} className="text-green-600" />
+                            Завершить
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs gap-1.5"
+                            onClick={() => setCancelDialog({
+                              open: true,
+                              appointmentId: selectedAppointment.id,
+                              patientName: selectedAppointment.patient_name,
+                              patientPhone: selectedAppointment.patient_phone,
+                              patientSnils: selectedAppointment.patient_snils || '',
+                              appointmentDate: new Date(selectedAppointment.appointment_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }),
+                              appointmentDateRaw: selectedAppointment.appointment_date,
+                              appointmentTime: selectedAppointment.appointment_time.slice(0, 5),
+                              description: selectedAppointment.description || ''
+                            })}
+                          >
+                            <Icon name="XCircle" size={14} className="text-red-600" />
+                            Отменить
+                          </Button>
+                        </>
+                      )}
+                      {(selectedAppointment.status === 'completed' || selectedAppointment.status === 'cancelled') && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs gap-1.5"
+                          onClick={() => handleOpenCloneDialog(selectedAppointment)}
+                        >
+                          <Icon name="Copy" size={14} className="text-blue-600" />
+                          Клонировать
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -2391,7 +2470,6 @@ const Doctor = () => {
                           <TableHead className="hidden lg:table-cell py-0.5 px-2 text-[10px] h-6">СНИЛС</TableHead>
                           <TableHead className="hidden md:table-cell py-0.5 px-2 text-[10px] h-6">Описание</TableHead>
                           <TableHead className="w-[100px] py-0.5 px-2 text-[10px] h-6">Статус</TableHead>
-                          <TableHead className="w-[120px] text-right py-0.5 px-2 text-[10px] h-6">Действия</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -2408,7 +2486,12 @@ const Doctor = () => {
                             return (
                               <TableRow 
                                 key={appointment.id} 
-                                className={`h-6 ${isNewDay && index > 0 ? 'border-t-[3px] border-t-gray-300' : ''}`}
+                                className={`h-6 cursor-pointer transition-colors ${isNewDay && index > 0 ? 'border-t-[3px] border-t-gray-300' : ''} ${
+                                  selectedAppointment?.id === appointment.id 
+                                    ? 'bg-primary/10 hover:bg-primary/15' 
+                                    : 'hover:bg-muted/50'
+                                }`}
+                                onClick={() => setSelectedAppointment(appointment)}
                               >
                                 <TableCell className="font-medium text-[10px] py-0 px-2 h-6">
                                   {isNewDay && new Date(appointment.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU', { 
@@ -2446,81 +2529,6 @@ const Doctor = () => {
                                     {appointment.status === 'scheduled' ? 'Запланировано' : 
                                      appointment.status === 'completed' ? 'Завершено' : 'Отменено'}
                                   </span>
-                                </TableCell>
-                                <TableCell className="text-right py-0 px-2 h-6">
-                                  {appointment.status === 'scheduled' && (
-                                    <div className="flex gap-0.5 justify-end">
-                                      <Button 
-                                        size="sm" 
-                                        variant="ghost"
-                                        onClick={() => openRescheduleDialog(appointment)}
-                                        title="Перенести запись"
-                                        className="h-5 w-5 p-0"
-                                      >
-                                        <Icon name="Calendar" size={12} className="text-purple-600" />
-                                      </Button>
-                                      <Button 
-                                        size="sm" 
-                                        variant="ghost"
-                                        onClick={() => handleOpenCloneDialog(appointment)}
-                                        title="Клонировать запись"
-                                        className="h-5 w-5 p-0"
-                                      >
-                                        <Icon name="Copy" size={12} className="text-blue-600" />
-                                      </Button>
-                                      <Button 
-                                        size="sm" 
-                                        variant="ghost"
-                                        onClick={() => setConfirmDialog({
-                                          open: true,
-                                          appointmentId: appointment.id,
-                                          patientName: appointment.patient_name,
-                                          patientPhone: appointment.patient_phone,
-                                          patientSnils: appointment.patient_snils || '',
-                                          appointmentDate: new Date(appointment.appointment_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }),
-                                          appointmentDateRaw: appointment.appointment_date,
-                                          appointmentTime: appointment.appointment_time.slice(0, 5),
-                                          description: appointment.description || '',
-                                          newDescription: appointment.description || ''
-                                        })}
-                                        title="Завершить прием"
-                                        className="h-5 w-5 p-0"
-                                      >
-                                        <Icon name="CheckCircle" size={12} className="text-green-600" />
-                                      </Button>
-                                      <Button 
-                                        size="sm" 
-                                        variant="ghost"
-                                        onClick={() => setCancelDialog({
-                                          open: true,
-                                          appointmentId: appointment.id,
-                                          patientName: appointment.patient_name,
-                                          patientPhone: appointment.patient_phone,
-                                          patientSnils: appointment.patient_snils || '',
-                                          appointmentDate: new Date(appointment.appointment_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }),
-                                          appointmentDateRaw: appointment.appointment_date,
-                                          appointmentTime: appointment.appointment_time.slice(0, 5),
-                                          description: appointment.description || ''
-                                        })}
-                                        title="Отменить"
-                                        className="h-5 w-5 p-0"
-                                      >
-                                        <Icon name="XCircle" size={12} className="text-red-600" />
-                                      </Button>
-                                    </div>
-                                  )}
-                                  {(appointment.status === 'completed' || appointment.status === 'cancelled') && (
-                                    <div className="flex gap-1 justify-end">
-                                      <Button 
-                                        size="sm" 
-                                        variant="ghost"
-                                        onClick={() => handleOpenCloneDialog(appointment)}
-                                        title="Клонировать запись"
-                                      >
-                                        <Icon name="Copy" size={16} className="text-blue-600" />
-                                      </Button>
-                                    </div>
-                                  )}
                                 </TableCell>
                               </TableRow>
                             );
