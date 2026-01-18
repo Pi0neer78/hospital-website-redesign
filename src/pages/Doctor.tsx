@@ -88,6 +88,8 @@ const Doctor = () => {
   });
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [calendarData, setCalendarData] = useState<{[key: string]: {is_working: boolean, note?: string}}>({});
+  const [slotStats, setSlotStats] = useState<{[key: string]: {available: number, booked: number}}>({});
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [bulkSlotDialogOpen, setBulkSlotDialogOpen] = useState(false);
   const [bulkSlotDuration, setBulkSlotDuration] = useState(15);
@@ -615,6 +617,50 @@ const Doctor = () => {
     }
   };
 
+  const loadSlotStatsForYear = async () => {
+    if (!doctorInfo) return;
+    
+    setIsLoadingSlots(true);
+    const stats: {[key: string]: {available: number, booked: number}} = {};
+    
+    const startDate = new Date(selectedYear, 0, 1);
+    const endDate = new Date(selectedYear, 11, 31);
+    
+    const currentDate = new Date(startDate);
+    
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      
+      try {
+        const response = await fetch(
+          `${API_URLS.appointments}?action=available-slots&doctor_id=${doctorInfo.id}&date=${dateStr}`
+        );
+        const data = await response.json();
+        
+        const availableSlots = data.available_slots?.length || 0;
+        const allSlots = data.all_slots?.length || 0;
+        const bookedSlots = allSlots - availableSlots;
+        
+        stats[dateStr] = {
+          available: availableSlots,
+          booked: bookedSlots
+        };
+      } catch (error) {
+        stats[dateStr] = { available: 0, booked: 0 };
+      }
+      
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    setSlotStats(stats);
+    setIsLoadingSlots(false);
+    
+    toast({
+      title: "Готово",
+      description: `Загружена статистика слотов на ${selectedYear} год`,
+    });
+  };
+
   const toggleDaySelection = (dayOfWeek: number) => {
     setSelectedDaysToCopy(prev => 
       prev.includes(dayOfWeek) 
@@ -1058,6 +1104,9 @@ const Doctor = () => {
                       <p className="text-sm text-green-700 mb-2">
                         Отметьте выходные дни, отпуска и праздники на весь год. Календарь имеет приоритет над еженедельным расписанием.
                       </p>
+                      <p className="text-xs text-green-600 mb-2 font-medium">
+                        💡 Нажмите "Получить слоты" чтобы увидеть статистику свободных/занятых слотов в формате: свободные/занятые
+                      </p>
                       <div className="flex gap-3 text-xs mt-3">
                         <div className="flex items-center gap-1">
                           <div className="w-4 h-4 bg-green-200 border border-green-400 rounded"></div>
@@ -1086,12 +1135,44 @@ const Doctor = () => {
                     ))}
                   </select>
                 </div>
+                <div className="mt-6">
+                  <Button
+                    onClick={loadSlotStatsForYear}
+                    disabled={isLoadingSlots}
+                    size="lg"
+                  >
+                    {isLoadingSlots ? (
+                      <>
+                        <Icon name="Loader2" size={20} className="mr-2 animate-spin" />
+                        Загрузка...
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="BarChart3" size={20} className="mr-2" />
+                        Получить слоты
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
 
-              <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {Array.from({ length: 12 }, (_, i) => i).map(monthIndex => {
-                  const monthName = new Date(selectedYear, monthIndex).toLocaleString('ru-RU', { month: 'long' });
-                  const daysInMonth = new Date(selectedYear, monthIndex + 1, 0).getDate();
+              {isLoadingSlots ? (
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardContent className="py-12 text-center">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      <div>
+                        <p className="text-lg font-semibold text-blue-900">Идет получение данных</p>
+                        <p className="text-sm text-blue-700 mt-1">Загружаем статистику слотов на {selectedYear} год...</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {Array.from({ length: 12 }, (_, i) => i).map(monthIndex => {
+                    const monthName = new Date(selectedYear, monthIndex).toLocaleString('ru-RU', { month: 'long' });
+                    const daysInMonth = new Date(selectedYear, monthIndex + 1, 0).getDate();
                   const firstDayOfWeek = (new Date(selectedYear, monthIndex, 1).getDay() + 6) % 7;
                   
                   return (
@@ -1120,12 +1201,13 @@ const Doctor = () => {
                             const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
                             const today = new Date().toISOString().split('T')[0];
                             const isToday = date === today;
+                            const stats = slotStats[date];
                             
                             return (
                               <button
                                 key={day}
                                 onClick={() => toggleCalendarDay(date)}
-                                className={`h-8 text-[11px] rounded transition-all flex items-center justify-center ${
+                                className={`h-auto min-h-[32px] text-[10px] rounded transition-all flex flex-col items-center justify-center p-0.5 ${
                                   isToday ? 'ring-1 ring-primary' : ''
                                 } ${
                                   isWorking 
@@ -1137,6 +1219,11 @@ const Doctor = () => {
                                 title={isWorking ? 'Рабочий день (нажмите для выходного)' : 'Выходной (нажмите для рабочего)'}
                               >
                                 <span className="font-medium">{day}</span>
+                                {stats && (stats.available > 0 || stats.booked > 0) && (
+                                  <span className="text-[8px] font-semibold mt-0.5">
+                                    {stats.available}/{stats.booked}
+                                  </span>
+                                )}
                               </button>
                             );
                           })}
@@ -1145,7 +1232,8 @@ const Doctor = () => {
                     </Card>
                   );
                 })}
-              </div>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="schedule" className="mt-6">
