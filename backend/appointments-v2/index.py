@@ -7,11 +7,13 @@ from datetime import datetime, timedelta, time
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
-    Управление записями пациентов
+    Управление записями пациентов и логирование действий врачей
     GET /?doctor_id=X&date=YYYY-MM-DD - получить записи врача на дату
     GET /?doctor_id=X&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD - получить записи за период
+    GET /?action=logs&doctor_id=X&limit=500 - получить журнал действий врача
     GET /available-slots?doctor_id=X&date=YYYY-MM-DD - получить свободные слоты
     POST / - создать запись
+    POST {action: "log", doctor_id, action_type, details} - записать действие в журнал
     PUT / - обновить статус записи
     DELETE /?id=X - удалить запись
     """
@@ -152,6 +154,43 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            # Журнал действий врачей
+            elif query_params.get('action') == 'logs':
+                doctor_id = query_params.get('doctor_id')
+                limit = query_params.get('limit', '100')
+                
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                
+                if doctor_id:
+                    cursor.execute(
+                        """SELECT l.*, d.full_name as doctor_name 
+                           FROM doctor_logs l 
+                           JOIN doctors d ON l.doctor_id = d.id 
+                           WHERE l.doctor_id = %s 
+                           ORDER BY l.created_at DESC 
+                           LIMIT %s""",
+                        (doctor_id, limit)
+                    )
+                else:
+                    cursor.execute(
+                        """SELECT l.*, d.full_name as doctor_name 
+                           FROM doctor_logs l 
+                           JOIN doctors d ON l.doctor_id = d.id 
+                           ORDER BY l.created_at DESC 
+                           LIMIT %s""",
+                        (limit,)
+                    )
+                
+                logs = cursor.fetchall()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'logs': logs}, default=str),
+                    'isBase64Encoded': False
+                }
+            
             else:
                 doctor_id = query_params.get('doctor_id')
                 date_str = query_params.get('date')
@@ -192,6 +231,43 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif method == 'POST':
             body = json.loads(event.get('body', '{}'))
+            action = body.get('action')
+            
+            # Логирование действий врача
+            if action == 'log':
+                doctor_id = body.get('doctor_id')
+                action_type = body.get('action_type')
+                details = body.get('details')
+                ip_address = body.get('ip_address')
+                computer_name = body.get('computer_name')
+                
+                if not all([doctor_id, action_type]):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'doctor_id and action_type are required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                cursor.execute(
+                    """INSERT INTO doctor_logs (doctor_id, action_type, details, ip_address, computer_name)
+                       VALUES (%s, %s, %s, %s, %s)
+                       RETURNING *""",
+                    (doctor_id, action_type, details, ip_address, computer_name)
+                )
+                log = cursor.fetchone()
+                conn.commit()
+                cursor.close()
+                
+                return {
+                    'statusCode': 201,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'log': log}, default=str),
+                    'isBase64Encoded': False
+                }
+            
+            # Создание записи
             doctor_id = body.get('doctor_id')
             patient_name = body.get('patient_name')
             patient_phone = body.get('patient_phone')

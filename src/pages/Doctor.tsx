@@ -64,10 +64,12 @@ const Doctor = () => {
     return saved ? parseInt(saved) : 900;
   });
   const [lastCheckTime, setLastCheckTime] = useState<Date | null>(null);
-  const [confirmDialog, setConfirmDialog] = useState<{open: boolean, appointmentId: number | null, patientName: string, appointmentDate: string, appointmentDateRaw: string, appointmentTime: string, description: string, newDescription: string}>({
+  const [confirmDialog, setConfirmDialog] = useState<{open: boolean, appointmentId: number | null, patientName: string, patientPhone: string, patientSnils: string, appointmentDate: string, appointmentDateRaw: string, appointmentTime: string, description: string, newDescription: string}>({
     open: false,
     appointmentId: null,
     patientName: '',
+    patientPhone: '',
+    patientSnils: '',
     appointmentDate: '',
     appointmentDateRaw: '',
     appointmentTime: '',
@@ -79,12 +81,16 @@ const Doctor = () => {
     appointmentDate: '',
     currentDate: ''
   });
-  const [cancelDialog, setCancelDialog] = useState<{open: boolean, appointmentId: number | null, patientName: string, appointmentDate: string, appointmentTime: string}>({
+  const [cancelDialog, setCancelDialog] = useState<{open: boolean, appointmentId: number | null, patientName: string, patientPhone: string, patientSnils: string, appointmentDate: string, appointmentDateRaw: string, appointmentTime: string, description: string}>({
     open: false,
     appointmentId: null,
     patientName: '',
+    patientPhone: '',
+    patientSnils: '',
     appointmentDate: '',
-    appointmentTime: ''
+    appointmentDateRaw: '',
+    appointmentTime: '',
+    description: ''
   });
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [calendarData, setCalendarData] = useState<{[key: string]: {is_working: boolean, note?: string}}>({});
@@ -478,7 +484,7 @@ const Doctor = () => {
     }
   };
 
-  const handleUpdateAppointmentStatus = async (appointmentId: number, newStatus: string, description?: string) => {
+  const handleUpdateAppointmentStatus = async (appointmentId: number, newStatus: string, description?: string, appointmentData?: any) => {
     try {
       const body: any = {
         id: appointmentId,
@@ -502,6 +508,20 @@ const Doctor = () => {
       if (response.ok && data.success) {
         const statusText = newStatus === 'completed' ? 'Прием завершен' : 'Запись отменена';
         toast({ title: "Успешно", description: statusText });
+        
+        if (appointmentData) {
+          const actionType = newStatus === 'completed' ? 'Завершение приема' : 'Отмена записи';
+          await logAction(actionType, {
+            appointment_id: appointmentId,
+            patient_name: appointmentData.patient_name,
+            patient_phone: appointmentData.patient_phone,
+            patient_snils: appointmentData.patient_snils,
+            appointment_date: appointmentData.appointment_date,
+            appointment_time: appointmentData.appointment_time,
+            description: description || appointmentData.description
+          });
+        }
+        
         loadAppointments(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось обновить статус", variant: "destructive" });
@@ -787,6 +807,20 @@ const Doctor = () => {
           title: "Успешно", 
           description: `Запись клонирована на ${new Date(cloneDialog.newDate + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в ${cloneDialog.newTime}` 
         });
+        
+        await logAction('Клонирование записи', {
+          original_appointment_id: cloneDialog.appointment.id,
+          new_appointment_id: data.appointment?.id,
+          patient_name: cloneDialog.appointment.patient_name,
+          patient_phone: cloneDialog.appointment.patient_phone,
+          patient_snils: cloneDialog.appointment.patient_snils,
+          original_date: cloneDialog.appointment.appointment_date,
+          original_time: cloneDialog.appointment.appointment_time,
+          new_date: cloneDialog.newDate,
+          new_time: cloneDialog.newTime,
+          description: cloneDialog.newDescription
+        });
+        
         setCloneDialog({
           open: false,
           appointment: null,
@@ -861,6 +895,27 @@ const Doctor = () => {
     return days;
   };
 
+  const logAction = async (actionType: string, details: any) => {
+    try {
+      const response = await fetch(API_URLS.appointments, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'log',
+          doctor_id: doctorInfo.id,
+          action_type: actionType,
+          details: JSON.stringify(details)
+        })
+      });
+      
+      if (!response.ok) {
+        console.error('Log action failed:', response.status, await response.text());
+      }
+    } catch (error) {
+      console.error('Failed to log action:', error);
+    }
+  };
+
   const handleCreateNewAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -891,6 +946,17 @@ const Doctor = () => {
           title: "Успешно", 
           description: `Пациент ${newAppointmentDialog.patientName} записан на ${new Date(newAppointmentDialog.date + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в ${newAppointmentDialog.time}` 
         });
+        
+        await logAction('Создание записи', {
+          appointment_id: data.appointment?.id,
+          patient_name: newAppointmentDialog.patientName,
+          patient_phone: newAppointmentDialog.patientPhone,
+          patient_snils: newAppointmentDialog.patientSnils,
+          appointment_date: newAppointmentDialog.date,
+          appointment_time: newAppointmentDialog.time,
+          description: newAppointmentDialog.description
+        });
+        
         setNewAppointmentDialog({
           open: false,
           date: '',
@@ -2262,6 +2328,8 @@ const Doctor = () => {
                                           open: true,
                                           appointmentId: appointment.id,
                                           patientName: appointment.patient_name,
+                                          patientPhone: appointment.patient_phone,
+                                          patientSnils: appointment.patient_snils || '',
                                           appointmentDate: new Date(appointment.appointment_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }),
                                           appointmentDateRaw: appointment.appointment_date,
                                           appointmentTime: appointment.appointment_time.slice(0, 5),
@@ -2279,8 +2347,12 @@ const Doctor = () => {
                                           open: true,
                                           appointmentId: appointment.id,
                                           patientName: appointment.patient_name,
+                                          patientPhone: appointment.patient_phone,
+                                          patientSnils: appointment.patient_snils || '',
                                           appointmentDate: new Date(appointment.appointment_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }),
-                                          appointmentTime: appointment.appointment_time.slice(0, 5)
+                                          appointmentDateRaw: appointment.appointment_date,
+                                          appointmentTime: appointment.appointment_time.slice(0, 5),
+                                          description: appointment.description || ''
                                         })}
                                         title="Отменить"
                                       >
@@ -2378,6 +2450,8 @@ const Doctor = () => {
                       open: false,
                       appointmentId: null,
                       patientName: '',
+                      patientPhone: '',
+                      patientSnils: '',
                       appointmentDate: '',
                       appointmentDateRaw: '',
                       appointmentTime: '',
@@ -2390,12 +2464,22 @@ const Doctor = () => {
                   handleUpdateAppointmentStatus(
                     confirmDialog.appointmentId, 
                     'completed', 
-                    confirmDialog.newDescription
+                    confirmDialog.newDescription,
+                    {
+                      patient_name: confirmDialog.patientName,
+                      patient_phone: confirmDialog.patientPhone,
+                      patient_snils: confirmDialog.patientSnils,
+                      appointment_date: confirmDialog.appointmentDateRaw,
+                      appointment_time: confirmDialog.appointmentTime,
+                      description: confirmDialog.description
+                    }
                   );
                   setConfirmDialog({
                     open: false,
                     appointmentId: null,
                     patientName: '',
+                    patientPhone: '',
+                    patientSnils: '',
                     appointmentDate: '',
                     appointmentDateRaw: '',
                     appointmentTime: '',
@@ -2441,8 +2525,30 @@ const Doctor = () => {
               className="flex-1"
               onClick={() => {
                 if (cancelDialog.appointmentId) {
-                  handleUpdateAppointmentStatus(cancelDialog.appointmentId, 'cancelled');
-                  setCancelDialog({...cancelDialog, open: false});
+                  handleUpdateAppointmentStatus(
+                    cancelDialog.appointmentId, 
+                    'cancelled',
+                    undefined,
+                    {
+                      patient_name: cancelDialog.patientName,
+                      patient_phone: cancelDialog.patientPhone,
+                      patient_snils: cancelDialog.patientSnils,
+                      appointment_date: cancelDialog.appointmentDateRaw,
+                      appointment_time: cancelDialog.appointmentTime,
+                      description: cancelDialog.description
+                    }
+                  );
+                  setCancelDialog({
+                    open: false,
+                    appointmentId: null,
+                    patientName: '',
+                    patientPhone: '',
+                    patientSnils: '',
+                    appointmentDate: '',
+                    appointmentDateRaw: '',
+                    appointmentTime: '',
+                    description: ''
+                  });
                 }
               }}
             >
