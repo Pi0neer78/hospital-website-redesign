@@ -657,8 +657,6 @@ const Doctor = () => {
         const allSlots = data.all_slots?.length || 0;
         const bookedSlots = allSlots - availableSlots;
         
-        console.log(`📊 ${dateStr}: available=${availableSlots}, all=${allSlots}, booked=${bookedSlots}`, data);
-        
         setSlotStats(prev => ({
           ...prev,
           [dateStr]: {
@@ -667,7 +665,6 @@ const Doctor = () => {
           }
         }));
       } catch (error) {
-        console.error(`❌ Ошибка загрузки ${dateStr}:`, error);
         setSlotStats(prev => ({
           ...prev,
           [dateStr]: { available: 0, booked: 0 }
@@ -1124,23 +1121,54 @@ const Doctor = () => {
               <Card className="mb-6 bg-gradient-to-r from-green-50 to-teal-50 border-green-200">
                 <CardContent className="pt-4">
                   <div className="flex items-start gap-3">
-                    <Icon name="Calendar" size={20} className="text-green-600 mt-0.5 flex-shrink-0" />
+                    <Icon name="Calendar" size={24} className="text-green-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
-                      <p className="text-sm text-green-900 font-medium mb-2">📅 Годовой календарь работы</p>
-                      <p className="text-sm text-green-700 mb-2">
-                        Отметьте выходные дни, отпуска и праздники на весь год. Календарь имеет приоритет над еженедельным расписанием.
-                      </p>
-                      <p className="text-xs text-green-600 mb-2 font-medium">
-                        💡 Нажмите "Получить слоты" чтобы увидеть статистику свободных/занятых слотов для текущего и следующего месяца в формате: свободные/занятые
-                      </p>
-                      <div className="flex gap-3 text-xs mt-3">
-                        <div className="flex items-center gap-1">
-                          <div className="w-4 h-4 bg-green-200 border border-green-400 rounded"></div>
-                          <span className="text-green-800">Рабочий день</span>
+                      <h3 className="text-base font-bold text-green-900 mb-3">📅 Инструкция: Годовой календарь работы</h3>
+                      
+                      <div className="space-y-3 text-sm text-green-800">
+                        <div className="bg-white/60 p-3 rounded-lg">
+                          <p className="font-semibold mb-1">🎯 Для чего нужен календарь?</p>
+                          <p className="text-green-700">
+                            Календарь позволяет отметить конкретные даты как выходные или рабочие дни. 
+                            Это удобно для отпусков, праздников и нестандартных дней работы.
+                          </p>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-4 h-4 bg-red-200 border border-red-400 rounded"></div>
-                          <span className="text-red-800">Выходной</span>
+
+                        <div className="bg-white/60 p-3 rounded-lg">
+                          <p className="font-semibold mb-2">📋 Как пользоваться:</p>
+                          <ul className="list-decimal list-inside space-y-1 text-green-700 ml-2">
+                            <li><strong>Клик по дате</strong> — переключает статус дня (рабочий ↔ выходной)</li>
+                            <li><strong>Зелёная ячейка</strong> — рабочий день по расписанию</li>
+                            <li><strong>Красная ячейка</strong> — выходной день (записи невозможны)</li>
+                            <li><strong>Кнопка "Получить слоты"</strong> — показывает статистику на 2 месяца в формате: свободные/занятые</li>
+                          </ul>
+                        </div>
+
+                        <div className="bg-white/60 p-3 rounded-lg">
+                          <p className="font-semibold mb-1">⚡ Важно!</p>
+                          <p className="text-green-700">
+                            <strong>Календарь имеет приоритет!</strong> Если день отмечен как выходной в календаре, 
+                            пациенты не смогут записаться, даже если в еженедельном расписании этот день рабочий.
+                          </p>
+                        </div>
+
+                        <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                          <p className="font-semibold mb-1 text-amber-900">💡 Пример использования:</p>
+                          <p className="text-amber-800 text-xs">
+                            У вас отпуск с 1 по 10 марта → Кликните по всем датам с 1 по 10 марта (они станут красными). 
+                            Пациенты не увидят эти дни при записи. После отпуска кликните снова — дни станут рабочими.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-4 text-xs mt-4 pt-3 border-t border-green-200">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-5 h-5 bg-green-200 border-2 border-green-400 rounded shadow-sm"></div>
+                          <span className="text-green-900 font-medium">Рабочий день</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-5 h-5 bg-red-200 border-2 border-red-400 rounded shadow-sm"></div>
+                          <span className="text-red-900 font-medium">Выходной день</span>
                         </div>
                       </div>
                     </div>
@@ -1275,29 +1303,58 @@ const Doctor = () => {
             </TabsContent>
 
             <TabsContent value="schedule" className="mt-6">
-              <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+              <Card className="mb-6 bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
                 <CardContent className="pt-4">
                   <div className="flex items-start gap-3">
-                    <Icon name="Info" size={20} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                    <Icon name="Clock" size={24} className="text-purple-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
-                      <p className="text-sm text-blue-900 font-medium mb-2">✨ Гибкое расписание для каждого дня недели</p>
-                      <p className="text-sm text-blue-700 mb-3">
-                        Настраивайте индивидуальное время работы и перерывы для каждого дня. 
-                        Используйте кнопку "Копировать" для быстрого переноса расписания на другие дни недели.
-                      </p>
-                      <div className="flex flex-wrap gap-2 text-xs">
-                        <span className="px-2 py-1 bg-white/60 rounded-md text-blue-800">
-                          <Icon name="Clock" size={12} className="inline mr-1" />
-                          Разное время работы
-                        </span>
-                        <span className="px-2 py-1 bg-white/60 rounded-md text-orange-800">
-                          <Icon name="Coffee" size={12} className="inline mr-1" />
-                          Индивидуальные перерывы
-                        </span>
-                        <span className="px-2 py-1 bg-white/60 rounded-md text-purple-800">
-                          <Icon name="Copy" size={12} className="inline mr-1" />
-                          Быстрое копирование
-                        </span>
+                      <h3 className="text-base font-bold text-purple-900 mb-3">⏰ Инструкция: Еженедельное расписание</h3>
+                      
+                      <div className="space-y-3 text-sm text-purple-800">
+                        <div className="bg-white/60 p-3 rounded-lg">
+                          <p className="font-semibold mb-1">🎯 Для чего нужно расписание?</p>
+                          <p className="text-purple-700">
+                            Расписание определяет ваши рабочие часы по дням недели. Пациенты увидят только те дни и время, 
+                            которые вы настроите здесь.
+                          </p>
+                        </div>
+
+                        <div className="bg-white/60 p-3 rounded-lg">
+                          <p className="font-semibold mb-2">📋 Основные действия:</p>
+                          <ul className="list-decimal list-inside space-y-1.5 text-purple-700 ml-2">
+                            <li><strong>Добавить день</strong> — кнопка справа вверху. Выберите день недели, время начала/конца, перерыв и длительность приёма</li>
+                            <li><strong>Длительность слота</strong> — сколько минут длится один приём (например: 15, 20, 30 минут)</li>
+                            <li><strong>Перерыв</strong> — укажите обеденный перерыв, если нужен. В это время записи недоступны</li>
+                            <li><strong>Копировать на другие дни</strong> — кнопка в карточке дня. Быстро применяет расписание к выбранным дням</li>
+                            <li><strong>Изменить/Удалить</strong> — используйте меню "⋮" в карточке каждого дня</li>
+                          </ul>
+                        </div>
+
+                        <div className="bg-white/60 p-3 rounded-lg">
+                          <p className="font-semibold mb-1">🔧 Массовое изменение слотов</p>
+                          <p className="text-purple-700">
+                            Кнопка <strong>"Применить слоты ко всем дням"</strong> позволяет установить одинаковую длительность приёма 
+                            для всех рабочих дней сразу. Удобно, если нужно изменить с 15 на 20 минут везде.
+                          </p>
+                        </div>
+
+                        <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                          <p className="font-semibold mb-1 text-amber-900">💡 Пример настройки:</p>
+                          <p className="text-amber-800 text-xs leading-relaxed">
+                            <strong>Понедельник:</strong> 09:00-18:00, обед 13:00-14:00, приём 30 мин<br/>
+                            <strong>Среда:</strong> 10:00-15:00, без перерыва, приём 20 мин<br/>
+                            <strong>Суббота:</strong> 09:00-14:00, без перерыва, приём 15 мин
+                          </p>
+                        </div>
+
+                        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                          <p className="font-semibold mb-1 text-blue-900">ℹ️ Полезно знать:</p>
+                          <ul className="text-blue-800 text-xs space-y-1 ml-2 list-disc list-inside">
+                            <li>Если день не добавлен в расписание — он считается выходным</li>
+                            <li>Календарь (вкладка выше) может переопределять расписание для конкретных дат</li>
+                            <li>Изменения вступают в силу сразу после сохранения</li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1709,6 +1766,75 @@ const Doctor = () => {
             </TabsContent>
 
             <TabsContent value="appointments" className="mt-6">
+              <Card className="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+                <CardContent className="pt-4">
+                  <div className="flex items-start gap-3">
+                    <Icon name="Users" size={24} className="text-green-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h3 className="text-base font-bold text-green-900 mb-3">👥 Инструкция: Управление записями пациентов</h3>
+                      
+                      <div className="space-y-3 text-sm text-green-800">
+                        <div className="bg-white/60 p-3 rounded-lg">
+                          <p className="font-semibold mb-1">🎯 Что можно делать с записями?</p>
+                          <p className="text-green-700">
+                            Здесь отображаются все записи пациентов. Вы можете просматривать, фильтровать, редактировать статусы 
+                            и экспортировать данные в Excel для отчётности.
+                          </p>
+                        </div>
+
+                        <div className="bg-white/60 p-3 rounded-lg">
+                          <p className="font-semibold mb-2">📋 Основные действия:</p>
+                          <ul className="list-decimal list-inside space-y-1.5 text-green-700 ml-2">
+                            <li><strong>Записать пациента</strong> — кнопка справа вверху. Выберите дату/время, введите данные пациента</li>
+                            <li><strong>Фильтры статусов</strong> — Все / Завершено / Запланировано / Отменено. Быстро находите нужные записи</li>
+                            <li><strong>Поиск</strong> — введите ФИО или телефон пациента для моментального поиска</li>
+                            <li><strong>Период дат</strong> — фильтруйте записи по датам (сегодня, неделя, месяц, произвольный период)</li>
+                            <li><strong>Экспорт в Excel</strong> — выгружайте отфильтрованные записи для отчётов</li>
+                          </ul>
+                        </div>
+
+                        <div className="bg-white/60 p-3 rounded-lg">
+                          <p className="font-semibold mb-2">🔧 Действия с записью (меню "⋮"):</p>
+                          <ul className="text-green-700 space-y-1 ml-2 list-disc list-inside">
+                            <li><strong>Завершить</strong> — отметить приём как завершённый, добавить заключение врача</li>
+                            <li><strong>Перенести</strong> — изменить дату/время записи</li>
+                            <li><strong>Отменить</strong> — отменить запись (например, если пациент не пришёл)</li>
+                          </ul>
+                        </div>
+
+                        <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                          <p className="font-semibold mb-1 text-amber-900">💡 Советы по работе:</p>
+                          <ul className="text-amber-800 text-xs space-y-1 ml-2 list-disc list-inside">
+                            <li>После приёма сразу завершайте запись и добавляйте описание — это важно для истории</li>
+                            <li>Используйте фильтр "Запланировано" чтобы видеть только предстоящие приёмы</li>
+                            <li>Экспортируйте записи в конце месяца для ведения статистики</li>
+                            <li>Поиск работает мгновенно — набирайте имя пациента для быстрого доступа</li>
+                          </ul>
+                        </div>
+
+                        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                          <p className="font-semibold mb-1 text-blue-900">📊 Статусы записей:</p>
+                          <div className="text-xs space-y-1 ml-2 text-blue-800">
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full font-medium text-[10px]">Запланировано</span>
+                              <span>— Пациент записан, ожидается приём</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded-full font-medium text-[10px]">Завершено</span>
+                              <span>— Приём состоялся</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 bg-red-100 text-red-800 rounded-full font-medium text-[10px]">Отменено</span>
+                              <span>— Запись отменена</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <div className="flex flex-col gap-3 mb-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                   <h2 className="text-3xl font-bold">Записи пациентов</h2>
