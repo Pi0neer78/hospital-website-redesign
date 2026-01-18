@@ -623,8 +623,6 @@ const Doctor = () => {
     
     setIsLoadingSlots(true);
     setLoadingProgress(0);
-    const stats: {[key: string]: {available: number, booked: number}} = {};
-    
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
@@ -659,17 +657,22 @@ const Doctor = () => {
         const allSlots = data.all_slots?.length || 0;
         const bookedSlots = allSlots - availableSlots;
         
-        stats[dateStr] = {
-          available: availableSlots,
-          booked: bookedSlots
-        };
+        setSlotStats(prev => ({
+          ...prev,
+          [dateStr]: {
+            available: availableSlots,
+            booked: bookedSlots
+          }
+        }));
       } catch (error) {
-        stats[dateStr] = { available: 0, booked: 0 };
+        setSlotStats(prev => ({
+          ...prev,
+          [dateStr]: { available: 0, booked: 0 }
+        }));
       }
       
       const progress = Math.round(((i + 1) / totalDays) * 100);
       setLoadingProgress(progress);
-      setSlotStats({...stats});
     }
     
     setIsLoadingSlots(false);
