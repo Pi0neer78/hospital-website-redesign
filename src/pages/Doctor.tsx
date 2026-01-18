@@ -946,7 +946,15 @@ const Doctor = () => {
   };
 
   const printAppointments = () => {
-    const filtered = getFilteredAppointments();
+    const filtered = appointments.filter((app: any) => {
+      const statusMatch = statusFilter === 'all' || app.status === statusFilter;
+      const dateMatch = app.appointment_date >= dateFilterFrom && app.appointment_date <= dateFilterTo;
+      const searchMatch = searchQuery === '' || 
+        app.patient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        app.patient_phone.includes(searchQuery) ||
+        (app.patient_snils && app.patient_snils.includes(searchQuery));
+      return statusMatch && dateMatch && searchMatch;
+    });
     
     const printContent = `
       <!DOCTYPE html>
