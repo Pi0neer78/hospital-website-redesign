@@ -63,9 +63,14 @@ export function showSlotErrorDialog(errorMessage: string): void {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 99999;
+    z-index: 999999;
     animation: fadeIn 0.2s ease-in;
+    pointer-events: auto;
+    inset: 0;
   `;
+  
+  // Блокируем прокрутку страницы под модалкой
+  document.body.style.overflow = 'hidden';
 
   const dialog = document.createElement('div');
   dialog.style.cssText = `
@@ -131,7 +136,10 @@ export function showSlotErrorDialog(errorMessage: string): void {
   
   const closeDialog = () => {
     overlay.style.animation = 'fadeOut 0.2s ease-out';
-    setTimeout(() => overlay.remove(), 200);
+    setTimeout(() => {
+      overlay.remove();
+      document.body.style.overflow = ''; // Восстанавливаем прокрутку
+    }, 200);
   };
   
   button.addEventListener('mouseenter', () => {
@@ -144,16 +152,27 @@ export function showSlotErrorDialog(errorMessage: string): void {
     button.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
   });
 
-  button.addEventListener('click', closeDialog);
+  button.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    closeDialog();
+  });
 
   overlay.addEventListener('click', (e) => {
+    e.stopPropagation();
     if (e.target === overlay) {
       closeDialog();
     }
   });
 
+  // Блокируем все клики на dialog, чтобы они не проходили дальше
+  dialog.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
   overlay.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      e.preventDefault();
       closeDialog();
     }
   });
