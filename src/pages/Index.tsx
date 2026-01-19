@@ -1834,8 +1834,6 @@ const Index = () => {
               </div>
             </div>
           </div>
-
-          </div>
           
           <div className="flex gap-2 justify-center pt-2 border-t mt-2">
             <Button
