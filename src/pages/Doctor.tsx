@@ -2268,8 +2268,9 @@ const Doctor = () => {
                 </CardContent>
               </Card>
 
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold mb-4">Записи пациентов</h3>
+              <div className="mb-6 flex flex-col" style={{ height: 'calc(100vh - 280px)', minHeight: '500px' }}>
+                <div className="flex-shrink-0">
+                  <h3 className="text-2xl font-bold mb-4">Записи пациентов</h3>
                 
                 <div className="flex gap-2 items-center flex-wrap mb-4">
                   <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-lg border">
@@ -2524,8 +2525,9 @@ const Doctor = () => {
                     </>
                   )}
                 </div>
-              </div>
+                </div>
               
+              <div className="flex-1 overflow-hidden">
               {filteredAppointments.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
@@ -2539,22 +2541,23 @@ const Doctor = () => {
                   </CardContent>
                 </Card>
               ) : (
-                <Card>
-                  <CardContent className="p-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="h-8">
-                          <TableHead className="w-[100px] py-1 px-2 text-xs h-8">Дата</TableHead>
-                          <TableHead className="w-[50px] py-1 px-2 text-xs h-8">Время</TableHead>
-                          <TableHead className="w-[50px] py-1 px-2 text-xs h-8">Завер.</TableHead>
-                          <TableHead className="w-[180px] py-1 px-2 text-xs h-8">Пациент</TableHead>
-                          <TableHead className="py-1 px-2 text-xs h-8">Телефон</TableHead>
-                          <TableHead className="hidden lg:table-cell py-1 px-2 text-xs h-8">СНИЛС</TableHead>
-                          <TableHead className="hidden md:table-cell py-1 px-2 text-xs h-8">Описание</TableHead>
-                          <TableHead className="w-[100px] py-1 px-2 text-xs h-8">Статус</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
+                <Card className="h-full flex flex-col overflow-hidden">
+                  <CardContent className="p-0 flex-1 overflow-auto">
+                    <div className="relative">
+                      <Table>
+                        <TableHeader className="sticky top-0 bg-muted z-10">
+                          <TableRow className="h-8">
+                            <TableHead className="w-[100px] py-1 px-2 text-xs h-8 bg-muted">Дата</TableHead>
+                            <TableHead className="w-[50px] py-1 px-2 text-xs h-8 bg-muted">Время</TableHead>
+                            <TableHead className="w-[50px] py-1 px-2 text-xs h-8 bg-muted">Завер.</TableHead>
+                            <TableHead className="w-[180px] py-1 px-2 text-xs h-8 bg-muted">Пациент</TableHead>
+                            <TableHead className="py-1 px-2 text-xs h-8 bg-muted">Телефон</TableHead>
+                            <TableHead className="hidden lg:table-cell py-1 px-2 text-xs h-8 bg-muted">СНИЛС</TableHead>
+                            <TableHead className="hidden md:table-cell py-1 px-2 text-xs h-8 bg-muted">Описание</TableHead>
+                            <TableHead className="w-[100px] py-1 px-2 text-xs h-8 bg-muted">Статус</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                         {filteredAppointments
                           .sort((a: any, b: any) => {
                             const dateCompare = a.appointment_date.localeCompare(b.appointment_date);
@@ -2623,11 +2626,14 @@ const Doctor = () => {
                               </TableRow>
                             );
                           })}
-                      </TableBody>
-                    </Table>
+                        </TableBody>
+                      </Table>
+                    </div>
                   </CardContent>
                 </Card>
               )}
+              </div>
+              </div>
             </TabsContent>
           </div>
         </section>
