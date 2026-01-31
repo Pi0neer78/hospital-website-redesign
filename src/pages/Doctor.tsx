@@ -26,6 +26,7 @@ const Doctor = () => {
   const [doctorInfo, setDoctorInfo] = useState<any>(null);
   const [loginForm, setLoginForm] = useState({ login: '', password: '' });
   const [schedules, setSchedules] = useState<any[]>([]);
+  const [dailySchedules, setDailySchedules] = useState<any[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [scheduleForm, setScheduleForm] = useState({
     day_of_week: 0,
@@ -35,9 +36,21 @@ const Doctor = () => {
     break_end_time: '',
     slot_duration: 15
   });
+  const [dailyScheduleForm, setDailyScheduleForm] = useState({
+    schedule_date: '',
+    start_time: '08:00',
+    end_time: '17:00',
+    break_start_time: '',
+    break_end_time: '',
+    slot_duration: 15,
+    is_active: true
+  });
   const [isOpen, setIsOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<any>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDailyScheduleOpen, setIsDailyScheduleOpen] = useState(false);
+  const [editingDailySchedule, setEditingDailySchedule] = useState<any>(null);
+  const [isDailyEditOpen, setIsDailyEditOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateFilterFrom, setDateFilterFrom] = useState<string>(() => {
     return new Date().toISOString().split('T')[0];
@@ -216,6 +229,44 @@ const Doctor = () => {
     }
   }, [rescheduleDialog.open]);
 
+  useEffect(() => {
+    if (doctorInfo && dailySchedules.length > 0) {
+      // Проверим, есть ли дни на следующие 2 месяца
+      const today = new Date();
+      const twoMonthsLater = new Date(today);
+      twoMonthsLater.setMonth(today.getMonth() + 2);
+      
+      const existingDates = new Set(dailySchedules.map((s: any) => s.schedule_date));
+      const missingDates: string[] = [];
+      
+      for (let d = new Date(today); d <= twoMonthsLater; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        if (!existingDates.has(dateStr)) {
+          missingDates.push(dateStr);
+        }
+      }
+      
+      // Автоматически создадим недостающие дни с дефолтными параметрами
+      if (missingDates.length > 0 && missingDates.length < 10) {
+        missingDates.forEach(async (date) => {
+          await fetch(API_URLS.schedules, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'daily',
+              doctor_id: doctorInfo.id,
+              schedule_date: date,
+              start_time: '08:00',
+              end_time: '17:00',
+              slot_duration: 15,
+              is_active: false  // По умолчанию выходной
+            }),
+          });
+        });
+      }
+    }
+  }, [dailySchedules, doctorInfo]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -233,6 +284,7 @@ const Doctor = () => {
         setDoctorInfo(data.user);
         setIsAuthenticated(true);
         loadSchedules(data.user.id);
+        loadDailySchedules(data.user.id);
         loadAppointments(data.user.id);
         toast({ title: "Успешный вход", description: `Добро пожаловать, ${data.user.full_name}` });
       } else {
@@ -250,6 +302,20 @@ const Doctor = () => {
       setSchedules(data.schedules || []);
     } catch (error) {
       toast({ title: "Ошибка", description: "Не удалось загрузить расписание", variant: "destructive" });
+    }
+  };
+
+  const loadDailySchedules = async (doctorId: number) => {
+    try {
+      const today = new Date();
+      const twoMonthsLater = new Date(today);
+      twoMonthsLater.setMonth(today.getMonth() + 2);
+      
+      const response = await fetch(`${API_URLS.schedules}?action=daily&doctor_id=${doctorId}&start_date=${today.toISOString().split('T')[0]}&end_date=${twoMonthsLater.toISOString().split('T')[0]}`);
+      const data = await response.json();
+      setDailySchedules(data.daily_schedules || []);
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Не удалось загрузить ежедневное расписание", variant: "destructive" });
     }
   };
 
@@ -509,6 +575,142 @@ const Doctor = () => {
         loadSchedules(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось обновить", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const handleCreateDailySchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const response = await fetch(API_URLS.schedules, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'daily',
+          doctor_id: doctorInfo.id,
+          ...dailyScheduleForm
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        toast({ title: "Успешно", description: "День добавлен в расписание" });
+        setDailyScheduleForm({ schedule_date: '', start_time: '08:00', end_time: '17:00', break_start_time: '', break_end_time: '', slot_duration: 15, is_active: true });
+        setIsDailyScheduleOpen(false);
+        loadDailySchedules(doctorInfo.id);
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось сохранить расписание", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const handleEditDailySchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const response = await fetch(API_URLS.schedules, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'daily',
+          id: editingDailySchedule.id,
+          start_time: editingDailySchedule.start_time,
+          end_time: editingDailySchedule.end_time,
+          break_start_time: editingDailySchedule.break_start_time || null,
+          break_end_time: editingDailySchedule.break_end_time || null,
+          slot_duration: editingDailySchedule.slot_duration || 15
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        toast({ title: "Успешно", description: "Расписание дня обновлено" });
+        setIsDailyEditOpen(false);
+        setEditingDailySchedule(null);
+        loadDailySchedules(doctorInfo.id);
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось обновить", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const handleToggleDailyActive = async (scheduleId: number, currentStatus: boolean) => {
+    try {
+      const response = await fetch(API_URLS.schedules, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'daily',
+          id: scheduleId,
+          is_active: !currentStatus
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        toast({ title: "Успешно", description: currentStatus ? "День деактивирован" : "День активирован" });
+        loadDailySchedules(doctorInfo.id);
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось изменить статус", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const handleCopyDailySchedule = async (sourceSchedule: any, targetDates: string[]) => {
+    try {
+      const promises = targetDates.map(date => 
+        fetch(API_URLS.schedules, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'daily',
+            doctor_id: doctorInfo.id,
+            schedule_date: date,
+            start_time: sourceSchedule.start_time,
+            end_time: sourceSchedule.end_time,
+            break_start_time: sourceSchedule.break_start_time,
+            break_end_time: sourceSchedule.break_end_time,
+            slot_duration: sourceSchedule.slot_duration,
+            is_active: true
+          }),
+        })
+      );
+      
+      await Promise.all(promises);
+      toast({ title: "Успешно", description: `Расписание скопировано на ${targetDates.length} дней` });
+      loadDailySchedules(doctorInfo.id);
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с копированием расписания", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteDailySchedule = async (scheduleId: number) => {
+    if (!confirm('Вы уверены, что хотите удалить этот день из расписания?')) return;
+    
+    try {
+      const response = await fetch(`${API_URLS.schedules}?action=daily&id=${scheduleId}`, {
+        method: 'DELETE',
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        toast({ title: "Успешно", description: "День удален из расписания" });
+        loadDailySchedules(doctorInfo.id);
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось удалить", variant: "destructive" });
       }
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
@@ -1782,6 +1984,47 @@ const Doctor = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold">Рабочее расписание</h2>
                 <div className="flex gap-2">
+                  {dailySchedules.length === 0 && (
+                    <Button
+                      size="lg"
+                      variant="secondary"
+                      onClick={async () => {
+                        const today = new Date();
+                        const twoMonthsLater = new Date(today);
+                        twoMonthsLater.setMonth(today.getMonth() + 2);
+                        
+                        const dates: string[] = [];
+                        for (let d = new Date(today); d <= twoMonthsLater; d.setDate(d.getDate() + 1)) {
+                          dates.push(d.toISOString().split('T')[0]);
+                        }
+                        
+                        toast({ title: "Генерация расписания", description: `Создаём ${dates.length} дней...` });
+                        
+                        for (const date of dates) {
+                          await fetch(API_URLS.schedules, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              action: 'daily',
+                              doctor_id: doctorInfo.id,
+                              schedule_date: date,
+                              start_time: '08:00',
+                              end_time: '17:00',
+                              slot_duration: 15,
+                              is_active: false
+                            }),
+                          });
+                        }
+                        
+                        toast({ title: "Готово", description: "Дни созданы. Теперь активируйте нужные дни." });
+                        loadDailySchedules(doctorInfo.id);
+                      }}
+                      title="Автоматически создать дни на 2 месяца вперед"
+                    >
+                      <Icon name="Calendar" size={20} className="mr-2" />
+                      Сгенерировать дни на 2 месяца
+                    </Button>
+                  )}
                   <Dialog open={bulkSlotDialogOpen} onOpenChange={setBulkSlotDialogOpen}>
                     <DialogTrigger asChild>
                       <Button 
@@ -1828,7 +2071,7 @@ const Doctor = () => {
                       </div>
                     </DialogContent>
                   </Dialog>
-                  <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                  <Dialog open={isDailyScheduleOpen} onOpenChange={setIsDailyScheduleOpen}>
                     <DialogTrigger asChild>
                       <Button 
                         size="lg"
@@ -1840,30 +2083,28 @@ const Doctor = () => {
                     </DialogTrigger>
                     <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Установить рабочий день</DialogTitle>
+                      <DialogTitle>Добавить рабочий день</DialogTitle>
                       <DialogDescription>
-                        Настройте индивидуальное расписание и перерыв для выбранного дня недели
+                        Настройте индивидуальное расписание для конкретной даты
                       </DialogDescription>
                     </DialogHeader>
-                    <form onSubmit={handleCreateSchedule} className="space-y-4">
+                    <form onSubmit={handleCreateDailySchedule} className="space-y-4">
                       <div>
-                        <label className="text-sm font-medium mb-2 block">День недели</label>
-                        <select 
-                          className="w-full border rounded-md p-2"
-                          value={scheduleForm.day_of_week}
-                          onChange={(e) => setScheduleForm({ ...scheduleForm, day_of_week: parseInt(e.target.value) })}
-                        >
-                          {DAYS_OF_WEEK.map((day, index) => (
-                            <option key={index} value={index}>{day}</option>
-                          ))}
-                        </select>
+                        <label className="text-sm font-medium mb-2 block">Дата</label>
+                        <Input
+                          type="date"
+                          value={dailyScheduleForm.schedule_date}
+                          min={new Date().toISOString().split('T')[0]}
+                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, schedule_date: e.target.value })}
+                          required
+                        />
                       </div>
                       <div>
                         <label className="text-sm font-medium mb-2 block">Время начала</label>
                         <Input
                           type="time"
-                          value={scheduleForm.start_time}
-                          onChange={(e) => setScheduleForm({ ...scheduleForm, start_time: e.target.value })}
+                          value={dailyScheduleForm.start_time}
+                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, start_time: e.target.value })}
                           required
                         />
                       </div>
@@ -1871,8 +2112,8 @@ const Doctor = () => {
                         <label className="text-sm font-medium mb-2 block">Время окончания</label>
                         <Input
                           type="time"
-                          value={scheduleForm.end_time}
-                          onChange={(e) => setScheduleForm({ ...scheduleForm, end_time: e.target.value })}
+                          value={dailyScheduleForm.end_time}
+                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, end_time: e.target.value })}
                           required
                         />
                       </div>
@@ -1883,8 +2124,8 @@ const Doctor = () => {
                           min="1"
                           max="120"
                           step="1"
-                          value={scheduleForm.slot_duration}
-                          onChange={(e) => setScheduleForm({ ...scheduleForm, slot_duration: parseInt(e.target.value) || 15 })}
+                          value={dailyScheduleForm.slot_duration}
+                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, slot_duration: parseInt(e.target.value) || 15 })}
                           required
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -1898,16 +2139,16 @@ const Doctor = () => {
                             <label className="text-xs text-muted-foreground mb-1 block">Начало перерыва</label>
                             <Input
                               type="time"
-                              value={scheduleForm.break_start_time}
-                              onChange={(e) => setScheduleForm({ ...scheduleForm, break_start_time: e.target.value })}
+                              value={dailyScheduleForm.break_start_time}
+                              onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, break_start_time: e.target.value })}
                             />
                           </div>
                           <div>
                             <label className="text-xs text-muted-foreground mb-1 block">Конец перерыва</label>
                             <Input
                               type="time"
-                              value={scheduleForm.break_end_time}
-                              onChange={(e) => setScheduleForm({ ...scheduleForm, break_end_time: e.target.value })}
+                              value={dailyScheduleForm.break_end_time}
+                              onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, break_end_time: e.target.value })}
                             />
                           </div>
                         </div>
@@ -2088,100 +2329,166 @@ const Doctor = () => {
                 </DialogContent>
               </Dialog>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                {schedules.length === 0 ? (
-                  <Card className="col-span-full">
-                    <CardContent className="py-8 text-center text-muted-foreground">
-                      Расписание не установлено. Добавьте рабочие дни.
-                    </CardContent>
-                  </Card>
-                ) : (
-                  schedules.map((schedule: any) => (
-                    <Card key={schedule.id} className={!schedule.is_active ? 'opacity-60' : ''}>
-                      <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center justify-between text-base">
-                          <div className="flex items-center gap-2">
-                            <Icon name="Calendar" size={18} className="text-primary" />
-                            <span className="font-semibold">{DAYS_OF_WEEK[schedule.day_of_week]}</span>
+              <Dialog open={isDailyEditOpen} onOpenChange={setIsDailyEditOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Изменить расписание дня</DialogTitle>
+                  </DialogHeader>
+                  {editingDailySchedule && (
+                    <form onSubmit={handleEditDailySchedule} className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Дата</label>
+                        <Input
+                          value={new Date(editingDailySchedule.schedule_date + 'T00:00:00').toLocaleDateString('ru-RU')}
+                          disabled
+                          className="bg-muted"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Время начала</label>
+                        <Input
+                          type="time"
+                          value={editingDailySchedule.start_time?.slice(0, 5) || '08:00'}
+                          onChange={(e) => setEditingDailySchedule({ ...editingDailySchedule, start_time: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Время окончания</label>
+                        <Input
+                          type="time"
+                          value={editingDailySchedule.end_time?.slice(0, 5) || '17:00'}
+                          onChange={(e) => setEditingDailySchedule({ ...editingDailySchedule, end_time: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Длительность слота (минуты)</label>
+                        <Input
+                          type="number"
+                          min="1"
+                          max="120"
+                          step="1"
+                          value={editingDailySchedule.slot_duration || 15}
+                          onChange={(e) => setEditingDailySchedule({ ...editingDailySchedule, slot_duration: parseInt(e.target.value) || 15 })}
+                          required
+                        />
+                      </div>
+                      <div className="border-t pt-4">
+                        <label className="text-sm font-medium mb-2 block">Перерыв (необязательно)</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Начало перерыва</label>
+                            <Input
+                              type="time"
+                              value={editingDailySchedule.break_start_time?.slice(0, 5) || ''}
+                              onChange={(e) => setEditingDailySchedule({ ...editingDailySchedule, break_start_time: e.target.value })}
+                            />
                           </div>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                            schedule.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                          }`}>
-                            {schedule.is_active ? 'Активно' : 'Неактивно'}
-                          </span>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Icon name="Clock" size={14} className="text-primary" />
-                            <p className="text-sm font-medium">
-                              {schedule.start_time.slice(0, 5)} - {schedule.end_time.slice(0, 5)}
-                            </p>
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Конец перерыва</label>
+                            <Input
+                              type="time"
+                              value={editingDailySchedule.break_end_time?.slice(0, 5) || ''}
+                              onChange={(e) => setEditingDailySchedule({ ...editingDailySchedule, break_end_time: e.target.value })}
+                            />
                           </div>
-                          <div className="flex items-center gap-2 bg-blue-50 px-2 py-1 rounded">
-                            <Icon name="Timer" size={14} className="text-blue-600" />
-                            <p className="text-xs text-blue-900 font-medium">
-                              Слот: {schedule.slot_duration || 15} мин
-                            </p>
-                          </div>
-                          {schedule.break_start_time && schedule.break_end_time ? (
-                            <div className="flex items-center gap-2 bg-orange-50 px-2 py-1 rounded">
-                              <Icon name="Coffee" size={14} className="text-orange-600" />
-                              <p className="text-xs text-orange-900 font-medium">
-                                Перерыв: {schedule.break_start_time.slice(0, 5)} - {schedule.break_end_time.slice(0, 5)}
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-[10px] text-muted-foreground ml-5">Без перерыва</p>
-                          )}
                         </div>
-                        <div className="grid grid-cols-2 gap-1">
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => {
-                              setEditingSchedule(schedule);
-                              setIsEditOpen(true);
-                            }}
-                            className="h-8 text-xs"
-                            title="Изменить время приема, слот или перерыв"
-                          >
-                            <Icon name="Edit" size={14} />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="secondary"
-                            onClick={() => handleCopySchedule(schedule)}
-                            className="h-8 text-xs"
-                            title="Копировать расписание на другие дни"
-                          >
-                            <Icon name="Copy" size={14} />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant={schedule.is_active ? "outline" : "default"}
-                            onClick={() => handleToggleActive(schedule.id, schedule.is_active)}
-                            className="h-8 text-xs"
-                            title={schedule.is_active ? "Деактивировать день (запись будет недоступна)" : "Активировать день (разрешить запись)"}
-                          >
-                            <Icon name={schedule.is_active ? "PauseCircle" : "PlayCircle"} size={14} />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="destructive"
-                            onClick={() => handleDeleteSchedule(schedule.id)}
-                            className="h-8 text-xs"
-                            title="Удалить день из расписания"
-                          >
-                            <Icon name="Trash2" size={14} />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                )}
-              </div>
+                      </div>
+                      <Button type="submit" className="w-full">Сохранить изменения</Button>
+                    </form>
+                  )}
+                </DialogContent>
+              </Dialog>
+
+              {dailySchedules.length === 0 ? (
+                <Card>
+                  <CardContent className="py-8 text-center text-muted-foreground">
+                    Расписание не установлено. Добавьте рабочие дни.
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[140px]">Дата</TableHead>
+                          <TableHead className="w-[100px]">День недели</TableHead>
+                          <TableHead className="w-[100px]">Статус</TableHead>
+                          <TableHead className="w-[120px]">Время с — по</TableHead>
+                          <TableHead className="w-[100px]">Слот (мин)</TableHead>
+                          <TableHead className="w-[120px]">Перерыв</TableHead>
+                          <TableHead className="text-right">Действия</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {dailySchedules.map((schedule: any) => {
+                          const dateObj = new Date(schedule.schedule_date + 'T00:00:00');
+                          const dayName = dateObj.toLocaleDateString('ru-RU', { weekday: 'short' });
+                          const dateFormatted = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+                          
+                          return (
+                            <TableRow key={schedule.id} className={!schedule.is_active ? 'opacity-50' : ''}>
+                              <TableCell className="font-medium">{dateFormatted}</TableCell>
+                              <TableCell className="capitalize">{dayName}</TableCell>
+                              <TableCell>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  schedule.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                                }`}>
+                                  {schedule.is_active ? 'Активно' : 'Выходной'}
+                                </span>
+                              </TableCell>
+                              <TableCell>{schedule.start_time.slice(0, 5)} — {schedule.end_time.slice(0, 5)}</TableCell>
+                              <TableCell>{schedule.slot_duration}</TableCell>
+                              <TableCell>
+                                {schedule.break_start_time && schedule.break_end_time 
+                                  ? `${schedule.break_start_time.slice(0, 5)} — ${schedule.break_end_time.slice(0, 5)}`
+                                  : '—'
+                                }
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex gap-1 justify-end">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => {
+                                      setEditingDailySchedule(schedule);
+                                      setIsDailyEditOpen(true);
+                                    }}
+                                    title="Изменить параметры дня"
+                                  >
+                                    <Icon name="Edit" size={14} />
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="secondary"
+                                    onClick={() => {
+                                      // TODO: Implement copy dialog
+                                      toast({ title: "В разработке", description: "Копирование дня скоро будет доступно" });
+                                    }}
+                                    title="Копировать на другие дни"
+                                  >
+                                    <Icon name="Copy" size={14} />
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant={schedule.is_active ? "outline" : "default"}
+                                    onClick={() => handleToggleDailyActive(schedule.id, schedule.is_active)}
+                                    title={schedule.is_active ? "Деактивировать" : "Активировать"}
+                                  >
+                                    <Icon name={schedule.is_active ? "PauseCircle" : "PlayCircle"} size={14} />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             <TabsContent value="appointments" className="mt-6">
