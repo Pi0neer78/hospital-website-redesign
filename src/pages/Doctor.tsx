@@ -149,6 +149,7 @@ const Doctor = () => {
     patientName: string;
     patientPhone: string;
     patientSnils: string;
+    patientOms: string;
     description: string;
     availableSlots: string[];
   }>({
@@ -158,6 +159,7 @@ const Doctor = () => {
     patientName: '',
     patientPhone: '',
     patientSnils: '',
+    patientOms: '',
     description: '',
     availableSlots: []
   });
@@ -1348,6 +1350,7 @@ const Doctor = () => {
           patient_name: newAppointmentDialog.patientName,
           patient_phone: newAppointmentDialog.patientPhone,
           patient_snils: newAppointmentDialog.patientSnils,
+          patient_oms: newAppointmentDialog.patientOms,
           appointment_date: newAppointmentDialog.date,
           appointment_time: newAppointmentDialog.time,
           description: newAppointmentDialog.description
@@ -1367,6 +1370,7 @@ const Doctor = () => {
           patient_name: newAppointmentDialog.patientName,
           patient_phone: newAppointmentDialog.patientPhone,
           patient_snils: newAppointmentDialog.patientSnils,
+          patient_oms: newAppointmentDialog.patientOms,
           appointment_date: newAppointmentDialog.date,
           appointment_time: newAppointmentDialog.time,
           description: newAppointmentDialog.description
@@ -1379,6 +1383,7 @@ const Doctor = () => {
           patientName: '',
           patientPhone: '',
           patientSnils: '',
+          patientOms: '',
           description: '',
           availableSlots: []
         });
@@ -1407,6 +1412,7 @@ const Doctor = () => {
         'ФИО пациента': app.patient_name,
         'Телефон': app.patient_phone,
         'СНИЛС': app.patient_snils || '—',
+        'ОМС': app.patient_oms || '—',
         'Описание': app.description || '—',
         'Статус': app.status === 'scheduled' ? 'Запланировано' : 
                   app.status === 'completed' ? 'Завершено' : 'Отменено',
@@ -3352,14 +3358,31 @@ const Doctor = () => {
               </div>
 
               <div>
-                <label className="text-xs font-medium mb-1 block">Описание</label>
+                <label className="text-xs font-medium mb-1 block">ОМС</label>
                 <Input
-                  value={newAppointmentDialog.description}
-                  onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, description: e.target.value})}
-                  placeholder="Краткое описание"
+                  value={newAppointmentDialog.patientOms}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 16) value = value.slice(0, 16);
+                    if (value.length >= 4) value = value.slice(0, 4) + '-' + value.slice(4);
+                    if (value.length >= 9) value = value.slice(0, 9) + '-' + value.slice(9);
+                    if (value.length >= 14) value = value.slice(0, 14) + '-' + value.slice(14);
+                    setNewAppointmentDialog({...newAppointmentDialog, patientOms: value});
+                  }}
+                  placeholder="1234-5678-9012-3456"
                   className="h-9 text-sm"
+                  maxLength={19}
                 />
               </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1 block">Описание</label>
+              <Input
+                value={newAppointmentDialog.description}
+                onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, description: e.target.value})}
+                placeholder="Краткое описание"
+                className="h-9 text-sm"
+              />
             </div>
 
             <div className="flex gap-2 pt-1">

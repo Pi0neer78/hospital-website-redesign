@@ -33,7 +33,8 @@ const Index = () => {
   const [appointmentForm, setAppointmentForm] = useState({ 
     patient_name: '', 
     patient_phone: '',
-    patient_snils: '', 
+    patient_snils: '',
+    patient_oms: '', 
     appointment_time: '',
     description: '' 
   });
@@ -387,11 +388,12 @@ const Index = () => {
           patient_name: appointmentForm.patient_name,
           patient_phone: appointmentForm.patient_phone,
           patient_snils: appointmentForm.patient_snils,
+          patient_oms: appointmentForm.patient_oms,
           description: appointmentForm.description
         });
         setShowSuccessModal(true);
         setIsAppointmentOpen(false);
-        setAppointmentForm({ patient_name: '', patient_phone: '', patient_snils: '', appointment_time: '', description: '' });
+        setAppointmentForm({ patient_name: '', patient_phone: '', patient_snils: '', patient_oms: '', appointment_time: '', description: '' });
         setSelectedDate('');
         setSelectedDoctor(null);
         setSelectedClinic(null);
@@ -1000,6 +1002,20 @@ const Index = () => {
                                 setAppointmentForm({ ...appointmentForm, patient_snils: value });
                               }}
                               maxLength={14}
+                            />
+                            <Input
+                              placeholder="ОМС (1234-5678-9012-3456, необязательно)"
+                              type="text"
+                              value={appointmentForm.patient_oms}
+                              onChange={(e) => {
+                                let value = e.target.value.replace(/\D/g, '');
+                                if (value.length > 16) value = value.slice(0, 16);
+                                if (value.length >= 4) value = value.slice(0, 4) + '-' + value.slice(4);
+                                if (value.length >= 9) value = value.slice(0, 9) + '-' + value.slice(9);
+                                if (value.length >= 14) value = value.slice(0, 14) + '-' + value.slice(14);
+                                setAppointmentForm({ ...appointmentForm, patient_oms: value });
+                              }}
+                              maxLength={19}
                             />
                             <Textarea
                               placeholder="Краткое описание проблемы (необязательно)"

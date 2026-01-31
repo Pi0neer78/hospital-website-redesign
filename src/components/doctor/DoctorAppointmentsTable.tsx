@@ -30,7 +30,8 @@ const DoctorAppointmentsTable = ({ doctorInfo, appointments, onRefresh, toast }:
     const searchMatch = searchQuery === '' || 
       app.patient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.patient_phone.includes(searchQuery) ||
-      (app.patient_snils && app.patient_snils.includes(searchQuery));
+      (app.patient_snils && app.patient_snils.includes(searchQuery)) ||
+      (app.patient_oms && app.patient_oms.includes(searchQuery));
     return statusMatch && dateMatch && searchMatch;
   });
 
@@ -50,6 +51,7 @@ const DoctorAppointmentsTable = ({ doctorInfo, appointments, onRefresh, toast }:
         'ФИО пациента': app.patient_name,
         'Телефон': app.patient_phone,
         'СНИЛС': app.patient_snils || '—',
+        'ОМС': app.patient_oms || '—',
         'Описание': app.description || '—',
         'Статус': app.status === 'scheduled' ? 'Запланировано' : 
                   app.status === 'completed' ? 'Завершено' : 'Отменено',
@@ -106,7 +108,7 @@ const DoctorAppointmentsTable = ({ doctorInfo, appointments, onRefresh, toast }:
 
           <Input
             type="text"
-            placeholder="Поиск по имени, телефону, СНИЛС..."
+            placeholder="Поиск по имени, телефону, СНИЛС, ОМС..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-64"
@@ -166,6 +168,7 @@ const DoctorAppointmentsTable = ({ doctorInfo, appointments, onRefresh, toast }:
                   <TableHead>Пациент</TableHead>
                   <TableHead>Телефон</TableHead>
                   <TableHead>СНИЛС</TableHead>
+                  <TableHead>ОМС</TableHead>
                   <TableHead>Примечание</TableHead>
                   <TableHead>Статус</TableHead>
                   <TableHead className="text-right">Действия</TableHead>
@@ -203,6 +206,7 @@ const DoctorAppointmentsTable = ({ doctorInfo, appointments, onRefresh, toast }:
                           </a>
                         </TableCell>
                         <TableCell className="text-sm">{appointment.patient_snils || '—'}</TableCell>
+                        <TableCell className="text-sm">{appointment.patient_oms || '—'}</TableCell>
                         <TableCell className="max-w-xs truncate text-sm">{appointment.description || '—'}</TableCell>
                         <TableCell>
                           {appointment.status === 'completed' && (
