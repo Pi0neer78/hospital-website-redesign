@@ -1518,6 +1518,7 @@ const Doctor = () => {
               <th>Пациент</th>
               <th>Телефон</th>
               <th>СНИЛС</th>
+              <th>ОМС</th>
               <th>Статус</th>
               <th>Описание</th>
             </tr>
@@ -1531,6 +1532,7 @@ const Doctor = () => {
                 <td>${app.patient_name}</td>
                 <td>${app.patient_phone}</td>
                 <td>${app.patient_snils || '—'}</td>
+                <td>${app.patient_oms || '—'}</td>
                 <td class="status-${app.status}">
                   ${app.status === 'scheduled' ? 'Запланировано' : 
                     app.status === 'completed' ? 'Завершено' : 'Отменено'}
@@ -1599,7 +1601,8 @@ const Doctor = () => {
     const searchMatch = searchQuery === '' || 
       app.patient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.patient_phone.includes(searchQuery) ||
-      (app.patient_snils && app.patient_snils.includes(searchQuery));
+      (app.patient_snils && app.patient_snils.includes(searchQuery)) ||
+      (app.patient_oms && app.patient_oms.includes(searchQuery));
     return statusMatch && dateMatch && searchMatch;
   });
 
@@ -2648,7 +2651,7 @@ const Doctor = () => {
                     <Icon name="Search" size={14} className="text-muted-foreground" />
                     <Input
                       type="text"
-                      placeholder="Поиск по ФИО или телефону..."
+                      placeholder="Поиск по ФИО, телефону, СНИЛС, ОМС..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="h-7 w-[200px] text-xs"
@@ -2924,6 +2927,7 @@ const Doctor = () => {
                             <TableHead className="w-[180px] py-1 px-2 text-xs h-8 bg-muted">Пациент</TableHead>
                             <TableHead className="py-1 px-2 text-xs h-8 bg-muted">Телефон</TableHead>
                             <TableHead className="hidden lg:table-cell py-1 px-2 text-xs h-8 bg-muted">СНИЛС</TableHead>
+                            <TableHead className="hidden lg:table-cell py-1 px-2 text-xs h-8 bg-muted">ОМС</TableHead>
                             <TableHead className="hidden md:table-cell py-1 px-2 text-xs h-8 bg-muted">Описание</TableHead>
                             <TableHead className="w-[100px] py-1 px-2 text-xs h-8 bg-muted">Статус</TableHead>
                           </TableRow>
@@ -2979,6 +2983,7 @@ const Doctor = () => {
                                 }`}>{appointment.patient_name}</TableCell>
                                 <TableCell className="text-xs py-1 px-2 h-8">{appointment.patient_phone}</TableCell>
                                 <TableCell className="hidden lg:table-cell text-xs py-1 px-2 h-8">{appointment.patient_snils || '—'}</TableCell>
+                                <TableCell className="hidden lg:table-cell text-xs py-1 px-2 h-8">{appointment.patient_oms || '—'}</TableCell>
                                 <TableCell className="hidden md:table-cell text-xs text-muted-foreground py-1 px-2 h-8">
                                   {appointment.description || '—'}
                                 </TableCell>
