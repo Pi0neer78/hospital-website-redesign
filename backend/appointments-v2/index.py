@@ -15,6 +15,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     POST / - создать запись
     POST {action: "log", doctor_id, action_type, details} - записать действие в журнал
     PUT / - обновить статус записи
+    PUT {action: "update_patient_info"} - обновить данные пациента (ФИО, телефон, СНИЛС, ОМС, описание)
     DELETE /?id=X - удалить запись
     """
     method = event.get('httpMethod', 'GET')
@@ -393,6 +394,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif method == 'PUT':
             body = json.loads(event.get('body', '{}'))
+            action = body.get('action')
             appointment_id = body.get('id')
             status = body.get('status')
             description = body.get('description')
@@ -409,6 +411,49 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cursor = conn.cursor(cursor_factory=RealDictCursor)
+            
+            # Обновление данных пациента
+            if action == 'update_patient_info':
+                patient_name = body.get('patient_name')
+                patient_phone = body.get('patient_phone')
+                patient_snils = body.get('patient_snils')
+                patient_oms = body.get('patient_oms')
+                new_description = body.get('description')
+                
+                if not patient_name or not patient_phone:
+                    cursor.close()
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'patient_name and patient_phone are required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    """UPDATE appointments_v2 
+                       SET patient_name = %s, patient_phone = %s, patient_snils = %s, 
+                           patient_oms = %s, description = %s 
+                       WHERE id = %s RETURNING *""",
+                    (patient_name, patient_phone, patient_snils, patient_oms, new_description, appointment_id)
+                )
+                appointment = cursor.fetchone()
+                conn.commit()
+                cursor.close()
+                
+                if not appointment:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Appointment not found'}),
+                        'isBase64Encoded': False
+                    }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'appointment': appointment}, default=str),
+                    'isBase64Encoded': False
+                }
             
             # Перенос записи на новую дату/время
             if appointment_date is not None and appointment_time is not None:

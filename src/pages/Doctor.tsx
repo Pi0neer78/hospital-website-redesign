@@ -186,6 +186,24 @@ const Doctor = () => {
     availableDates: []
   });
 
+  const [editAppointmentDialog, setEditAppointmentDialog] = useState<{
+    open: boolean;
+    appointmentId: number | null;
+    patientName: string;
+    patientPhone: string;
+    patientSnils: string;
+    patientOms: string;
+    description: string;
+  }>({
+    open: false,
+    appointmentId: null,
+    patientName: '',
+    patientPhone: '',
+    patientSnils: '',
+    patientOms: '',
+    description: ''
+  });
+
   useEffect(() => {
     const auth = localStorage.getItem('doctor_auth');
     if (auth) {
@@ -1315,6 +1333,82 @@ const Doctor = () => {
         loadAppointments(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось перенести запись", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
+    }
+  };
+
+  const openEditAppointmentDialog = (appointment: any) => {
+    setEditAppointmentDialog({
+      open: true,
+      appointmentId: appointment.id,
+      patientName: appointment.patient_name,
+      patientPhone: appointment.patient_phone,
+      patientSnils: appointment.patient_snils || '',
+      patientOms: appointment.patient_oms || '',
+      description: appointment.description || ''
+    });
+  };
+
+  const handleEditAppointment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!editAppointmentDialog.patientName || !editAppointmentDialog.patientPhone) {
+      toast({ title: "Ошибка", description: "ФИО и телефон обязательны", variant: "destructive" });
+      return;
+    }
+
+    const phonePattern = /^\+?[0-9\s\-()]{10,}$/;
+    if (!phonePattern.test(editAppointmentDialog.patientPhone)) {
+      toast({ title: "Ошибка", description: "Некорректный формат телефона", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const response = await fetch(API_URLS.appointments, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_patient_info',
+          id: editAppointmentDialog.appointmentId,
+          patient_name: editAppointmentDialog.patientName,
+          patient_phone: editAppointmentDialog.patientPhone,
+          patient_snils: editAppointmentDialog.patientSnils || null,
+          patient_oms: editAppointmentDialog.patientOms || null,
+          description: editAppointmentDialog.description || null
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        await logAction('Редактирование данных пациента', {
+          appointment_id: editAppointmentDialog.appointmentId,
+          patient_name: editAppointmentDialog.patientName,
+          patient_phone: editAppointmentDialog.patientPhone,
+          patient_snils: editAppointmentDialog.patientSnils,
+          patient_oms: editAppointmentDialog.patientOms,
+          description: editAppointmentDialog.description
+        });
+
+        toast({ 
+          title: "Успешно", 
+          description: "Данные пациента обновлены" 
+        });
+        
+        setEditAppointmentDialog({
+          open: false,
+          appointmentId: null,
+          patientName: '',
+          patientPhone: '',
+          patientSnils: '',
+          patientOms: '',
+          description: ''
+        });
+        loadAppointments(doctorInfo.id);
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось обновить данные", variant: "destructive" });
       }
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
@@ -2851,6 +2945,15 @@ const Doctor = () => {
                             variant="outline"
                             size="sm"
                             className="h-8 text-xs gap-1.5"
+                            onClick={() => openEditAppointmentDialog(selectedAppointment)}
+                          >
+                            <Icon name="Edit" size={14} className="text-orange-600" />
+                            Редактировать
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs gap-1.5"
                             onClick={() => openRescheduleDialog(selectedAppointment)}
                           >
                             <Icon name="Calendar" size={14} className="text-purple-600" />
@@ -3415,6 +3518,104 @@ const Doctor = () => {
               >
                 <Icon name="UserPlus" size={16} className="mr-2" />
                 Записать
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editAppointmentDialog.open} onOpenChange={(open) => setEditAppointmentDialog({...editAppointmentDialog, open})}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Редактировать данные пациента</DialogTitle>
+            <DialogDescription>
+              Измените информацию о пациенте для этой записи
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditAppointment} className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">ФИО пациента *</label>
+              <Input
+                value={editAppointmentDialog.patientName}
+                onChange={(e) => setEditAppointmentDialog({...editAppointmentDialog, patientName: e.target.value})}
+                placeholder="Иванов Иван Иванович"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Телефон *</label>
+              <Input
+                value={editAppointmentDialog.patientPhone}
+                onChange={(e) => setEditAppointmentDialog({...editAppointmentDialog, patientPhone: e.target.value})}
+                placeholder="+7 (900) 123-45-67"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">СНИЛС</label>
+              <Input
+                value={editAppointmentDialog.patientSnils}
+                onChange={(e) => {
+                  let value = e.target.value.replace(/\D/g, '');
+                  if (value.length > 11) value = value.slice(0, 11);
+                  if (value.length > 3) value = value.slice(0, 3) + '-' + value.slice(3);
+                  if (value.length > 7) value = value.slice(0, 7) + '-' + value.slice(7);
+                  if (value.length > 11) value = value.slice(0, 11) + ' ' + value.slice(11);
+                  setEditAppointmentDialog({...editAppointmentDialog, patientSnils: value});
+                }}
+                placeholder="123-456-789 00"
+                maxLength={14}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Полис ОМС</label>
+              <Input
+                value={editAppointmentDialog.patientOms}
+                onChange={(e) => {
+                  let value = e.target.value.replace(/\D/g, '');
+                  if (value.length > 16) value = value.slice(0, 16);
+                  if (value.length > 4) value = value.slice(0, 4) + '-' + value.slice(4);
+                  if (value.length > 9) value = value.slice(0, 9) + '-' + value.slice(9);
+                  if (value.length > 14) value = value.slice(0, 14) + '-' + value.slice(14);
+                  setEditAppointmentDialog({...editAppointmentDialog, patientOms: value});
+                }}
+                placeholder="1234-5678-9012-3456"
+                maxLength={19}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Описание проблемы</label>
+              <Textarea
+                value={editAppointmentDialog.description}
+                onChange={(e) => setEditAppointmentDialog({...editAppointmentDialog, description: e.target.value})}
+                placeholder="Опишите причину обращения..."
+                rows={3}
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button 
+                type="button"
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setEditAppointmentDialog({
+                  open: false,
+                  appointmentId: null,
+                  patientName: '',
+                  patientPhone: '',
+                  patientSnils: '',
+                  patientOms: '',
+                  description: ''
+                })}
+              >
+                Отмена
+              </Button>
+              <Button type="submit" className="flex-1">
+                Сохранить
               </Button>
             </div>
           </form>
