@@ -5,8 +5,8 @@
       "method": "POST",
       "path": "/",
       "body": {
-        "login": "admin",
-        "password": "admin123",
+        "login": "Pioneer78",
+        "password": "Tytparol1!",
         "type": "admin"
       },
       "expectedStatus": 200,

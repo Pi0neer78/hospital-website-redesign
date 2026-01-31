@@ -1,6 +1,7 @@
 import json
 import os
 import psycopg2
+import bcrypt
 from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
 
@@ -54,23 +55,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if user_type == 'admin':
                 cursor.execute(
-                    "SELECT id, login, full_name FROM admins WHERE login = %s AND password_hash = %s",
-                    (login, password)
+                    "SELECT id, login, full_name, password_hash FROM admins WHERE login = %s",
+                    (login,)
                 )
                 user = cursor.fetchone()
                 
                 if user:
-                    cursor.close()
-                    return {
-                        'statusCode': 200,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({
-                            'success': True,
-                            'user': dict(user),
-                            'type': 'admin'
-                        }),
-                        'isBase64Encoded': False
-                    }
+                    # Проверка пароля через bcrypt
+                    try:
+                        password_match = bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8'))
+                    except:
+                        password_match = False
+                    
+                    if password_match:
+                        cursor.close()
+                        return {
+                            'statusCode': 200,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({
+                                'success': True,
+                                'user': {'id': user['id'], 'login': user['login'], 'full_name': user['full_name']},
+                                'type': 'admin'
+                            }),
+                            'isBase64Encoded': False
+                        }
             
             elif user_type == 'doctor':
                 cursor.execute(
