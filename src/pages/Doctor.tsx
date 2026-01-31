@@ -3541,7 +3541,7 @@ const Doctor = () => {
             <div>
               <label className="text-sm font-medium mb-2 block">ФИО пациента *</label>
               <Input
-                value={editAppointmentDialog.patientName}
+                value={editAppointmentDialog.patientName || ''}
                 onChange={(e) => setEditAppointmentDialog({...editAppointmentDialog, patientName: e.target.value})}
                 placeholder="Иванов Иван Иванович"
                 required
@@ -3551,7 +3551,7 @@ const Doctor = () => {
             <div>
               <label className="text-sm font-medium mb-2 block">Телефон *</label>
               <Input
-                value={editAppointmentDialog.patientPhone}
+                value={editAppointmentDialog.patientPhone || ''}
                 onChange={(e) => setEditAppointmentDialog({...editAppointmentDialog, patientPhone: e.target.value})}
                 placeholder="+7 (900) 123-45-67"
                 required
@@ -3561,7 +3561,7 @@ const Doctor = () => {
             <div>
               <label className="text-sm font-medium mb-2 block">СНИЛС</label>
               <Input
-                value={editAppointmentDialog.patientSnils}
+                value={editAppointmentDialog.patientSnils || ''}
                 onChange={(e) => {
                   let value = e.target.value.replace(/\D/g, '');
                   if (value.length > 11) value = value.slice(0, 11);
@@ -3578,7 +3578,7 @@ const Doctor = () => {
             <div>
               <label className="text-sm font-medium mb-2 block">Полис ОМС</label>
               <Input
-                value={editAppointmentDialog.patientOms}
+                value={editAppointmentDialog.patientOms || ''}
                 onChange={(e) => {
                   let value = e.target.value.replace(/\D/g, '');
                   if (value.length > 16) value = value.slice(0, 16);
@@ -3595,7 +3595,7 @@ const Doctor = () => {
             <div>
               <label className="text-sm font-medium mb-2 block">Описание проблемы</label>
               <Textarea
-                value={editAppointmentDialog.description}
+                value={editAppointmentDialog.description || ''}
                 onChange={(e) => setEditAppointmentDialog({...editAppointmentDialog, description: e.target.value})}
                 placeholder="Опишите причину обращения..."
                 rows={3}
