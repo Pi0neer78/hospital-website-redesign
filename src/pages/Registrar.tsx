@@ -31,6 +31,7 @@ const Registrar = () => {
     patientName: '',
     patientPhone: '',
     patientSnils: '',
+    patientOms: '',
     description: '',
     time: ''
   });
@@ -274,6 +275,7 @@ const Registrar = () => {
           patient_name: newAppointmentDialog.patientName,
           patient_phone: newAppointmentDialog.patientPhone,
           patient_snils: newAppointmentDialog.patientSnils,
+          patient_oms: newAppointmentDialog.patientOms,
           appointment_date: selectedDate,
           appointment_time: newAppointmentDialog.time,
           description: newAppointmentDialog.description
@@ -288,6 +290,7 @@ const Registrar = () => {
           patient_name: newAppointmentDialog.patientName,
           patient_phone: newAppointmentDialog.patientPhone,
           patient_snils: newAppointmentDialog.patientSnils,
+          patient_oms: newAppointmentDialog.patientOms,
           doctor_name: selectedDoctor.full_name,
           appointment_date: selectedDate,
           appointment_time: newAppointmentDialog.time,
@@ -303,6 +306,7 @@ const Registrar = () => {
           patientName: '',
           patientPhone: '',
           patientSnils: '',
+          patientOms: '',
           description: '',
           time: ''
         });
@@ -943,6 +947,7 @@ const Registrar = () => {
                         <TableHead className="py-2">Пациент</TableHead>
                         <TableHead className="py-2">Телефон</TableHead>
                         <TableHead className="py-2">СНИЛС</TableHead>
+                        <TableHead className="py-2">ОМС</TableHead>
                         <TableHead className="py-2">Описание</TableHead>
                         <TableHead className="py-2">Статус</TableHead>
                         <TableHead className="text-right py-2">Действия</TableHead>
@@ -964,6 +969,7 @@ const Registrar = () => {
                             <TableCell className="py-2">{appointment.patient_name}</TableCell>
                             <TableCell className="py-2">{appointment.patient_phone}</TableCell>
                             <TableCell className="py-2">{appointment.patient_snils || '—'}</TableCell>
+                            <TableCell className="py-2">{appointment.patient_oms || '—'}</TableCell>
                             <TableCell className="text-muted-foreground py-2">{appointment.description || '—'}</TableCell>
                             <TableCell className="py-2">
                               <span className={`px-2 py-1 rounded-full text-xs ${
@@ -1096,13 +1102,21 @@ const Registrar = () => {
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Описание</label>
+                <label className="text-xs font-medium text-muted-foreground">ОМС</label>
                 <Input
-                  value={newAppointmentDialog.description}
-                  onChange={(e) => setNewAppointmentDialog({ ...newAppointmentDialog, description: e.target.value })}
+                  value={newAppointmentDialog.patientOms}
+                  onChange={(e) => setNewAppointmentDialog({ ...newAppointmentDialog, patientOms: e.target.value })}
                   className="h-9"
                 />
               </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Описание</label>
+              <Input
+                value={newAppointmentDialog.description}
+                onChange={(e) => setNewAppointmentDialog({ ...newAppointmentDialog, description: e.target.value })}
+                className="h-9"
+              />
             </div>
             <div className="flex gap-2 pt-2">
               <Button type="button" variant="outline" className="flex-1 h-9" onClick={() => setNewAppointmentDialog({ ...newAppointmentDialog, open: false })}>
