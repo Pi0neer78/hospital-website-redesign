@@ -415,7 +415,8 @@ const Doctor = () => {
     try {
       const startDate = dateFilterFrom || new Date().toISOString().split('T')[0];
       const endDate = dateFilterTo || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      const response = await fetch(`${API_URLS.appointments}?doctor_id=${doctorId}&start_date=${startDate}&end_date=${endDate}`);
+      const timestamp = Date.now();
+      const response = await fetch(`${API_URLS.appointments}?doctor_id=${doctorId}&start_date=${startDate}&end_date=${endDate}&_t=${timestamp}`);
       const data = await response.json();
       const newAppointments = data.appointments || [];
       
