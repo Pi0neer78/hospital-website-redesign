@@ -6,7 +6,7 @@ from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
-    Управление расписанием врачей и календарем
+    Управление расписанием врачей, календарем и записями
     GET /?doctor_id=X - получить расписание врача
     GET /?action=daily&doctor_id=X&start_date=...&end_date=... - получить ежедневное расписание
     GET /?action=calendar&doctor_id=X&year=2025 - получить календарь врача на год
@@ -16,6 +16,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     POST {action: "bulk_calendar", doctor_id, dates, is_working} - массовое сохранение дней
     PUT / - изменить статус активности или время
     PUT {action: "daily", id, ...} - изменить ежедневное расписание
+    PUT {action: "edit_appointment", id, patient_name, patient_phone, ...} - редактировать данные пациента
     DELETE /?id=X - удалить расписание
     DELETE /?action=daily&id=X - удалить день из расписания
     """
@@ -279,6 +280,64 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         elif method == 'PUT':
             body = json.loads(event.get('body', '{}'))
             action = body.get('action')
+            
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            
+            # Редактирование записи пациента
+            if action == 'edit_appointment':
+                apt_id = body.get('id')
+                if not apt_id:
+                    cursor.close()
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Appointment ID required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                name = body.get('patient_name', '').strip()
+                phone = body.get('patient_phone', '').strip()
+                snils = body.get('patient_snils', '').strip() if body.get('patient_snils') else None
+                oms = body.get('patient_oms', '').strip() if body.get('patient_oms') else None
+                desc = body.get('description', '').strip() if body.get('description') else None
+                
+                if not name or not phone:
+                    cursor.close()
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Name and phone required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor.execute(
+                    """UPDATE appointments_v2 
+                       SET patient_name = %s, patient_phone = %s, patient_snils = %s, 
+                           patient_oms = %s, description = %s 
+                       WHERE id = %s RETURNING *""",
+                    (name, phone, snils, oms, desc, apt_id)
+                )
+                
+                result = cursor.fetchone()
+                conn.commit()
+                cursor.close()
+                
+                if not result:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Appointment not found'}),
+                        'isBase64Encoded': False
+                    }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'appointment': dict(result)}, default=str),
+                    'isBase64Encoded': False
+                }
+            
+            # Редактирование расписания (существующий код)
             schedule_id = body.get('id')
             is_active = body.get('is_active')
             start_time = body.get('start_time')
@@ -288,14 +347,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             slot_duration = body.get('slot_duration', 15)
             
             if not schedule_id:
+                cursor.close()
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'error': 'Schedule ID is required'}),
                     'isBase64Encoded': False
                 }
-            
-            cursor = conn.cursor(cursor_factory=RealDictCursor)
             
             if action == 'daily':
                 if is_active is not None:
