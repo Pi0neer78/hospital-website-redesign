@@ -23,7 +23,7 @@ interface EditAppointmentFormProps {
   onCancel: () => void;
 }
 
-const API_URL = 'https://functions.poehali.dev/6f53f66d-3e47-4e57-93dd-52d63c16d38f'; // schedules function
+const API_URL = 'https://functions.poehali.dev/a7f148cd-e1c2-40e3-9762-cc8b2bc2dffb';
 
 export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAppointmentFormProps) {
   const { toast } = useToast();
@@ -49,8 +49,8 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
     setIsSaving(true);
     try {
       const requestBody: any = {
-        action: 'edit_appointment',
         id: appointment.id,
+        status: appointment.status,
         patient_name: editForm.patient_name.trim(),
         patient_phone: editForm.patient_phone.trim(),
         patient_snils: editForm.snils.trim() || null,
