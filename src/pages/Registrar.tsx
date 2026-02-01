@@ -1149,13 +1149,24 @@ const Registrar = () => {
                 />
               </div>
             </div>
-            <div>
-              <label className="text-xs font-medium text-muted-foreground">Описание</label>
-              <Input
-                value={newAppointmentDialog.description}
-                onChange={(e) => setNewAppointmentDialog({ ...newAppointmentDialog, description: e.target.value })}
-                className="h-9"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Описание</label>
+                <Input
+                  value={newAppointmentDialog.description}
+                  onChange={(e) => setNewAppointmentDialog({ ...newAppointmentDialog, description: e.target.value })}
+                  className="h-9"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Или своё время:</label>
+                <Input
+                  type="time"
+                  value={newAppointmentDialog.time}
+                  onChange={(e) => setNewAppointmentDialog({ ...newAppointmentDialog, time: e.target.value })}
+                  className="h-9"
+                />
+              </div>
             </div>
             <div className="flex gap-2 pt-2">
               <Button type="button" variant="outline" className="flex-1 h-9" onClick={() => setNewAppointmentDialog({ ...newAppointmentDialog, open: false })}>

@@ -3427,7 +3427,7 @@ const Doctor = () => {
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Время приема</label>
                 {newAppointmentDialog.date && newAppointmentDialog.availableSlots.length > 0 ? (
-                  <div className="grid grid-cols-4 gap-1 h-[232px] overflow-y-auto p-1.5 border rounded-md bg-muted/20">
+                  <div className="grid grid-cols-4 gap-1 h-[200px] overflow-y-auto p-1.5 border rounded-md bg-muted/20">
                     {newAppointmentDialog.availableSlots.map((slot: string) => (
                       <Button
                         key={slot}
@@ -3442,12 +3442,23 @@ const Doctor = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="h-[232px] flex items-center justify-center border rounded-md bg-muted/30">
+                  <div className="h-[200px] flex items-center justify-center border rounded-md bg-muted/30">
                     <p className="text-xs text-muted-foreground text-center">
                       {newAppointmentDialog.date ? 'Нет доступных слотов' : 'Выберите дату'}
                     </p>
                   </div>
                 )}
+                <div className="mt-2">
+                  <label className="text-xs font-medium mb-1 block text-muted-foreground">
+                    Или введите своё время:
+                  </label>
+                  <Input
+                    type="time"
+                    value={newAppointmentDialog.time}
+                    onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, time: e.target.value})}
+                    className="h-9 text-sm"
+                  />
+                </div>
               </div>
             </div>
 
