@@ -758,22 +758,35 @@ const Registrar = () => {
               >
                 <CardContent className="p-3">
                   <div className="flex items-start gap-3">
-                    {doctor.photo_url ? (
-                      <img 
-                        src={doctor.photo_url} 
-                        alt={doctor.full_name} 
-                        className="w-24 h-24 rounded-lg object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPhotoModalUrl(doctor.photo_url);
-                          setPhotoModalOpen(true);
-                        }}
-                      />
-                    ) : (
-                      <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Icon name="User" size={40} className="text-primary" />
-                      </div>
-                    )}
+                    <div className="flex flex-col items-center gap-2">
+                      {doctor.photo_url ? (
+                        <img 
+                          src={doctor.photo_url} 
+                          alt={doctor.full_name} 
+                          className="w-24 h-24 rounded-lg object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPhotoModalUrl(doctor.photo_url);
+                            setPhotoModalOpen(true);
+                          }}
+                        />
+                      ) : (
+                        <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Icon name="User" size={40} className="text-primary" />
+                        </div>
+                      )}
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="w-24 h-7 text-xs bg-blue-600 hover:bg-blue-700"
+                        asChild
+                      >
+                        <a href={`/doctor?id=${doctor.id}`} target="_blank" rel="noopener noreferrer">
+                          <Icon name="UserCog" size={12} className="mr-1" />
+                          Л/К врача
+                        </a>
+                      </Button>
+                    </div>
                     <div className="flex-1 min-w-0 space-y-1">
                       <p className="font-semibold text-sm">{doctor.full_name}</p>
                       <p className="text-xs font-bold text-blue-900">{doctor.position}</p>
