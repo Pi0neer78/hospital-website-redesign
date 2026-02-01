@@ -1366,16 +1366,15 @@ const Doctor = () => {
     }
 
     try {
-      const payload: any = {
+      const payload = {
         action: 'update_patient_info',
         id: editAppointmentDialog.appointmentId,
-        patient_name: editAppointmentDialog.patientName,
-        patient_phone: editAppointmentDialog.patientPhone
+        patient_name: editAppointmentDialog.patientName || '',
+        patient_phone: editAppointmentDialog.patientPhone || '',
+        patient_snils: editAppointmentDialog.patientSnils || '',
+        patient_oms: editAppointmentDialog.patientOms || '',
+        description: editAppointmentDialog.description || ''
       };
-      
-      if (editAppointmentDialog.patientSnils) payload.snils = editAppointmentDialog.patientSnils;
-      if (editAppointmentDialog.patientOms) payload.oms = editAppointmentDialog.patientOms;
-      if (editAppointmentDialog.description) payload.description = editAppointmentDialog.description;
       
       console.log('Editing appointment with payload:', payload);
       
