@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
+import { EditAppointmentForm } from '@/components/EditAppointmentForm';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -990,6 +991,14 @@ const Registrar = () => {
                                     <Button 
                                       size="sm" 
                                       variant="ghost"
+                                      onClick={() => setEditDialog(appointment)}
+                                      title="Редактировать данные пациента"
+                                    >
+                                      <Icon name="Edit" size={16} className="text-purple-600" />
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost"
                                       onClick={() => openRescheduleDialog(appointment)}
                                       title="Перенести запись"
                                     >
@@ -1699,6 +1708,27 @@ const Registrar = () => {
               <Icon name="X" size={24} />
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!editDialog} onOpenChange={() => setEditDialog(null)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Редактировать запись</DialogTitle>
+            <DialogDescription>
+              Изменение данных пациента для записи к врачу {editDialog?.doctor_name} на {editDialog && new Date(editDialog.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')} в {editDialog?.appointment_time?.slice(0, 5)}
+            </DialogDescription>
+          </DialogHeader>
+          {editDialog && (
+            <EditAppointmentForm
+              appointment={editDialog}
+              onSuccess={() => {
+                setEditDialog(null);
+                loadAppointments(selectedDoctor.id);
+              }}
+              onCancel={() => setEditDialog(null)}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
