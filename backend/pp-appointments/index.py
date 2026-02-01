@@ -44,11 +44,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
             if action == 'update_patient_info':
-                patient_name = body.get('patient_name')
-                patient_phone = body.get('patient_phone')
-                patient_snils = body.get('snils')
-                patient_oms = body.get('oms')
-                description = body.get('description')
+                patient_name = body.get('patient_name', '').replace("'", "''")
+                patient_phone = body.get('patient_phone', '').replace("'", "''")
+                patient_snils = body.get('snils', '').replace("'", "''") if body.get('snils') else None
+                patient_oms = body.get('oms', '').replace("'", "''") if body.get('oms') else None
+                description = body.get('description', '').replace("'", "''") if body.get('description') else None
                 
                 if not patient_name or not patient_phone:
                     cursor.close()

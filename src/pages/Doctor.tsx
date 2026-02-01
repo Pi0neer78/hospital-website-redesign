@@ -11,6 +11,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
+import { EditAppointmentForm } from '@/components/EditAppointmentForm';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -169,6 +170,14 @@ const Doctor = () => {
   const [dayOffWarning, setDayOffWarning] = useState<{open: boolean, date: string, appointmentCount: number}>({open: false, date: '', appointmentCount: 0});
   
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  
+  const [editDialog, setEditDialog] = useState<{
+    open: boolean;
+    appointment: any | null;
+  }>({
+    open: false,
+    appointment: null
+  });
   
   const [rescheduleDialog, setRescheduleDialog] = useState<{
     open: boolean;
@@ -2856,6 +2865,18 @@ const Doctor = () => {
                             variant="outline"
                             size="sm"
                             className="h-8 text-xs gap-1.5"
+                            onClick={() => setEditDialog({
+                              open: true,
+                              appointment: selectedAppointment
+                            })}
+                          >
+                            <Icon name="Edit" size={14} className="text-blue-600" />
+                            Изменить
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs gap-1.5"
                             onClick={() => openRescheduleDialog(selectedAppointment)}
                           >
                             <Icon name="Calendar" size={14} className="text-purple-600" />
@@ -2891,15 +2912,29 @@ const Doctor = () => {
                         </>
                       )}
                       {(selectedAppointment.status === 'completed' || selectedAppointment.status === 'cancelled') && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-xs gap-1.5"
-                          onClick={() => handleOpenCloneDialog(selectedAppointment)}
-                        >
-                          <Icon name="Copy" size={14} className="text-blue-600" />
-                          Клонировать
-                        </Button>
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs gap-1.5"
+                            onClick={() => setEditDialog({
+                              open: true,
+                              appointment: selectedAppointment
+                            })}
+                          >
+                            <Icon name="Edit" size={14} className="text-blue-600" />
+                            Изменить
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs gap-1.5"
+                            onClick={() => handleOpenCloneDialog(selectedAppointment)}
+                          >
+                            <Icon name="Copy" size={14} className="text-blue-600" />
+                            Клонировать
+                          </Button>
+                        </>
                       )}
                     </>
                   )}
@@ -3019,6 +3054,32 @@ const Doctor = () => {
           </div>
         </section>
       </Tabs>
+
+      <Dialog open={editDialog.open} onOpenChange={(open) => setEditDialog({...editDialog, open})}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Редактирование записи</DialogTitle>
+            <DialogDescription>
+              {editDialog.appointment && (
+                <>
+                  Дата: {new Date(editDialog.appointment.appointment_date).toLocaleDateString('ru-RU')} в {editDialog.appointment.appointment_time}
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editDialog.appointment && (
+            <EditAppointmentForm
+              appointment={editDialog.appointment}
+              onSuccess={() => {
+                setEditDialog({ open: false, appointment: null });
+                loadAppointments(doctorInfo.id);
+              }}
+              onCancel={() => setEditDialog({ open: false, appointment: null })}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog({...confirmDialog, open})}>
         <DialogContent className="sm:max-w-lg">
