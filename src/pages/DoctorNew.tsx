@@ -282,6 +282,22 @@ const DoctorNew = () => {
     toast({ title: "Создание записи", description: "Функция создания записи в разработке" });
   };
 
+  const handleCompleteAppointment = (appointment: Appointment) => {
+    toast({ title: "Завершить прием", description: "Функция завершения приема в разработке" });
+  };
+
+  const handleCancelAppointment = (appointment: Appointment) => {
+    toast({ title: "Отменить запись", description: "Функция отмены записи в разработке" });
+  };
+
+  const handleRescheduleAppointment = (appointment: Appointment) => {
+    toast({ title: "Перенести запись", description: "Функция переноса записи в разработке" });
+  };
+
+  const handleCloneAppointment = (appointment: Appointment) => {
+    toast({ title: "Клонировать запись", description: "Функция клонирования записи в разработке" });
+  };
+
   useEffect(() => {
     if (doctorInfo && selectedYear) {
       loadCalendar(doctorInfo.id, selectedYear);
@@ -430,6 +446,10 @@ const DoctorNew = () => {
                 onExport={exportToExcel}
                 onPrint={printAppointments}
                 onCreateNew={createNewAppointment}
+                onComplete={handleCompleteAppointment}
+                onCancel={handleCancelAppointment}
+                onReschedule={handleRescheduleAppointment}
+                onClone={handleCloneAppointment}
               />
             </TabsContent>
           </div>

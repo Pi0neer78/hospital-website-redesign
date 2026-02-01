@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Icon from '@/components/ui/icon';
 import type { Appointment, DoctorInfo } from '@/types/doctor';
 
@@ -19,6 +20,10 @@ interface AppointmentsTabProps {
   onExport: () => void;
   onPrint: () => void;
   onCreateNew: () => void;
+  onComplete?: (appointment: Appointment) => void;
+  onCancel?: (appointment: Appointment) => void;
+  onReschedule?: (appointment: Appointment) => void;
+  onClone?: (appointment: Appointment) => void;
 }
 
 export const AppointmentsTab = ({
@@ -34,7 +39,11 @@ export const AppointmentsTab = ({
   setSearchQuery,
   onExport,
   onPrint,
-  onCreateNew
+  onCreateNew,
+  onComplete,
+  onCancel,
+  onReschedule,
+  onClone
 }: AppointmentsTabProps) => {
   const filteredAppointments = appointments.filter((app: Appointment) => {
     const statusMatch = statusFilter === 'all' || app.status === statusFilter;
@@ -215,24 +224,41 @@ export const AppointmentsTab = ({
                               </span>
                             </TableCell>
                             <TableCell>
-                              <div className="flex gap-1">
-                                {appointment.status === 'scheduled' && (
-                                  <>
-                                    <Button size="sm" variant="outline" title="Завершить приём">
-                                      <Icon name="Check" size={16} />
-                                    </Button>
-                                    <Button size="sm" variant="outline" title="Перенести">
-                                      <Icon name="Calendar" size={16} />
-                                    </Button>
-                                    <Button size="sm" variant="outline" title="Отменить">
-                                      <Icon name="X" size={16} />
-                                    </Button>
-                                  </>
-                                )}
-                                <Button size="sm" variant="outline" title="Клонировать">
-                                  <Icon name="Copy" size={16} />
-                                </Button>
-                              </div>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button size="sm" variant="outline">
+                                    <Icon name="MoreVertical" size={16} />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  {appointment.status === 'scheduled' && (
+                                    <>
+                                      <DropdownMenuItem onClick={() => onComplete?.(appointment)}>
+                                        <Icon name="CheckCircle" size={16} className="mr-2 text-green-600" />
+                                        Завершить прием
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => onReschedule?.(appointment)}>
+                                        <Icon name="Calendar" size={16} className="mr-2 text-blue-600" />
+                                        Перенести
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => onClone?.(appointment)}>
+                                        <Icon name="Copy" size={16} className="mr-2 text-purple-600" />
+                                        Клонировать
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => onCancel?.(appointment)}>
+                                        <Icon name="XCircle" size={16} className="mr-2 text-red-600" />
+                                        Отменить запись
+                                      </DropdownMenuItem>
+                                    </>
+                                  )}
+                                  {appointment.status !== 'scheduled' && (
+                                    <DropdownMenuItem onClick={() => onClone?.(appointment)}>
+                                      <Icon name="Copy" size={16} className="mr-2 text-purple-600" />
+                                      Клонировать
+                                    </DropdownMenuItem>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </TableCell>
                           </TableRow>
                         ))}
