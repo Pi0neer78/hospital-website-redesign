@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,9 +8,12 @@ import { useDoctorAuth } from '@/hooks/useDoctorAuth';
 import { useAutoRefresh } from '@/hooks/useAutoRefresh';
 import DoctorHeaderComponent from '@/components/doctor/DoctorHeaderComponent';
 import { CalendarTab } from '@/components/doctor/CalendarTab';
+import { ScheduleTab } from '@/components/doctor/ScheduleTab';
+import { AppointmentsTab } from '@/components/doctor/AppointmentsTab';
 import { API_URLS } from '@/constants/doctor';
-import type { SlotStats } from '@/types/doctor';
+import type { SlotStats, Schedule, DailySchedule, Appointment } from '@/types/doctor';
 import { useToast } from '@/hooks/use-toast';
+import * as XLSX from 'xlsx';
 
 const DoctorNew = () => {
   const { toast } = useToast();
@@ -38,6 +41,20 @@ const DoctorNew = () => {
   const [slotStats, setSlotStats] = useState<{[key: string]: SlotStats}>({});
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [dailySchedules, setDailySchedules] = useState<DailySchedule[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [dateFilterFrom, setDateFilterFrom] = useState<string>(() => {
+    return new Date().toISOString().split('T')[0];
+  });
+  const [dateFilterTo, setDateFilterTo] = useState<string>(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+    return date.toISOString().split('T')[0];
+  });
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const lastAppointmentIdsRef = useRef<Set<number>>(new Set());
 
   const loadCalendar = async (doctorId: number, year: number) => {
     try {
@@ -148,8 +165,121 @@ const DoctorNew = () => {
     });
   };
 
-  const loadAppointments = async (doctorId: number) => {
-    console.log('Loading appointments for doctor:', doctorId);
+  const loadSchedules = async (doctorId: number) => {
+    try {
+      const response = await fetch(`${API_URLS.schedules}?doctor_id=${doctorId}`);
+      const data = await response.json();
+      setSchedules(data.schedules || []);
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Не удалось загрузить расписание", variant: "destructive" });
+    }
+  };
+
+  const loadDailySchedules = async (doctorId: number) => {
+    try {
+      const today = new Date();
+      const twoMonthsLater = new Date(today);
+      twoMonthsLater.setMonth(today.getMonth() + 2);
+      
+      const response = await fetch(`${API_URLS.schedules}?action=daily&doctor_id=${doctorId}&start_date=${today.toISOString().split('T')[0]}&end_date=${twoMonthsLater.toISOString().split('T')[0]}`);
+      const data = await response.json();
+      setDailySchedules(data.daily_schedules || []);
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Не удалось загрузить ежедневное расписание", variant: "destructive" });
+    }
+  };
+
+  const loadAppointments = async (doctorId: number, checkForNew = false) => {
+    try {
+      const startDate = dateFilterFrom || new Date().toISOString().split('T')[0];
+      const endDate = dateFilterTo || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const response = await fetch(`${API_URLS.appointments}?doctor_id=${doctorId}&start_date=${startDate}&end_date=${endDate}`);
+      const data = await response.json();
+      const newAppointments = data.appointments || [];
+      
+      if (checkForNew && lastAppointmentIdsRef.current.size > 0) {
+        const addedAppointments = newAppointments.filter((a: any) => !lastAppointmentIdsRef.current.has(a.id));
+        
+        if (addedAppointments.length > 0 && soundEnabled) {
+          playNotificationSound();
+          
+          const latestAppointment = addedAppointments[addedAppointments.length - 1];
+          const appointmentDate = new Date(latestAppointment.appointment_date).toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            weekday: 'short'
+          });
+          const appointmentTime = latestAppointment.appointment_time.slice(0, 5);
+          const phoneNumber = latestAppointment.patient_phone || 'не указан';
+          
+          let description = `Пациент: ${latestAppointment.patient_name}\nТелефон: ${phoneNumber}\nДата: ${appointmentDate} в ${appointmentTime}`;
+          if (latestAppointment.description) {
+            description += `\nОписание: ${latestAppointment.description}`;
+          }
+          
+          toast({
+            title: "🔔 Новая запись на прием!",
+            description: description,
+            duration: 10000,
+          });
+        }
+      }
+      
+      setAppointments(newAppointments);
+      lastAppointmentIdsRef.current = new Set(newAppointments.map((a: any) => a.id));
+    } catch (error) {
+      console.error('Ошибка загрузки записей:', error);
+      toast({ title: "Ошибка", description: "Не удалось загрузить записи", variant: "destructive" });
+    }
+  };
+
+  const exportToExcel = () => {
+    const filtered = appointments.filter((app: Appointment) => {
+      const statusMatch = statusFilter === 'all' || app.status === statusFilter;
+      const dateMatch = app.appointment_date >= dateFilterFrom && app.appointment_date <= dateFilterTo;
+      const searchMatch = searchQuery === '' || 
+        app.patient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        app.patient_phone.includes(searchQuery) ||
+        (app.patient_snils && app.patient_snils.includes(searchQuery));
+      return statusMatch && dateMatch && searchMatch;
+    });
+
+    const dataForExport = filtered
+      .sort((a: Appointment, b: Appointment) => {
+        const dateCompare = a.appointment_date.localeCompare(b.appointment_date);
+        if (dateCompare !== 0) return dateCompare;
+        return a.appointment_time.localeCompare(b.appointment_time);
+      })
+      .map((app: Appointment) => ({
+        'ID записи': app.id,
+        'Дата': new Date(app.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+        'Время записи': app.appointment_time.slice(0, 5),
+        'ФИО пациента': app.patient_name,
+        'Телефон': app.patient_phone,
+        'СНИЛС': app.patient_snils || '—',
+        'Статус': app.status === 'scheduled' ? 'Запланировано' : 
+                  app.status === 'completed' ? 'Завершено' : 'Отменено',
+      }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataForExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Записи пациентов');
+
+    const fileName = `Записи_${doctorInfo?.full_name}_${new Date().toLocaleDateString('ru-RU').replace(/\./g, '-')}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+
+    toast({
+      title: "Экспорт завершен",
+      description: `Экспортировано записей: ${dataForExport.length}`,
+    });
+  };
+
+  const printAppointments = () => {
+    toast({ title: "Печать", description: "Функция печати в разработке" });
+  };
+
+  const createNewAppointment = () => {
+    toast({ title: "Создание записи", description: "Функция создания записи в разработке" });
   };
 
   useEffect(() => {
@@ -158,8 +288,27 @@ const DoctorNew = () => {
     }
   }, [selectedYear, doctorInfo]);
 
+  useEffect(() => {
+    if (doctorInfo) {
+      loadSchedules(doctorInfo.id);
+      loadDailySchedules(doctorInfo.id);
+      loadAppointments(doctorInfo.id);
+
+      if (autoRefreshEnabled) {
+        const interval = setInterval(() => {
+          loadAppointments(doctorInfo.id, true);
+        }, checkInterval * 1000);
+        
+        return () => clearInterval(interval);
+      }
+    }
+  }, [doctorInfo, autoRefreshEnabled, checkInterval, dateFilterFrom, dateFilterTo]);
+
   const onLoginSuccess = (doctor: any) => {
     loadCalendar(doctor.id, selectedYear);
+    loadSchedules(doctor.id);
+    loadDailySchedules(doctor.id);
+    loadAppointments(doctor.id);
   };
 
   if (!isAuthenticated) {
@@ -254,26 +403,34 @@ const DoctorNew = () => {
               />
             </TabsContent>
 
-            <TabsContent value="schedule" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Расписание (в разработке)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Здесь будет вкладка управления расписанием</p>
-                </CardContent>
-              </Card>
+            <TabsContent value="schedule">
+              <ScheduleTab
+                doctorInfo={doctorInfo!}
+                schedules={schedules}
+                dailySchedules={dailySchedules}
+                onReload={() => {
+                  loadSchedules(doctorInfo!.id);
+                  loadDailySchedules(doctorInfo!.id);
+                }}
+              />
             </TabsContent>
 
-            <TabsContent value="appointments" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Записи пациентов (в разработке)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Здесь будет вкладка записей пациентов</p>
-                </CardContent>
-              </Card>
+            <TabsContent value="appointments">
+              <AppointmentsTab
+                doctorInfo={doctorInfo!}
+                appointments={appointments}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                dateFilterFrom={dateFilterFrom}
+                setDateFilterFrom={setDateFilterFrom}
+                dateFilterTo={dateFilterTo}
+                setDateFilterTo={setDateFilterTo}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onExport={exportToExcel}
+                onPrint={printAppointments}
+                onCreateNew={createNewAppointment}
+              />
             </TabsContent>
           </div>
         </section>
