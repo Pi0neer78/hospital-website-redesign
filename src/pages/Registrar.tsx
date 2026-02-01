@@ -1227,27 +1227,40 @@ const Registrar = () => {
             </div>
 
             {rescheduleSelectedDate && (
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Выберите время на {new Date(rescheduleSelectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}
-                </label>
-                {rescheduleAvailableSlots.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Нет свободных слотов на эту дату</p>
-                ) : (
-                  <div className="grid grid-cols-6 gap-2">
-                    {rescheduleAvailableSlots.map((time) => (
-                      <Button
-                        key={time}
-                        type="button"
-                        variant={rescheduleSelectedSlot === time ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setRescheduleSelectedSlot(time)}
-                      >
-                        {time}
-                      </Button>
-                    ))}
-                  </div>
-                )}
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Выберите время на {new Date(rescheduleSelectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}
+                  </label>
+                  {rescheduleAvailableSlots.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Нет свободных слотов на эту дату</p>
+                  ) : (
+                    <div className="grid grid-cols-6 gap-2">
+                      {rescheduleAvailableSlots.map((time) => (
+                        <Button
+                          key={time}
+                          type="button"
+                          variant={rescheduleSelectedSlot === time ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setRescheduleSelectedSlot(time)}
+                        >
+                          {time}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="text-xs font-medium mb-1 block text-muted-foreground">
+                    Или введите своё время:
+                  </label>
+                  <Input
+                    type="time"
+                    value={rescheduleSelectedSlot}
+                    onChange={(e) => setRescheduleSelectedSlot(e.target.value)}
+                    className="h-9 text-sm"
+                  />
+                </div>
               </div>
             )}
 
@@ -1351,27 +1364,40 @@ const Registrar = () => {
             </div>
 
             {cloneSelectedDate && (
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Выберите время на {new Date(cloneSelectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}
-                </label>
-                {cloneAvailableSlots.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Нет свободных слотов на эту дату</p>
-                ) : (
-                  <div className="grid grid-cols-6 gap-2">
-                    {cloneAvailableSlots.map((time) => (
-                      <Button
-                        key={time}
-                        type="button"
-                        variant={cloneSelectedSlot === time ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setCloneSelectedSlot(time)}
-                      >
-                        {time}
-                      </Button>
-                    ))}
-                  </div>
-                )}
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Выберите время на {new Date(cloneSelectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}
+                  </label>
+                  {cloneAvailableSlots.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Нет свободных слотов на эту дату</p>
+                  ) : (
+                    <div className="grid grid-cols-6 gap-2">
+                      {cloneAvailableSlots.map((time) => (
+                        <Button
+                          key={time}
+                          type="button"
+                          variant={cloneSelectedSlot === time ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCloneSelectedSlot(time)}
+                        >
+                          {time}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="text-xs font-medium mb-1 block text-muted-foreground">
+                    Или введите своё время:
+                  </label>
+                  <Input
+                    type="time"
+                    value={cloneSelectedSlot}
+                    onChange={(e) => setCloneSelectedSlot(e.target.value)}
+                    className="h-9 text-sm"
+                  />
+                </div>
               </div>
             )}
 

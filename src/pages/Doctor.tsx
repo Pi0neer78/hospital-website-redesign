@@ -3626,27 +3626,40 @@ const Doctor = () => {
             </div>
 
             {rescheduleDialog.newDate && (
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Выберите время на {new Date(rescheduleDialog.newDate + 'T00:00:00').toLocaleDateString('ru-RU')}
-                </label>
-                {rescheduleDialog.availableSlots.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Нет свободных слотов на эту дату</p>
-                ) : (
-                  <div className="grid grid-cols-6 gap-2">
-                    {rescheduleDialog.availableSlots.map((time: string) => (
-                      <Button
-                        key={time}
-                        type="button"
-                        variant={rescheduleDialog.newTime === time ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setRescheduleDialog(prev => ({ ...prev, newTime: time }))}
-                      >
-                        {time}
-                      </Button>
-                    ))}
-                  </div>
-                )}
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Выберите время на {new Date(rescheduleDialog.newDate + 'T00:00:00').toLocaleDateString('ru-RU')}
+                  </label>
+                  {rescheduleDialog.availableSlots.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Нет свободных слотов на эту дату</p>
+                  ) : (
+                    <div className="grid grid-cols-6 gap-2">
+                      {rescheduleDialog.availableSlots.map((time: string) => (
+                        <Button
+                          key={time}
+                          type="button"
+                          variant={rescheduleDialog.newTime === time ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setRescheduleDialog(prev => ({ ...prev, newTime: time }))}
+                        >
+                          {time}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="text-xs font-medium mb-1 block text-muted-foreground">
+                    Или введите своё время:
+                  </label>
+                  <Input
+                    type="time"
+                    value={rescheduleDialog.newTime}
+                    onChange={(e) => setRescheduleDialog(prev => ({ ...prev, newTime: e.target.value }))}
+                    className="h-9 text-sm"
+                  />
+                </div>
               </div>
             )}
 
@@ -3745,28 +3758,41 @@ const Doctor = () => {
               </div>
 
               {cloneDialog.newDate && (
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Новое время</label>
-                  {cloneDialog.availableSlots.length > 0 ? (
-                    <div className="grid grid-cols-4 gap-2 max-h-[200px] overflow-y-auto p-2 border rounded-md">
-                      {cloneDialog.availableSlots.map((slot: string) => (
-                        <Button
-                          key={slot}
-                          type="button"
-                          size="sm"
-                          variant={cloneDialog.newTime === slot ? 'default' : 'outline'}
-                          onClick={() => setCloneDialog({...cloneDialog, newTime: slot})}
-                          className="h-8"
-                        >
-                          {slot}
-                        </Button>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground p-3 border rounded-md bg-muted/30">
-                      Нет доступных слотов на выбранную дату
-                    </p>
-                  )}
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Новое время</label>
+                    {cloneDialog.availableSlots.length > 0 ? (
+                      <div className="grid grid-cols-4 gap-2 max-h-[180px] overflow-y-auto p-2 border rounded-md">
+                        {cloneDialog.availableSlots.map((slot: string) => (
+                          <Button
+                            key={slot}
+                            type="button"
+                            size="sm"
+                            variant={cloneDialog.newTime === slot ? 'default' : 'outline'}
+                            onClick={() => setCloneDialog({...cloneDialog, newTime: slot})}
+                            className="h-8"
+                          >
+                            {slot}
+                          </Button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground p-3 border rounded-md bg-muted/30">
+                        Нет доступных слотов на выбранную дату
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium mb-1 block text-muted-foreground">
+                      Или введите своё время:
+                    </label>
+                    <Input
+                      type="time"
+                      value={cloneDialog.newTime}
+                      onChange={(e) => setCloneDialog({...cloneDialog, newTime: e.target.value})}
+                      className="h-9 text-sm"
+                    />
+                  </div>
                 </div>
               )}
 
