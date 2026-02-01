@@ -199,6 +199,14 @@ const Doctor = () => {
 
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const doctorIdFromUrl = urlParams.get('id');
+    
+    if (doctorIdFromUrl) {
+      loadDoctorById(parseInt(doctorIdFromUrl));
+      return;
+    }
+    
     const auth = localStorage.getItem('doctor_auth');
     if (auth) {
       const doctor = JSON.parse(auth);
@@ -256,6 +264,32 @@ const Doctor = () => {
   }, [rescheduleDialog.open]);
 
 
+
+  const loadDoctorById = async (doctorId: number) => {
+    try {
+      const response = await fetch(`https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688?id=${doctorId}`);
+      const data = await response.json();
+      
+      if (response.ok && data.doctors && data.doctors.length > 0) {
+        const doctor = data.doctors[0];
+        setDoctorInfo(doctor);
+        setIsAuthenticated(true);
+        loadSchedules(doctor.id);
+        loadDailySchedules(doctor.id);
+        loadAppointments(doctor.id);
+        loadCalendar(doctor.id, selectedYear);
+        toast({ 
+          title: "Доступ открыт", 
+          description: `Личный кабинет: ${doctor.full_name}`,
+          duration: 3000
+        });
+      } else {
+        toast({ title: "Ошибка", description: "Врач не найден", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Не удалось загрузить данные врача", variant: "destructive" });
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
