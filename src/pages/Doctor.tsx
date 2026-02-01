@@ -205,6 +205,7 @@ const Doctor = () => {
       setDoctorInfo(doctor);
       setIsAuthenticated(true);
       loadSchedules(doctor.id);
+      loadDailySchedules(doctor.id);
       loadAppointments(doctor.id);
       loadCalendar(doctor.id, selectedYear);
       
@@ -318,6 +319,45 @@ const Doctor = () => {
       console.error('Load daily schedules error:', error);
       toast({ title: "Ошибка", description: "Не удалось загрузить ежедневное расписание", variant: "destructive" });
     }
+  };
+
+  const generateCombinedSchedule = () => {
+    const combined: any[] = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const twoMonthsLater = new Date(today);
+    twoMonthsLater.setMonth(today.getMonth() + 2);
+
+    const dailyMap = new Map();
+    dailySchedules.forEach((ds: any) => {
+      dailyMap.set(ds.schedule_date, ds);
+    });
+
+    for (let d = new Date(today); d <= twoMonthsLater; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      const dayOfWeek = (d.getDay() + 6) % 7;
+
+      if (dailyMap.has(dateStr)) {
+        combined.push(dailyMap.get(dateStr));
+      } else {
+        const weekSchedule = schedules.find((s: any) => s.day_of_week === dayOfWeek);
+        if (weekSchedule && weekSchedule.is_active) {
+          combined.push({
+            id: `generated-${dateStr}`,
+            schedule_date: dateStr,
+            start_time: weekSchedule.start_time,
+            end_time: weekSchedule.end_time,
+            break_start_time: weekSchedule.break_start_time,
+            break_end_time: weekSchedule.break_end_time,
+            slot_duration: weekSchedule.slot_duration,
+            is_active: true,
+            is_generated: true
+          });
+        }
+      }
+    }
+
+    return combined;
   };
 
   const loadCalendar = async (doctorId: number, year: number) => {
@@ -498,6 +538,7 @@ const Doctor = () => {
         setScheduleForm({ day_of_week: 0, start_time: '08:00', end_time: '17:00', break_start_time: '', break_end_time: '', slot_duration: 15 });
         setIsOpen(false);
         loadSchedules(doctorInfo.id);
+        loadDailySchedules(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось сохранить расписание", variant: "destructive" });
       }
@@ -522,6 +563,7 @@ const Doctor = () => {
       if (response.ok && data.success) {
         toast({ title: "Успешно", description: currentStatus ? "День деактивирован" : "День активирован" });
         loadSchedules(doctorInfo.id);
+        loadDailySchedules(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось изменить статус", variant: "destructive" });
       }
@@ -543,6 +585,7 @@ const Doctor = () => {
       if (response.ok && data.success) {
         toast({ title: "Успешно", description: "День удален из расписания" });
         loadSchedules(doctorInfo.id);
+        loadDailySchedules(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось удалить", variant: "destructive" });
       }
@@ -575,6 +618,7 @@ const Doctor = () => {
         setIsEditOpen(false);
         setEditingSchedule(null);
         loadSchedules(doctorInfo.id);
+        loadDailySchedules(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось обновить", variant: "destructive" });
       }
@@ -931,6 +975,7 @@ const Doctor = () => {
       setCopyFromSchedule(null);
       setSelectedDaysToCopy([]);
       loadSchedules(doctorInfo.id);
+      loadDailySchedules(doctorInfo.id);
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
     }
@@ -1044,6 +1089,7 @@ const Doctor = () => {
       });
       setBulkSlotDialogOpen(false);
       loadSchedules(doctorInfo.id);
+      loadDailySchedules(doctorInfo.id);
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
     }
@@ -2055,99 +2101,92 @@ const Doctor = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold">Рабочее расписание</h2>
                 <div className="flex gap-2">
-                  <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                  <Dialog open={isDailyScheduleOpen} onOpenChange={setIsDailyScheduleOpen}>
                     <DialogTrigger asChild>
-                      <Button
+                      <Button 
                         size="lg"
-                        title="Добавить день недели в еженедельное расписание"
+                        variant="secondary"
+                        title="Добавить день в расписание"
                       >
                         <Icon name="Plus" size={20} className="mr-2" />
-                        Добавить день недели
+                        Добавить день
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Добавить день недели</DialogTitle>
-                        <DialogDescription>
-                          Настройте повторяющееся расписание для дня недели
-                        </DialogDescription>
-                      </DialogHeader>
-                      <form onSubmit={handleCreateSchedule} className="space-y-4">
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">День недели</label>
-                          <Select
-                            value={scheduleForm.day_of_week.toString()}
-                            onValueChange={(value) => setScheduleForm({ ...scheduleForm, day_of_week: parseInt(value) })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Выберите день недели" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {DAYS_OF_WEEK.map((day, index) => (
-                                <SelectItem key={index} value={index.toString()}>{day}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
+                    <DialogHeader>
+                      <DialogTitle>Добавить день</DialogTitle>
+                      <DialogDescription>
+                        Настройте индивидуальное расписание для конкретной даты
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleCreateDailySchedule} className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Дата</label>
+                        <Input
+                          type="date"
+                          value={dailyScheduleForm.schedule_date}
+                          min={new Date().toISOString().split('T')[0]}
+                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, schedule_date: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Время начала</label>
+                        <Input
+                          type="time"
+                          value={dailyScheduleForm.start_time}
+                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, start_time: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Время окончания</label>
+                        <Input
+                          type="time"
+                          value={dailyScheduleForm.end_time}
+                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, end_time: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Длительность слота (минуты)</label>
+                        <Input
+                          type="number"
+                          min="1"
+                          max="120"
+                          step="1"
+                          value={dailyScheduleForm.slot_duration}
+                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, slot_duration: parseInt(e.target.value) || 15 })}
+                          required
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Интервал времени для одного приёма (например, 15, 20, 22, 30 минут)
+                        </p>
+                      </div>
+                      <div className="border-t pt-4">
+                        <label className="text-sm font-medium mb-2 block">Перерыв (необязательно)</label>
+                        <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className="text-sm font-medium mb-2 block">Время начала</label>
+                            <label className="text-xs text-muted-foreground mb-1 block">Начало перерыва</label>
                             <Input
                               type="time"
-                              value={scheduleForm.start_time}
-                              onChange={(e) => setScheduleForm({ ...scheduleForm, start_time: e.target.value })}
-                              required
+                              value={dailyScheduleForm.break_start_time}
+                              onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, break_start_time: e.target.value })}
                             />
                           </div>
                           <div>
-                            <label className="text-sm font-medium mb-2 block">Время окончания</label>
+                            <label className="text-xs text-muted-foreground mb-1 block">Конец перерыва</label>
                             <Input
                               type="time"
-                              value={scheduleForm.end_time}
-                              onChange={(e) => setScheduleForm({ ...scheduleForm, end_time: e.target.value })}
-                              required
+                              value={dailyScheduleForm.break_end_time}
+                              onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, break_end_time: e.target.value })}
                             />
                           </div>
                         </div>
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Длительность слота (минуты)</label>
-                          <Input
-                            type="number"
-                            min="1"
-                            max="120"
-                            step="1"
-                            value={scheduleForm.slot_duration}
-                            onChange={(e) => setScheduleForm({ ...scheduleForm, slot_duration: parseInt(e.target.value) || 15 })}
-                            required
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Интервал времени для одного приёма
-                          </p>
-                        </div>
-                        <div className="border-t pt-4">
-                          <label className="text-sm font-medium mb-2 block">Перерыв (необязательно)</label>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <label className="text-xs text-muted-foreground mb-1 block">Начало перерыва</label>
-                              <Input
-                                type="time"
-                                value={scheduleForm.break_start_time}
-                                onChange={(e) => setScheduleForm({ ...scheduleForm, break_start_time: e.target.value })}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-muted-foreground mb-1 block">Конец перерыва</label>
-                              <Input
-                                type="time"
-                                value={scheduleForm.break_end_time}
-                                onChange={(e) => setScheduleForm({ ...scheduleForm, break_end_time: e.target.value })}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <Button type="submit" className="w-full">Добавить день</Button>
-                      </form>
-                    </DialogContent>
+                      </div>
+                      <Button type="submit" className="w-full">Сохранить</Button>
+                    </form>
+                  </DialogContent>
                   </Dialog>
                   <Dialog open={isBulkGenerateOpen} onOpenChange={setIsBulkGenerateOpen}>
                     <DialogTrigger asChild>
@@ -2258,93 +2297,6 @@ const Doctor = () => {
                         <Button type="submit" className="w-full">Создать дни</Button>
                       </form>
                     </DialogContent>
-                  </Dialog>
-                  <Dialog open={isDailyScheduleOpen} onOpenChange={setIsDailyScheduleOpen}>
-                    <DialogTrigger asChild>
-                      <Button 
-                        size="lg"
-                        variant="secondary"
-                        title="Добавить конкретную дату в расписание"
-                      >
-                        <Icon name="Calendar" size={20} className="mr-2" />
-                        Добавить конкретную дату
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Добавить конкретную дату</DialogTitle>
-                      <DialogDescription>
-                        Настройте индивидуальное расписание для конкретной даты
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleCreateDailySchedule} className="space-y-4">
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Дата</label>
-                        <Input
-                          type="date"
-                          value={dailyScheduleForm.schedule_date}
-                          min={new Date().toISOString().split('T')[0]}
-                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, schedule_date: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Время начала</label>
-                        <Input
-                          type="time"
-                          value={dailyScheduleForm.start_time}
-                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, start_time: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Время окончания</label>
-                        <Input
-                          type="time"
-                          value={dailyScheduleForm.end_time}
-                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, end_time: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Длительность слота (минуты)</label>
-                        <Input
-                          type="number"
-                          min="1"
-                          max="120"
-                          step="1"
-                          value={dailyScheduleForm.slot_duration}
-                          onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, slot_duration: parseInt(e.target.value) || 15 })}
-                          required
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Интервал времени для одного приёма (например, 15, 20, 22, 30 минут)
-                        </p>
-                      </div>
-                      <div className="border-t pt-4">
-                        <label className="text-sm font-medium mb-2 block">Перерыв (необязательно)</label>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="text-xs text-muted-foreground mb-1 block">Начало перерыва</label>
-                            <Input
-                              type="time"
-                              value={dailyScheduleForm.break_start_time}
-                              onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, break_start_time: e.target.value })}
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs text-muted-foreground mb-1 block">Конец перерыва</label>
-                            <Input
-                              type="time"
-                              value={dailyScheduleForm.break_end_time}
-                              onChange={(e) => setDailyScheduleForm({ ...dailyScheduleForm, break_end_time: e.target.value })}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <Button type="submit" className="w-full">Сохранить</Button>
-                    </form>
-                  </DialogContent>
                   </Dialog>
                 </div>
               </div>
@@ -2590,160 +2542,54 @@ const Doctor = () => {
                 </DialogContent>
               </Dialog>
 
-              <Card className="mb-6">
-                <CardHeader className="border-b">
-                  <CardTitle className="flex items-center gap-2">
-                    <Icon name="CalendarDays" size={20} />
-                    Еженедельное расписание
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  {schedules.length === 0 ? (
-                    <div className="py-8 text-center text-muted-foreground">
-                      Еженедельное расписание не установлено. Система будет использовать только конкретные даты ниже.
-                    </div>
-                  ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-                      {schedules.map((schedule: any) => (
-                        <Card key={schedule.id} className={`overflow-hidden ${!schedule.is_active ? 'opacity-50' : ''}`}>
-                          <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-r from-blue-50 to-indigo-50">
-                            <div className="flex items-center justify-between">
-                              <CardTitle className="text-base font-bold">
-                                {DAYS_OF_WEEK[schedule.day_of_week]}
-                              </CardTitle>
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                schedule.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                              }`}>
-                                {schedule.is_active ? 'Активно' : 'Неактивно'}
-                              </span>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="p-4 space-y-3">
-                            <div className="flex items-center gap-2 text-sm">
-                              <Icon name="Clock" size={16} className="text-blue-600" />
-                              <span className="font-medium">{schedule.start_time.slice(0, 5)} — {schedule.end_time.slice(0, 5)}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                              <Icon name="Timer" size={16} className="text-purple-600" />
-                              <span>Слот: {schedule.slot_duration} мин</span>
-                            </div>
-                            {schedule.break_start_time && schedule.break_end_time && (
-                              <div className="flex items-center gap-2 text-sm">
-                                <Icon name="Coffee" size={16} className="text-amber-600" />
-                                <span>Перерыв: {schedule.break_start_time.slice(0, 5)} — {schedule.break_end_time.slice(0, 5)}</span>
-                              </div>
-                            )}
-                            <div className="flex gap-1 pt-2">
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                className="flex-1"
-                                onClick={() => {
-                                  setEditingSchedule(schedule);
-                                  setScheduleForm({
-                                    day_of_week: schedule.day_of_week,
-                                    start_time: schedule.start_time.slice(0, 5),
-                                    end_time: schedule.end_time.slice(0, 5),
-                                    break_start_time: schedule.break_start_time ? schedule.break_start_time.slice(0, 5) : '',
-                                    break_end_time: schedule.break_end_time ? schedule.break_end_time.slice(0, 5) : '',
-                                    slot_duration: schedule.slot_duration
-                                  });
-                                  setIsEditOpen(true);
-                                }}
-                                title="Изменить параметры"
-                              >
-                                <Icon name="Edit" size={14} />
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="secondary"
-                                className="flex-1"
-                                onClick={() => {
-                                  setCopyFromSchedule(schedule);
-                                  setSelectedDaysToCopy([]);
-                                  setIsCopyDialogOpen(true);
-                                }}
-                                title="Копировать на другие дни"
-                              >
-                                <Icon name="Copy" size={14} />
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant={schedule.is_active ? "outline" : "default"}
-                                onClick={() => handleToggleActive(schedule.id, schedule.is_active)}
-                                title={schedule.is_active ? "Деактивировать" : "Активировать"}
-                              >
-                                <Icon name={schedule.is_active ? "PauseCircle" : "PlayCircle"} size={14} />
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="destructive"
-                                onClick={() => handleDeleteSchedule(schedule.id)}
-                                title="Удалить день из расписания"
-                              >
-                                <Icon name="Trash2" size={14} />
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
               <Card>
                 <CardHeader className="border-b">
                   <CardTitle className="flex items-center gap-2">
                     <Icon name="Calendar" size={20} />
-                    Расписание по конкретным датам
+                    Расписание на 2 месяца
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                  {dailySchedules.length === 0 ? (
-                    <div className="py-8 text-center text-muted-foreground">
-                      Расписание для конкретных дат не установлено. Используется только еженедельное расписание.
-                    </div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[140px]">Дата</TableHead>
-                          <TableHead className="w-[100px]">День недели</TableHead>
-                          <TableHead className="w-[100px]">Статус</TableHead>
-                          <TableHead className="w-[120px]">Время с — по</TableHead>
-                          <TableHead className="w-[100px]">Слот (мин)</TableHead>
-                          <TableHead className="w-[120px]">Перерыв</TableHead>
-                          <TableHead className="text-right">Действия</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {dailySchedules.map((schedule: any) => {
-                          const dateObj = new Date(schedule.schedule_date + 'T00:00:00');
-                          const dayName = dateObj.toLocaleDateString('ru-RU', { weekday: 'short' });
-                          const dateFormatted = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-                          
-                          return (
-                            <TableRow key={schedule.id} className={!schedule.is_active ? 'opacity-50' : ''}>
-                              <TableCell className="font-medium">{dateFormatted}</TableCell>
-                              <TableCell className="capitalize">{dayName}</TableCell>
-                              <TableCell>
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  schedule.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                                }`}>
-                                  {schedule.is_active ? 'Активно' : 'Выходной'}
-                                </span>
-                              </TableCell>
-                              <TableCell>{schedule.start_time.slice(0, 5)} — {schedule.end_time.slice(0, 5)}</TableCell>
-                              <TableCell>{schedule.slot_duration}</TableCell>
-                              <TableCell>
-                                {schedule.break_start_time && schedule.break_end_time 
-                                  ? `${schedule.break_start_time.slice(0, 5)} — ${schedule.break_end_time.slice(0, 5)}`
-                                  : '—'
-                                }
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex gap-1 justify-end">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[110px]">Дата</TableHead>
+                        <TableHead className="w-[90px]">День</TableHead>
+                        <TableHead className="w-[90px]">Статус</TableHead>
+                        <TableHead className="w-[120px]">Рабочее время</TableHead>
+                        <TableHead className="w-[70px]">Слот</TableHead>
+                        <TableHead className="w-[110px]">Перерыв</TableHead>
+                        <TableHead className="text-right">Действия</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {generateCombinedSchedule().map((schedule: any) => {
+                        const dateObj = new Date(schedule.schedule_date + 'T00:00:00');
+                        const dayName = dateObj.toLocaleDateString('ru-RU', { weekday: 'short' });
+                        const dateFormatted = dateObj.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        
+                        return (
+                          <TableRow key={schedule.id} className={`${!schedule.is_active ? 'opacity-50' : ''} text-sm`}>
+                            <TableCell className="font-medium py-2">{dateFormatted}</TableCell>
+                            <TableCell className="capitalize py-2">{dayName}</TableCell>
+                            <TableCell className="py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                schedule.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                              }`}>
+                                {schedule.is_active ? 'Работа' : 'Выходной'}
+                              </span>
+                            </TableCell>
+                            <TableCell className="py-2">{schedule.start_time.slice(0, 5)} — {schedule.end_time.slice(0, 5)}</TableCell>
+                            <TableCell className="py-2">{schedule.slot_duration} м</TableCell>
+                            <TableCell className="py-2">
+                              {schedule.break_start_time && schedule.break_end_time 
+                                ? `${schedule.break_start_time.slice(0, 5)}—${schedule.break_end_time.slice(0, 5)}`
+                                : '—'
+                              }
+                            </TableCell>
+                            <TableCell className="py-2">
+                              <div className="flex gap-1 justify-end">
+                                {!schedule.is_generated && (
                                   <Button 
                                     size="sm" 
                                     variant="outline"
@@ -2755,17 +2601,8 @@ const Doctor = () => {
                                   >
                                     <Icon name="Edit" size={14} />
                                   </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="secondary"
-                                    onClick={() => {
-                                      // TODO: Implement copy dialog
-                                      toast({ title: "В разработке", description: "Копирование дня скоро будет доступно" });
-                                    }}
-                                    title="Копировать на другие дни"
-                                  >
-                                    <Icon name="Copy" size={14} />
-                                  </Button>
+                                )}
+                                {!schedule.is_generated && (
                                   <Button 
                                     size="sm" 
                                     variant={schedule.is_active ? "outline" : "default"}
@@ -2774,14 +2611,14 @@ const Doctor = () => {
                                   >
                                     <Icon name={schedule.is_active ? "PauseCircle" : "PlayCircle"} size={14} />
                                   </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  )}
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </CardContent>
               </Card>
             </TabsContent>
