@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 
 interface DoctorHeaderProps {
@@ -57,14 +57,16 @@ const DoctorHeaderComponent = ({
               <Icon name={soundEnabled ? "Volume2" : "VolumeX"} size={14} />
             </Button>
             <Dialog>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={!autoRefreshEnabled}
-                className="h-7 px-2 text-xs"
-              >
-                {checkInterval}с
-              </Button>
+              <DialogTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!autoRefreshEnabled}
+                  className="h-7 px-2 text-xs"
+                >
+                  {checkInterval}с
+                </Button>
+              </DialogTrigger>
               <DialogContent className="max-w-sm">
                 <DialogHeader>
                   <DialogTitle>Интервал проверки</DialogTitle>
