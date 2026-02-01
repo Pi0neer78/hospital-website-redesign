@@ -781,7 +781,12 @@ const Registrar = () => {
                         className="w-24 h-7 text-xs bg-blue-600 hover:bg-blue-700"
                         asChild
                       >
-                        <a href={`/doctor?id=${doctor.id}`} target="_blank" rel="noopener noreferrer">
+                        <a 
+                          href={`/doctor?id=${doctor.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Icon name="UserCog" size={12} className="mr-1" />
                           Л/К врача
                         </a>
