@@ -357,7 +357,17 @@ const Doctor = () => {
       }
     }
 
-    return combined;
+    return combined.filter(s => !s.is_generated);
+  };
+
+  const getScheduleDateRange = () => {
+    const schedule = generateCombinedSchedule();
+    if (schedule.length === 0) return { start: '', end: '' };
+    const dates = schedule.map(s => s.schedule_date).sort();
+    return {
+      start: new Date(dates[0] + 'T00:00:00').toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      end: new Date(dates[dates.length - 1] + 'T00:00:00').toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    };
   };
 
   const loadCalendar = async (doctorId: number, year: number) => {
@@ -2546,7 +2556,12 @@ const Doctor = () => {
                 <CardHeader className="border-b">
                   <CardTitle className="flex items-center gap-2">
                     <Icon name="Calendar" size={20} />
-                    Расписание на 2 месяца
+                    {(() => {
+                      const range = getScheduleDateRange();
+                      return range.start && range.end 
+                        ? `Расписание с ${range.start} по ${range.end}`
+                        : 'Расписание';
+                    })()}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -2556,7 +2571,7 @@ const Doctor = () => {
                         <TableHead className="w-[110px]">Дата</TableHead>
                         <TableHead className="w-[90px]">День</TableHead>
                         <TableHead className="w-[90px]">Статус</TableHead>
-                        <TableHead className="w-[120px]">Рабочее время</TableHead>
+                        <TableHead className="w-[240px]">Рабочее время</TableHead>
                         <TableHead className="w-[70px]">Слот</TableHead>
                         <TableHead className="w-[110px]">Перерыв</TableHead>
                         <TableHead className="text-right">Действия</TableHead>
