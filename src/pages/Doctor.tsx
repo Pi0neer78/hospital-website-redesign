@@ -26,6 +26,7 @@ const Doctor = () => {
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [doctorInfo, setDoctorInfo] = useState<any>(null);
+  const [isRegistrarAccess, setIsRegistrarAccess] = useState(false);
   const [loginForm, setLoginForm] = useState({ login: '', password: '' });
   const [schedules, setSchedules] = useState<any[]>([]);
   const [dailySchedules, setDailySchedules] = useState<any[]>([]);
@@ -274,6 +275,7 @@ const Doctor = () => {
         const doctor = data.doctors[0];
         setDoctorInfo(doctor);
         setIsAuthenticated(true);
+        setIsRegistrarAccess(true);
         loadSchedules(doctor.id);
         loadDailySchedules(doctor.id);
         loadAppointments(doctor.id);
@@ -1745,6 +1747,12 @@ const Doctor = () => {
               <h1 className="text-xl font-bold">{doctorInfo?.full_name}</h1>
               <p className="text-sm text-muted-foreground">{doctorInfo?.position}</p>
             </div>
+            {isRegistrarAccess && (
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 rounded-lg">
+                <Icon name="UserCog" size={16} className="text-blue-600" />
+                <span className="text-xs font-semibold text-blue-900">Доступ регистратора</span>
+              </div>
+            )}
           </div>
           <div className="flex gap-2 items-center">
             <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border">
