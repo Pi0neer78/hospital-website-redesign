@@ -60,11 +60,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cursor.execute(
-                    """UPDATE appointments_v2 
-                       SET patient_name = %s, patient_phone = %s, patient_snils = %s, 
-                           patient_oms = %s, description = %s 
-                       WHERE id = %s RETURNING *""",
-                    (patient_name, patient_phone, patient_snils, patient_oms, description, appointment_id)
+                    f"""UPDATE appointments_v2 
+                       SET patient_name = '{patient_name}', patient_phone = '{patient_phone}', 
+                           patient_snils = {f"'{patient_snils}'" if patient_snils else 'NULL'}, 
+                           patient_oms = {f"'{patient_oms}'" if patient_oms else 'NULL'}, 
+                           description = {f"'{description}'" if description else 'NULL'} 
+                       WHERE id = {appointment_id} RETURNING *"""
                 )
                 appointment = cursor.fetchone()
                 conn.commit()

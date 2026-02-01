@@ -3,8 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import type { Appointment, DoctorInfo } from '@/types/doctor';
+import { useState } from 'react';
 
 interface AppointmentsTabProps {
   doctorInfo: DoctorInfo;
@@ -24,6 +28,7 @@ interface AppointmentsTabProps {
   onCancel?: (appointment: Appointment) => void;
   onReschedule?: (appointment: Appointment) => void;
   onClone?: (appointment: Appointment) => void;
+  onEdit?: (appointment: Appointment, updatedData: Partial<Appointment>) => Promise<void>;
 }
 
 export const AppointmentsTab = ({
@@ -43,8 +48,36 @@ export const AppointmentsTab = ({
   onComplete,
   onCancel,
   onReschedule,
-  onClone
+  onClone,
+  onEdit
 }: AppointmentsTabProps) => {
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [editForm, setEditForm] = useState({
+    patient_name: '',
+    patient_phone: '',
+    patient_snils: '',
+    patient_oms: '',
+    description: ''
+  });
+
+  const openEditDialog = (appointment: Appointment) => {
+    setEditingAppointment(appointment);
+    setEditForm({
+      patient_name: appointment.patient_name,
+      patient_phone: appointment.patient_phone,
+      patient_snils: appointment.patient_snils || '',
+      patient_oms: appointment.patient_oms || '',
+      description: appointment.description || ''
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingAppointment || !onEdit) return;
+    await onEdit(editingAppointment, editForm);
+    setEditDialogOpen(false);
+  };
   const filteredAppointments = appointments.filter((app: Appointment) => {
     const statusMatch = statusFilter === 'all' || app.status === statusFilter;
     const dateMatch = app.appointment_date >= dateFilterFrom && app.appointment_date <= dateFilterTo;
@@ -237,6 +270,10 @@ export const AppointmentsTab = ({
                                         <Icon name="CheckCircle" size={16} className="mr-2 text-green-600" />
                                         Завершить прием
                                       </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => openEditDialog(appointment)}>
+                                        <Icon name="Edit" size={16} className="mr-2 text-orange-600" />
+                                        Изменить данные
+                                      </DropdownMenuItem>
                                       <DropdownMenuItem onClick={() => onReschedule?.(appointment)}>
                                         <Icon name="Calendar" size={16} className="mr-2 text-blue-600" />
                                         Перенести
@@ -270,6 +307,70 @@ export const AppointmentsTab = ({
             })}
         </div>
       )}
+
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Изменить данные пациента</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">ФИО пациента *</Label>
+              <Input
+                id="edit-name"
+                value={editForm.patient_name}
+                onChange={(e) => setEditForm({...editForm, patient_name: e.target.value})}
+                placeholder="Иванов Иван Иванович"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Телефон *</Label>
+              <Input
+                id="edit-phone"
+                value={editForm.patient_phone}
+                onChange={(e) => setEditForm({...editForm, patient_phone: e.target.value})}
+                placeholder="+7 (999) 123-45-67"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-snils">СНИЛС</Label>
+              <Input
+                id="edit-snils"
+                value={editForm.patient_snils}
+                onChange={(e) => setEditForm({...editForm, patient_snils: e.target.value})}
+                placeholder="123-456-789 00"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-oms">ОМС</Label>
+              <Input
+                id="edit-oms"
+                value={editForm.patient_oms}
+                onChange={(e) => setEditForm({...editForm, patient_oms: e.target.value})}
+                placeholder="1234567890123456"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Описание</Label>
+              <Textarea
+                id="edit-description"
+                value={editForm.description}
+                onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                placeholder="Дополнительная информация"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Отмена
+            </Button>
+            <Button onClick={handleSaveEdit}>
+              Сохранить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -298,6 +298,46 @@ const DoctorNew = () => {
     toast({ title: "Клонировать запись", description: "Функция клонирования записи в разработке" });
   };
 
+  const handleEditAppointment = async (appointment: Appointment, updatedData: Partial<Appointment>) => {
+    try {
+      const response = await fetch(API_URLS.appointmentsEdit, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: appointment.id,
+          patient_name: updatedData.patient_name,
+          patient_phone: updatedData.patient_phone,
+          snils: updatedData.patient_snils,
+          oms: updatedData.patient_oms,
+          description: updatedData.description
+        })
+      });
+
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        toast({ 
+          title: "Успешно", 
+          description: "Данные пациента обновлены",
+          variant: "default"
+        });
+        
+        // Обновляем список записей
+        if (doctorInfo) {
+          loadAppointments(doctorInfo.id);
+        }
+      } else {
+        throw new Error(result.error || 'Ошибка обновления');
+      }
+    } catch (error) {
+      toast({ 
+        title: "Ошибка", 
+        description: error instanceof Error ? error.message : "Не удалось обновить данные",
+        variant: "destructive"
+      });
+    }
+  };
+
   useEffect(() => {
     if (doctorInfo && selectedYear) {
       loadCalendar(doctorInfo.id, selectedYear);
@@ -450,6 +490,7 @@ const DoctorNew = () => {
                 onCancel={handleCancelAppointment}
                 onReschedule={handleRescheduleAppointment}
                 onClone={handleCloneAppointment}
+                onEdit={handleEditAppointment}
               />
             </TabsContent>
           </div>
