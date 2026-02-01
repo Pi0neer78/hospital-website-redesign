@@ -1,10 +1,20 @@
 {
   "tests": [
     {
-      "name": "Missing ID",
+      "name": "Update appointment success",
       "method": "PUT",
-      "body": {"patient_name": "Test", "patient_phone": "123"},
-      "expectedStatus": 400,
+      "body": {
+        "id": 1,
+        "patient_name": "Тест Тестов",
+        "patient_phone": "+79991234567",
+        "snils": "123-456-789 00",
+        "oms": "1234567890123456",
+        "description": "Тест"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
       "bodyMatcher": "partial"
     }
   ]

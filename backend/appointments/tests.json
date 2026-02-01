@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Update appointment - missing ID",
+      "method": "PUT",
+      "body": {
+        "patient_name": "Тест",
+        "patient_phone": "123"
+      },
+      "expectedStatus": 400,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

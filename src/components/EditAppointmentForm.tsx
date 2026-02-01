@@ -48,14 +48,22 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
 
     setIsSaving(true);
     try {
-      const requestBody = {
+      const requestBody: any = {
         id: appointment.id,
         patient_name: editForm.patient_name.trim(),
-        patient_phone: editForm.patient_phone.trim(),
-        snils: editForm.snils.trim(),
-        oms: editForm.oms.trim(),
-        description: editForm.description.trim()
+        patient_phone: editForm.patient_phone.trim()
       };
+      
+      // Добавляем только непустые поля
+      if (editForm.snils.trim()) {
+        requestBody.patient_snils = editForm.snils.trim();
+      }
+      if (editForm.oms.trim()) {
+        requestBody.patient_oms = editForm.oms.trim();
+      }
+      if (editForm.description.trim()) {
+        requestBody.description = editForm.description.trim();
+      }
 
       const response = await fetch(API_URL, {
         method: 'PUT',
