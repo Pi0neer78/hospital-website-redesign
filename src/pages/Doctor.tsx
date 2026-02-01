@@ -3482,14 +3482,20 @@ const Doctor = () => {
                 <Input
                   value={newAppointmentDialog.patientSnils}
                   onChange={(e) => {
-                    let value = e.target.value.replace(/\D/g, '');
-                    if (value.length > 11) value = value.slice(0, 11);
-                    if (value.length >= 3) value = value.slice(0, 3) + '-' + value.slice(3);
-                    if (value.length >= 7) value = value.slice(0, 7) + '-' + value.slice(7);
-                    if (value.length >= 11) value = value.slice(0, 11) + '-' + value.slice(11);
-                    setNewAppointmentDialog({...newAppointmentDialog, patientSnils: value});
+                    const digits = e.target.value.replace(/\D/g, '');
+                    let formatted = '';
+                    if (digits.length <= 3) {
+                      formatted = digits;
+                    } else if (digits.length <= 6) {
+                      formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+                    } else if (digits.length <= 9) {
+                      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+                    } else {
+                      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
+                    }
+                    setNewAppointmentDialog({...newAppointmentDialog, patientSnils: formatted});
                   }}
-                  placeholder="123-456-789-01"
+                  placeholder="123-123-123-12"
                   className="h-9 text-sm"
                   maxLength={14}
                 />
@@ -3500,14 +3506,20 @@ const Doctor = () => {
                 <Input
                   value={newAppointmentDialog.patientOms}
                   onChange={(e) => {
-                    let value = e.target.value.replace(/\D/g, '');
-                    if (value.length > 16) value = value.slice(0, 16);
-                    if (value.length >= 4) value = value.slice(0, 4) + '-' + value.slice(4);
-                    if (value.length >= 9) value = value.slice(0, 9) + '-' + value.slice(9);
-                    if (value.length >= 14) value = value.slice(0, 14) + '-' + value.slice(14);
-                    setNewAppointmentDialog({...newAppointmentDialog, patientOms: value});
+                    const digits = e.target.value.replace(/\D/g, '');
+                    let formatted = '';
+                    if (digits.length <= 4) {
+                      formatted = digits;
+                    } else if (digits.length <= 8) {
+                      formatted = `${digits.slice(0, 4)}-${digits.slice(4)}`;
+                    } else if (digits.length <= 12) {
+                      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`;
+                    } else {
+                      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 12)}-${digits.slice(12, 16)}`;
+                    }
+                    setNewAppointmentDialog({...newAppointmentDialog, patientOms: formatted});
                   }}
-                  placeholder="1234-5678-9012-3456"
+                  placeholder="1234-1234-1234-1234"
                   className="h-9 text-sm"
                   maxLength={19}
                 />

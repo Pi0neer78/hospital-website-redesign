@@ -36,6 +36,32 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
   });
   const [isSaving, setIsSaving] = useState(false);
 
+  const formatSnils = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    if (digits.length <= 9) return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
+  };
+
+  const formatOms = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length <= 4) return digits;
+    if (digits.length <= 8) return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+    if (digits.length <= 12) return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`;
+    return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 12)}-${digits.slice(12, 16)}`;
+  };
+
+  const handleSnilsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatSnils(e.target.value);
+    setEditForm({ ...editForm, snils: formatted });
+  };
+
+  const handleOmsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatOms(e.target.value);
+    setEditForm({ ...editForm, oms: formatted });
+  };
+
   const handleSaveEdit = async () => {
     if (!editForm.patient_name.trim() || !editForm.patient_phone.trim()) {
       toast({
@@ -121,8 +147,9 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
         <Input
           id="edit-snils"
           value={editForm.snils}
-          onChange={(e) => setEditForm({ ...editForm, snils: e.target.value })}
-          placeholder="123-456-789 00"
+          onChange={handleSnilsChange}
+          placeholder="123-123-123-12"
+          maxLength={14}
         />
       </div>
 
@@ -131,8 +158,9 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
         <Input
           id="edit-oms"
           value={editForm.oms}
-          onChange={(e) => setEditForm({ ...editForm, oms: e.target.value })}
-          placeholder="1234567890123456"
+          onChange={handleOmsChange}
+          placeholder="1234-1234-1234-1234"
+          maxLength={19}
         />
       </div>
 

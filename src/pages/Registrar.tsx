@@ -1106,7 +1106,22 @@ const Registrar = () => {
                 <label className="text-xs font-medium text-muted-foreground">СНИЛС</label>
                 <Input
                   value={newAppointmentDialog.patientSnils}
-                  onChange={(e) => setNewAppointmentDialog({ ...newAppointmentDialog, patientSnils: e.target.value })}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '');
+                    let formatted = '';
+                    if (digits.length <= 3) {
+                      formatted = digits;
+                    } else if (digits.length <= 6) {
+                      formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+                    } else if (digits.length <= 9) {
+                      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+                    } else {
+                      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
+                    }
+                    setNewAppointmentDialog({ ...newAppointmentDialog, patientSnils: formatted });
+                  }}
+                  placeholder="123-123-123-12"
+                  maxLength={14}
                   className="h-9"
                 />
               </div>
@@ -1114,7 +1129,22 @@ const Registrar = () => {
                 <label className="text-xs font-medium text-muted-foreground">ОМС</label>
                 <Input
                   value={newAppointmentDialog.patientOms}
-                  onChange={(e) => setNewAppointmentDialog({ ...newAppointmentDialog, patientOms: e.target.value })}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '');
+                    let formatted = '';
+                    if (digits.length <= 4) {
+                      formatted = digits;
+                    } else if (digits.length <= 8) {
+                      formatted = `${digits.slice(0, 4)}-${digits.slice(4)}`;
+                    } else if (digits.length <= 12) {
+                      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`;
+                    } else {
+                      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 12)}-${digits.slice(12, 16)}`;
+                    }
+                    setNewAppointmentDialog({ ...newAppointmentDialog, patientOms: formatted });
+                  }}
+                  placeholder="1234-1234-1234-1234"
+                  maxLength={19}
                   className="h-9"
                 />
               </div>
