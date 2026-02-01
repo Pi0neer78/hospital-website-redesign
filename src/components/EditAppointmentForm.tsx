@@ -48,24 +48,29 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
 
     setIsSaving(true);
     try {
+      const requestBody: any = {
+        action: 'update_patient_info',
+        id: appointment.id,
+        patient_name: editForm.patient_name.trim(),
+        patient_phone: editForm.patient_phone.trim(),
+        snils: editForm.snils.trim() || '',
+        oms: editForm.oms.trim() || '',
+        description: editForm.description.trim() || ''
+      };
+
       const response = await fetch(API_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'update_patient_info',
-          id: appointment.id,
-          patient_name: editForm.patient_name.trim(),
-          patient_phone: editForm.patient_phone.trim(),
-          snils: editForm.snils.trim() || null,
-          oms: editForm.oms.trim() || null,
-          description: editForm.description.trim() || null
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
-        throw new Error('Не удалось сохранить изменения');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Ошибка ${response.status}: Не удалось сохранить изменения`);
       }
 
+      const result = await response.json();
+      
       toast({
         title: 'Успешно',
         description: 'Данные пациента обновлены'
@@ -73,6 +78,7 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
       
       onSuccess();
     } catch (error) {
+      console.error('Edit appointment error:', error);
       toast({
         title: 'Ошибка',
         description: error instanceof Error ? error.message : 'Не удалось сохранить',

@@ -7,7 +7,8 @@ from datetime import datetime, timedelta
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
-    API для управления записями на приём к врачам
+    API для управления записями на приём к врачам.
+    Поддерживает обновление данных пациента через action='update_patient_info'
     """
     method = event.get('httpMethod', 'GET')
     

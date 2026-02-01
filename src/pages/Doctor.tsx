@@ -286,10 +286,18 @@ const Doctor = () => {
   const loadSchedules = async (doctorId: number) => {
     try {
       const response = await fetch(`${API_URLS.schedules}?doctor_id=${doctorId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
       const data = await response.json();
       setSchedules(data.schedules || []);
     } catch (error) {
-      toast({ title: "Ошибка", description: "Не удалось загрузить расписание", variant: "destructive" });
+      console.error('Load schedules error:', error);
+      toast({ 
+        title: "Ошибка", 
+        description: "Не удалось загрузить расписание. Проверьте подключение к интернету.", 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -300,9 +308,13 @@ const Doctor = () => {
       twoMonthsLater.setMonth(today.getMonth() + 2);
       
       const response = await fetch(`${API_URLS.schedules}?action=daily&doctor_id=${doctorId}&start_date=${today.toISOString().split('T')[0]}&end_date=${twoMonthsLater.toISOString().split('T')[0]}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
       const data = await response.json();
       setDailySchedules(data.daily_schedules || []);
     } catch (error) {
+      console.error('Load daily schedules error:', error);
       toast({ title: "Ошибка", description: "Не удалось загрузить ежедневное расписание", variant: "destructive" });
     }
   };
