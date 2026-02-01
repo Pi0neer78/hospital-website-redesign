@@ -1,0 +1,10 @@
+{
+  "tests": [
+    {
+      "name": "Missing ID",
+      "method": "PUT",
+      "body": {"patient_name": "Test", "patient_phone": "+7999"},
+      "expectedStatus": 400
+    }
+  ]
+}

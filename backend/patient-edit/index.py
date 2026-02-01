@@ -4,7 +4,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 def handler(event: dict, context) -> dict:
-    """API для редактирования данных пациента в записи"""
+    """Редактирование данных пациента в записи"""
     method = event.get('httpMethod', 'GET')
     
     if method == 'OPTIONS':
@@ -23,11 +23,11 @@ def handler(event: dict, context) -> dict:
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'}),
+            'body': json.dumps({'error': 'Only PUT allowed'}),
             'isBase64Encoded': False
         }
     
-    conn = psycopg2.connect(os.environ.get('DATABASE_URL'))
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
     
     try:
         body = json.loads(event.get('body', '{}'))
@@ -41,11 +41,11 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
-        name = body.get('patient_name', '').strip().replace("'", "''")
-        phone = body.get('patient_phone', '').strip().replace("'", "''")
-        snils = body.get('snils', '').strip().replace("'", "''")
-        oms = body.get('oms', '').strip().replace("'", "''")
-        desc = body.get('description', '').strip().replace("'", "''")
+        name = body.get('patient_name', '').strip()
+        phone = body.get('patient_phone', '').strip()
+        snils = body.get('patient_snils', '').strip() if body.get('patient_snils') else None
+        oms = body.get('patient_oms', '').strip() if body.get('patient_oms') else None
+        desc = body.get('description', '').strip() if body.get('description') else None
         
         if not name or not phone:
             return {
@@ -57,15 +57,14 @@ def handler(event: dict, context) -> dict:
         
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        sql = f"""UPDATE appointments_v2 SET 
-                  patient_name='{name}', 
-                  patient_phone='{phone}', 
-                  patient_snils={f"'{snils}'" if snils else 'NULL'}, 
-                  patient_oms={f"'{oms}'" if oms else 'NULL'}, 
-                  description={f"'{desc}'" if desc else 'NULL'} 
-                  WHERE id={apt_id} RETURNING *"""
+        cursor.execute(
+            """UPDATE appointments_v2 
+               SET patient_name = %s, patient_phone = %s, patient_snils = %s, 
+                   patient_oms = %s, description = %s 
+               WHERE id = %s RETURNING *""",
+            (name, phone, snils, oms, desc, apt_id)
+        )
         
-        cursor.execute(sql)
         result = cursor.fetchone()
         conn.commit()
         cursor.close()
@@ -74,7 +73,7 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 404,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Appointment not found'}),
+                'body': json.dumps({'error': 'Not found'}),
                 'isBase64Encoded': False
             }
         
