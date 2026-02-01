@@ -65,14 +65,19 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
         requestBody.description = editForm.description.trim();
       }
 
+      console.log('📤 Отправляем на backend:', requestBody);
+
       const response = await fetch(API_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       });
+      
+      console.log('📥 Ответ backend:', response.status, response.statusText);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Ошибка от backend:', errorData);
         throw new Error(errorData.error || `Ошибка ${response.status}: Не удалось сохранить изменения`);
       }
 
