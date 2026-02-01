@@ -6,19 +6,9 @@ from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
-    Управление расписанием врачей, календарем и записями
-    GET /?doctor_id=X - получить расписание врача
-    GET /?action=daily&doctor_id=X&start_date=...&end_date=... - получить ежедневное расписание
-    GET /?action=calendar&doctor_id=X&year=2025 - получить календарь врача на год
-    POST / - создать/обновить расписание
-    POST {action: "daily", doctor_id, schedule_date, start_time, end_time, ...} - создать/обновить день
-    POST {action: "calendar", doctor_id, calendar_date, is_working, note} - сохранить день календаря
-    POST {action: "bulk_calendar", doctor_id, dates, is_working} - массовое сохранение дней
-    PUT / - изменить статус активности или время
-    PUT {action: "daily", id, ...} - изменить ежедневное расписание
-    PUT {action: "edit_appointment", id, patient_name, patient_phone, ...} - редактировать данные пациента
-    DELETE /?id=X - удалить расписание
-    DELETE /?action=daily&id=X - удалить день из расписания
+    Управление расписанием врачей, календарем и записями пациентов.
+    Поддерживает работу с еженедельным расписанием, ежедневным расписанием,
+    годовым календарем и редактирование данных записей пациентов.
     """
     method = event.get('httpMethod', 'GET')
     
