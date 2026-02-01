@@ -268,11 +268,19 @@ const Doctor = () => {
 
   const loadDoctorById = async (doctorId: number) => {
     try {
-      const response = await fetch(`https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688?id=${doctorId}`);
+      const url = `https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688?id=${doctorId}`;
+      console.log('🔍 Загрузка врача по ID:', doctorId, 'URL:', url);
+      
+      const response = await fetch(url);
       const data = await response.json();
       
+      console.log('📥 Ответ от API doctors:', data);
+      console.log('📊 Найдено врачей:', data.doctors?.length || 0);
+      
       if (response.ok && data.doctors && data.doctors.length > 0) {
-        const doctor = data.doctors[0];
+        const doctor = data.doctors.find((d: any) => d.id === doctorId) || data.doctors[0];
+        console.log('✅ Врач найден:', doctor);
+        
         setDoctorInfo(doctor);
         setIsAuthenticated(true);
         setIsRegistrarAccess(true);
@@ -286,9 +294,11 @@ const Doctor = () => {
           duration: 3000
         });
       } else {
+        console.error('❌ Врач не найден. Ответ:', data);
         toast({ title: "Ошибка", description: "Врач не найден", variant: "destructive" });
       }
     } catch (error) {
+      console.error('❌ Ошибка загрузки врача:', error);
       toast({ title: "Ошибка", description: "Не удалось загрузить данные врача", variant: "destructive" });
     }
   };
