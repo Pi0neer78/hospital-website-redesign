@@ -50,20 +50,13 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
     try {
       const requestBody: any = {
         id: appointment.id,
+        status: appointment.status, // Обязательное поле для обновления
         patient_name: editForm.patient_name.trim(),
-        patient_phone: editForm.patient_phone.trim()
+        patient_phone: editForm.patient_phone.trim(),
+        patient_snils: editForm.snils.trim() || null,
+        patient_oms: editForm.oms.trim() || null,
+        description: editForm.description.trim() || null
       };
-      
-      // Добавляем только непустые поля
-      if (editForm.snils.trim()) {
-        requestBody.patient_snils = editForm.snils.trim();
-      }
-      if (editForm.oms.trim()) {
-        requestBody.patient_oms = editForm.oms.trim();
-      }
-      if (editForm.description.trim()) {
-        requestBody.description = editForm.description.trim();
-      }
 
       console.log('📤 Отправляем на backend:', requestBody);
 
