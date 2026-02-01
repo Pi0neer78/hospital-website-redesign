@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
@@ -2054,6 +2055,100 @@ const Doctor = () => {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold">Рабочее расписание</h2>
                 <div className="flex gap-2">
+                  <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        size="lg"
+                        title="Добавить день недели в еженедельное расписание"
+                      >
+                        <Icon name="Plus" size={20} className="mr-2" />
+                        Добавить день недели
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Добавить день недели</DialogTitle>
+                        <DialogDescription>
+                          Настройте повторяющееся расписание для дня недели
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form onSubmit={handleCreateSchedule} className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">День недели</label>
+                          <Select
+                            value={scheduleForm.day_of_week.toString()}
+                            onValueChange={(value) => setScheduleForm({ ...scheduleForm, day_of_week: parseInt(value) })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите день недели" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {DAYS_OF_WEEK.map((day, index) => (
+                                <SelectItem key={index} value={index.toString()}>{day}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Время начала</label>
+                            <Input
+                              type="time"
+                              value={scheduleForm.start_time}
+                              onChange={(e) => setScheduleForm({ ...scheduleForm, start_time: e.target.value })}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Время окончания</label>
+                            <Input
+                              type="time"
+                              value={scheduleForm.end_time}
+                              onChange={(e) => setScheduleForm({ ...scheduleForm, end_time: e.target.value })}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Длительность слота (минуты)</label>
+                          <Input
+                            type="number"
+                            min="1"
+                            max="120"
+                            step="1"
+                            value={scheduleForm.slot_duration}
+                            onChange={(e) => setScheduleForm({ ...scheduleForm, slot_duration: parseInt(e.target.value) || 15 })}
+                            required
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Интервал времени для одного приёма
+                          </p>
+                        </div>
+                        <div className="border-t pt-4">
+                          <label className="text-sm font-medium mb-2 block">Перерыв (необязательно)</label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-xs text-muted-foreground mb-1 block">Начало перерыва</label>
+                              <Input
+                                type="time"
+                                value={scheduleForm.break_start_time}
+                                onChange={(e) => setScheduleForm({ ...scheduleForm, break_start_time: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-muted-foreground mb-1 block">Конец перерыва</label>
+                              <Input
+                                type="time"
+                                value={scheduleForm.break_end_time}
+                                onChange={(e) => setScheduleForm({ ...scheduleForm, break_end_time: e.target.value })}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <Button type="submit" className="w-full">Добавить день</Button>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
                   <Dialog open={isBulkGenerateOpen} onOpenChange={setIsBulkGenerateOpen}>
                     <DialogTrigger asChild>
                       <Button
@@ -2168,15 +2263,16 @@ const Doctor = () => {
                     <DialogTrigger asChild>
                       <Button 
                         size="lg"
-                        title="Добавить новый рабочий день в расписание"
+                        variant="secondary"
+                        title="Добавить конкретную дату в расписание"
                       >
-                        <Icon name="Plus" size={20} className="mr-2" />
-                        Добавить день
+                        <Icon name="Calendar" size={20} className="mr-2" />
+                        Добавить конкретную дату
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Добавить рабочий день</DialogTitle>
+                      <DialogTitle>Добавить конкретную дату</DialogTitle>
                       <DialogDescription>
                         Настройте индивидуальное расписание для конкретной даты
                       </DialogDescription>
@@ -2494,15 +2590,121 @@ const Doctor = () => {
                 </DialogContent>
               </Dialog>
 
-              {dailySchedules.length === 0 ? (
-                <Card>
-                  <CardContent className="py-8 text-center text-muted-foreground">
-                    Расписание не установлено. Добавьте рабочие дни.
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card>
-                  <CardContent className="p-0">
+              <Card className="mb-6">
+                <CardHeader className="border-b">
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon name="CalendarDays" size={20} />
+                    Еженедельное расписание
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {schedules.length === 0 ? (
+                    <div className="py-8 text-center text-muted-foreground">
+                      Еженедельное расписание не установлено. Система будет использовать только конкретные даты ниже.
+                    </div>
+                  ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                      {schedules.map((schedule: any) => (
+                        <Card key={schedule.id} className={`overflow-hidden ${!schedule.is_active ? 'opacity-50' : ''}`}>
+                          <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-base font-bold">
+                                {DAYS_OF_WEEK[schedule.day_of_week]}
+                              </CardTitle>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                schedule.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                              }`}>
+                                {schedule.is_active ? 'Активно' : 'Неактивно'}
+                              </span>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="p-4 space-y-3">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Icon name="Clock" size={16} className="text-blue-600" />
+                              <span className="font-medium">{schedule.start_time.slice(0, 5)} — {schedule.end_time.slice(0, 5)}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Icon name="Timer" size={16} className="text-purple-600" />
+                              <span>Слот: {schedule.slot_duration} мин</span>
+                            </div>
+                            {schedule.break_start_time && schedule.break_end_time && (
+                              <div className="flex items-center gap-2 text-sm">
+                                <Icon name="Coffee" size={16} className="text-amber-600" />
+                                <span>Перерыв: {schedule.break_start_time.slice(0, 5)} — {schedule.break_end_time.slice(0, 5)}</span>
+                              </div>
+                            )}
+                            <div className="flex gap-1 pt-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => {
+                                  setEditingSchedule(schedule);
+                                  setScheduleForm({
+                                    day_of_week: schedule.day_of_week,
+                                    start_time: schedule.start_time.slice(0, 5),
+                                    end_time: schedule.end_time.slice(0, 5),
+                                    break_start_time: schedule.break_start_time ? schedule.break_start_time.slice(0, 5) : '',
+                                    break_end_time: schedule.break_end_time ? schedule.break_end_time.slice(0, 5) : '',
+                                    slot_duration: schedule.slot_duration
+                                  });
+                                  setIsEditOpen(true);
+                                }}
+                                title="Изменить параметры"
+                              >
+                                <Icon name="Edit" size={14} />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="secondary"
+                                className="flex-1"
+                                onClick={() => {
+                                  setCopyFromSchedule(schedule);
+                                  setSelectedDaysToCopy([]);
+                                  setIsCopyDialogOpen(true);
+                                }}
+                                title="Копировать на другие дни"
+                              >
+                                <Icon name="Copy" size={14} />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant={schedule.is_active ? "outline" : "default"}
+                                onClick={() => handleToggleActive(schedule.id, schedule.is_active)}
+                                title={schedule.is_active ? "Деактивировать" : "Активировать"}
+                              >
+                                <Icon name={schedule.is_active ? "PauseCircle" : "PlayCircle"} size={14} />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="destructive"
+                                onClick={() => handleDeleteSchedule(schedule.id)}
+                                title="Удалить день из расписания"
+                              >
+                                <Icon name="Trash2" size={14} />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="border-b">
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon name="Calendar" size={20} />
+                    Расписание по конкретным датам
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {dailySchedules.length === 0 ? (
+                    <div className="py-8 text-center text-muted-foreground">
+                      Расписание для конкретных дат не установлено. Используется только еженедельное расписание.
+                    </div>
+                  ) : (
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -2579,9 +2781,9 @@ const Doctor = () => {
                         })}
                       </TableBody>
                     </Table>
-                  </CardContent>
-                </Card>
-              )}
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="appointments" className="mt-6">
