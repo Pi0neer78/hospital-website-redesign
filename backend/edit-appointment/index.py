@@ -32,23 +32,34 @@ def handler(event: dict, context) -> dict:
     try:
         body = json.loads(event.get('body', '{}'))
         apt_id = body.get('id')
-        name = body.get('patient_name', '').replace("'", "''")
-        phone = body.get('patient_phone', '').replace("'", "''")
-        snils = body.get('snils', '').replace("'", "''")
-        oms = body.get('oms', '').replace("'", "''")
-        desc = body.get('description', '').replace("'", "''")
         
-        if not apt_id or not name or not phone:
+        if not apt_id:
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'ID, name, phone required'}),
+                'body': json.dumps({'error': 'ID required'}),
+                'isBase64Encoded': False
+            }
+        
+        name = body.get('patient_name', '').strip().replace("'", "''")
+        phone = body.get('patient_phone', '').strip().replace("'", "''")
+        snils = body.get('snils', '').strip().replace("'", "''")
+        oms = body.get('oms', '').strip().replace("'", "''")
+        desc = body.get('description', '').strip().replace("'", "''")
+        
+        if not name or not phone:
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Name and phone required'}),
                 'isBase64Encoded': False
             }
         
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        sql = f"""UPDATE appointments_v2 SET patient_name='{name}', patient_phone='{phone}', 
+        sql = f"""UPDATE appointments_v2 SET 
+                  patient_name='{name}', 
+                  patient_phone='{phone}', 
                   patient_snils={f"'{snils}'" if snils else 'NULL'}, 
                   patient_oms={f"'{oms}'" if oms else 'NULL'}, 
                   description={f"'{desc}'" if desc else 'NULL'} 
@@ -63,7 +74,7 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 404,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Not found'}),
+                'body': json.dumps({'error': 'Appointment not found'}),
                 'isBase64Encoded': False
             }
         

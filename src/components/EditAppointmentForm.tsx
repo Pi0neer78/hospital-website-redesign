@@ -48,14 +48,13 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
 
     setIsSaving(true);
     try {
-      const requestBody: any = {
-        action: 'update_patient_info',
+      const requestBody = {
         id: appointment.id,
         patient_name: editForm.patient_name.trim(),
         patient_phone: editForm.patient_phone.trim(),
-        snils: editForm.snils.trim() || '',
-        oms: editForm.oms.trim() || '',
-        description: editForm.description.trim() || ''
+        snils: editForm.snils.trim(),
+        oms: editForm.oms.trim(),
+        description: editForm.description.trim()
       };
 
       const response = await fetch(API_URL, {
