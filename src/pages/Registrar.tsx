@@ -1550,7 +1550,7 @@ const Registrar = () => {
                   <Icon name="MousePointer" size={18} className="text-primary mt-1 flex-shrink-0" />
                   <div>
                     <p className="font-medium">Выберите врача</p>
-                    <p className="text-sm text-muted-foreground">Нажмите на карточку врача. Система автоматически прокрутит к доступным датам</p>
+                    <p className="text-sm text-muted-foreground">Нажмите на карточку врача. Система автоматически прокрутит к доступным датам. Используйте кнопку "Л/К врача" для просмотра подробной информации о враче</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -1571,7 +1571,7 @@ const Registrar = () => {
                   <Icon name="UserPlus" size={18} className="text-primary mt-1 flex-shrink-0" />
                   <div>
                     <p className="font-medium">Заполните данные пациента</p>
-                    <p className="text-sm text-muted-foreground">Откроется форма. Введите ФИО (обязательно), телефон (обязательно), СНИЛС и описание проблемы (необязательно)</p>
+                    <p className="text-sm text-muted-foreground">Откроется форма. Введите ФИО (обязательно), телефон (обязательно), СНИЛС, полис ОМС и описание проблемы (необязательно)</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -1642,6 +1642,24 @@ const Registrar = () => {
                       <li>Выберите новую дату и время</li>
                       <li>Подтвердите создание копии</li>
                     </ol>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-purple-200 bg-purple-50">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Icon name="Edit" size={18} className="text-purple-600" />
+                      Редактирование записи
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm">
+                    <p className="mb-2">Используйте для изменения данных пациента:</p>
+                    <ol className="list-decimal list-inside space-y-1">
+                      <li>Нажмите фиолетовую иконку редактирования <Icon name="Edit" size={14} className="inline text-purple-600" /></li>
+                      <li>Измените ФИО, телефон, СНИЛС, полис ОМС или описание</li>
+                      <li>Нажмите "Сохранить" для применения изменений</li>
+                    </ol>
+                    <p className="mt-2 text-xs text-muted-foreground italic">⚠️ Редактирование НЕ меняет дату и время записи. Для переноса используйте кнопку "Перенести"</p>
                   </CardContent>
                 </Card>
               </div>
