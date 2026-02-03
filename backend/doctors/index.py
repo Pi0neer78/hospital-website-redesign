@@ -159,14 +159,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 update_fields.append('education = %s')
                 update_values.append(body['education'])
             if 'work_experience' in body:
-                update_fields.append('work_experience = %s')
-                update_values.append(body['work_experience'])
+                val = body['work_experience']
+                if val and str(val).strip():
+                    update_fields.append('work_experience = %s')
+                    update_values.append(int(val) if isinstance(val, str) else val)
             if 'office_number' in body:
-                update_fields.append('office_number = %s')
-                update_values.append(body['office_number'])
+                val = body['office_number']
+                if val and str(val).strip():
+                    update_fields.append('office_number = %s')
+                    update_values.append(int(val) if isinstance(val, str) else val)
             if 'password' in body:
-                update_fields.append('password_hash = %s')
-                update_values.append(body['password'])
+                pwd = body['password']
+                if pwd and str(pwd).strip():
+                    update_fields.append('password_hash = %s')
+                    update_values.append(str(pwd).strip())
             
             if not update_fields:
                 return {
