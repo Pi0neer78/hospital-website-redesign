@@ -10,7 +10,7 @@ import { useRateLimiter } from '@/hooks/use-rate-limiter';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
 
 const BACKEND_URLS = {
-  appointments: 'https://functions.poehali.dev/a7f148cd-e1c2-40e3-9762-cc8b2bc2dffb',
+  appointments: 'https://functions.poehali.dev/85500362-f417-4a13-9095-7cd6af335624',
   doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
   schedules: 'https://functions.poehali.dev/6f53f66d-3e47-4e57-93dd-52d63c16d38f',
   consultations: 'https://functions.poehali.dev/d77bf8b2-a03f-4774-81ca-c6ae5f643a02',
