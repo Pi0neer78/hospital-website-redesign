@@ -11,6 +11,16 @@
       "bodyMatcher": "partial"
     },
     {
+      "name": "Test check slot availability",
+      "method": "GET",
+      "path": "/?action=check-slot&doctor_id=10&date=2026-02-10&time=10:00",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "available": "boolean"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
       "name": "Test list appointments",
       "method": "GET",
       "path": "/?action=list&doctor_id=10",

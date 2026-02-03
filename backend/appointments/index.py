@@ -29,8 +29,24 @@ def handler(event: dict, context) -> dict:
         params = event.get('queryStringParameters') or {}
         action = params.get('action', '')
         
-        if action == 'available-slots':
+        if not action and method == 'GET' and 'doctor_id' in params:
+            result = list_appointments(cursor, params)
+        elif not action and method == 'POST':
+            body = json.loads(event.get('body', '{}'))
+            if 'doctor_id' in body and 'appointment_date' in body and 'appointment_time' in body:
+                result = create_appointment(cursor, conn, body)
+            elif 'id' in body and 'new_date' in body:
+                result = reschedule_appointment(cursor, conn, body)
+            elif 'id' in body and body.get('status') == 'cancelled':
+                result = cancel_appointment(cursor, conn, body)
+            elif 'id' in body:
+                result = update_appointment(cursor, conn, body)
+            else:
+                result = {'error': 'Invalid POST request'}
+        elif action == 'available-slots':
             result = get_available_slots(cursor, params)
+        elif action == 'check-slot':
+            result = check_slot_availability(cursor, params)
         elif action == 'create':
             body = json.loads(event.get('body', '{}'))
             result = create_appointment(cursor, conn, body)
@@ -126,6 +142,45 @@ def get_available_slots(cursor, params):
     
     return {'available_slots': available_slots}
 
+def check_slot_availability(cursor, params):
+    """Проверка доступности конкретного слота времени"""
+    doctor_id = params.get('doctor_id')
+    date_str = params.get('date')
+    time_str = params.get('time')
+    exclude_id = params.get('exclude_id')
+    
+    if not all([doctor_id, date_str, time_str]):
+        return {'available': False, 'error': 'Не указаны необходимые параметры'}
+    
+    doctor_id = int(doctor_id)
+    target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+    target_time = datetime.strptime(time_str, '%H:%M').time()
+    
+    query = """
+        SELECT COUNT(*) as count
+        FROM t_p30358746_hospital_website_red.appointments_v2
+        WHERE doctor_id = %s 
+        AND appointment_date = %s 
+        AND appointment_time = %s 
+        AND status != 'cancelled'
+    """
+    params_list = [doctor_id, target_date, target_time]
+    
+    if exclude_id:
+        query += " AND id != %s"
+        params_list.append(int(exclude_id))
+    
+    cursor.execute(query, params_list)
+    result = cursor.fetchone()
+    
+    if result['count'] > 0:
+        return {
+            'available': False, 
+            'error': f'Время {time_str} на {target_date.strftime("%d.%m.%Y")} уже занято'
+        }
+    
+    return {'available': True}
+
 def create_appointment(cursor, conn, body):
     """Создание новой записи пациента"""
     doctor_id = body.get('doctor_id')
@@ -141,13 +196,13 @@ def create_appointment(cursor, conn, body):
         INSERT INTO t_p30358746_hospital_website_red.appointments_v2 
         (doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description, patient_snils, patient_oms, status)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'scheduled')
-        RETURNING id
+        RETURNING id, doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description, patient_snils, patient_oms, status, created_at
     """, (doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description, patient_snils, patient_oms))
     
-    appointment_id = cursor.fetchone()['id']
+    appointment = cursor.fetchone()
     conn.commit()
     
-    return {'success': True, 'appointment_id': appointment_id}
+    return {'success': True, 'appointment_id': appointment['id'], 'appointment': dict(appointment)}
 
 def list_appointments(cursor, params):
     """Получение списка записей"""
