@@ -84,16 +84,40 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             elif action == 'calendar':
                 year = query_params.get('year', '2025')
                 cursor.execute(
-                    "SELECT * FROM doctor_calendar WHERE doctor_id = %s AND EXTRACT(YEAR FROM calendar_date) = %s ORDER BY calendar_date",
+                    "SELECT calendar_date, is_working, note FROM t_p30358746_hospital_website_red.doctor_calendar WHERE doctor_id = %s AND EXTRACT(YEAR FROM calendar_date) = %s ORDER BY calendar_date",
                     (doctor_id, year)
                 )
                 calendar_days = cursor.fetchall()
+                
+                cursor.execute(
+                    "SELECT schedule_date, is_active FROM t_p30358746_hospital_website_red.daily_schedules WHERE doctor_id = %s AND EXTRACT(YEAR FROM schedule_date) = %s AND is_active = true ORDER BY schedule_date",
+                    (doctor_id, year)
+                )
+                daily_schedules = cursor.fetchall()
+                
+                calendar_map = {}
+                for day in calendar_days:
+                    calendar_map[str(day['calendar_date'])] = {
+                        'calendar_date': str(day['calendar_date']),
+                        'is_working': day['is_working'],
+                        'note': day.get('note')
+                    }
+                
+                for day in daily_schedules:
+                    date_str = str(day['schedule_date'])
+                    if date_str not in calendar_map:
+                        calendar_map[date_str] = {
+                            'calendar_date': date_str,
+                            'is_working': day['is_active']
+                        }
+                
+                calendar_result = list(calendar_map.values())
                 cursor.close()
                 
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'calendar': calendar_days}, default=str),
+                    'body': json.dumps({'calendar': calendar_result}, default=str),
                     'isBase64Encoded': False
                 }
             else:
