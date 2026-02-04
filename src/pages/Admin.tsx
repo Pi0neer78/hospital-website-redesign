@@ -91,6 +91,7 @@ const Admin = () => {
   const [logFilterText, setLogFilterText] = useState<string>('');
   const [logFilterDateFrom, setLogFilterDateFrom] = useState<string>('');
   const [logFilterDateTo, setLogFilterDateTo] = useState<string>('');
+  const [showPassword, setShowPassword] = useState(false);
   const notificationSound = typeof Audio !== 'undefined' ? new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUQ0PVqzn7bViFg==') : null;
 
   useEffect(() => {
@@ -1742,12 +1743,23 @@ const Admin = () => {
                   </div>
                   <div>
                     <label className="text-xs font-medium text-muted-foreground">Новый пароль (оставьте пустым)</label>
-                    <Input
-                      type="password"
-                      value={doctorForm.password}
-                      onChange={(e) => setDoctorForm({ ...doctorForm, password: e.target.value })}
-                      className="h-9"
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        value={doctorForm.password}
+                        onChange={(e) => setDoctorForm({ ...doctorForm, password: e.target.value })}
+                        className="h-9 pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-0 top-0 h-9 px-3 hover:bg-transparent"
+                      >
+                        <Icon name={showPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                      </Button>
+                    </div>
                   </div>
                   <Button type="submit" className="w-full h-9">Сохранить изменения</Button>
                 </form>
