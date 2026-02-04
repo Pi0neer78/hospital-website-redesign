@@ -1510,13 +1510,24 @@ const Admin = () => {
                     </div>
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Пароль *</label>
-                      <Input
-                        type="password"
-                        value={doctorForm.password}
-                        onChange={(e) => setDoctorForm({ ...doctorForm, password: e.target.value })}
-                        required
-                        className="h-9"
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          value={doctorForm.password}
+                          onChange={(e) => setDoctorForm({ ...doctorForm, password: e.target.value })}
+                          required
+                          className="h-9 pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-0 top-0 h-9 px-3 hover:bg-transparent"
+                        >
+                          <Icon name={showPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                   <div className="space-y-2">
