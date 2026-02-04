@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -26,6 +27,9 @@ const RegistrarsTab = ({
   editingRegistrar, setEditingRegistrar, isRegistrarEditOpen, setIsRegistrarEditOpen,
   onCreateRegistrar, onUpdateRegistrar, onDeleteRegistrar, onViewLogs
 }: RegistrarsTabProps) => {
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -48,7 +52,12 @@ const RegistrarsTab = ({
                 </SelectContent>
               </Select>
               <Input placeholder="Логин" value={registrarForm.login} onChange={(e) => setRegistrarForm({...registrarForm, login: e.target.value})} required />
-              <Input type="password" placeholder="Пароль" value={registrarForm.password} onChange={(e) => setRegistrarForm({...registrarForm, password: e.target.value})} required />
+              <div className="relative">
+                <Input type={showNewPassword ? "text" : "password"} placeholder="Пароль" value={registrarForm.password} onChange={(e) => setRegistrarForm({...registrarForm, password: e.target.value})} required className="pr-10" />
+                <Button type="button" variant="ghost" size="sm" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent">
+                  <Icon name={showNewPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                </Button>
+              </div>
               <Button type="submit">Создать</Button>
             </form>
           </DialogContent>
@@ -96,7 +105,12 @@ const RegistrarsTab = ({
               <Input placeholder="ФИО" value={editingRegistrar.full_name} onChange={(e) => setEditingRegistrar({...editingRegistrar, full_name: e.target.value})} required />
               <Input placeholder="Телефон" value={editingRegistrar.phone} onChange={(e) => setEditingRegistrar({...editingRegistrar, phone: e.target.value})} required />
               <Input placeholder="Логин" value={editingRegistrar.login} onChange={(e) => setEditingRegistrar({...editingRegistrar, login: e.target.value})} required />
-              <Input type="password" placeholder="Новый пароль (оставьте пустым, чтобы не менять)" value={editingRegistrar.password || ''} onChange={(e) => setEditingRegistrar({...editingRegistrar, password: e.target.value})} />
+              <div className="relative">
+                <Input type={showEditPassword ? "text" : "password"} placeholder="Новый пароль (оставьте пустым, чтобы не менять)" value={editingRegistrar.password || ''} onChange={(e) => setEditingRegistrar({...editingRegistrar, password: e.target.value})} className="pr-10" />
+                <Button type="button" variant="ghost" size="sm" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent">
+                  <Icon name={showEditPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                </Button>
+              </div>
               <Button type="submit">Сохранить</Button>
             </form>
           </DialogContent>

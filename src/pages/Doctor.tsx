@@ -168,6 +168,7 @@ const Doctor = () => {
   });
   const [dateSlotCounts, setDateSlotCounts] = useState<{[key: string]: number}>({});
   const [tipsContentOpen, setTipsContentOpen] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
 
   const [dayOffWarning, setDayOffWarning] = useState<{open: boolean, date: string, appointmentCount: number}>({open: false, date: '', appointmentCount: 0});
   
@@ -1715,13 +1716,25 @@ const Doctor = () => {
                 onChange={(e) => setLoginForm({ ...loginForm, login: e.target.value })}
                 required
               />
-              <Input
-                type="password"
-                placeholder="Пароль"
-                value={loginForm.password}
-                onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                required
-              />
+              <div className="relative">
+                <Input
+                  type={showLoginPassword ? "text" : "password"}
+                  placeholder="Пароль"
+                  value={loginForm.password}
+                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                  required
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                  className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent"
+                >
+                  <Icon name={showLoginPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                </Button>
+              </div>
               <Button type="submit" className="w-full">Войти</Button>
             </form>
           </CardContent>

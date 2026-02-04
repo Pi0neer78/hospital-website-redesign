@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -30,6 +31,9 @@ const DoctorsTab = ({
   isEditOpen, setIsEditOpen, onCreateDoctor, onUpdateDoctor, onDeleteDoctor, onToggleActive,
   isUploading, isDragging, setIsDragging, onUploadPhoto
 }: DoctorsTabProps) => {
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
+
   const handleDrop = (e: React.DragEvent, isEdit: boolean) => {
     e.preventDefault();
     setIsDragging(false);
@@ -95,7 +99,12 @@ const DoctorsTab = ({
               <Input placeholder="Стаж работы (лет)" value={doctorForm.work_experience} onChange={(e) => setDoctorForm({...doctorForm, work_experience: e.target.value})} />
               <Input placeholder="Номер кабинета" value={doctorForm.office_number} onChange={(e) => setDoctorForm({...doctorForm, office_number: e.target.value})} />
               <Input placeholder="Логин" value={doctorForm.login} onChange={(e) => setDoctorForm({...doctorForm, login: e.target.value})} required />
-              <Input type="password" placeholder="Пароль" value={doctorForm.password} onChange={(e) => setDoctorForm({...doctorForm, password: e.target.value})} required />
+              <div className="relative">
+                <Input type={showNewPassword ? "text" : "password"} placeholder="Пароль" value={doctorForm.password} onChange={(e) => setDoctorForm({...doctorForm, password: e.target.value})} required className="pr-10" />
+                <Button type="button" variant="ghost" size="sm" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent">
+                  <Icon name={showNewPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                </Button>
+              </div>
               <Button type="submit" disabled={isUploading}>Создать</Button>
             </form>
           </DialogContent>
@@ -178,6 +187,12 @@ const DoctorsTab = ({
               <Input placeholder="Образование" value={editingDoctor.education} onChange={(e) => setEditingDoctor({...editingDoctor, education: e.target.value})} />
               <Input placeholder="Стаж" value={editingDoctor.work_experience} onChange={(e) => setEditingDoctor({...editingDoctor, work_experience: e.target.value})} />
               <Input placeholder="Кабинет" value={editingDoctor.office_number} onChange={(e) => setEditingDoctor({...editingDoctor, office_number: e.target.value})} />
+              <div className="relative">
+                <Input type={showEditPassword ? "text" : "password"} placeholder="Новый пароль (оставьте пустым)" value={editingDoctor.password || ''} onChange={(e) => setEditingDoctor({...editingDoctor, password: e.target.value})} className="pr-10" />
+                <Button type="button" variant="ghost" size="sm" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent">
+                  <Icon name={showEditPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                </Button>
+              </div>
               <Button type="submit" disabled={isUploading}>Сохранить</Button>
             </form>
           </DialogContent>

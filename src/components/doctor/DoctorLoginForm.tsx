@@ -15,6 +15,7 @@ interface DoctorLoginFormProps {
 
 const DoctorLoginForm = ({ onLoginSuccess, toast }: DoctorLoginFormProps) => {
   const [loginForm, setLoginForm] = useState({ login: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,13 +66,25 @@ const DoctorLoginForm = ({ onLoginSuccess, toast }: DoctorLoginFormProps) => {
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block">Пароль</label>
-              <Input
-                type="password"
-                placeholder="Введите пароль"
-                value={loginForm.password}
-                onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                required
-              />
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Введите пароль"
+                  value={loginForm.password}
+                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                  required
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent"
+                >
+                  <Icon name={showPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                </Button>
+              </div>
             </div>
             <Button type="submit" className="w-full">
               <Icon name="LogIn" size={16} className="mr-2" />

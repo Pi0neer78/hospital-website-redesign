@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,6 +42,9 @@ const AdminManagement = ({
   onUpdateAdmin,
   onDeleteAdmin,
 }: AdminManagementProps) => {
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString('ru-RU', {
@@ -86,14 +90,26 @@ const AdminManagement = ({
                 value={newAdmin.full_name}
                 onChange={(e) => onNewAdminChange({ ...newAdmin, full_name: e.target.value })}
               />
-              <Input
-                type="password"
-                placeholder="Пароль (минимум 8 символов)"
-                value={newAdmin.password}
-                onChange={(e) => onNewAdminChange({ ...newAdmin, password: e.target.value })}
-                required
-                minLength={8}
-              />
+              <div className="relative">
+                <Input
+                  type={showNewPassword ? "text" : "password"}
+                  placeholder="Пароль (минимум 8 символов)"
+                  value={newAdmin.password}
+                  onChange={(e) => onNewAdminChange({ ...newAdmin, password: e.target.value })}
+                  required
+                  minLength={8}
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent"
+                >
+                  <Icon name={showNewPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                </Button>
+              </div>
               <div className="flex gap-2">
                 <Button type="submit">Создать</Button>
                 <Button
@@ -137,11 +153,23 @@ const AdminManagement = ({
                 value={editingAdmin.full_name || ''}
                 onChange={(e) => onEditingAdmin({ ...editingAdmin, full_name: e.target.value })}
               />
-              <Input
-                type="password"
-                placeholder="Новый пароль (оставьте пустым, если не меняете)"
-                onChange={(e) => onEditingAdmin({ ...editingAdmin, password: e.target.value })}
-              />
+              <div className="relative">
+                <Input
+                  type={showEditPassword ? "text" : "password"}
+                  placeholder="Новый пароль (оставьте пустым, если не меняете)"
+                  onChange={(e) => onEditingAdmin({ ...editingAdmin, password: e.target.value })}
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowEditPassword(!showEditPassword)}
+                  className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent"
+                >
+                  <Icon name={showEditPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                </Button>
+              </div>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"

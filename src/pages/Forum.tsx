@@ -49,6 +49,8 @@ const Forum = () => {
   const [editingPostId, setEditingPostId] = useState<number | null>(null);
   const [editPostContent, setEditPostContent] = useState('');
   const [editPostImages, setEditPostImages] = useState<string[]>([]);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -788,13 +790,25 @@ const Forum = () => {
                         onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
                         required
                       />
-                      <Input
-                        type="password"
-                        placeholder="Пароль"
-                        value={loginForm.password}
-                        onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                        required
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showLoginPassword ? "text" : "password"}
+                          placeholder="Пароль"
+                          value={loginForm.password}
+                          onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                          required
+                          className="pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowLoginPassword(!showLoginPassword)}
+                          className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent"
+                        >
+                          <Icon name={showLoginPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                        </Button>
+                      </div>
                       <Button type="submit" className="w-full" disabled={isSubmitting}>
                         {isSubmitting ? 'Вход...' : 'Войти'}
                       </Button>
@@ -832,13 +846,25 @@ const Forum = () => {
                           onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
                           required
                         />
-                        <Input
-                          type="password"
-                          placeholder="Пароль"
-                          value={registerForm.password}
-                          onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
-                          required
-                        />
+                        <div className="relative">
+                          <Input
+                            type={showRegisterPassword ? "text" : "password"}
+                            placeholder="Пароль"
+                            value={registerForm.password}
+                            onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                            required
+                            className="pr-10"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                            className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent"
+                          >
+                            <Icon name={showRegisterPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                          </Button>
+                        </div>
                         <Input
                           type="email"
                           placeholder="Email (необязательно)"

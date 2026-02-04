@@ -92,6 +92,9 @@ const Admin = () => {
   const [logFilterDateFrom, setLogFilterDateFrom] = useState<string>('');
   const [logFilterDateTo, setLogFilterDateTo] = useState<string>('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegistrarPassword, setShowRegistrarPassword] = useState(false);
+  const [showRegistrarEditPassword, setShowRegistrarEditPassword] = useState(false);
   const notificationSound = typeof Audio !== 'undefined' ? new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUQ0PVqzn7bViFg==') : null;
 
   useEffect(() => {
@@ -1335,13 +1338,25 @@ const Admin = () => {
                 onChange={(e) => setLoginForm({ ...loginForm, login: e.target.value })}
                 required
               />
-              <Input
-                type="password"
-                placeholder="Пароль"
-                value={loginForm.password}
-                onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                required
-              />
+              <div className="relative">
+                <Input
+                  type={showLoginPassword ? "text" : "password"}
+                  placeholder="Пароль"
+                  value={loginForm.password}
+                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                  required
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                  className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent"
+                >
+                  <Icon name={showLoginPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                </Button>
+              </div>
               <Button type="submit" className="w-full">Войти</Button>
             </form>
           </CardContent>
@@ -2138,12 +2153,24 @@ const Admin = () => {
                   </div>
                   <div>
                     <label className="text-sm font-medium">Пароль</label>
-                    <Input
-                      type="password"
-                      value={registrarForm.password}
-                      onChange={(e) => setRegistrarForm({...registrarForm, password: e.target.value})}
-                      required
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showRegistrarPassword ? "text" : "password"}
+                        value={registrarForm.password}
+                        onChange={(e) => setRegistrarForm({...registrarForm, password: e.target.value})}
+                        required
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowRegistrarPassword(!showRegistrarPassword)}
+                        className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent"
+                      >
+                        <Icon name={showRegistrarPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                      </Button>
+                    </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Поликлиника</label>
@@ -2283,11 +2310,23 @@ const Admin = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Новый пароль (оставьте пустым, если не меняете)</label>
-                  <Input
-                    type="password"
-                    value={registrarForm.password}
-                    onChange={(e) => setRegistrarForm({...registrarForm, password: e.target.value})}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showRegistrarEditPassword ? "text" : "password"}
+                      value={registrarForm.password}
+                      onChange={(e) => setRegistrarForm({...registrarForm, password: e.target.value})}
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowRegistrarEditPassword(!showRegistrarEditPassword)}
+                      className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent"
+                    >
+                      <Icon name={showRegistrarEditPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                    </Button>
+                  </div>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Поликлиника</label>
