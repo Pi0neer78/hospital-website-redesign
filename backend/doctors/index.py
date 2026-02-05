@@ -146,6 +146,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if 'specialization' in body:
                 update_fields.append('specialization = %s')
                 update_values.append(body['specialization'])
+            if 'login' in body:
+                update_fields.append('login = %s')
+                update_values.append(body['login'])
             if 'photo_url' in body:
                 update_fields.append('photo_url = %s')
                 update_values.append(body['photo_url'])
