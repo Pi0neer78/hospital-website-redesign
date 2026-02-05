@@ -43,6 +43,12 @@ def handler(event: dict, context) -> dict:
                 result = update_appointment(cursor, conn, body)
             else:
                 result = {'error': 'Invalid POST request'}
+        elif not action and method == 'PUT':
+            body = json.loads(event.get('body', '{}'))
+            if 'id' in body:
+                result = update_appointment(cursor, conn, body)
+            else:
+                result = {'error': 'Invalid PUT request'}
         elif action == 'available-slots':
             result = get_available_slots(cursor, params)
         elif action == 'check-slot':

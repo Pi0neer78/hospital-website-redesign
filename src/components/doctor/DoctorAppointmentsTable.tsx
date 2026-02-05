@@ -12,9 +12,12 @@ interface DoctorAppointmentsTableProps {
   appointments: any[];
   onRefresh: () => void;
   toast: any;
+  onComplete?: (appointmentId: number) => void;
+  onCancel?: (appointmentId: number) => void;
+  onViewDetails?: (appointment: any) => void;
 }
 
-const DoctorAppointmentsTable = ({ doctorInfo, appointments, onRefresh, toast }: DoctorAppointmentsTableProps) => {
+const DoctorAppointmentsTable = ({ doctorInfo, appointments, onRefresh, toast, onComplete, onCancel, onViewDetails }: DoctorAppointmentsTableProps) => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateFilterFrom, setDateFilterFrom] = useState<string>(() => new Date().toISOString().split('T')[0]);
   const [dateFilterTo, setDateFilterTo] = useState<string>(() => {
@@ -236,21 +239,21 @@ const DoctorAppointmentsTable = ({ doctorInfo, appointments, onRefresh, toast }:
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => onViewDetails?.(appointment)}>
                                 <Icon name="Eye" size={16} className="mr-2" />
                                 Подробнее
                               </DropdownMenuItem>
                               {appointment.status === 'scheduled' && (
                                 <>
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => onComplete?.(appointment.id)}>
                                     <Icon name="CheckCircle" size={16} className="mr-2" />
                                     Завершить прием
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => toast({ title: "В разработке", description: "Функция переноса записи будет доступна позже" })}>
                                     <Icon name="Calendar" size={16} className="mr-2" />
                                     Перенести
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem className="text-destructive">
+                                  <DropdownMenuItem className="text-destructive" onClick={() => onCancel?.(appointment.id)}>
                                     <Icon name="XCircle" size={16} className="mr-2" />
                                     Отменить
                                   </DropdownMenuItem>
