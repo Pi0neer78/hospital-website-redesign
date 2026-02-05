@@ -552,10 +552,7 @@ const Admin = () => {
       const response = await fetch(API_URLS.doctors, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: editingDoctor.id,
-          ...doctorForm
-        }),
+        body: JSON.stringify(editingDoctor),
       });
       
       const data = await response.json();
