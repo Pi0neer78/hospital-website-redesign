@@ -255,6 +255,12 @@ def update_appointment(cursor, conn, body):
     if 'description' in body:
         update_fields.append('description = %s')
         params.append(body['description'])
+    if 'status' in body:
+        update_fields.append('status = %s')
+        params.append(body['status'])
+    if 'completed_at' in body:
+        update_fields.append('completed_at = %s')
+        params.append(body['completed_at'])
     
     if not update_fields:
         return {'success': False, 'error': 'No fields to update'}
