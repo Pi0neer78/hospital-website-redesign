@@ -218,16 +218,8 @@ const Doctor = () => {
       loadDailySchedules(doctor.id);
       loadAppointments(doctor.id);
       loadCalendar(doctor.id, selectedYear);
-      
-      if (autoRefreshEnabled) {
-        const interval = setInterval(() => {
-          loadAppointments(doctor.id, true);
-        }, checkInterval * 1000);
-        
-        return () => clearInterval(interval);
-      }
     }
-  }, [checkInterval, autoRefreshEnabled, dateFilterFrom, dateFilterTo]);
+  }, [dateFilterFrom, dateFilterTo]);
 
   useEffect(() => {
     if (doctorInfo && selectedYear) {
