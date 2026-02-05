@@ -121,6 +121,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif method == 'PUT':
             body = json.loads(event.get('body', '{}'))
+            print(f"[DEBUG] PUT body: {json.dumps(body)}")
             doctor_id = body.get('id')
             
             if not doctor_id:
