@@ -2907,49 +2907,54 @@ const Doctor = () => {
                 </DialogContent>
               </Dialog>
 
-              <div className="mb-6 space-y-4">
-                <div className="flex flex-wrap gap-3 items-end">
-                  <div className="flex-1 min-w-[200px]">
-                    <label className="block text-sm font-medium mb-2">Фильтр с даты</label>
+              <div className="mb-4 space-y-3">
+                <div className="flex flex-wrap gap-2 items-end">
+                  <div className="flex-1 min-w-[140px]">
+                    <label className="block text-xs font-medium mb-1">Фильтр с даты</label>
                     <Input
                       type="date"
                       value={scheduleFilterFrom}
                       onChange={(e) => setScheduleFilterFrom(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
+                      className="h-8 text-xs"
                     />
                   </div>
-                  <div className="flex-1 min-w-[200px]">
-                    <label className="block text-sm font-medium mb-2">Фильтр по дату</label>
+                  <div className="flex-1 min-w-[140px]">
+                    <label className="block text-xs font-medium mb-1">Фильтр по дату</label>
                     <Input
                       type="date"
                       value={scheduleFilterTo}
                       onChange={(e) => setScheduleFilterTo(e.target.value)}
                       min={scheduleFilterFrom}
+                      className="h-8 text-xs"
                     />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <Button
                       variant="outline"
                       onClick={() => setScheduleQuickFilter('today')}
                       size="sm"
+                      className="h-8 text-xs px-2"
                     >
-                      <Icon name="Calendar" size={16} className="mr-1" />
+                      <Icon name="Calendar" size={12} className="mr-1" />
                       Сегодня
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => setScheduleQuickFilter('week')}
                       size="sm"
+                      className="h-8 text-xs px-2"
                     >
-                      <Icon name="CalendarDays" size={16} className="mr-1" />
+                      <Icon name="CalendarDays" size={12} className="mr-1" />
                       Неделя
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => setScheduleQuickFilter('month')}
                       size="sm"
+                      className="h-8 text-xs px-2"
                     >
-                      <Icon name="CalendarRange" size={16} className="mr-1" />
+                      <Icon name="CalendarRange" size={12} className="mr-1" />
                       Месяц
                     </Button>
                   </div>
@@ -2958,17 +2963,19 @@ const Doctor = () => {
                   <Button
                     onClick={printSchedule}
                     variant="default"
-                    className="bg-blue-600 hover:bg-blue-700"
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 h-8 text-xs px-2"
                   >
-                    <Icon name="Printer" size={18} className="mr-2" />
+                    <Icon name="Printer" size={12} className="mr-1" />
                     Печать расписания
                   </Button>
                   <Button
                     onClick={exportScheduleToExcel}
                     variant="default"
-                    className="bg-green-600 hover:bg-green-700"
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 h-8 text-xs px-2"
                   >
-                    <Icon name="FileSpreadsheet" size={18} className="mr-2" />
+                    <Icon name="FileSpreadsheet" size={12} className="mr-1" />
                     Экспорт в Excel
                   </Button>
                 </div>
@@ -3144,41 +3151,41 @@ const Doctor = () => {
                   <h3 className="text-2xl font-bold mb-4">Записи пациентов</h3>
                 
                 <div className="flex gap-2 items-center flex-wrap mb-4">
-                  <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-lg border">
-                    <Icon name="Search" size={14} className="text-muted-foreground" />
+                  <div className="flex items-center gap-1.5 bg-muted/30 px-2 py-1 rounded-lg border">
+                    <Icon name="Search" size={12} className="text-muted-foreground" />
                     <Input
                       type="text"
                       placeholder="Поиск по ФИО, телефону, СНИЛС, ОМС..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="h-7 w-[200px] text-xs"
+                      className="h-6 w-[200px] text-xs border-none bg-transparent focus-visible:ring-0 px-0"
                     />
                   </div>
                   
-                  <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-lg border">
-                    <Icon name="Calendar" size={14} className="text-muted-foreground" />
+                  <div className="flex items-center gap-1 bg-muted/30 px-2 py-1 rounded-lg border">
+                    <Icon name="Calendar" size={12} className="text-muted-foreground" />
                     <span className="text-xs font-medium text-muted-foreground">С</span>
                     <Input
                       type="date"
                       value={dateFilterFrom}
                       onChange={(e) => setDateFilterFrom(e.target.value)}
-                      className="h-7 w-[130px] text-xs"
+                      className="h-6 w-[110px] text-xs px-1"
                     />
                     <span className="text-xs font-medium text-muted-foreground">По</span>
                     <Input
                       type="date"
                       value={dateFilterTo}
                       onChange={(e) => setDateFilterTo(e.target.value)}
-                      className="h-7 w-[130px] text-xs"
+                      className="h-6 w-[110px] text-xs px-1"
                     />
                   </div>
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
-                        <Icon name="CalendarRange" size={14} />
+                      <Button variant="outline" size="sm" className="h-7 text-xs gap-1 px-2">
+                        <Icon name="CalendarRange" size={12} />
                         Период
-                        <Icon name="ChevronDown" size={14} />
+                        <Icon name="ChevronDown" size={12} />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
@@ -3221,15 +3228,15 @@ const Doctor = () => {
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
-                        <Icon name="Filter" size={14} />
+                      <Button variant="outline" size="sm" className="h-7 text-xs gap-1 px-2">
+                        <Icon name="Filter" size={12} />
                         {statusFilter === 'all' ? 'Все' : 
                          statusFilter === 'scheduled' ? 'Запланировано' :
                          statusFilter === 'completed' ? 'Завершено' : 'Отменено'}
                         <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-xs font-semibold">
                           {filteredAppointments.length}
                         </span>
-                        <Icon name="ChevronDown" size={14} />
+                        <Icon name="ChevronDown" size={12} />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
@@ -3294,27 +3301,27 @@ const Doctor = () => {
                       description: '',
                       availableSlots: []
                     })}
-                    className="gap-1.5 bg-blue-700 hover:bg-blue-800 text-white text-xs h-8 font-bold animate-pulse-blue"
+                    className="gap-1 bg-blue-700 hover:bg-blue-800 text-white text-xs h-7 px-2 font-bold animate-pulse-blue"
                   >
-                    <Icon name="UserPlus" size={14} />
+                    <Icon name="UserPlus" size={12} />
                     Записать пациента
                   </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={printAppointments}
-                    className="gap-1.5 text-xs h-8"
+                    className="gap-1 text-xs h-7 px-2"
                   >
-                    <Icon name="Printer" size={14} />
+                    <Icon name="Printer" size={12} />
                     Печать
                   </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={exportToExcel}
-                    className="gap-1.5 bg-green-50 hover:bg-green-100 border-green-300 text-green-700 hover:text-green-800 text-xs h-8"
+                    className="gap-1 bg-green-50 hover:bg-green-100 border-green-300 text-green-700 hover:text-green-800 text-xs h-7 px-2"
                   >
-                    <Icon name="Download" size={14} />
+                    <Icon name="Download" size={12} />
                     Экспорт
                   </Button>
                 </div>
