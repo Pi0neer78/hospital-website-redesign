@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
@@ -3090,6 +3091,7 @@ const Doctor = () => {
               ) : (
                 <Card className="h-full flex flex-col overflow-hidden">
                   <CardContent className="p-0 flex-1 overflow-auto">
+                    <TooltipProvider>
                     <div className="relative">
                       <Table>
                         <TableHeader className="sticky top-0 bg-muted z-10">
@@ -3172,15 +3174,33 @@ const Doctor = () => {
                                     const createdTime = createdAt ? createdAt.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
                                     const fullDate = createdAt ? `${createdDate} в ${createdTime}` : '';
                                     
+                                    let tooltipText = '';
+                                    let icon = null;
+                                    
                                     if (appointment.created_by === 1) {
-                                      return <Icon name="User" size={16} className="text-red-500" title={`Запись создана пациентом${fullDate ? ' ' + fullDate : ''}`} />;
+                                      tooltipText = `Запись создана пациентом${fullDate ? ' ' + fullDate : ''}`;
+                                      icon = <Icon name="User" size={16} className="text-red-500" />;
                                     } else if (appointment.created_by === 2) {
-                                      return <Icon name="Stethoscope" size={16} className="text-blue-500" title={`Запись создана врачом${fullDate ? ' ' + fullDate : ''}`} />;
+                                      tooltipText = `Запись создана врачом${fullDate ? ' ' + fullDate : ''}`;
+                                      icon = <Icon name="Stethoscope" size={16} className="text-blue-500" />;
                                     } else if (appointment.created_by === 3) {
-                                      return <Icon name="UserCog" size={16} className="text-green-500" title={`Запись создана регистратором${fullDate ? ' ' + fullDate : ''}`} />;
+                                      tooltipText = `Запись создана регистратором${fullDate ? ' ' + fullDate : ''}`;
+                                      icon = <Icon name="UserCog" size={16} className="text-green-500" />;
                                     } else {
-                                      return <Icon name="User" size={16} className="text-gray-400" title={`Автор не указан${fullDate ? ', создано ' + fullDate : ''}`} />;
+                                      tooltipText = `Автор не указан${fullDate ? ', создано ' + fullDate : ''}`;
+                                      icon = <Icon name="User" size={16} className="text-gray-400" />;
                                     }
+                                    
+                                    return (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <div className="inline-flex cursor-help">{icon}</div>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p className="text-xs">{tooltipText}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    );
                                   })()}
                                 </TableCell>
                                 <TableCell className={`text-xs py-1 px-2 h-8 ${
@@ -3236,6 +3256,7 @@ const Doctor = () => {
                         </TableBody>
                       </Table>
                     </div>
+                    </TooltipProvider>
                   </CardContent>
                 </Card>
               )}

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
@@ -973,6 +974,7 @@ const Registrar = () => {
 
               <Card>
                 <CardContent className="p-0">
+                  <TooltipProvider>
                   <Table>
                     <TableHeader>
                       <TableRow className="text-xs">
@@ -1004,15 +1006,33 @@ const Registrar = () => {
                                 const createdTime = createdAt ? createdAt.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
                                 const fullDate = createdAt ? `${createdDate} в ${createdTime}` : '';
                                 
+                                let tooltipText = '';
+                                let icon = null;
+                                
                                 if (appointment.created_by === 1) {
-                                  return <Icon name="User" size={16} className="text-red-500" title={`Запись создана пациентом${fullDate ? ' ' + fullDate : ''}`} />;
+                                  tooltipText = `Запись создана пациентом${fullDate ? ' ' + fullDate : ''}`;
+                                  icon = <Icon name="User" size={16} className="text-red-500" />;
                                 } else if (appointment.created_by === 2) {
-                                  return <Icon name="Stethoscope" size={16} className="text-blue-500" title={`Запись создана врачом${fullDate ? ' ' + fullDate : ''}`} />;
+                                  tooltipText = `Запись создана врачом${fullDate ? ' ' + fullDate : ''}`;
+                                  icon = <Icon name="Stethoscope" size={16} className="text-blue-500" />;
                                 } else if (appointment.created_by === 3) {
-                                  return <Icon name="UserCog" size={16} className="text-green-500" title={`Запись создана регистратором${fullDate ? ' ' + fullDate : ''}`} />;
+                                  tooltipText = `Запись создана регистратором${fullDate ? ' ' + fullDate : ''}`;
+                                  icon = <Icon name="UserCog" size={16} className="text-green-500" />;
                                 } else {
-                                  return <Icon name="User" size={16} className="text-gray-400" title={`Автор не указан${fullDate ? ', создано ' + fullDate : ''}`} />;
+                                  tooltipText = `Автор не указан${fullDate ? ', создано ' + fullDate : ''}`;
+                                  icon = <Icon name="User" size={16} className="text-gray-400" />;
                                 }
+                                
+                                return (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="inline-flex cursor-help">{icon}</div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">{tooltipText}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                );
                               })()}
                             </TableCell>
                             <TableCell className="py-2">
@@ -1080,6 +1100,7 @@ const Registrar = () => {
                         ))}
                     </TableBody>
                   </Table>
+                  </TooltipProvider>
                 </CardContent>
               </Card>
             </>
