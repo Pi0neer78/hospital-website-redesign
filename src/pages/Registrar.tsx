@@ -9,6 +9,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
 import { EditAppointmentForm } from '@/components/EditAppointmentForm';
+import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -998,7 +999,23 @@ const Registrar = () => {
                           return a.appointment_time.localeCompare(b.appointment_time);
                         })
                         .map((appointment: any) => (
-                          <TableRow key={appointment.id} className="text-xs">
+                          <AppointmentContextMenu
+                            key={appointment.id}
+                            appointment={appointment}
+                            onEdit={() => setEditDialog(appointment)}
+                            onReschedule={() => openRescheduleDialog(appointment)}
+                            onClone={() => openCloneDialog(appointment)}
+                            onComplete={() => {
+                              // Регистратор не может завершать приемы
+                              toast({ 
+                                title: "Недоступно", 
+                                description: "Только врач может завершить прием", 
+                                variant: "destructive" 
+                              });
+                            }}
+                            onCancel={() => setCancelDialog(appointment)}
+                          >
+                          <TableRow className="text-xs cursor-pointer hover:bg-muted/50">
                             <TableCell className="py-2 text-center">
                               {(() => {
                                 const createdAt = appointment.created_at ? new Date(appointment.created_at) : null;
@@ -1056,47 +1073,8 @@ const Registrar = () => {
                                  appointment.status === 'completed' ? 'Завершено' : 'Отменено'}
                               </span>
                             </TableCell>
-                            <TableCell className="text-right py-2">
-                              <div className="flex gap-1 justify-end">
-                                {appointment.status === 'scheduled' && (
-                                  <>
-                                    <Button 
-                                      size="sm" 
-                                      variant="ghost"
-                                      onClick={() => setEditDialog(appointment)}
-                                      title="Редактировать данные пациента"
-                                    >
-                                      <Icon name="Edit" size={16} className="text-purple-600" />
-                                    </Button>
-                                    <Button 
-                                      size="sm" 
-                                      variant="ghost"
-                                      onClick={() => openRescheduleDialog(appointment)}
-                                      title="Перенести запись"
-                                    >
-                                      <Icon name="Calendar" size={16} className="text-blue-600" />
-                                    </Button>
-                                    <Button 
-                                      size="sm" 
-                                      variant="ghost"
-                                      onClick={() => setCancelDialog(appointment)}
-                                      title="Отменить запись"
-                                    >
-                                      <Icon name="XCircle" size={16} className="text-red-600" />
-                                    </Button>
-                                  </>
-                                )}
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost"
-                                  onClick={() => openCloneDialog(appointment)}
-                                  title="Клонировать запись"
-                                >
-                                  <Icon name="Copy" size={16} className="text-gray-600" />
-                                </Button>
-                              </div>
-                            </TableCell>
                           </TableRow>
+                          </AppointmentContextMenu>
                         ))}
                     </TableBody>
                   </Table>
