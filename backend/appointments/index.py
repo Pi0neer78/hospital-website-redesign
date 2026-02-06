@@ -198,6 +198,16 @@ def create_appointment(cursor, conn, body):
     patient_snils = body.get('patient_snils', '')
     patient_oms = body.get('patient_oms', '')
     
+    # Проверяем доступность слота перед созданием записи
+    availability = check_slot_availability(cursor, {
+        'doctor_id': str(doctor_id),
+        'date': appointment_date,
+        'time': appointment_time
+    })
+    
+    if not availability.get('available'):
+        return {'success': False, 'error': availability.get('error', 'Слот времени уже занят')}
+    
     cursor.execute("""
         INSERT INTO t_p30358746_hospital_website_red.appointments_v2 
         (doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description, patient_snils, patient_oms, status)
@@ -297,6 +307,28 @@ def reschedule_appointment(cursor, conn, body):
     new_date = body.get('new_date')
     new_time = body.get('new_time')
     
+    # Получаем doctor_id текущей записи
+    cursor.execute("""
+        SELECT doctor_id FROM t_p30358746_hospital_website_red.appointments_v2
+        WHERE id = %s
+    """, (appointment_id,))
+    appointment = cursor.fetchone()
+    
+    if not appointment:
+        return {'success': False, 'error': 'Запись не найдена'}
+    
+    # Проверяем доступность нового слота (исключая текущую запись)
+    availability = check_slot_availability(cursor, {
+        'doctor_id': str(appointment['doctor_id']),
+        'date': new_date,
+        'time': new_time,
+        'exclude_id': str(appointment_id)
+    })
+    
+    if not availability.get('available'):
+        return {'success': False, 'error': availability.get('error', 'Слот занят')}
+    
+    # Переносим запись
     cursor.execute("""
         UPDATE t_p30358746_hospital_website_red.appointments_v2
         SET appointment_date = %s, appointment_time = %s
