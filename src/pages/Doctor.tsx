@@ -2950,36 +2950,29 @@ const Doctor = () => {
                             <TableCell className="py-1.5">
                               <div className="flex gap-1 justify-end">
                                 {!schedule.is_generated && (
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button 
-                                        size="sm" 
-                                        variant="ghost"
-                                        className="h-7 w-7 p-0"
-                                      >
-                                        <Icon name="MoreVertical" size={14} />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuItem 
-                                        onClick={() => {
-                                          setEditingDailySchedule(schedule);
-                                          setIsDailyEditOpen(true);
-                                        }}
-                                        className="cursor-pointer"
-                                      >
-                                        <Icon name="Edit" size={14} className="mr-2" />
-                                        Изменить параметры дня
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem 
-                                        onClick={() => handleToggleDailyActive(schedule.id, schedule.is_active)}
-                                        className="cursor-pointer"
-                                      >
-                                        <Icon name={schedule.is_active ? "PauseCircle" : "PlayCircle"} size={14} className="mr-2" />
-                                        {schedule.is_active ? "Деактивировать" : "Активировать"}
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => {
+                                      setEditingDailySchedule(schedule);
+                                      setIsDailyEditOpen(true);
+                                    }}
+                                    title="Изменить параметры дня"
+                                    className="h-7 w-7 p-0"
+                                  >
+                                    <Icon name="Edit" size={12} />
+                                  </Button>
+                                )}
+                                {!schedule.is_generated && (
+                                  <Button 
+                                    size="sm" 
+                                    variant={schedule.is_active ? "outline" : "default"}
+                                    onClick={() => handleToggleDailyActive(schedule.id, schedule.is_active)}
+                                    className="h-7 w-7 p-0"
+                                    title={schedule.is_active ? "Деактивировать" : "Активировать"}
+                                  >
+                                    <Icon name={schedule.is_active ? "PauseCircle" : "PlayCircle"} size={12} />
+                                  </Button>
                                 )}
                               </div>
                             </TableCell>
