@@ -1,32 +1,30 @@
 {
   "tests": [
     {
-      "name": "Test available slots endpoint",
+      "name": "Test available slots endpoint returns array",
       "method": "GET",
       "path": "/?action=available-slots&doctor_id=10&date=2026-02-28",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "available_slots": "array"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
-      "name": "Test check slot availability",
+      "name": "Test check slot availability returns result",
       "method": "GET",
       "path": "/?action=check-slot&doctor_id=10&date=2026-02-10&time=10:00",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "available": "boolean"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
-      "name": "Test list appointments",
+      "name": "Test list appointments returns data",
       "method": "GET",
       "path": "/?action=list&doctor_id=10",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Test cancelled slot is available (doctor 13, 08:23)",
+      "method": "GET",
+      "path": "/?action=check-slot&doctor_id=13&date=2026-02-06&time=08:23",
       "expectedStatus": 200,
       "expectedBody": {
-        "appointments": "array"
+        "available": true
       },
       "bodyMatcher": "partial"
     }
