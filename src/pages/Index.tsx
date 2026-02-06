@@ -371,7 +371,8 @@ const Index = () => {
         body: JSON.stringify({
           doctor_id: selectedDoctor.id,
           appointment_date: selectedDate,
-          ...appointmentForm
+          ...appointmentForm,
+          created_by: 1
         }),
       });
 

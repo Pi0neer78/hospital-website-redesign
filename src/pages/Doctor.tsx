@@ -1206,7 +1206,8 @@ const Doctor = () => {
           patient_snils: cloneDialog.appointment.patient_snils,
           appointment_date: cloneDialog.newDate,
           appointment_time: cloneDialog.newTime,
-          description: cloneDialog.newDescription
+          description: cloneDialog.newDescription,
+          created_by: 2
         }),
       });
 
@@ -1482,7 +1483,8 @@ const Doctor = () => {
           patient_oms: newAppointmentDialog.patientOms,
           appointment_date: newAppointmentDialog.date,
           appointment_time: newAppointmentDialog.time,
-          description: newAppointmentDialog.description
+          description: newAppointmentDialog.description,
+          created_by: 2
         }),
       });
 
@@ -3092,6 +3094,7 @@ const Doctor = () => {
                       <Table>
                         <TableHeader className="sticky top-0 bg-muted z-10">
                           <TableRow className="h-8">
+                            <TableHead className="w-[40px] py-1 px-2 text-xs h-8 bg-muted">Автор</TableHead>
                             <TableHead className="w-[100px] py-1 px-2 text-xs h-8 bg-muted">Дата</TableHead>
                             <TableHead className="w-[50px] py-1 px-2 text-xs h-8 bg-muted">Время</TableHead>
                             <TableHead className="w-[50px] py-1 px-2 text-xs h-8 bg-muted">Завер.</TableHead>
@@ -3162,6 +3165,17 @@ const Doctor = () => {
                                   }`}
                                   onClick={() => setSelectedAppointment(appointment)}
                                 >
+                                <TableCell className="text-xs py-1 px-2 h-8 text-center">
+                                  {appointment.created_by === 1 ? (
+                                    <Icon name="User" size={16} className="text-red-500" title="Пациент" />
+                                  ) : appointment.created_by === 2 ? (
+                                    <Icon name="Stethoscope" size={16} className="text-blue-500" title="Врач" />
+                                  ) : appointment.created_by === 3 ? (
+                                    <Icon name="UserCog" size={16} className="text-green-500" title="Регистратор" />
+                                  ) : (
+                                    <Icon name="User" size={16} className="text-gray-400" title="Не указано" />
+                                  )}
+                                </TableCell>
                                 <TableCell className={`text-xs py-1 px-2 h-8 ${
                                   selectedAppointment?.id === appointment.id ? 'font-bold' : 'font-medium'
                                 }`}>

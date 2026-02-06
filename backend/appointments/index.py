@@ -197,6 +197,7 @@ def create_appointment(cursor, conn, body):
     description = body.get('description', '')
     patient_snils = body.get('patient_snils', '')
     patient_oms = body.get('patient_oms', '')
+    created_by = body.get('created_by', 1)
     
     # Проверяем доступность слота перед созданием записи
     availability = check_slot_availability(cursor, {
@@ -210,10 +211,10 @@ def create_appointment(cursor, conn, body):
     
     cursor.execute("""
         INSERT INTO t_p30358746_hospital_website_red.appointments_v2 
-        (doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description, patient_snils, patient_oms, status)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'scheduled')
-        RETURNING id, doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description, patient_snils, patient_oms, status, created_at
-    """, (doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description, patient_snils, patient_oms))
+        (doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description, patient_snils, patient_oms, status, created_by)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'scheduled', %s)
+        RETURNING id, doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description, patient_snils, patient_oms, status, created_by, created_at
+    """, (doctor_id, patient_name, patient_phone, appointment_date, appointment_time, description, patient_snils, patient_oms, created_by))
     
     appointment = cursor.fetchone()
     conn.commit()

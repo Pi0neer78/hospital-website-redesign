@@ -280,7 +280,8 @@ const Registrar = () => {
           patient_oms: newAppointmentDialog.patientOms,
           appointment_date: selectedDate,
           appointment_time: newAppointmentDialog.time,
-          description: newAppointmentDialog.description
+          description: newAppointmentDialog.description,
+          created_by: 3
         }),
       });
 
@@ -582,7 +583,8 @@ const Registrar = () => {
           patient_snils: cloneDialog.patient_snils,
           appointment_date: cloneSelectedDate,
           appointment_time: cloneSelectedSlot,
-          description: cloneDialog.description
+          description: cloneDialog.description,
+          created_by: 3
         }),
       });
 
@@ -974,6 +976,7 @@ const Registrar = () => {
                   <Table>
                     <TableHeader>
                       <TableRow className="text-xs">
+                        <TableHead className="py-2 w-[40px]">Автор</TableHead>
                         <TableHead className="py-2">Дата</TableHead>
                         <TableHead className="py-2">Время</TableHead>
                         <TableHead className="py-2">Пациент</TableHead>
@@ -994,6 +997,17 @@ const Registrar = () => {
                         })
                         .map((appointment: any) => (
                           <TableRow key={appointment.id} className="text-xs">
+                            <TableCell className="py-2 text-center">
+                              {appointment.created_by === 1 ? (
+                                <Icon name="User" size={16} className="text-red-500" title="Пациент" />
+                              ) : appointment.created_by === 2 ? (
+                                <Icon name="Stethoscope" size={16} className="text-blue-500" title="Врач" />
+                              ) : appointment.created_by === 3 ? (
+                                <Icon name="UserCog" size={16} className="text-green-500" title="Регистратор" />
+                              ) : (
+                                <Icon name="User" size={16} className="text-gray-400" title="Не указано" />
+                              )}
+                            </TableCell>
                             <TableCell className="py-2">
                               {new Date(appointment.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')}
                             </TableCell>
