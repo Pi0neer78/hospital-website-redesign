@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
 import { EditAppointmentForm } from '@/components/EditAppointmentForm';
+import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -2787,7 +2788,13 @@ const Doctor = () => {
 
               <div className="mb-6 flex flex-col" style={{ height: 'calc(100vh - 280px)', minHeight: '500px' }}>
                 <div className="flex-shrink-0">
-                  <h3 className="text-2xl font-bold mb-4">Записи пациентов</h3>
+                  <div className="flex items-center gap-2 mb-4">
+                    <h3 className="text-2xl font-bold">Записи пациентов</h3>
+                    <div className="px-2 py-1 rounded-md bg-blue-50 border border-blue-200 flex items-center gap-1.5 text-xs text-blue-700">
+                      <Icon name="MousePointerClick" size={14} className="text-blue-600" />
+                      <span className="font-medium">Правый клик на записи для быстрых действий</span>
+                    </div>
+                  </div>
                 
                 <div className="flex gap-2 items-center flex-wrap mb-4">
                   <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-lg border">
@@ -3114,15 +3121,53 @@ const Doctor = () => {
                             const isNewDay = !prevAppointment || prevAppointment.appointment_date !== appointment.appointment_date;
                             
                             return (
-                              <TableRow 
-                                key={appointment.id} 
-                                className={`h-8 cursor-pointer transition-colors ${isNewDay && index > 0 ? 'border-t-[3px] border-t-gray-300' : ''} ${
-                                  selectedAppointment?.id === appointment.id 
-                                    ? 'bg-primary/20 hover:bg-primary/25' 
-                                    : 'hover:bg-muted/50'
-                                }`}
-                                onClick={() => setSelectedAppointment(appointment)}
+                              <AppointmentContextMenu
+                                key={appointment.id}
+                                appointment={appointment}
+                                onEdit={() => {
+                                  setEditDialog({
+                                    open: true,
+                                    appointment: appointment
+                                  });
+                                }}
+                                onReschedule={() => openRescheduleDialog(appointment)}
+                                onClone={() => handleOpenCloneDialog(appointment)}
+                                onComplete={() => {
+                                  setConfirmDialog({
+                                    open: true,
+                                    appointmentId: appointment.id,
+                                    patientName: appointment.patient_name,
+                                    patientPhone: appointment.patient_phone,
+                                    patientSnils: appointment.patient_snils || '',
+                                    appointmentDate: new Date(appointment.appointment_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }),
+                                    appointmentDateRaw: appointment.appointment_date,
+                                    appointmentTime: appointment.appointment_time.slice(0, 5),
+                                    description: appointment.description || '',
+                                    newDescription: appointment.description || ''
+                                  });
+                                }}
+                                onCancel={() => {
+                                  setCancelDialog({
+                                    open: true,
+                                    appointmentId: appointment.id,
+                                    patientName: appointment.patient_name,
+                                    patientPhone: appointment.patient_phone,
+                                    patientSnils: appointment.patient_snils || '',
+                                    appointmentDate: new Date(appointment.appointment_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }),
+                                    appointmentDateRaw: appointment.appointment_date,
+                                    appointmentTime: appointment.appointment_time.slice(0, 5),
+                                    description: appointment.description || ''
+                                  });
+                                }}
                               >
+                                <TableRow 
+                                  className={`h-8 cursor-pointer transition-colors ${isNewDay && index > 0 ? 'border-t-[3px] border-t-gray-300' : ''} ${
+                                    selectedAppointment?.id === appointment.id 
+                                      ? 'bg-primary/20 hover:bg-primary/25' 
+                                      : 'hover:bg-muted/50'
+                                  }`}
+                                  onClick={() => setSelectedAppointment(appointment)}
+                                >
                                 <TableCell className={`text-xs py-1 px-2 h-8 ${
                                   selectedAppointment?.id === appointment.id ? 'font-bold' : 'font-medium'
                                 }`}>
@@ -3170,6 +3215,7 @@ const Doctor = () => {
                                   </span>
                                 </TableCell>
                               </TableRow>
+                              </AppointmentContextMenu>
                             );
                           })}
                         </TableBody>
