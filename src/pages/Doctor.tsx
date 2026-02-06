@@ -2909,24 +2909,24 @@ const Doctor = () => {
 
               <div className="mb-4 space-y-3">
                 <div className="flex flex-wrap gap-2 items-end">
-                  <div className="flex-1 min-w-[140px]">
+                  <div className="w-[165px]">
                     <label className="block text-xs font-medium mb-1">Фильтр с даты</label>
                     <Input
                       type="date"
                       value={scheduleFilterFrom}
                       onChange={(e) => setScheduleFilterFrom(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
-                      className="h-8 text-xs"
+                      className="h-8 text-xs w-full"
                     />
                   </div>
-                  <div className="flex-1 min-w-[140px]">
+                  <div className="w-[165px]">
                     <label className="block text-xs font-medium mb-1">Фильтр по дату</label>
                     <Input
                       type="date"
                       value={scheduleFilterTo}
                       onChange={(e) => setScheduleFilterTo(e.target.value)}
                       min={scheduleFilterFrom}
-                      className="h-8 text-xs"
+                      className="h-8 text-xs w-full"
                     />
                   </div>
                   <div className="flex gap-1.5">
