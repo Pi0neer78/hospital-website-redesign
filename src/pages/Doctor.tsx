@@ -2907,49 +2907,54 @@ const Doctor = () => {
                 </DialogContent>
               </Dialog>
 
-              <div className="mb-6 space-y-4">
-                <div className="flex flex-wrap gap-3 items-end">
-                  <div className="flex-1 min-w-[200px]">
-                    <label className="block text-sm font-medium mb-2">Фильтр с даты</label>
+              <div className="mb-4 space-y-3">
+                <div className="flex flex-wrap gap-2 items-end">
+                  <div className="flex-1 min-w-[140px]">
+                    <label className="block text-xs font-medium mb-1">Фильтр с даты</label>
                     <Input
                       type="date"
                       value={scheduleFilterFrom}
                       onChange={(e) => setScheduleFilterFrom(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
+                      className="h-8 text-xs"
                     />
                   </div>
-                  <div className="flex-1 min-w-[200px]">
-                    <label className="block text-sm font-medium mb-2">Фильтр по дату</label>
+                  <div className="flex-1 min-w-[140px]">
+                    <label className="block text-xs font-medium mb-1">Фильтр по дату</label>
                     <Input
                       type="date"
                       value={scheduleFilterTo}
                       onChange={(e) => setScheduleFilterTo(e.target.value)}
                       min={scheduleFilterFrom}
+                      className="h-8 text-xs"
                     />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <Button
                       variant="outline"
                       onClick={() => setScheduleQuickFilter('today')}
                       size="sm"
+                      className="h-8 text-xs px-2"
                     >
-                      <Icon name="Calendar" size={16} className="mr-1" />
+                      <Icon name="Calendar" size={12} className="mr-1" />
                       Сегодня
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => setScheduleQuickFilter('week')}
                       size="sm"
+                      className="h-8 text-xs px-2"
                     >
-                      <Icon name="CalendarDays" size={16} className="mr-1" />
+                      <Icon name="CalendarDays" size={12} className="mr-1" />
                       Неделя
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => setScheduleQuickFilter('month')}
                       size="sm"
+                      className="h-8 text-xs px-2"
                     >
-                      <Icon name="CalendarRange" size={16} className="mr-1" />
+                      <Icon name="CalendarRange" size={12} className="mr-1" />
                       Месяц
                     </Button>
                   </div>
@@ -2958,17 +2963,19 @@ const Doctor = () => {
                   <Button
                     onClick={printSchedule}
                     variant="default"
-                    className="bg-blue-600 hover:bg-blue-700"
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 h-8 text-xs px-3"
                   >
-                    <Icon name="Printer" size={18} className="mr-2" />
+                    <Icon name="Printer" size={12} className="mr-1.5" />
                     Печать расписания
                   </Button>
                   <Button
                     onClick={exportScheduleToExcel}
                     variant="default"
-                    className="bg-green-600 hover:bg-green-700"
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 h-8 text-xs px-3"
                   >
-                    <Icon name="FileSpreadsheet" size={18} className="mr-2" />
+                    <Icon name="FileSpreadsheet" size={12} className="mr-1.5" />
                     Экспорт в Excel
                   </Button>
                 </div>
