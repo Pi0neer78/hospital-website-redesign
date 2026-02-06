@@ -998,15 +998,22 @@ const Registrar = () => {
                         .map((appointment: any) => (
                           <TableRow key={appointment.id} className="text-xs">
                             <TableCell className="py-2 text-center">
-                              {appointment.created_by === 1 ? (
-                                <Icon name="User" size={16} className="text-red-500" title="Пациент" />
-                              ) : appointment.created_by === 2 ? (
-                                <Icon name="Stethoscope" size={16} className="text-blue-500" title="Врач" />
-                              ) : appointment.created_by === 3 ? (
-                                <Icon name="UserCog" size={16} className="text-green-500" title="Регистратор" />
-                              ) : (
-                                <Icon name="User" size={16} className="text-gray-400" title="Не указано" />
-                              )}
+                              {(() => {
+                                const createdAt = appointment.created_at ? new Date(appointment.created_at) : null;
+                                const createdDate = createdAt ? createdAt.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+                                const createdTime = createdAt ? createdAt.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
+                                const fullDate = createdAt ? `${createdDate} в ${createdTime}` : '';
+                                
+                                if (appointment.created_by === 1) {
+                                  return <Icon name="User" size={16} className="text-red-500" title={`Запись создана пациентом${fullDate ? ' ' + fullDate : ''}`} />;
+                                } else if (appointment.created_by === 2) {
+                                  return <Icon name="Stethoscope" size={16} className="text-blue-500" title={`Запись создана врачом${fullDate ? ' ' + fullDate : ''}`} />;
+                                } else if (appointment.created_by === 3) {
+                                  return <Icon name="UserCog" size={16} className="text-green-500" title={`Запись создана регистратором${fullDate ? ' ' + fullDate : ''}`} />;
+                                } else {
+                                  return <Icon name="User" size={16} className="text-gray-400" title={`Автор не указан${fullDate ? ', создано ' + fullDate : ''}`} />;
+                                }
+                              })()}
                             </TableCell>
                             <TableCell className="py-2">
                               {new Date(appointment.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')}
