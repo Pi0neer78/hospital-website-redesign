@@ -2382,87 +2382,6 @@ const Doctor = () => {
             </TabsContent>
 
             <TabsContent value="schedule" className="mt-6">
-              <Card className="mb-6 bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
-                <CardContent className="pt-4">
-                  <div className="flex items-start gap-3">
-                    <Icon name="Clock" size={24} className="text-purple-600 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between cursor-pointer" onClick={() => setScheduleInstructionOpen(!scheduleInstructionOpen)}>
-                        <h3 className="text-base font-bold text-purple-900">⏰ Инструкция: Еженедельное расписание</h3>
-                        <Icon 
-                          name={scheduleInstructionOpen ? "ChevronUp" : "ChevronDown"} 
-                          size={20} 
-                          className="text-purple-600 flex-shrink-0"
-                        />
-                      </div>
-                      
-                      {scheduleInstructionOpen && (
-                        <div className="space-y-3 text-sm text-purple-800 mt-3">
-                          <div className="bg-white/60 p-3 rounded-lg">
-                            <p className="font-semibold mb-1">🎯 Для чего нужно расписание?</p>
-                            <p className="text-purple-700">
-                              Еженедельное расписание — это основа вашего рабочего графика. Здесь вы настраиваете, 
-                              в какие дни недели вы принимаете, с какого по какое время, и сколько длится один приём. 
-                              Пациенты увидят только настроенные здесь дни и часы.
-                            </p>
-                          </div>
-
-                          <div className="bg-white/60 p-3 rounded-lg">
-                            <p className="font-semibold mb-2">📋 Пошаговая настройка:</p>
-                            <ul className="list-decimal list-inside space-y-1.5 text-purple-700 ml-2">
-                              <li><strong>"Добавить день"</strong> — нажмите кнопку вверху справа</li>
-                              <li><strong>Выберите день недели</strong> — например, Понедельник</li>
-                              <li><strong>Время начала и окончания</strong> — с 09:00 до 18:00</li>
-                              <li><strong>Длительность слота</strong> — сколько минут на одного пациента (15, 20, 30 минут)</li>
-                              <li><strong>Перерыв</strong> (необязательно) — если есть обед, укажите с 13:00 до 14:00</li>
-                              <li><strong>Сохраните</strong> — день появится в списке карточек ниже</li>
-                            </ul>
-                          </div>
-
-                          <div className="bg-white/60 p-3 rounded-lg">
-                            <p className="font-semibold mb-2">🔧 Полезные кнопки в карточках дней:</p>
-                            <ul className="text-purple-700 space-y-1 ml-2 list-disc list-inside text-xs">
-                              <li><strong>Карандаш ✏️</strong> — изменить время или длительность слотов</li>
-                              <li><strong>Копировать 📋</strong> — скопировать расписание этого дня на другие дни недели</li>
-                              <li><strong>Пауза ⏸</strong> — временно деактивировать день (запись станет недоступна)</li>
-                              <li><strong>Корзина 🗑</strong> — удалить день из расписания полностью</li>
-                            </ul>
-                          </div>
-
-                          <div className="bg-white/60 p-3 rounded-lg">
-                            <p className="font-semibold mb-1">⚡ Массовое изменение слотов</p>
-                            <p className="text-purple-700">
-                              Кнопка <strong>"Применить слоты ко всем дням"</strong> (вверху) позволяет одним действием 
-                              изменить длительность приёма для всех рабочих дней. Например, изменить с 15 минут на 20 минут 
-                              для всей недели сразу, не редактируя каждый день отдельно.
-                            </p>
-                          </div>
-
-                          <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
-                            <p className="font-semibold mb-1 text-amber-900">💡 Пример готового расписания:</p>
-                            <div className="text-amber-800 text-xs space-y-1 leading-relaxed">
-                              <p><strong>Понедельник, Среда, Пятница:</strong> 09:00-18:00, обед 13:00-14:00, приём 30 мин</p>
-                              <p><strong>Вторник, Четверг:</strong> 10:00-16:00, без перерыва, приём 20 мин</p>
-                              <p><strong>Суббота:</strong> 09:00-14:00, без перерыва, приём 15 мин</p>
-                              <p><strong>Воскресенье:</strong> не добавляем (автоматически выходной)</p>
-                            </div>
-                          </div>
-
-                          <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
-                            <p className="font-semibold mb-1 text-blue-900">ℹ️ Важные моменты:</p>
-                            <ul className="text-blue-800 text-xs space-y-1 ml-2 list-disc list-inside">
-                              <li>Если день НЕ добавлен — он автоматически выходной</li>
-                              <li>Календарь (вкладка "Календарь") может закрывать отдельные даты даже из рабочих дней</li>
-                              <li>Изменения применяются мгновенно — пациенты сразу видят новые слоты</li>
-                              <li>Можно деактивировать день временно, не удаляя его настройки</li>
-                            </ul>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold">Рабочее расписание</h2>
                 <div className="flex gap-2">
@@ -2984,23 +2903,23 @@ const Doctor = () => {
               </div>
 
               <Card>
-                <CardHeader className="border-b">
-                  <CardTitle className="flex items-center gap-2">
-                    <Icon name="Calendar" size={20} />
+                <CardHeader className="border-b py-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Icon name="Calendar" size={18} />
                     Рабочее расписание ({getFilteredSchedule().length} дней)
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[110px]">Дата</TableHead>
-                        <TableHead className="w-[90px]">День</TableHead>
-                        <TableHead className="w-[90px]">Статус</TableHead>
-                        <TableHead className="w-[240px]">Рабочее время</TableHead>
-                        <TableHead className="w-[70px]">Слот</TableHead>
-                        <TableHead className="w-[110px]">Перерыв</TableHead>
-                        <TableHead className="text-right">Действия</TableHead>
+                      <TableRow className="h-9">
+                        <TableHead className="w-[110px] text-xs py-2">Дата</TableHead>
+                        <TableHead className="w-[90px] text-xs py-2">День</TableHead>
+                        <TableHead className="w-[90px] text-xs py-2">Статус</TableHead>
+                        <TableHead className="w-[240px] text-xs py-2">Рабочее время</TableHead>
+                        <TableHead className="w-[70px] text-xs py-2">Слот</TableHead>
+                        <TableHead className="w-[110px] text-xs py-2">Перерыв</TableHead>
+                        <TableHead className="text-right text-xs py-2">Действия</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -3010,25 +2929,25 @@ const Doctor = () => {
                         const dateFormatted = dateObj.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
                         
                         return (
-                          <TableRow key={schedule.id} className={`${!schedule.is_active ? 'opacity-50' : ''} text-sm`}>
-                            <TableCell className="font-medium py-2">{dateFormatted}</TableCell>
-                            <TableCell className="capitalize py-2">{dayName}</TableCell>
-                            <TableCell className="py-2">
-                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          <TableRow key={schedule.id} className={`${!schedule.is_active ? 'opacity-50' : ''} text-xs h-10`}>
+                            <TableCell className="font-medium py-1.5">{dateFormatted}</TableCell>
+                            <TableCell className="capitalize py-1.5">{dayName}</TableCell>
+                            <TableCell className="py-1.5">
+                              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
                                 schedule.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
                               }`}>
                                 {schedule.is_active ? 'Работа' : 'Выходной'}
                               </span>
                             </TableCell>
-                            <TableCell className="py-2">{schedule.start_time.slice(0, 5)} — {schedule.end_time.slice(0, 5)}</TableCell>
-                            <TableCell className="py-2">{schedule.slot_duration} м</TableCell>
-                            <TableCell className="py-2">
+                            <TableCell className="py-1.5">{schedule.start_time.slice(0, 5)} — {schedule.end_time.slice(0, 5)}</TableCell>
+                            <TableCell className="py-1.5">{schedule.slot_duration} м</TableCell>
+                            <TableCell className="py-1.5">
                               {schedule.break_start_time && schedule.break_end_time 
                                 ? `${schedule.break_start_time.slice(0, 5)}—${schedule.break_end_time.slice(0, 5)}`
                                 : '—'
                               }
                             </TableCell>
-                            <TableCell className="py-2">
+                            <TableCell className="py-1.5">
                               <div className="flex gap-1 justify-end">
                                 {!schedule.is_generated && (
                                   <Button 
@@ -3039,8 +2958,9 @@ const Doctor = () => {
                                       setIsDailyEditOpen(true);
                                     }}
                                     title="Изменить параметры дня"
+                                    className="h-7 w-7 p-0"
                                   >
-                                    <Icon name="Edit" size={14} />
+                                    <Icon name="Edit" size={12} />
                                   </Button>
                                 )}
                                 {!schedule.is_generated && (
@@ -3048,9 +2968,10 @@ const Doctor = () => {
                                     size="sm" 
                                     variant={schedule.is_active ? "outline" : "default"}
                                     onClick={() => handleToggleDailyActive(schedule.id, schedule.is_active)}
+                                    className="h-7 w-7 p-0"
                                     title={schedule.is_active ? "Деактивировать" : "Активировать"}
                                   >
-                                    <Icon name={schedule.is_active ? "PauseCircle" : "PlayCircle"} size={14} />
+                                    <Icon name={schedule.is_active ? "PauseCircle" : "PlayCircle"} size={12} />
                                   </Button>
                                 )}
                               </div>
