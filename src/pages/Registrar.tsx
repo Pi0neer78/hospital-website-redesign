@@ -1018,9 +1018,9 @@ const Registrar = () => {
                           <TableRow className="text-xs cursor-pointer hover:bg-muted/50">
                             <TableCell className="py-2 text-center">
                               {(() => {
-                                const createdAt = appointment.created_at ? new Date(appointment.created_at) : null;
-                                const createdDate = createdAt ? createdAt.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
-                                const createdTime = createdAt ? createdAt.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
+                                const createdAt = appointment.created_at ? new Date(appointment.created_at + 'Z') : null;
+                                const createdDate = createdAt ? createdAt.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Moscow' }) : '';
+                                const createdTime = createdAt ? createdAt.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Moscow' }) : '';
                                 const fullDate = createdAt ? `${createdDate} в ${createdTime}` : '';
                                 
                                 let tooltipText = '';
