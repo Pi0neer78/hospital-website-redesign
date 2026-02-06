@@ -2154,7 +2154,7 @@ const Doctor = () => {
       <Tabs defaultValue="calendar">
         <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-border shadow-md">
           <div className="container mx-auto px-4 py-3">
-            <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <TabsList className={`grid w-full ${isRegistrarAccess ? 'grid-cols-2' : 'grid-cols-3'} h-auto p-1 bg-gradient-to-r from-blue-50 to-indigo-50`}>
               <TabsTrigger 
                 value="calendar"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md py-2 px-4 font-semibold text-sm transition-all"
@@ -2169,13 +2169,15 @@ const Doctor = () => {
                 <Icon name="Clock" size={18} className="mr-1.5" />
                 Расписание
               </TabsTrigger>
-              <TabsTrigger 
-                value="appointments"
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md py-2 px-4 font-semibold text-sm transition-all"
-              >
-                <Icon name="Users" size={18} className="mr-1.5" />
-                Записи пациентов
-              </TabsTrigger>
+              {!isRegistrarAccess && (
+                <TabsTrigger 
+                  value="appointments"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md py-2 px-4 font-semibold text-sm transition-all"
+                >
+                  <Icon name="Users" size={18} className="mr-1.5" />
+                  Записи пациентов
+                </TabsTrigger>
+              )}
             </TabsList>
           </div>
 
@@ -2985,6 +2987,7 @@ const Doctor = () => {
               </Card>
             </TabsContent>
 
+            {!isRegistrarAccess && (
             <TabsContent value="appointments" className="mt-6">
               <div className="mb-6 flex flex-col" style={{ height: 'calc(100vh - 200px)', minHeight: '500px' }}>
                 <div className="flex-shrink-0">
@@ -3460,6 +3463,7 @@ const Doctor = () => {
               </div>
               </div>
             </TabsContent>
+            )}
           </div>
         </section>
       </Tabs>
