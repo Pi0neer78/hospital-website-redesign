@@ -200,6 +200,16 @@ const Doctor = () => {
     availableDates: []
   });
 
+  const [scheduleFilterFrom, setScheduleFilterFrom] = useState<string>(() => {
+    return new Date().toISOString().split('T')[0];
+  });
+  const [scheduleFilterTo, setScheduleFilterTo] = useState<string>(() => {
+    const date = new Date();
+    date.setMonth(date.getMonth() + 1);
+    return date.toISOString().split('T')[0];
+  });
+  const [pastDateWarning, setPastDateWarning] = useState<{open: boolean, attemptedDate: string}>({open: false, attemptedDate: ''});
+
 
 
   useEffect(() => {
@@ -687,6 +697,11 @@ const Doctor = () => {
   const handleCreateDailySchedule = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!validateScheduleDate(dailyScheduleForm.schedule_date)) {
+      setPastDateWarning({open: true, attemptedDate: dailyScheduleForm.schedule_date});
+      return;
+    }
+    
     try {
       const response = await fetch(API_URLS.schedules, {
         method: 'POST',
@@ -715,6 +730,11 @@ const Doctor = () => {
 
   const handleEditDailySchedule = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateScheduleDate(editingDailySchedule.schedule_date)) {
+      setPastDateWarning({open: true, attemptedDate: editingDailySchedule.schedule_date});
+      return;
+    }
     
     try {
       const response = await fetch(API_URLS.schedules, {
@@ -825,6 +845,11 @@ const Doctor = () => {
     
     if (!bulkGenerateForm.start_date || !bulkGenerateForm.end_date) {
       toast({ title: "Ошибка", description: "Укажите период", variant: "destructive" });
+      return;
+    }
+    
+    if (!validateScheduleDate(bulkGenerateForm.start_date)) {
+      setPastDateWarning({open: true, attemptedDate: bulkGenerateForm.start_date});
       return;
     }
     
@@ -1174,6 +1199,269 @@ const Doctor = () => {
       newDescription: appointment.description || '',
       availableSlots: []
     });
+  };
+
+  const setScheduleQuickFilter = (period: 'today' | 'week' | 'month') => {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    
+    setScheduleFilterFrom(todayStr);
+    
+    if (period === 'today') {
+      setScheduleFilterTo(todayStr);
+    } else if (period === 'week') {
+      const weekLater = new Date(today);
+      weekLater.setDate(today.getDate() + 7);
+      setScheduleFilterTo(weekLater.toISOString().split('T')[0]);
+    } else if (period === 'month') {
+      const monthLater = new Date(today);
+      monthLater.setMonth(today.getMonth() + 1);
+      setScheduleFilterTo(monthLater.toISOString().split('T')[0]);
+    }
+  };
+
+  const validateScheduleDate = (dateStr: string): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkDate = new Date(dateStr + 'T00:00:00');
+    return checkDate >= today;
+  };
+
+  const printSchedule = () => {
+    const filtered = getFilteredSchedule();
+    
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Рабочее расписание - ${doctorInfo.full_name}</title>
+        <style>
+          body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 20px;
+            font-size: 12px;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 20px;
+          }
+          h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #1e40af;
+          }
+          .doctor-info {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+          }
+          .info-row {
+            display: flex;
+            margin-bottom: 8px;
+          }
+          .info-label {
+            font-weight: bold;
+            min-width: 180px;
+            color: #1e40af;
+          }
+          .info-value {
+            color: #374151;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          }
+          th {
+            background: linear-gradient(to bottom, #3b82f6, #2563eb);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #1e40af;
+          }
+          td {
+            border: 1px solid #d1d5db;
+            padding: 10px;
+            text-align: left;
+          }
+          tr:nth-child(even) {
+            background-color: #f9fafb;
+          }
+          tr:hover {
+            background-color: #eff6ff;
+          }
+          .weekend {
+            background-color: #fef2f2 !important;
+          }
+          .time-badge {
+            background: #dbeafe;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            color: #1e40af;
+            display: inline-block;
+          }
+          .break-badge {
+            background: #fef3c7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            color: #92400e;
+            display: inline-block;
+          }
+          .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 10px;
+            border-top: 1px solid #d1d5db;
+            padding-top: 10px;
+          }
+          @media print {
+            body { margin: 10px; }
+            .no-print { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>📅 Рабочее расписание</h1>
+        </div>
+        
+        <div class="doctor-info">
+          <div class="info-row">
+            <div class="info-label">👨‍⚕️ Врач:</div>
+            <div class="info-value">${doctorInfo.full_name}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">💼 Должность:</div>
+            <div class="info-value">${doctorInfo.position || 'Не указана'}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">🔬 Специализация:</div>
+            <div class="info-value">${doctorInfo.specialization || 'Не указана'}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">🏥 Поликлиника:</div>
+            <div class="info-value">${doctorInfo.clinic || 'Не указана'}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">🚪 Кабинет:</div>
+            <div class="info-value">${doctorInfo.office_number || 'Не указан'}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">📅 Период расписания:</div>
+            <div class="info-value">${new Date(scheduleFilterFrom + 'T00:00:00').toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' })} — ${new Date(scheduleFilterTo + 'T00:00:00').toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">🖨️ Дата печати:</div>
+            <div class="info-value">${new Date().toLocaleString('ru-RU')}</div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 40px;">№</th>
+              <th>Дата</th>
+              <th>День недели</th>
+              <th>Время приёма</th>
+              <th>Перерыв</th>
+              <th>Длительность слота</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtered.map((schedule, index) => {
+              const date = new Date(schedule.schedule_date + 'T00:00:00');
+              const dayOfWeek = date.toLocaleDateString('ru-RU', { weekday: 'long' });
+              const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+              
+              return `
+                <tr class="${isWeekend ? 'weekend' : ''}">
+                  <td>${index + 1}</td>
+                  <td>${date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                  <td><strong>${dayOfWeek}</strong></td>
+                  <td>
+                    <span class="time-badge">${schedule.start_time.slice(0, 5)} — ${schedule.end_time.slice(0, 5)}</span>
+                  </td>
+                  <td>
+                    ${schedule.break_start_time && schedule.break_end_time 
+                      ? `<span class="break-badge">${schedule.break_start_time.slice(0, 5)} — ${schedule.break_end_time.slice(0, 5)}</span>` 
+                      : '—'}
+                  </td>
+                  <td>${schedule.slot_duration || 15} мин</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+        
+        <div class="footer">
+          <p>Всего рабочих дней: ${filtered.length}</p>
+          <p>Документ сформирован автоматически системой управления записями</p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 250);
+    }
+    
+    toast({
+      title: "Печать расписания",
+      description: `Подготовлено к печати: ${filtered.length} рабочих дней`,
+    });
+  };
+
+  const exportScheduleToExcel = () => {
+    const filtered = getFilteredSchedule();
+    
+    const dataForExport = filtered.map((schedule, index) => {
+      const date = new Date(schedule.schedule_date + 'T00:00:00');
+      return {
+        '№': index + 1,
+        'Дата': date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+        'День недели': date.toLocaleDateString('ru-RU', { weekday: 'long' }),
+        'Время начала': schedule.start_time.slice(0, 5),
+        'Время окончания': schedule.end_time.slice(0, 5),
+        'Перерыв с': schedule.break_start_time ? schedule.break_start_time.slice(0, 5) : '—',
+        'Перерыв до': schedule.break_end_time ? schedule.break_end_time.slice(0, 5) : '—',
+        'Длительность слота (мин)': schedule.slot_duration || 15
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(dataForExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Расписание');
+
+    const fileName = `Расписание_${doctorInfo.full_name}_${new Date().toLocaleDateString('ru-RU').replace(/\./g, '-')}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+
+    toast({
+      title: "Экспорт завершен",
+      description: `Экспортировано: ${dataForExport.length} рабочих дней`,
+    });
+  };
+
+  const getFilteredSchedule = () => {
+    return dailySchedules.filter((schedule: any) => {
+      const scheduleDate = schedule.schedule_date;
+      return scheduleDate >= scheduleFilterFrom && scheduleDate <= scheduleFilterTo;
+    }).sort((a: any, b: any) => a.schedule_date.localeCompare(b.schedule_date));
   };
 
   const handleCloneAppointment = async (e: React.FormEvent) => {
@@ -2619,16 +2907,78 @@ const Doctor = () => {
                 </DialogContent>
               </Dialog>
 
+              <div className="mb-6 space-y-4">
+                <div className="flex flex-wrap gap-3 items-end">
+                  <div className="flex-1 min-w-[200px]">
+                    <label className="block text-sm font-medium mb-2">Фильтр с даты</label>
+                    <Input
+                      type="date"
+                      value={scheduleFilterFrom}
+                      onChange={(e) => setScheduleFilterFrom(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-[200px]">
+                    <label className="block text-sm font-medium mb-2">Фильтр по дату</label>
+                    <Input
+                      type="date"
+                      value={scheduleFilterTo}
+                      onChange={(e) => setScheduleFilterTo(e.target.value)}
+                      min={scheduleFilterFrom}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setScheduleQuickFilter('today')}
+                      size="sm"
+                    >
+                      <Icon name="Calendar" size={16} className="mr-1" />
+                      Сегодня
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setScheduleQuickFilter('week')}
+                      size="sm"
+                    >
+                      <Icon name="CalendarDays" size={16} className="mr-1" />
+                      Неделя
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setScheduleQuickFilter('month')}
+                      size="sm"
+                    >
+                      <Icon name="CalendarRange" size={16} className="mr-1" />
+                      Месяц
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={printSchedule}
+                    variant="default"
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Icon name="Printer" size={18} className="mr-2" />
+                    Печать расписания
+                  </Button>
+                  <Button
+                    onClick={exportScheduleToExcel}
+                    variant="default"
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <Icon name="FileSpreadsheet" size={18} className="mr-2" />
+                    Экспорт в Excel
+                  </Button>
+                </div>
+              </div>
+
               <Card>
                 <CardHeader className="border-b">
                   <CardTitle className="flex items-center gap-2">
                     <Icon name="Calendar" size={20} />
-                    {(() => {
-                      const range = getScheduleDateRange();
-                      return range.start && range.end 
-                        ? `Расписание с ${range.start} по ${range.end}`
-                        : 'Расписание';
-                    })()}
+                    Рабочее расписание ({getFilteredSchedule().length} дней)
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -2645,7 +2995,7 @@ const Doctor = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {generateCombinedSchedule().map((schedule: any) => {
+                      {getFilteredSchedule().map((schedule: any) => {
                         const dateObj = new Date(schedule.schedule_date + 'T00:00:00');
                         const dayName = dateObj.toLocaleDateString('ru-RU', { weekday: 'short' });
                         const dateFormatted = dateObj.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -3504,6 +3854,75 @@ const Doctor = () => {
             onClick={() => setWrongDateDialog({open: false, appointmentDate: '', currentDate: ''})}
           >
             Понятно
+          </Button>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={pastDateWarning.open} onOpenChange={(open) => setPastDateWarning({...pastDateWarning, open})}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl text-red-600">😡 Стоп! Машина времени сломалась!</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            <div className="flex justify-center">
+              <div className="relative">
+                <img 
+                  src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/9b6a0dd8-f1f0-496a-b035-93bc7c57d11c.jpg" 
+                  alt="Очень сердитый доктор"
+                  className="w-64 h-64 object-contain rounded-2xl shadow-2xl border-4 border-red-500 bg-white"
+                />
+                <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-3 shadow-lg animate-bounce">
+                  <Icon name="AlertTriangle" size={32} />
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center space-y-4">
+              <p className="text-2xl font-bold text-red-700">
+                Нельзя изменять прошлое!
+              </p>
+              <div className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-300 rounded-xl p-6 space-y-3 shadow-lg">
+                <p className="text-lg font-semibold text-foreground">
+                  🚫 Вы пытаетесь создать/изменить запись на прошедшую дату:
+                </p>
+                <div className="bg-white/80 rounded-lg p-4 border-2 border-red-400">
+                  <p className="text-3xl font-bold text-red-600">
+                    {new Date(pastDateWarning.attemptedDate + 'T00:00:00').toLocaleDateString('ru-RU', { 
+                      weekday: 'long', 
+                      day: 'numeric', 
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </p>
+                </div>
+                <p className="text-base text-muted-foreground">
+                  ⏰ <strong>Сегодня:</strong> {new Date().toLocaleDateString('ru-RU', { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric' 
+                  })}
+                </p>
+              </div>
+              <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
+                <p className="text-base font-semibold text-yellow-900 mb-2">
+                  ⚡ Правила временно́го континуума:
+                </p>
+                <ul className="text-sm text-yellow-800 space-y-1 text-left list-disc list-inside">
+                  <li>Можно создавать расписание только на <strong>сегодня и будущее</strong></li>
+                  <li>Прошлое изменить нельзя (даже если очень хочется)</li>
+                  <li>Доктор не одобряет попытки нарушить законы времени!</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <Button
+            className="w-full mt-6 bg-red-600 hover:bg-red-700 text-lg py-6"
+            onClick={() => setPastDateWarning({open: false, attemptedDate: ''})}
+          >
+            <Icon name="ThumbsUp" size={20} className="mr-2" />
+            Понял, буду работать с будущим!
           </Button>
         </DialogContent>
       </Dialog>
