@@ -1073,6 +1073,77 @@ const Registrar = () => {
                                  appointment.status === 'completed' ? 'Завершено' : 'Отменено'}
                               </span>
                             </TableCell>
+                            <TableCell className="py-2">
+                              <div className="flex gap-1">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditDialog(appointment);
+                                      }}
+                                    >
+                                      <Icon name="Edit" size={14} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Редактировать</p></TooltipContent>
+                                </Tooltip>
+                                
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        openRescheduleDialog(appointment);
+                                      }}
+                                    >
+                                      <Icon name="CalendarClock" size={14} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Перенести</p></TooltipContent>
+                                </Tooltip>
+                                
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        openCloneDialog(appointment);
+                                      }}
+                                    >
+                                      <Icon name="Copy" size={14} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Клонировать</p></TooltipContent>
+                                </Tooltip>
+                                
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7 text-red-600 hover:text-red-700"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setCancelDialog(appointment);
+                                      }}
+                                    >
+                                      <Icon name="X" size={14} />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Отменить</p></TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </TableCell>
                           </TableRow>
                           </AppointmentContextMenu>
                         ))}
