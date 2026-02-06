@@ -2788,13 +2788,7 @@ const Doctor = () => {
 
               <div className="mb-6 flex flex-col" style={{ height: 'calc(100vh - 280px)', minHeight: '500px' }}>
                 <div className="flex-shrink-0">
-                  <div className="flex items-center gap-2 mb-4">
-                    <h3 className="text-2xl font-bold">Записи пациентов</h3>
-                    <div className="px-2 py-1 rounded-md bg-blue-50 border border-blue-200 flex items-center gap-1.5 text-xs text-blue-700">
-                      <Icon name="MousePointerClick" size={14} className="text-blue-600" />
-                      <span className="font-medium">Правый клик на записи для быстрых действий</span>
-                    </div>
-                  </div>
+                  <h3 className="text-2xl font-bold mb-4">Записи пациентов</h3>
                 
                 <div className="flex gap-2 items-center flex-wrap mb-4">
                   <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-lg border">
