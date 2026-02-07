@@ -8,7 +8,8 @@ from typing import Dict, Any
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Аутентификация пользователей
-    POST /login - вход (admin или doctor)
+    POST /login - вход (admin, doctor, registrar)
+    POST /login_admin - специальный вход для главного врача
     """
     method = event.get('httpMethod', 'GET')
     
@@ -36,6 +37,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if method == 'POST':
         body = json.loads(event.get('body', '{}'))
+        action = body.get('action', 'login')
         login = body.get('login')
         password = body.get('password')
         user_type = body.get('type', 'admin')
@@ -53,7 +55,39 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         try:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
-            if user_type == 'admin':
+            if action == 'login_admin':
+                cursor.execute(
+                    "SELECT id, login, full_name, password_hash FROM admins WHERE login = %s AND is_active = true",
+                    (login,)
+                )
+                user = cursor.fetchone()
+                
+                if user:
+                    try:
+                        password_match = bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8'))
+                    except:
+                        password_match = False
+                    
+                    if password_match:
+                        cursor.execute(
+                            "UPDATE admins SET last_login = CURRENT_TIMESTAMP WHERE id = %s",
+                            (user['id'],)
+                        )
+                        conn.commit()
+                        cursor.close()
+                        return {
+                            'statusCode': 200,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({
+                                'success': True,
+                                'token': f"mdoctor_{user['id']}",
+                                'user': {'id': user['id'], 'login': user['login'], 'full_name': user['full_name']},
+                                'message': 'Вход выполнен успешно'
+                            }),
+                            'isBase64Encoded': False
+                        }
+            
+            elif user_type == 'admin':
                 cursor.execute(
                     "SELECT id, login, full_name, password_hash FROM admins WHERE login = %s",
                     (login,)

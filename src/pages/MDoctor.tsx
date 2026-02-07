@@ -1,0 +1,394 @@
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+
+const API_URLS = {
+  auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
+  doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
+  complaints: 'https://functions.poehali.dev/a6c04c63-0223-4bcc-b146-24acdef33536',
+};
+
+const MDoctor = () => {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginForm, setLoginForm] = useState({ login: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
+  const [doctors, setDoctors] = useState([]);
+  const [complaints, setComplaints] = useState([]);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('mdoctor_token');
+    if (token) {
+      setIsAuthenticated(true);
+      loadDoctors();
+      loadComplaints();
+    }
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(API_URLS.auth, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'login_admin',
+          login: loginForm.login,
+          password: loginForm.password
+        })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        localStorage.setItem('mdoctor_token', data.token);
+        setIsAuthenticated(true);
+        toast({ title: 'Вход выполнен', description: 'Добро пожаловать!' });
+        loadDoctors();
+        loadComplaints();
+      } else {
+        toast({ title: 'Ошибка', description: data.message || 'Неверный логин или пароль', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('mdoctor_token');
+    setIsAuthenticated(false);
+    setLoginForm({ login: '', password: '' });
+    toast({ title: 'Выход', description: 'Вы вышли из системы' });
+  };
+
+  const loadDoctors = async () => {
+    try {
+      const response = await fetch(`${API_URLS.doctors}?action=get_all`);
+      const data = await response.json();
+      if (data.success) {
+        setDoctors(data.doctors);
+      }
+    } catch (error) {
+      console.error('Error loading doctors:', error);
+    }
+  };
+
+  const loadComplaints = async () => {
+    try {
+      const params = new URLSearchParams({ action: 'get_all' });
+      if (dateFrom) params.append('date_from', dateFrom);
+      if (dateTo) params.append('date_to', dateTo);
+      
+      const response = await fetch(`${API_URLS.complaints}?${params}`);
+      const data = await response.json();
+      if (data.success) {
+        setComplaints(data.complaints);
+      }
+    } catch (error) {
+      console.error('Error loading complaints:', error);
+    }
+  };
+
+  const updateComplaintStatus = async (complaintId: number, status: string) => {
+    try {
+      const response = await fetch(API_URLS.complaints, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_status',
+          complaint_id: complaintId,
+          status
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast({ title: 'Успех', description: 'Статус жалобы обновлён' });
+        loadComplaints();
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось обновить статус', variant: 'destructive' });
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">Кабинет главного врача</CardTitle>
+            <CardDescription className="text-center">Войдите для продолжения</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Логин</label>
+                <Input
+                  type="text"
+                  value={loginForm.login}
+                  onChange={(e) => setLoginForm({ ...loginForm, login: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Пароль</label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    value={loginForm.password}
+                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={16} />
+                  </Button>
+                </div>
+              </div>
+              <Button type="submit" className="w-full">
+                <Icon name="LogIn" className="mr-2" size={16} />
+                Войти
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <header className="bg-white shadow-sm border-b sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+              <Icon name="Home" size={20} />
+            </Button>
+            <h1 className="text-2xl font-bold text-gray-800">Кабинет главного врача</h1>
+          </div>
+          <Button variant="outline" onClick={handleLogout}>
+            <Icon name="LogOut" className="mr-2" size={16} />
+            Выйти
+          </Button>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <Tabs defaultValue="doctors" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto">
+            <TabsTrigger value="doctors">
+              <Icon name="Users" className="mr-2" size={16} />
+              Врачи
+            </TabsTrigger>
+            <TabsTrigger value="complaints">
+              <Icon name="AlertCircle" className="mr-2" size={16} />
+              Жалобы
+            </TabsTrigger>
+            <TabsTrigger value="reports">
+              <Icon name="FileText" className="mr-2" size={16} />
+              Отчеты
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="doctors">
+            <Card>
+              <CardHeader>
+                <CardTitle>Список врачей</CardTitle>
+                <CardDescription>Все зарегистрированные врачи в системе</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ФИО</TableHead>
+                        <TableHead>Специализация</TableHead>
+                        <TableHead>Должность</TableHead>
+                        <TableHead>Клиника</TableHead>
+                        <TableHead>Телефон</TableHead>
+                        <TableHead>Стаж</TableHead>
+                        <TableHead>Кабинет</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {doctors.map((doctor: any) => (
+                        <TableRow key={doctor.id}>
+                          <TableCell className="font-medium">{doctor.full_name}</TableCell>
+                          <TableCell>{doctor.specialization}</TableCell>
+                          <TableCell>{doctor.position}</TableCell>
+                          <TableCell>{doctor.clinic}</TableCell>
+                          <TableCell>{doctor.phone}</TableCell>
+                          <TableCell>{doctor.work_experience || '—'}</TableCell>
+                          <TableCell>{doctor.office_number || '—'}</TableCell>
+                        </TableRow>
+                      ))}
+                      {doctors.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center text-muted-foreground">
+                            Нет данных
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="complaints">
+            <Card>
+              <CardHeader>
+                <CardTitle>Жалобы пациентов</CardTitle>
+                <CardDescription>Управление поступившими жалобами</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 flex gap-4">
+                  <div>
+                    <label className="text-sm font-medium">От</label>
+                    <Input
+                      type="date"
+                      value={dateFrom}
+                      onChange={(e) => setDateFrom(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">До</label>
+                    <Input
+                      type="date"
+                      value={dateTo}
+                      onChange={(e) => setDateTo(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button onClick={loadComplaints}>
+                      <Icon name="Search" className="mr-2" size={16} />
+                      Применить
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Дата</TableHead>
+                        <TableHead>Пациент</TableHead>
+                        <TableHead>Врач</TableHead>
+                        <TableHead>Текст жалобы</TableHead>
+                        <TableHead>Статус</TableHead>
+                        <TableHead>Действия</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {complaints.map((complaint: any) => (
+                        <TableRow key={complaint.id}>
+                          <TableCell>{new Date(complaint.created_at).toLocaleDateString('ru-RU')}</TableCell>
+                          <TableCell>{complaint.patient_name || complaint.patient_email}</TableCell>
+                          <TableCell>{complaint.doctor_name}</TableCell>
+                          <TableCell className="max-w-xs truncate">{complaint.complaint_text}</TableCell>
+                          <TableCell>
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              complaint.status === 'resolved' ? 'bg-green-100 text-green-800' :
+                              complaint.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {complaint.status === 'resolved' ? 'Решена' :
+                               complaint.status === 'in_progress' ? 'В работе' : 'Новая'}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              {complaint.status === 'pending' && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => updateComplaintStatus(complaint.id, 'in_progress')}
+                                >
+                                  В работу
+                                </Button>
+                              )}
+                              {complaint.status === 'in_progress' && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => updateComplaintStatus(complaint.id, 'resolved')}
+                                >
+                                  Решена
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {complaints.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center text-muted-foreground">
+                            Нет данных
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <Card>
+              <CardHeader>
+                <CardTitle>Отчеты</CardTitle>
+                <CardDescription>Аналитика и статистика работы клиники</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">Всего врачей</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-3xl font-bold">{doctors.length}</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">Всего жалоб</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-3xl font-bold">{complaints.length}</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">Решено жалоб</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-3xl font-bold">
+                        {complaints.filter((c: any) => c.status === 'resolved').length}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  );
+};
+
+export default MDoctor;
