@@ -62,38 +62,92 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         if method == 'POST':
             body = json.loads(event.get('body', '{}'))
-            name = body.get('name')
-            email = body.get('email')
-            phone = body.get('phone')
-            message = body.get('message')
+            action = body.get('action', 'create')
             
-            if not all([name, email, phone, message]):
+            if action == 'update_status':
+                complaint_id = body.get('complaint_id')
+                status = body.get('status')
+                comment = body.get('comment', '')
+                resolved_at = body.get('resolved_at')
+                admin_login = body.get('admin_login', 'admin')
+                
+                if not complaint_id or not status:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Missing fields'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                
+                # Получаем старые данные жалобы для логирования
+                cursor.execute("SELECT * FROM complaints WHERE id = %s", (complaint_id,))
+                old_complaint = cursor.fetchone()
+                
+                # Обновляем жалобу
+                if resolved_at:
+                    cursor.execute(
+                        "UPDATE complaints SET status = %s, comment = %s, resolved_at = %s WHERE id = %s",
+                        (status, comment, resolved_at, complaint_id)
+                    )
+                else:
+                    cursor.execute(
+                        "UPDATE complaints SET status = %s, comment = %s WHERE id = %s",
+                        (status, comment, complaint_id)
+                    )
+                
+                # Логируем действие в журнал
+                if old_complaint:
+                    action_text = f"Изменён статус жалобы №{complaint_id} от {old_complaint.get('name', 'Неизвестно')}. Старый статус: {old_complaint.get('status', 'неизвестно')}, новый: {status}. Комментарий: {comment}"
+                    cursor.execute(
+                        "INSERT INTO doctor_logs (doctor_login, action, details) VALUES (%s, %s, %s)",
+                        (admin_login, 'update_complaint', action_text)
+                    )
+                
+                conn.commit()
+                cursor.close()
+                
                 return {
-                    'statusCode': 400,
+                    'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Missing required fields'}),
+                    'body': json.dumps({'success': True, 'message': 'Статус жалобы обновлён'}),
                     'isBase64Encoded': False
                 }
             
-            cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute(
-                "INSERT INTO complaints (name, email, phone, message, status) VALUES (%s, %s, %s, %s, %s) RETURNING id, created_at",
-                (name, email, phone, message, 'new')
-            )
-            result = cursor.fetchone()
-            conn.commit()
-            cursor.close()
-            
-            return {
-                'statusCode': 201,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({
-                    'success': True,
-                    'id': result['id'],
-                    'message': 'Жалоба успешно отправлена'
-                }, default=str),
-                'isBase64Encoded': False
-            }
+            else:  # create complaint
+                name = body.get('name')
+                email = body.get('email')
+                phone = body.get('phone')
+                message = body.get('message')
+                
+                if not all([name, email, phone, message]):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Missing required fields'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                cursor.execute(
+                    "INSERT INTO complaints (name, email, phone, message, status) VALUES (%s, %s, %s, %s, %s) RETURNING id, created_at",
+                    (name, email, phone, message, 'new')
+                )
+                result = cursor.fetchone()
+                conn.commit()
+                cursor.close()
+                
+                return {
+                    'statusCode': 201,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'id': result['id'],
+                        'message': 'Жалоба успешно отправлена'
+                    }, default=str),
+                    'isBase64Encoded': False
+                }
         
         elif method == 'GET':
             cursor = conn.cursor(cursor_factory=RealDictCursor)
