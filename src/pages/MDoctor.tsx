@@ -34,6 +34,8 @@ const MDoctor = () => {
   const [complaintComment, setComplaintComment] = useState('');
   const [complaintStatus, setComplaintStatus] = useState('');
   const [showComplaintDialog, setShowComplaintDialog] = useState(false);
+  const [complaintSearch, setComplaintSearch] = useState('');
+  const [complaintPageSize, setComplaintPageSize] = useState(20);
 
   const loadDoctors = async () => {
     try {
@@ -183,6 +185,16 @@ const MDoctor = () => {
     }
     return acc;
   }, {} as Record<string, any[]>);
+
+  const filteredComplaints = complaints.filter((c: any) => {
+    if (!complaintSearch) return true;
+    const search = complaintSearch.toLowerCase();
+    return (
+      c.name?.toLowerCase().includes(search) ||
+      c.phone?.toLowerCase().includes(search) ||
+      c.message?.toLowerCase().includes(search)
+    );
+  }).slice(0, complaintPageSize);
 
   if (!isAuthenticated) {
     return (
@@ -346,104 +358,149 @@ const MDoctor = () => {
 
           <TabsContent value="complaints">
             <Card>
-              <CardHeader>
-                <CardTitle>Жалобы пациентов</CardTitle>
-                <CardDescription>Управление поступившими жалобами</CardDescription>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Жалобы пациентов</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="mb-4 flex gap-4">
-                  <div>
-                    <label className="text-sm font-medium">От</label>
-                    <Input
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => setDateFrom(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">До</label>
-                    <Input
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) => setDateTo(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <Button onClick={loadComplaints}>
-                      <Icon name="Search" className="mr-2" size={16} />
-                      Применить
+                <div className="mb-3 space-y-2">
+                  <div className="flex gap-2 items-end">
+                    <div className="flex-1">
+                      <Input
+                        placeholder="Поиск по ФИО, телефону, тексту жалобы..."
+                        value={complaintSearch}
+                        onChange={(e) => setComplaintSearch(e.target.value)}
+                        className="h-9"
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        type="date"
+                        value={dateFrom}
+                        onChange={(e) => setDateFrom(e.target.value)}
+                        className="h-9 w-36"
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        type="date"
+                        value={dateTo}
+                        onChange={(e) => setDateTo(e.target.value)}
+                        className="h-9 w-36"
+                      />
+                    </div>
+                    <Button size="sm" onClick={loadComplaints} className="h-9">
+                      <Icon name="Search" size={14} />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => { setComplaintSearch(''); setDateFrom(''); setDateTo(''); }} className="h-9">
+                      <Icon name="X" size={14} />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => window.print()} className="h-9">
+                      <Icon name="Printer" size={14} />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => {
+                      const csv = [
+                        ['ФИО', 'Email', 'Телефон', 'Жалоба', 'Комментарий', 'Дата', 'Статус'].join(','),
+                        ...filteredComplaints.map((c: any) => [
+                          c.name, c.email, c.phone, c.message.replace(/,/g, ';'), 
+                          (c.comment || '').replace(/,/g, ';'),
+                          new Date(c.created_at).toLocaleDateString('ru-RU'),
+                          c.status === 'resolved' ? 'Решена' : c.status === 'in_progress' ? 'На рассмотрении' : 'Новая'
+                        ].join(','))
+                      ].join('\\n');
+                      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                      const link = document.createElement('a');
+                      link.href = URL.createObjectURL(blob);
+                      link.download = 'жалобы.csv';
+                      link.click();
+                    }} className="h-9">
+                      <Icon name="Download" size={14} />
                     </Button>
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto border rounded-md" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                   <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>ФИО</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Телефон</TableHead>
-                        <TableHead>Текст жалобы</TableHead>
-                        <TableHead>Комментарий</TableHead>
-                        <TableHead>Дата и время</TableHead>
-                        <TableHead>Статус</TableHead>
-                        <TableHead>Действия</TableHead>
+                    <TableHeader className="sticky top-0 bg-white z-10">
+                      <TableRow className="text-xs">
+                        <TableHead className="py-2">ФИО</TableHead>
+                        <TableHead className="py-2">Email</TableHead>
+                        <TableHead className="py-2">Телефон</TableHead>
+                        <TableHead className="py-2">Текст жалобы</TableHead>
+                        <TableHead className="py-2">Комментарий</TableHead>
+                        <TableHead className="py-2">Дата</TableHead>
+                        <TableHead className="py-2">Статус</TableHead>
+                        <TableHead className="py-2">Действия</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {complaints.map((complaint: any) => (
-                        <TableRow key={complaint.id}>
-                          <TableCell>{complaint.name || '—'}</TableCell>
-                          <TableCell>{complaint.email || '—'}</TableCell>
-                          <TableCell>{complaint.phone || '—'}</TableCell>
-                          <TableCell className="max-w-xs">
-                            <div className="line-clamp-2">{complaint.message}</div>
+                      {filteredComplaints.map((complaint: any) => (
+                        <TableRow key={complaint.id} className="text-sm">
+                          <TableCell className="py-2">{complaint.name || '—'}</TableCell>
+                          <TableCell className="py-2 text-xs">{complaint.email || '—'}</TableCell>
+                          <TableCell className="py-2">{complaint.phone || '—'}</TableCell>
+                          <TableCell className="py-2 max-w-xs">
+                            <div className="line-clamp-1 text-xs">{complaint.message}</div>
                           </TableCell>
-                          <TableCell className="max-w-xs">
-                            <div className="line-clamp-2">{complaint.comment || '—'}</div>
+                          <TableCell className="py-2 max-w-xs">
+                            <div className="line-clamp-1 text-xs">{complaint.comment || '—'}</div>
                           </TableCell>
-                          <TableCell>
-                            <div>{new Date(complaint.created_at).toLocaleDateString('ru-RU')}</div>
+                          <TableCell className="py-2">
+                            <div className="text-xs">{new Date(complaint.created_at).toLocaleDateString('ru-RU')}</div>
                             <div className="text-xs text-muted-foreground">
                               {new Date(complaint.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
                             </div>
-                            {complaint.resolved_at && (
-                              <div className="text-xs text-green-600 mt-1">
-                                Решена: {new Date(complaint.resolved_at).toLocaleDateString('ru-RU')} {new Date(complaint.resolved_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
-                              </div>
-                            )}
                           </TableCell>
-                          <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs whitespace-nowrap ${
+                          <TableCell className="py-2">
+                            <span className={`px-2 py-0.5 rounded-full text-xs whitespace-nowrap ${
                               complaint.status === 'resolved' ? 'bg-green-100 text-green-800' :
                               complaint.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
                               'bg-gray-100 text-gray-800'
                             }`}>
                               {complaint.status === 'resolved' ? 'Решена' :
-                               complaint.status === 'in_progress' ? 'На рассмотрении' : 'Новая'}
+                               complaint.status === 'in_progress' ? 'На рассмотр.' : 'Новая'}
                             </span>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="py-2">
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => handleComplaintAction(complaint)}
+                              className="h-7 px-2 text-xs"
                             >
-                              <Icon name="Edit" size={14} className="mr-1" />
-                              Изменить
+                              <Icon name="Edit" size={12} />
                             </Button>
                           </TableCell>
                         </TableRow>
                       ))}
-                      {complaints.length === 0 && (
+                      {filteredComplaints.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={8} className="text-center text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                             Нет данных
                           </TableCell>
                         </TableRow>
                       )}
                     </TableBody>
                   </Table>
+                </div>
+                
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    Показано {filteredComplaints.length} из {complaints.length}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">Показывать:</span>
+                    <Select value={complaintPageSize.toString()} onValueChange={(v) => setComplaintPageSize(Number(v))}>
+                      <SelectTrigger className="h-8 w-20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </CardContent>
             </Card>
