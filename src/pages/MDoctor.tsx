@@ -429,17 +429,6 @@ const MDoctor = () => {
                         className="h-9"
                       />
                     </div>
-                    <Select value={complaintStatusFilter} onValueChange={setComplaintStatusFilter}>
-                      <SelectTrigger className="h-9 w-40">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Все статусы</SelectItem>
-                        <SelectItem value="pending">Новые</SelectItem>
-                        <SelectItem value="in_progress">На рассмотрении</SelectItem>
-                        <SelectItem value="resolved">Решены</SelectItem>
-                      </SelectContent>
-                    </Select>
                     <Button size="sm" variant="outline" onClick={() => { setComplaintSearch(''); setDateFrom(''); setDateTo(''); setComplaintStatusFilter('all'); }} className="h-9">
                       <Icon name="X" size={14} />
                     </Button>
@@ -459,6 +448,17 @@ const MDoctor = () => {
                         className="h-9 w-36"
                       />
                     </div>
+                    <Select value={complaintStatusFilter} onValueChange={setComplaintStatusFilter}>
+                      <SelectTrigger className="h-9 w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Все статусы</SelectItem>
+                        <SelectItem value="pending">Новые</SelectItem>
+                        <SelectItem value="in_progress">На рассмотрении</SelectItem>
+                        <SelectItem value="resolved">Решены</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <Button size="sm" variant="outline" onClick={() => {
                       const printWindow = window.open('', '_blank');
                       if (!printWindow) return;
@@ -565,8 +565,9 @@ const MDoctor = () => {
                       link.href = URL.createObjectURL(blob);
                       link.download = 'жалобы.csv';
                       link.click();
-                    }} className="h-9">
-                      <Icon name="Download" size={14} />
+                    }} className="h-9 bg-green-600 text-white hover:bg-green-700 border-green-600">
+                      <Icon name="Download" size={14} className="mr-1" />
+                      Экспорт в Эксель
                     </Button>
                   </div>
                 </div>
@@ -613,19 +614,19 @@ const MDoctor = () => {
                           <TableCell className="py-2 text-xs">{complaint.email || '—'}</TableCell>
                           <TableCell className="py-2">{complaint.phone || '—'}</TableCell>
                           <TableCell className="py-2 max-w-xs">
-                            <div className="text-xs">
-                              {complaint.message.length > 200 
-                                ? `${complaint.message.substring(0, 200)}...` 
-                                : complaint.message}
+                            <div 
+                              className="line-clamp-1 text-xs" 
+                              title={complaint.message}
+                            >
+                              {complaint.message}
                             </div>
                           </TableCell>
                           <TableCell className="py-2 max-w-xs">
-                            <div className="text-xs">
-                              {complaint.comment 
-                                ? (complaint.comment.length > 200 
-                                    ? `${complaint.comment.substring(0, 200)}...` 
-                                    : complaint.comment)
-                                : '—'}
+                            <div 
+                              className="line-clamp-1 text-xs" 
+                              title={complaint.comment || ''}
+                            >
+                              {complaint.comment || '—'}
                             </div>
                           </TableCell>
                           <TableCell className="py-2">
