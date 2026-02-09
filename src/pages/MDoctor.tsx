@@ -32,15 +32,8 @@ const MDoctor = () => {
     try {
       const response = await fetch(`${API_URLS.doctors}?action=get_all`);
       const data = await response.json();
-      console.log('Doctors data:', data);
-      console.log('Data success?', data.success);
-      console.log('Data doctors?', data.doctors);
-      if (data.success && data.doctors) {
-        console.log('Setting doctors to state:', data.doctors.length);
+      if (data.doctors) {
         setDoctors(data.doctors);
-        console.log('Doctors loaded:', data.doctors.length);
-      } else {
-        console.error('No doctors in response or success=false');
       }
     } catch (error) {
       console.error('Error loading doctors:', error);
