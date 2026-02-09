@@ -364,7 +364,7 @@ const MDoctor = () => {
               <CardContent>
                 <div className="mb-3 space-y-2">
                   <div className="flex gap-2 items-end">
-                    <div className="flex-1">
+                    <div className="w-72">
                       <Input
                         placeholder="Поиск по ФИО, телефону, тексту жалобы..."
                         value={complaintSearch}
@@ -372,6 +372,9 @@ const MDoctor = () => {
                         className="h-9"
                       />
                     </div>
+                    <Button size="sm" variant="outline" onClick={() => { setComplaintSearch(''); setDateFrom(''); setDateTo(''); }} className="h-9">
+                      <Icon name="X" size={14} />
+                    </Button>
                     <div>
                       <Input
                         type="date"
@@ -388,13 +391,72 @@ const MDoctor = () => {
                         className="h-9 w-36"
                       />
                     </div>
-                    <Button size="sm" onClick={loadComplaints} className="h-9">
-                      <Icon name="Search" size={14} />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => { setComplaintSearch(''); setDateFrom(''); setDateTo(''); }} className="h-9">
-                      <Icon name="X" size={14} />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => window.print()} className="h-9">
+                    <Button size="sm" variant="outline" onClick={() => {
+                      const printWindow = window.open('', '_blank');
+                      if (!printWindow) return;
+                      const printContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Жалобы</title>
+  <style>
+    @page { size: landscape; margin: 10mm; }
+    body { font-family: Arial, sans-serif; font-size: 9px; }
+    h2 { text-align: center; margin-bottom: 10px; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #333; padding: 4px; text-align: left; }
+    th { background: #f0f0f0; font-weight: bold; }
+    .status-resolved { color: green; }
+    .status-progress { color: orange; }
+    .status-new { color: gray; }
+  </style>
+</head>
+<body>
+  <h2>Список жалоб</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 12%">ФИО</th>
+        <th style="width: 12%">Email</th>
+        <th style="width: 10%">Телефон</th>
+        <th style="width: 28%">Текст жалобы</th>
+        <th style="width: 18%">Комментарий</th>
+        <th style="width: 12%">Дата</th>
+        <th style="width: 8%">Статус</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${filteredComplaints.map((c: any) => `
+        <tr>
+          <td>${c.name || '—'}</td>
+          <td>${c.email || '—'}</td>
+          <td>${c.phone || '—'}</td>
+          <td>${c.message}</td>
+          <td>${c.comment || '—'}</td>
+          <td>${new Date(c.created_at).toLocaleDateString('ru-RU')} ${new Date(c.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</td>
+          <td class="${
+            c.status === 'resolved' ? 'status-resolved' :
+            c.status === 'in_progress' ? 'status-progress' : 'status-new'
+          }">${
+            c.status === 'resolved' ? 'Решена' :
+            c.status === 'in_progress' ? 'На рассмотрении' : 'Новая'
+          }</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+</body>
+</html>
+                      `;
+                      printWindow.document.write(printContent);
+                      printWindow.document.close();
+                      printWindow.focus();
+                      setTimeout(() => {
+                        printWindow.print();
+                        printWindow.close();
+                      }, 250);
+                    }} className="h-9">
                       <Icon name="Printer" size={14} />
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => {
