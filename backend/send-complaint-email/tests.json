@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Send complaint response email",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "email": "test@example.com",
+        "complaint_date": "2026-02-09T10:00:00Z",
+        "comment": "Ваше обращение рассмотрено. Приносим извинения за доставленные неудобства."
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

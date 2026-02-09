@@ -16,6 +16,7 @@ const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
   doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
   complaints: 'https://functions.poehali.dev/a6c04c63-0223-4bcc-b146-24acdef33536',
+  sendEmail: 'https://functions.poehali.dev/d84a5ebe-b78c-4f71-8651-84a53f83538e',
 };
 
 const MDoctor = () => {
@@ -161,6 +162,50 @@ const MDoctor = () => {
       }
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+    }
+  };
+
+  const sendEmailResponse = async () => {
+    if (!selectedComplaint || !selectedComplaint.email || !complaintComment) {
+      toast({ title: 'Ошибка', description: 'Необходимо указать email и комментарий', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const response = await fetch(API_URLS.sendEmail, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: selectedComplaint.email,
+          complaint_date: selectedComplaint.created_at,
+          comment: complaintComment
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast({ title: 'Успех', description: 'Ответ отправлен на email пациента' });
+        
+        // Обновляем статус жалобы с пометкой о дате ответа
+        await fetch(API_URLS.complaints, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'update_status',
+            complaint_id: selectedComplaint.id,
+            status: complaintStatus,
+            comment: complaintComment,
+            responded_at: data.sent_at,
+            admin_login: localStorage.getItem('mdoctor_user') ? JSON.parse(localStorage.getItem('mdoctor_user')!).login : 'admin'
+          })
+        });
+        
+        loadComplaints();
+      } else {
+        toast({ title: 'Ошибка', description: data.error || 'Не удалось отправить email', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось отправить email', variant: 'destructive' });
     }
   };
 
@@ -402,8 +447,8 @@ const MDoctor = () => {
   <title>Жалобы</title>
   <style>
     @page { size: landscape; margin: 10mm; }
-    body { font-family: Arial, sans-serif; font-size: 9px; }
-    h2 { text-align: center; margin-bottom: 10px; font-size: 14px; }
+    body { font-family: Arial, sans-serif; font-size: 11px; }
+    h2 { text-align: center; margin-bottom: 10px; font-size: 16px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { border: 1px solid #333; padding: 4px; text-align: left; }
     th { background: #f0f0f0; font-weight: bold; }
@@ -653,13 +698,23 @@ const MDoctor = () => {
                 placeholder="Введите комментарий..."
               />
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowComplaintDialog(false)}>
-                Отмена
+            <div className="flex justify-between items-center">
+              <Button 
+                variant="outline" 
+                onClick={sendEmailResponse}
+                disabled={!selectedComplaint?.email || !complaintComment}
+              >
+                <Icon name="Mail" size={16} className="mr-2" />
+                Ответить по почте
               </Button>
-              <Button onClick={updateComplaintStatus}>
-                Сохранить
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setShowComplaintDialog(false)}>
+                  Отмена
+                </Button>
+                <Button onClick={updateComplaintStatus}>
+                  Сохранить
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>

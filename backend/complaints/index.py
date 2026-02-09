@@ -69,6 +69,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 status = body.get('status')
                 comment = body.get('comment', '')
                 resolved_at = body.get('resolved_at')
+                responded_at = body.get('responded_at')
                 admin_login = body.get('admin_login', 'admin')
                 
                 if not complaint_id or not status:
@@ -85,17 +86,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cursor.execute("SELECT * FROM t_p30358746_hospital_website_red.complaints WHERE id = %s", (complaint_id,))
                 old_complaint = cursor.fetchone()
                 
-                # Обновляем жалобу
+                # Формируем SQL запрос в зависимости от переданных полей
+                update_fields = ['status = %s', 'comment = %s']
+                update_values = [status, comment]
+                
                 if resolved_at:
-                    cursor.execute(
-                        "UPDATE t_p30358746_hospital_website_red.complaints SET status = %s, comment = %s, resolved_at = %s WHERE id = %s",
-                        (status, comment, resolved_at, complaint_id)
-                    )
-                else:
-                    cursor.execute(
-                        "UPDATE t_p30358746_hospital_website_red.complaints SET status = %s, comment = %s WHERE id = %s",
-                        (status, comment, complaint_id)
-                    )
+                    update_fields.append('resolved_at = %s')
+                    update_values.append(resolved_at)
+                
+                if responded_at:
+                    update_fields.append('responded_at = %s')
+                    update_values.append(responded_at)
+                
+                update_values.append(complaint_id)
+                
+                cursor.execute(
+                    f"UPDATE t_p30358746_hospital_website_red.complaints SET {', '.join(update_fields)} WHERE id = %s",
+                    tuple(update_values)
+                )
                 
                 # Логируем действие в журнал
                 if old_complaint:
