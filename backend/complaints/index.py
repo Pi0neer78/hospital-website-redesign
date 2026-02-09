@@ -82,18 +82,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 
                 # Получаем старые данные жалобы для логирования
-                cursor.execute("SELECT * FROM complaints WHERE id = %s", (complaint_id,))
+                cursor.execute("SELECT * FROM t_p30358746_hospital_website_red.complaints WHERE id = %s", (complaint_id,))
                 old_complaint = cursor.fetchone()
                 
                 # Обновляем жалобу
                 if resolved_at:
                     cursor.execute(
-                        "UPDATE complaints SET status = %s, comment = %s, resolved_at = %s WHERE id = %s",
+                        "UPDATE t_p30358746_hospital_website_red.complaints SET status = %s, comment = %s, resolved_at = %s WHERE id = %s",
                         (status, comment, resolved_at, complaint_id)
                     )
                 else:
                     cursor.execute(
-                        "UPDATE complaints SET status = %s, comment = %s WHERE id = %s",
+                        "UPDATE t_p30358746_hospital_website_red.complaints SET status = %s, comment = %s WHERE id = %s",
                         (status, comment, complaint_id)
                     )
                 
@@ -101,7 +101,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if old_complaint:
                     action_text = f"Изменён статус жалобы №{complaint_id} от {old_complaint.get('name', 'Неизвестно')}. Старый статус: {old_complaint.get('status', 'неизвестно')}, новый: {status}. Комментарий: {comment}"
                     cursor.execute(
-                        "INSERT INTO doctor_logs (doctor_login, action, details) VALUES (%s, %s, %s)",
+                        "INSERT INTO t_p30358746_hospital_website_red.doctor_logs (doctor_login, action, details) VALUES (%s, %s, %s)",
                         (admin_login, 'update_complaint', action_text)
                     )
                 
@@ -131,7 +131,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 cursor.execute(
-                    "INSERT INTO complaints (name, email, phone, message, status) VALUES (%s, %s, %s, %s, %s) RETURNING id, created_at",
+                    "INSERT INTO t_p30358746_hospital_website_red.complaints (name, email, phone, message, status) VALUES (%s, %s, %s, %s, %s) RETURNING id, created_at",
                     (name, email, phone, message, 'new')
                 )
                 result = cursor.fetchone()
@@ -151,7 +151,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif method == 'GET':
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute("SELECT * FROM complaints ORDER BY created_at DESC LIMIT 100")
+            cursor.execute("SELECT * FROM t_p30358746_hospital_website_red.complaints ORDER BY created_at DESC LIMIT 100")
             complaints = cursor.fetchall()
             cursor.close()
             
