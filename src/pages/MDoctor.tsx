@@ -105,7 +105,7 @@ const MDoctor = () => {
     try {
       localStorage.setItem('doctor_token', 'mdoctor_authorized');
       localStorage.setItem('doctor_user', JSON.stringify({ login: doctorLogin, from_mdoctor: true }));
-      navigate('/doctor');
+      window.open('/doctor', '_blank');
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось перейти в кабинет врача', variant: 'destructive' });
     }
