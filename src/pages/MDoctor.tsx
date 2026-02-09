@@ -89,6 +89,7 @@ const MDoctor = () => {
       
       if (data.success) {
         localStorage.setItem('mdoctor_token', data.token);
+        localStorage.setItem('mdoctor_user', JSON.stringify({ login: loginForm.login }));
         setIsAuthenticated(true);
         toast({ title: 'Вход выполнен', description: 'Добро пожаловать!' });
         loadDoctors();
@@ -103,6 +104,7 @@ const MDoctor = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('mdoctor_token');
+    localStorage.removeItem('mdoctor_user');
     setIsAuthenticated(false);
     setLoginForm({ login: '', password: '' });
     toast({ title: 'Выход', description: 'Вы вышли из системы' });
@@ -129,6 +131,9 @@ const MDoctor = () => {
     if (!selectedComplaint) return;
 
     try {
+      const mdoctorUser = localStorage.getItem('mdoctor_user');
+      const adminLogin = mdoctorUser ? JSON.parse(mdoctorUser).login : 'admin';
+
       const response = await fetch(API_URLS.complaints, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -137,7 +142,8 @@ const MDoctor = () => {
           complaint_id: selectedComplaint.id,
           status: complaintStatus,
           comment: complaintComment,
-          resolved_at: complaintStatus === 'resolved' ? new Date().toISOString() : null
+          resolved_at: complaintStatus === 'resolved' ? new Date().toISOString() : null,
+          admin_login: adminLogin
         })
       });
 
@@ -393,11 +399,11 @@ const MDoctor = () => {
                     <TableBody>
                       {complaints.map((complaint: any) => (
                         <TableRow key={complaint.id}>
-                          <TableCell>{complaint.patient_name || '—'}</TableCell>
-                          <TableCell>{complaint.patient_email || '—'}</TableCell>
-                          <TableCell>{complaint.patient_phone || '—'}</TableCell>
+                          <TableCell>{complaint.name || '—'}</TableCell>
+                          <TableCell>{complaint.email || '—'}</TableCell>
+                          <TableCell>{complaint.phone || '—'}</TableCell>
                           <TableCell className="max-w-xs">
-                            <div className="line-clamp-2">{complaint.complaint_text}</div>
+                            <div className="line-clamp-2">{complaint.message}</div>
                           </TableCell>
                           <TableCell className="max-w-xs">
                             <div className="line-clamp-2">{complaint.comment || '—'}</div>
@@ -498,19 +504,19 @@ const MDoctor = () => {
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium">ФИО пациента</label>
-              <Input value={selectedComplaint?.patient_name || '—'} disabled />
+              <Input value={selectedComplaint?.name || '—'} disabled />
             </div>
             <div>
               <label className="text-sm font-medium">Email</label>
-              <Input value={selectedComplaint?.patient_email || '—'} disabled />
+              <Input value={selectedComplaint?.email || '—'} disabled />
             </div>
             <div>
               <label className="text-sm font-medium">Телефон</label>
-              <Input value={selectedComplaint?.patient_phone || '—'} disabled />
+              <Input value={selectedComplaint?.phone || '—'} disabled />
             </div>
             <div>
               <label className="text-sm font-medium">Текст жалобы</label>
-              <Textarea value={selectedComplaint?.complaint_text || ''} disabled rows={4} />
+              <Textarea value={selectedComplaint?.message || ''} disabled rows={4} />
             </div>
             <div>
               <label className="text-sm font-medium">Статус</label>
