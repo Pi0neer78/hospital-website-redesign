@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Generate password hash",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "password": "test123"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "password": "test123",
+        "hash": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
