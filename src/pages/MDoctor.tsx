@@ -40,6 +40,8 @@ const MDoctor = () => {
   const [complaintStatusFilter, setComplaintStatusFilter] = useState('all');
   const [showEmailError, setShowEmailError] = useState(false);
   const [emailErrorAddress, setEmailErrorAddress] = useState('');
+  const [hoveredDoctorPhoto, setHoveredDoctorPhoto] = useState<string | null>(null);
+  const [photoPosition, setPhotoPosition] = useState({ x: 0, y: 0 });
 
   const loadDoctors = async () => {
     try {
@@ -116,14 +118,28 @@ const MDoctor = () => {
     toast({ title: 'Выход', description: 'Вы вышли из системы' });
   };
 
-  const handleDoctorClick = async (doctorLogin: string) => {
+  const handleDoctorClick = async (doctor: any) => {
     try {
-      localStorage.setItem('doctor_token', 'mdoctor_authorized');
-      localStorage.setItem('doctor_user', JSON.stringify({ login: doctorLogin, from_mdoctor: true }));
+      // Сохраняем токен и данные врача для авторизации
+      localStorage.setItem('doctor_token', 'temp_token_' + Date.now());
+      localStorage.setItem('doctor_user', JSON.stringify({ 
+        login: doctor.login,
+        password_hash: doctor.password_hash,
+        from_mdoctor: true,
+        id: doctor.id,
+        full_name: doctor.full_name
+      }));
       window.open('/doctor', '_blank');
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось перейти в кабинет врача', variant: 'destructive' });
     }
+  };
+
+  const handlePhotoHover = (photoUrl: string | null, event?: React.MouseEvent) => {
+    if (photoUrl && event) {
+      setPhotoPosition({ x: event.clientX + 20, y: event.clientY + 20 });
+    }
+    setHoveredDoctorPhoto(photoUrl);
   };
 
   const handleComplaintAction = (complaint: any) => {
@@ -372,6 +388,7 @@ const MDoctor = () => {
                         <Table>
                           <TableHeader>
                             <TableRow>
+                              <TableHead className="w-12"></TableHead>
                               <TableHead>ФИО</TableHead>
                               <TableHead>Специализация</TableHead>
                               <TableHead>Должность</TableHead>
@@ -384,8 +401,24 @@ const MDoctor = () => {
                             {(docs as any[]).map((doctor: any) => (
                               <TableRow key={doctor.id}>
                                 <TableCell>
+                                  {doctor.photo_url && (
+                                    <div
+                                      className="relative"
+                                      onMouseEnter={(e) => handlePhotoHover(doctor.photo_url, e)}
+                                      onMouseMove={(e) => setPhotoPosition({ x: e.clientX + 20, y: e.clientY + 20 })}
+                                      onMouseLeave={() => handlePhotoHover(null)}
+                                    >
+                                      <img
+                                        src={doctor.photo_url}
+                                        alt={doctor.full_name}
+                                        className="w-8 h-8 rounded-full object-cover cursor-pointer"
+                                      />
+                                    </div>
+                                  )}
+                                </TableCell>
+                                <TableCell>
                                   <button
-                                    onClick={() => handleDoctorClick(doctor.login)}
+                                    onClick={() => handleDoctorClick(doctor)}
                                     className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                                   >
                                     {doctor.full_name}
@@ -846,6 +879,22 @@ const MDoctor = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {hoveredDoctorPhoto && (
+        <div
+          className="fixed pointer-events-none z-50"
+          style={{
+            left: `${photoPosition.x}px`,
+            top: `${photoPosition.y}px`,
+          }}
+        >
+          <img
+            src={hoveredDoctorPhoto}
+            alt="Фото врача"
+            className="w-48 h-48 object-cover rounded-lg shadow-2xl border-4 border-white"
+          />
+        </div>
+      )}
     </div>
   );
 };

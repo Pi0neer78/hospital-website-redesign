@@ -221,6 +221,18 @@ const Doctor = () => {
       return;
     }
     
+    // Проверяем вход из кабинета главного врача
+    const doctorUser = localStorage.getItem('doctor_user');
+    if (doctorUser) {
+      const userData = JSON.parse(doctorUser);
+      if (userData.from_mdoctor && userData.login && userData.password_hash) {
+        // Автоматический вход для врача из кабинета главного врача
+        autoLoginFromMDoctor(userData);
+        localStorage.removeItem('doctor_user'); // Очищаем временные данные
+        return;
+      }
+    }
+    
     const auth = localStorage.getItem('doctor_auth');
     if (auth) {
       const doctor = JSON.parse(auth);
@@ -311,6 +323,32 @@ const Doctor = () => {
     } catch (error) {
       console.error('❌ Ошибка загрузки врача:', error);
       toast({ title: "Ошибка", description: "Не удалось загрузить данные врача", variant: "destructive" });
+    }
+  };
+
+  const autoLoginFromMDoctor = async (userData: any) => {
+    try {
+      // Загружаем данные врача через API
+      const url = 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688';
+      const response = await fetch(`${url}?action=get_all`);
+      const data = await response.json();
+      
+      if (data.doctors) {
+        const doctor = data.doctors.find((d: any) => d.login === userData.login);
+        if (doctor) {
+          localStorage.setItem('doctor_auth', JSON.stringify(doctor));
+          setDoctorInfo(doctor);
+          setIsAuthenticated(true);
+          loadSchedules(doctor.id);
+          loadDailySchedules(doctor.id);
+          loadAppointments(doctor.id);
+          loadCalendar(doctor.id, selectedYear);
+          toast({ title: "Успешный вход", description: `Добро пожаловать, ${doctor.full_name}` });
+        }
+      }
+    } catch (error) {
+      console.error('Auto login error:', error);
+      toast({ title: "Ошибка", description: "Не удалось выполнить автоматический вход", variant: "destructive" });
     }
   };
 
