@@ -201,9 +201,9 @@ const MDoctor = () => {
           })
         });
         
-        loadComplaints();
-        setShowComplaintDialog(false);
-        setSelectedComplaint(null);
+        // Обновляем локальное состояние жалобы
+        setSelectedComplaint({ ...selectedComplaint, responded_at: data.sent_at });
+        await loadComplaints();
       } else {
         toast({ title: 'Ошибка', description: data.error || 'Не удалось отправить email', variant: 'destructive' });
       }
@@ -679,31 +679,33 @@ const MDoctor = () => {
       </main>
 
       <Dialog open={showComplaintDialog} onOpenChange={setShowComplaintDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>Обработка жалобы</DialogTitle>
+            <DialogTitle className="text-base">Обработка жалобы</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div>
-              <label className="text-sm font-medium">ФИО пациента</label>
-              <Input value={selectedComplaint?.name || '—'} disabled />
+              <label className="text-xs font-medium text-muted-foreground">ФИО пациента</label>
+              <Input value={selectedComplaint?.name || '—'} disabled className="h-8 text-sm" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Email</label>
+                <Input value={selectedComplaint?.email || '—'} disabled className="h-8 text-sm" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Телефон</label>
+                <Input value={selectedComplaint?.phone || '—'} disabled className="h-8 text-sm" />
+              </div>
             </div>
             <div>
-              <label className="text-sm font-medium">Email</label>
-              <Input value={selectedComplaint?.email || '—'} disabled />
+              <label className="text-xs font-medium text-muted-foreground">Текст жалобы</label>
+              <Textarea value={selectedComplaint?.message || ''} disabled rows={3} className="text-sm" />
             </div>
             <div>
-              <label className="text-sm font-medium">Телефон</label>
-              <Input value={selectedComplaint?.phone || '—'} disabled />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Текст жалобы</label>
-              <Textarea value={selectedComplaint?.message || ''} disabled rows={4} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Статус</label>
+              <label className="text-xs font-medium text-muted-foreground">Статус</label>
               <Select value={complaintStatus} onValueChange={setComplaintStatus}>
-                <SelectTrigger>
+                <SelectTrigger className="h-8 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -714,41 +716,43 @@ const MDoctor = () => {
               </Select>
             </div>
             <div>
-              <label className="text-sm font-medium">Комментарий</label>
+              <label className="text-xs font-medium text-muted-foreground">Комментарий</label>
               <Textarea 
                 value={complaintComment} 
                 onChange={(e) => setComplaintComment(e.target.value)}
-                rows={3}
+                rows={6}
                 placeholder="Введите комментарий..."
+                className="text-sm"
               />
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center pt-1">
               {selectedComplaint?.responded_at ? (
-                <Button variant="outline" disabled>
-                  <Icon name="Mail" size={16} className="mr-2" />
-                  Отвечено {new Date(selectedComplaint.responded_at).toLocaleString('ru-RU', {
+                <Button variant="outline" disabled size="sm">
+                  <Icon name="Mail" size={14} className="mr-1.5" />
+                  <span className="text-xs">Отвечено {new Date(selectedComplaint.responded_at).toLocaleString('ru-RU', {
                     day: '2-digit',
                     month: '2-digit',
                     year: '2-digit',
                     hour: '2-digit',
                     minute: '2-digit'
-                  }).replace(',', '')}
+                  }).replace(',', '')}</span>
                 </Button>
               ) : (
                 <Button 
                   variant="outline" 
                   onClick={sendEmailResponse}
                   disabled={!selectedComplaint?.email || !complaintComment}
+                  size="sm"
                 >
-                  <Icon name="Mail" size={16} className="mr-2" />
-                  Ответить по почте
+                  <Icon name="Mail" size={14} className="mr-1.5" />
+                  <span className="text-xs">Ответить по почте</span>
                 </Button>
               )}
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setShowComplaintDialog(false)}>
+                <Button variant="outline" onClick={() => setShowComplaintDialog(false)} size="sm">
                   Отмена
                 </Button>
-                <Button onClick={updateComplaintStatus}>
+                <Button onClick={updateComplaintStatus} size="sm">
                   Сохранить
                 </Button>
               </div>
