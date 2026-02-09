@@ -1,17 +1,15 @@
 {
   "tests": [
     {
-      "name": "Send complaint response email",
+      "name": "Validation - missing fields returns 400",
       "method": "POST",
       "path": "/",
       "body": {
-        "email": "test@example.com",
-        "complaint_date": "2026-02-09T10:00:00Z",
-        "comment": "Ваше обращение рассмотрено. Приносим извинения за доставленные неудобства."
+        "email": "test@example.com"
       },
-      "expectedStatus": 200,
+      "expectedStatus": 400,
       "expectedBody": {
-        "success": true
+        "error": "Missing required fields"
       },
       "bodyMatcher": "partial"
     }

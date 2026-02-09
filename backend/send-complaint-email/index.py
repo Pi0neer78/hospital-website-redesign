@@ -37,9 +37,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body = json.loads(event.get('body', '{}'))
         to_email = body.get('email')
         complaint_date = body.get('complaint_date')
+        complaint_message = body.get('complaint_message')
         comment = body.get('comment')
         
-        if not to_email or not complaint_date or not comment:
+        if not to_email or not complaint_date or not complaint_message or not comment:
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -54,8 +55,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Формируем текст письма
         email_body = f"""Уважаемый пациент!
 
-На ваше обращение от {formatted_date} сообщаем:
+На ваше обращение от {formatted_date}
 
+Текст обращения:
+{complaint_message}
+
+Сообщаем:
 {comment}
 
 С уважением,

@@ -178,6 +178,7 @@ const MDoctor = () => {
         body: JSON.stringify({
           email: selectedComplaint.email,
           complaint_date: selectedComplaint.created_at,
+          complaint_message: selectedComplaint.message,
           comment: complaintComment
         })
       });
@@ -201,6 +202,8 @@ const MDoctor = () => {
         });
         
         loadComplaints();
+        setShowComplaintDialog(false);
+        setSelectedComplaint(null);
       } else {
         toast({ title: 'Ошибка', description: data.error || 'Не удалось отправить email', variant: 'destructive' });
       }
@@ -529,6 +532,8 @@ const MDoctor = () => {
                   <Table>
                     <TableHeader className="sticky top-0 bg-white z-10">
                       <TableRow className="text-xs">
+                        <TableHead className="py-2 w-10"></TableHead>
+                        <TableHead className="py-2 w-32">Ответ</TableHead>
                         <TableHead className="py-2">ФИО</TableHead>
                         <TableHead className="py-2">Email</TableHead>
                         <TableHead className="py-2">Телефон</TableHead>
@@ -542,6 +547,25 @@ const MDoctor = () => {
                     <TableBody>
                       {filteredComplaints.map((complaint: any) => (
                         <TableRow key={complaint.id} className="text-sm">
+                          <TableCell className="py-2">
+                            <Icon 
+                              name="Mail" 
+                              size={16} 
+                              className={complaint.responded_at ? 'text-blue-600' : 'text-gray-400'} 
+                            />
+                          </TableCell>
+                          <TableCell className="py-2 text-xs">
+                            {complaint.responded_at 
+                              ? new Date(complaint.responded_at).toLocaleString('ru-RU', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: '2-digit',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                }).replace(',', '')
+                              : '—'
+                            }
+                          </TableCell>
                           <TableCell className="py-2">{complaint.name || '—'}</TableCell>
                           <TableCell className="py-2 text-xs">{complaint.email || '—'}</TableCell>
                           <TableCell className="py-2">{complaint.phone || '—'}</TableCell>
@@ -581,7 +605,7 @@ const MDoctor = () => {
                       ))}
                       {filteredComplaints.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                          <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                             Нет данных
                           </TableCell>
                         </TableRow>
@@ -699,14 +723,27 @@ const MDoctor = () => {
               />
             </div>
             <div className="flex justify-between items-center">
-              <Button 
-                variant="outline" 
-                onClick={sendEmailResponse}
-                disabled={!selectedComplaint?.email || !complaintComment}
-              >
-                <Icon name="Mail" size={16} className="mr-2" />
-                Ответить по почте
-              </Button>
+              {selectedComplaint?.responded_at ? (
+                <Button variant="outline" disabled>
+                  <Icon name="Mail" size={16} className="mr-2" />
+                  Отвечено {new Date(selectedComplaint.responded_at).toLocaleString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }).replace(',', '')}
+                </Button>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  onClick={sendEmailResponse}
+                  disabled={!selectedComplaint?.email || !complaintComment}
+                >
+                  <Icon name="Mail" size={16} className="mr-2" />
+                  Ответить по почте
+                </Button>
+              )}
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setShowComplaintDialog(false)}>
                   Отмена
