@@ -420,7 +420,7 @@ const MDoctor = () => {
               </CardHeader>
               <CardContent>
                 <div className="mb-3 space-y-2">
-                  <div className="flex gap-2 items-end">
+                  <div className="flex gap-2 items-end justify-between">
                     <div className="w-72">
                       <Input
                         placeholder="Поиск по ФИО, телефону, тексту жалобы..."
@@ -495,7 +495,7 @@ const MDoctor = () => {
 <body>
   <div class="header">
     <h2>Список жалоб пациентов</h2>
-    <p>Организация: Медицинская клиника</p>
+    <p>Организация: ГБУЗ Антрацитовская центральная городская многопрофильная больница</p>
     <p>${periodText} | Статус: ${statusText}</p>
   </div>
   <table>
@@ -569,6 +569,10 @@ const MDoctor = () => {
                     }} className="h-9 bg-green-600 text-white hover:bg-green-700 border-green-600">
                       <Icon name="Download" size={14} className="mr-1" />
                       Экспорт в Эксель
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={loadComplaints} className="h-9">
+                      <Icon name="RefreshCw" size={14} className="mr-1" />
+                      Обновить
                     </Button>
                   </div>
                 </div>
