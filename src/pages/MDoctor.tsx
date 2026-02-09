@@ -37,6 +37,9 @@ const MDoctor = () => {
   const [showComplaintDialog, setShowComplaintDialog] = useState(false);
   const [complaintSearch, setComplaintSearch] = useState('');
   const [complaintPageSize, setComplaintPageSize] = useState(20);
+  const [complaintStatusFilter, setComplaintStatusFilter] = useState('all');
+  const [showEmailError, setShowEmailError] = useState(false);
+  const [emailErrorAddress, setEmailErrorAddress] = useState('');
 
   const loadDoctors = async () => {
     try {
@@ -205,10 +208,12 @@ const MDoctor = () => {
         setSelectedComplaint({ ...selectedComplaint, responded_at: data.sent_at });
         await loadComplaints();
       } else {
-        toast({ title: 'Ошибка', description: data.error || 'Не удалось отправить email', variant: 'destructive' });
+        setEmailErrorAddress(selectedComplaint.email);
+        setShowEmailError(true);
       }
     } catch (error) {
-      toast({ title: 'Ошибка', description: 'Не удалось отправить email', variant: 'destructive' });
+      setEmailErrorAddress(selectedComplaint.email);
+      setShowEmailError(true);
     }
   };
 
@@ -235,6 +240,10 @@ const MDoctor = () => {
   }, {} as Record<string, any[]>);
 
   const filteredComplaints = complaints.filter((c: any) => {
+    // Фильтр по статусу
+    if (complaintStatusFilter !== 'all' && c.status !== complaintStatusFilter) return false;
+    
+    // Фильтр по поиску
     if (!complaintSearch) return true;
     const search = complaintSearch.toLowerCase();
     return (
@@ -420,7 +429,18 @@ const MDoctor = () => {
                         className="h-9"
                       />
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => { setComplaintSearch(''); setDateFrom(''); setDateTo(''); }} className="h-9">
+                    <Select value={complaintStatusFilter} onValueChange={setComplaintStatusFilter}>
+                      <SelectTrigger className="h-9 w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Все статусы</SelectItem>
+                        <SelectItem value="pending">Новые</SelectItem>
+                        <SelectItem value="in_progress">На рассмотрении</SelectItem>
+                        <SelectItem value="resolved">Решены</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button size="sm" variant="outline" onClick={() => { setComplaintSearch(''); setDateFrom(''); setDateTo(''); setComplaintStatusFilter('all'); }} className="h-9">
                       <Icon name="X" size={14} />
                     </Button>
                     <div>
@@ -442,6 +462,14 @@ const MDoctor = () => {
                     <Button size="sm" variant="outline" onClick={() => {
                       const printWindow = window.open('', '_blank');
                       if (!printWindow) return;
+                      
+                      const statusText = complaintStatusFilter === 'all' ? 'Все статусы' : 
+                                        complaintStatusFilter === 'pending' ? 'Новые' :
+                                        complaintStatusFilter === 'in_progress' ? 'На рассмотрении' : 'Решены';
+                      const periodText = dateFrom || dateTo 
+                        ? `Период: ${dateFrom ? new Date(dateFrom).toLocaleDateString('ru-RU') : 'начало'} - ${dateTo ? new Date(dateTo).toLocaleDateString('ru-RU') : 'сегодня'}`
+                        : 'Период: всё время';
+                      
                       const printContent = `
 <!DOCTYPE html>
 <html>
@@ -450,50 +478,65 @@ const MDoctor = () => {
   <title>Жалобы</title>
   <style>
     @page { size: landscape; margin: 10mm; }
-    body { font-family: Arial, sans-serif; font-size: 11px; }
-    h2 { text-align: center; margin-bottom: 10px; font-size: 16px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #333; padding: 4px; text-align: left; }
-    th { background: #f0f0f0; font-weight: bold; }
+    body { font-family: Arial, sans-serif; font-size: 13px; }
+    .header { text-align: center; margin-bottom: 15px; }
+    .header h2 { margin: 5px 0; font-size: 18px; }
+    .header p { margin: 3px 0; font-size: 12px; color: #666; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+    th, td { border: 1px solid #333; padding: 6px; text-align: left; }
+    th { background: #f0f0f0; font-weight: bold; font-size: 12px; }
     .status-resolved { color: green; }
     .status-progress { color: orange; }
     .status-new { color: gray; }
+    .footer { font-size: 11px; color: #666; margin-top: 10px; }
+    .envelope { font-size: 16px; }
   </style>
 </head>
 <body>
-  <h2>Список жалоб</h2>
+  <div class="header">
+    <h2>Список жалоб пациентов</h2>
+    <p>Организация: Медицинская клиника</p>
+    <p>${periodText} | Статус: ${statusText}</p>
+  </div>
   <table>
     <thead>
       <tr>
-        <th style="width: 12%">ФИО</th>
-        <th style="width: 12%">Email</th>
-        <th style="width: 10%">Телефон</th>
-        <th style="width: 28%">Текст жалобы</th>
-        <th style="width: 18%">Комментарий</th>
-        <th style="width: 12%">Дата</th>
-        <th style="width: 8%">Статус</th>
+        <th style="width: 3%">✉️</th>
+        <th style="width: 9%">Ответ</th>
+        <th style="width: 11%">ФИО</th>
+        <th style="width: 11%">Email</th>
+        <th style="width: 9%">Телефон</th>
+        <th style="width: 24%">Текст жалобы</th>
+        <th style="width: 16%">Комментарий</th>
+        <th style="width: 10%">Дата</th>
+        <th style="width: 7%">Статус</th>
       </tr>
     </thead>
     <tbody>
       ${filteredComplaints.map((c: any) => `
         <tr>
+          <td class="envelope">${c.responded_at ? '📧' : '✉️'}</td>
+          <td style="font-size: 11px;">${c.responded_at ? new Date(c.responded_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : '—'}</td>
           <td>${c.name || '—'}</td>
-          <td>${c.email || '—'}</td>
+          <td style="font-size: 11px;">${c.email || '—'}</td>
           <td>${c.phone || '—'}</td>
           <td>${c.message}</td>
           <td>${c.comment || '—'}</td>
-          <td>${new Date(c.created_at).toLocaleDateString('ru-RU')} ${new Date(c.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</td>
+          <td style="font-size: 11px;">${new Date(c.created_at).toLocaleDateString('ru-RU')} ${new Date(c.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</td>
           <td class="${
             c.status === 'resolved' ? 'status-resolved' :
             c.status === 'in_progress' ? 'status-progress' : 'status-new'
           }">${
             c.status === 'resolved' ? 'Решена' :
-            c.status === 'in_progress' ? 'На рассмотрении' : 'Новая'
+            c.status === 'in_progress' ? 'На рассм.' : 'Новая'
           }</td>
         </tr>
       `).join('')}
     </tbody>
   </table>
+  <div class="footer">
+    Всего записей: ${complaints.length} | Отображено: ${filteredComplaints.length}
+  </div>
 </body>
 </html>
                       `;
@@ -757,6 +800,31 @@ const MDoctor = () => {
                 </Button>
               </div>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showEmailError} onOpenChange={setShowEmailError}>
+        <DialogContent className="max-w-md">
+          <div className="flex flex-col items-center text-center space-y-4 py-4">
+            <img 
+              src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/28641836-4e17-49e8-97ca-84990953b5ba.jpg" 
+              alt="Doctor with rifle"
+              className="w-48 h-48 object-cover rounded-lg"
+            />
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-red-600">Не удалось отправить сообщение</h3>
+              <p className="text-sm text-muted-foreground">
+                Письмо не было доставлено на адрес:
+              </p>
+              <p className="text-base font-medium">{emailErrorAddress}</p>
+              <p className="text-xs text-muted-foreground mt-4">
+                Проверьте настройки SMTP или правильность email-адреса
+              </p>
+            </div>
+            <Button onClick={() => setShowEmailError(false)} className="w-full">
+              Понятно
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
