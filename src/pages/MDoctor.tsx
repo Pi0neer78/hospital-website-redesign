@@ -184,27 +184,6 @@ const MDoctor = () => {
   
   console.log('Filtered grouped doctors:', filteredGroupedDoctors);
 
-  const updateComplaintStatus = async (complaintId: number, status: string) => {
-    try {
-      const response = await fetch(API_URLS.complaints, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'update_status',
-          complaint_id: complaintId,
-          status
-        })
-      });
-      const data = await response.json();
-      if (data.success) {
-        toast({ title: 'Успех', description: 'Статус жалобы обновлён' });
-        loadComplaints();
-      }
-    } catch (error) {
-      toast({ title: 'Ошибка', description: 'Не удалось обновить статус', variant: 'destructive' });
-    }
-  };
-
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
