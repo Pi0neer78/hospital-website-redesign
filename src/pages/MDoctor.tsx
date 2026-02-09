@@ -320,18 +320,18 @@ const MDoctor = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="doctors" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto">
-            <TabsTrigger value="doctors">
+      <main className="container mx-auto px-4 py-4">
+        <Tabs defaultValue="doctors" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto h-10">
+            <TabsTrigger value="doctors" className="py-1.5">
               <Icon name="Users" className="mr-2" size={16} />
               Врачи
             </TabsTrigger>
-            <TabsTrigger value="complaints">
+            <TabsTrigger value="complaints" className="py-1.5">
               <Icon name="AlertCircle" className="mr-2" size={16} />
               Жалобы
             </TabsTrigger>
-            <TabsTrigger value="reports">
+            <TabsTrigger value="reports" className="py-1.5">
               <Icon name="FileText" className="mr-2" size={16} />
               Отчеты
             </TabsTrigger>
