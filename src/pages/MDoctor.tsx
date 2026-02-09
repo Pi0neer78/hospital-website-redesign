@@ -42,6 +42,7 @@ const MDoctor = () => {
   const [emailErrorAddress, setEmailErrorAddress] = useState('');
   const [hoveredDoctorPhoto, setHoveredDoctorPhoto] = useState<string | null>(null);
   const [photoPosition, setPhotoPosition] = useState({ x: 0, y: 0 });
+  const [showPassword, setShowPassword] = useState(false);
 
   const loadDoctors = async () => {
     try {
@@ -120,16 +121,8 @@ const MDoctor = () => {
 
   const handleDoctorClick = async (doctor: any) => {
     try {
-      // Сохраняем токен и данные врача для авторизации
-      localStorage.setItem('doctor_token', 'temp_token_' + Date.now());
-      localStorage.setItem('doctor_user', JSON.stringify({ 
-        login: doctor.login,
-        password_hash: doctor.password_hash,
-        from_mdoctor: true,
-        id: doctor.id,
-        full_name: doctor.full_name
-      }));
-      window.open('/doctor', '_blank');
+      // Переход в кабинет врача по ID
+      window.open(`/doctor?id=${doctor.id}`, '_blank');
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось перейти в кабинет врача', variant: 'destructive' });
     }
@@ -411,7 +404,7 @@ const MDoctor = () => {
                                       <img
                                         src={doctor.photo_url}
                                         alt={doctor.full_name}
-                                        className="w-8 h-8 rounded-full object-cover cursor-pointer"
+                                        className="w-8 h-8 object-cover cursor-pointer"
                                       />
                                     </div>
                                   )}
@@ -891,7 +884,7 @@ const MDoctor = () => {
           <img
             src={hoveredDoctorPhoto}
             alt="Фото врача"
-            className="w-48 h-48 object-cover rounded-lg shadow-2xl border-4 border-white"
+            className="w-48 h-48 object-cover shadow-2xl border-4 border-white"
           />
         </div>
       )}
