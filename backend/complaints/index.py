@@ -101,7 +101,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if old_complaint:
                     action_text = f"Изменён статус жалобы №{complaint_id} от {old_complaint.get('name', 'Неизвестно')}. Старый статус: {old_complaint.get('status', 'неизвестно')}, новый: {status}. Комментарий: {comment}"
                     cursor.execute(
-                        "INSERT INTO t_p30358746_hospital_website_red.doctor_logs (doctor_login, action, details) VALUES (%s, %s, %s)",
+                        "INSERT INTO t_p30358746_hospital_website_red.doctor_logs (user_login, action_type, details) VALUES (%s, %s, %s)",
                         (admin_login, 'update_complaint', action_text)
                     )
                 
