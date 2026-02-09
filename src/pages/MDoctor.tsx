@@ -613,10 +613,20 @@ const MDoctor = () => {
                           <TableCell className="py-2 text-xs">{complaint.email || '—'}</TableCell>
                           <TableCell className="py-2">{complaint.phone || '—'}</TableCell>
                           <TableCell className="py-2 max-w-xs">
-                            <div className="line-clamp-1 text-xs">{complaint.message}</div>
+                            <div className="text-xs">
+                              {complaint.message.length > 200 
+                                ? `${complaint.message.substring(0, 200)}...` 
+                                : complaint.message}
+                            </div>
                           </TableCell>
                           <TableCell className="py-2 max-w-xs">
-                            <div className="line-clamp-1 text-xs">{complaint.comment || '—'}</div>
+                            <div className="text-xs">
+                              {complaint.comment 
+                                ? (complaint.comment.length > 200 
+                                    ? `${complaint.comment.substring(0, 200)}...` 
+                                    : complaint.comment)
+                                : '—'}
+                            </div>
                           </TableCell>
                           <TableCell className="py-2">
                             <div className="text-xs">{new Date(complaint.created_at).toLocaleDateString('ru-RU')}</div>
