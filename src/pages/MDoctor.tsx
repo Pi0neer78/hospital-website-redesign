@@ -579,7 +579,7 @@ const MDoctor = () => {
 
                 <div className="overflow-x-auto border rounded-md" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                   <Table>
-                    <TableHeader className="sticky top-0 bg-white z-10">
+                    <TableHeader className="sticky top-0 bg-orange-100 z-10">
                       <TableRow className="text-xs">
                         <TableHead className="py-2 w-10"></TableHead>
                         <TableHead className="py-2 w-32">Ответ</TableHead>
@@ -595,7 +595,7 @@ const MDoctor = () => {
                     </TableHeader>
                     <TableBody>
                       {filteredComplaints.map((complaint: any) => (
-                        <TableRow key={complaint.id} className="text-sm">
+                        <TableRow key={complaint.id} className="text-xs">
                           <TableCell className="py-2">
                             <Icon 
                               name="Mail" 
@@ -603,7 +603,7 @@ const MDoctor = () => {
                               className={complaint.responded_at ? 'text-blue-600' : 'text-gray-400'} 
                             />
                           </TableCell>
-                          <TableCell className="py-2 text-xs">
+                          <TableCell className="py-2">
                             {complaint.responded_at 
                               ? new Date(complaint.responded_at).toLocaleString('ru-RU', {
                                   day: '2-digit',
@@ -616,11 +616,11 @@ const MDoctor = () => {
                             }
                           </TableCell>
                           <TableCell className="py-2">{complaint.name || '—'}</TableCell>
-                          <TableCell className="py-2 text-xs">{complaint.email || '—'}</TableCell>
+                          <TableCell className="py-2">{complaint.email || '—'}</TableCell>
                           <TableCell className="py-2">{complaint.phone || '—'}</TableCell>
                           <TableCell className="py-2 max-w-xs">
                             <div 
-                              className="line-clamp-1 text-xs" 
+                              className="line-clamp-1" 
                               title={complaint.message}
                             >
                               {complaint.message}
@@ -628,20 +628,20 @@ const MDoctor = () => {
                           </TableCell>
                           <TableCell className="py-2 max-w-xs">
                             <div 
-                              className="line-clamp-1 text-xs" 
+                              className="line-clamp-1" 
                               title={complaint.comment || ''}
                             >
                               {complaint.comment || '—'}
                             </div>
                           </TableCell>
                           <TableCell className="py-2">
-                            <div className="text-xs">{new Date(complaint.created_at).toLocaleDateString('ru-RU')}</div>
-                            <div className="text-xs text-muted-foreground">
+                            <div>{new Date(complaint.created_at).toLocaleDateString('ru-RU')}</div>
+                            <div className="text-muted-foreground">
                               {new Date(complaint.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
                             </div>
                           </TableCell>
                           <TableCell className="py-2">
-                            <span className={`px-2 py-0.5 rounded-full text-xs whitespace-nowrap ${
+                            <span className={`px-2 py-0.5 rounded-full whitespace-nowrap ${
                               complaint.status === 'resolved' ? 'bg-green-100 text-green-800' :
                               complaint.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
                               'bg-gray-100 text-gray-800'
@@ -655,7 +655,7 @@ const MDoctor = () => {
                               size="sm"
                               variant="outline"
                               onClick={() => handleComplaintAction(complaint)}
-                              className="h-7 px-2 text-xs"
+                              className="h-7 px-2"
                             >
                               <Icon name="Edit" size={12} />
                             </Button>
