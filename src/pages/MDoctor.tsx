@@ -28,6 +28,36 @@ const MDoctor = () => {
   const [searchFio, setSearchFio] = useState('');
   const [searchPosition, setSearchPosition] = useState('');
 
+  const loadDoctors = async () => {
+    try {
+      const response = await fetch(`${API_URLS.doctors}?action=get_all`);
+      const data = await response.json();
+      console.log('Doctors data:', data);
+      if (data.success) {
+        setDoctors(data.doctors);
+        console.log('Doctors loaded:', data.doctors.length);
+      }
+    } catch (error) {
+      console.error('Error loading doctors:', error);
+    }
+  };
+
+  const loadComplaints = async () => {
+    try {
+      const params = new URLSearchParams({ action: 'get_all' });
+      if (dateFrom) params.append('date_from', dateFrom);
+      if (dateTo) params.append('date_to', dateTo);
+      
+      const response = await fetch(`${API_URLS.complaints}?${params}`);
+      const data = await response.json();
+      if (data.success) {
+        setComplaints(data.complaints);
+      }
+    } catch (error) {
+      console.error('Error loading complaints:', error);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('mdoctor_token');
     if (token) {
@@ -73,20 +103,6 @@ const MDoctor = () => {
     toast({ title: 'Выход', description: 'Вы вышли из системы' });
   };
 
-  const loadDoctors = async () => {
-    try {
-      const response = await fetch(`${API_URLS.doctors}?action=get_all`);
-      const data = await response.json();
-      console.log('Doctors data:', data);
-      if (data.success) {
-        setDoctors(data.doctors);
-        console.log('Doctors loaded:', data.doctors.length);
-      }
-    } catch (error) {
-      console.error('Error loading doctors:', error);
-    }
-  };
-
   const handleDoctorClick = async (doctorLogin: string) => {
     try {
       localStorage.setItem('doctor_token', 'mdoctor_authorized');
@@ -96,6 +112,8 @@ const MDoctor = () => {
       toast({ title: 'Ошибка', description: 'Не удалось перейти в кабинет врача', variant: 'destructive' });
     }
   };
+
+  console.log('Doctors state (before grouping):', doctors);
 
   const groupedDoctors = doctors.reduce((acc: Record<string, any[]>, doctor: any) => {
     const clinic = doctor.clinic || 'Не указано';
@@ -123,22 +141,6 @@ const MDoctor = () => {
   }, {} as Record<string, any[]>);
   
   console.log('Filtered grouped doctors:', filteredGroupedDoctors);
-
-  const loadComplaints = async () => {
-    try {
-      const params = new URLSearchParams({ action: 'get_all' });
-      if (dateFrom) params.append('date_from', dateFrom);
-      if (dateTo) params.append('date_to', dateTo);
-      
-      const response = await fetch(`${API_URLS.complaints}?${params}`);
-      const data = await response.json();
-      if (data.success) {
-        setComplaints(data.complaints);
-      }
-    } catch (error) {
-      console.error('Error loading complaints:', error);
-    }
-  };
 
   const updateComplaintStatus = async (complaintId: number, status: string) => {
     try {
