@@ -77,36 +77,23 @@ const MDoctor = () => {
     try {
       const response = await fetch(`${API_URLS.doctors}?action=get_all`);
       const data = await response.json();
+      console.log('Doctors data:', data);
       if (data.success) {
         setDoctors(data.doctors);
+        console.log('Doctors loaded:', data.doctors.length);
       }
     } catch (error) {
       console.error('Error loading doctors:', error);
     }
   };
 
-  const handleDoctorClick = async (doctorLogin: string, doctorPassword: string) => {
+  const handleDoctorClick = async (doctorLogin: string) => {
     try {
-      const response = await fetch(API_URLS.auth, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          login: doctorLogin,
-          password: doctorPassword,
-          type: 'doctor'
-        })
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        localStorage.setItem('doctor_token', data.token || 'authenticated');
-        localStorage.setItem('doctor_user', JSON.stringify(data.user));
-        navigate('/doctor');
-      } else {
-        toast({ title: 'Ошибка', description: 'Не удалось войти в кабинет врача', variant: 'destructive' });
-      }
+      localStorage.setItem('doctor_token', 'mdoctor_authorized');
+      localStorage.setItem('doctor_user', JSON.stringify({ login: doctorLogin, from_mdoctor: true }));
+      navigate('/doctor');
     } catch (error) {
-      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+      toast({ title: 'Ошибка', description: 'Не удалось перейти в кабинет врача', variant: 'destructive' });
     }
   };
 
@@ -301,7 +288,7 @@ const MDoctor = () => {
                               <TableRow key={doctor.id}>
                                 <TableCell>
                                   <button
-                                    onClick={() => handleDoctorClick(doctor.login, doctor.password_hash)}
+                                    onClick={() => handleDoctorClick(doctor.login)}
                                     className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                                   >
                                     {doctor.full_name}
