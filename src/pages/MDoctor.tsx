@@ -148,7 +148,8 @@ const MDoctor = () => {
       });
 
       const data = await response.json();
-      if (data.success) {
+      console.log('Update complaint response:', data);
+      if (data.success || data.message === 'Статус жалобы обновлён') {
         toast({ title: 'Успех', description: 'Статус жалобы обновлён' });
         loadComplaints();
         setShowComplaintDialog(false);
