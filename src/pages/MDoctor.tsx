@@ -105,6 +105,9 @@ const MDoctor = () => {
     acc[clinic].push(doctor);
     return acc;
   }, {} as Record<string, any[]>);
+  
+  console.log('Grouped doctors:', groupedDoctors);
+  console.log('Doctors state:', doctors);
 
   const filteredGroupedDoctors = Object.entries(groupedDoctors).reduce((acc: Record<string, any[]>, [clinic, docs]: [string, any]) => {
     const filtered = (docs as any[]).filter((doc: any) => {
@@ -118,6 +121,8 @@ const MDoctor = () => {
     }
     return acc;
   }, {} as Record<string, any[]>);
+  
+  console.log('Filtered grouped doctors:', filteredGroupedDoctors);
 
   const loadComplaints = async () => {
     try {
