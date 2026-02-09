@@ -42,7 +42,6 @@ const MDoctor = () => {
   const [emailErrorAddress, setEmailErrorAddress] = useState('');
   const [hoveredDoctorPhoto, setHoveredDoctorPhoto] = useState<string | null>(null);
   const [photoPosition, setPhotoPosition] = useState({ x: 0, y: 0 });
-  const [showPassword, setShowPassword] = useState(false);
 
   const loadDoctors = async () => {
     try {
