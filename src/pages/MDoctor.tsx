@@ -48,7 +48,7 @@ const MDoctor = () => {
       
       const response = await fetch(`${API_URLS.complaints}?${params}`);
       const data = await response.json();
-      if (data.success) {
+      if (data.complaints) {
         setComplaints(data.complaints);
       }
     } catch (error) {
