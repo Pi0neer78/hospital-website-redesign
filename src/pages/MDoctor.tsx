@@ -419,25 +419,25 @@ const MDoctor = () => {
                 <CardTitle className="text-lg">Жалобы пациентов</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="mb-2 space-y-1.5">
-                  <div className="flex gap-1.5 items-end justify-between">
-                    <div className="w-64">
+                <div className="mb-3 space-y-2">
+                  <div className="flex gap-2 items-end justify-between">
+                    <div className="w-72">
                       <Input
                         placeholder="Поиск по ФИО, телефону, тексту жалобы..."
                         value={complaintSearch}
                         onChange={(e) => setComplaintSearch(e.target.value)}
-                        className="h-8 text-sm"
+                        className="h-9"
                       />
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => { setComplaintSearch(''); setDateFrom(''); setDateTo(''); setComplaintStatusFilter('all'); }} className="h-8 w-8 p-0">
-                      <Icon name="X" size={12} />
+                    <Button size="sm" variant="outline" onClick={() => { setComplaintSearch(''); setDateFrom(''); setDateTo(''); setComplaintStatusFilter('all'); }} className="h-9">
+                      <Icon name="X" size={14} />
                     </Button>
                     <div>
                       <Input
                         type="date"
                         value={dateFrom}
                         onChange={(e) => setDateFrom(e.target.value)}
-                        className="h-8 w-32 text-xs"
+                        className="h-9 w-36"
                       />
                     </div>
                     <div>
@@ -445,11 +445,11 @@ const MDoctor = () => {
                         type="date"
                         value={dateTo}
                         onChange={(e) => setDateTo(e.target.value)}
-                        className="h-8 w-32 text-xs"
+                        className="h-9 w-36"
                       />
                     </div>
                     <Select value={complaintStatusFilter} onValueChange={setComplaintStatusFilter}>
-                      <SelectTrigger className="h-8 w-36 text-xs">
+                      <SelectTrigger className="h-9 w-40">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -547,9 +547,9 @@ const MDoctor = () => {
                         printWindow.print();
                         printWindow.close();
                       }, 250);
-                    }} className="h-8">
-                      <Icon name="Printer" size={12} className="mr-1" />
-                      <span className="text-xs">Печать</span>
+                    }} className="h-9">
+                      <Icon name="Printer" size={14} className="mr-1" />
+                      Печать
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => {
                       const csv = [
@@ -566,12 +566,13 @@ const MDoctor = () => {
                       link.href = URL.createObjectURL(blob);
                       link.download = 'жалобы.csv';
                       link.click();
-                    }} className="h-8 bg-green-600 text-white hover:bg-green-700 border-green-600">
-                      <Icon name="Download" size={12} className="mr-1" />
-                      <span className="text-xs">Экспорт</span>
+                    }} className="h-9 bg-green-600 text-white hover:bg-green-700 border-green-600">
+                      <Icon name="Download" size={14} className="mr-1" />
+                      Экспорт в Эксель
                     </Button>
-                    <Button size="sm" variant="outline" onClick={loadComplaints} className="h-8">
-                      <Icon name="RefreshCw" size={12} />
+                    <Button size="sm" variant="outline" onClick={loadComplaints} className="h-9">
+                      <Icon name="RefreshCw" size={14} className="mr-1" />
+                      Обновить
                     </Button>
                   </div>
                 </div>
