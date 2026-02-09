@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,10 +21,12 @@ const MDoctor = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginForm, setLoginForm] = useState({ login: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
-  const [doctors, setDoctors] = useState([]);
-  const [complaints, setComplaints] = useState([]);
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [complaints, setComplaints] = useState<any[]>([]);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [searchFio, setSearchFio] = useState('');
+  const [searchPosition, setSearchPosition] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('mdoctor_token');
@@ -32,6 +35,7 @@ const MDoctor = () => {
       loadDoctors();
       loadComplaints();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -80,6 +84,53 @@ const MDoctor = () => {
       console.error('Error loading doctors:', error);
     }
   };
+
+  const handleDoctorClick = async (doctorLogin: string, doctorPassword: string) => {
+    try {
+      const response = await fetch(API_URLS.auth, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          login: doctorLogin,
+          password: doctorPassword,
+          type: 'doctor'
+        })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        localStorage.setItem('doctor_token', data.token || 'authenticated');
+        localStorage.setItem('doctor_user', JSON.stringify(data.user));
+        navigate('/doctor');
+      } else {
+        toast({ title: 'Ошибка', description: 'Не удалось войти в кабинет врача', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+    }
+  };
+
+  const groupedDoctors = doctors.reduce((acc: Record<string, any[]>, doctor: any) => {
+    const clinic = doctor.clinic || 'Не указано';
+    if (!acc[clinic]) {
+      acc[clinic] = [];
+    }
+    acc[clinic].push(doctor);
+    return acc;
+  }, {} as Record<string, any[]>);
+
+  const filteredGroupedDoctors = Object.entries(groupedDoctors).reduce((acc: Record<string, any[]>, [clinic, docs]: [string, any]) => {
+    const filtered = (docs as any[]).filter((doc: any) => {
+      const fioMatch = !searchFio || doc.full_name?.toLowerCase().includes(searchFio.toLowerCase());
+      const positionMatch = !searchPosition || doc.position?.toLowerCase().includes(searchPosition.toLowerCase());
+      return fioMatch && positionMatch;
+    });
+    
+    if (filtered.length > 0) {
+      acc[clinic] = filtered;
+    }
+    return acc;
+  }, {} as Record<string, any[]>);
 
   const loadComplaints = async () => {
     try {
@@ -209,40 +260,70 @@ const MDoctor = () => {
                 <CardDescription>Все зарегистрированные врачи в системе</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>ФИО</TableHead>
-                        <TableHead>Специализация</TableHead>
-                        <TableHead>Должность</TableHead>
-                        <TableHead>Клиника</TableHead>
-                        <TableHead>Телефон</TableHead>
-                        <TableHead>Стаж</TableHead>
-                        <TableHead>Кабинет</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {doctors.map((doctor: any) => (
-                        <TableRow key={doctor.id}>
-                          <TableCell className="font-medium">{doctor.full_name}</TableCell>
-                          <TableCell>{doctor.specialization}</TableCell>
-                          <TableCell>{doctor.position}</TableCell>
-                          <TableCell>{doctor.clinic}</TableCell>
-                          <TableCell>{doctor.phone}</TableCell>
-                          <TableCell>{doctor.work_experience || '—'}</TableCell>
-                          <TableCell>{doctor.office_number || '—'}</TableCell>
-                        </TableRow>
-                      ))}
-                      {doctors.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={7} className="text-center text-muted-foreground">
-                            Нет данных
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
+                <div className="mb-4 flex gap-4">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Поиск по ФИО..."
+                      value={searchFio}
+                      onChange={(e) => setSearchFio(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Поиск по должности..."
+                      value={searchPosition}
+                      onChange={(e) => setSearchPosition(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {Object.entries(filteredGroupedDoctors).map(([clinic, docs]) => (
+                    <div key={clinic} className="border rounded-lg p-4">
+                      <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                        <Icon name="Building2" size={20} />
+                        {clinic}
+                        <span className="text-sm text-muted-foreground font-normal">({(docs as any[]).length})</span>
+                      </h3>
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>ФИО</TableHead>
+                              <TableHead>Специализация</TableHead>
+                              <TableHead>Должность</TableHead>
+                              <TableHead>Телефон</TableHead>
+                              <TableHead>Стаж</TableHead>
+                              <TableHead>Кабинет</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {(docs as any[]).map((doctor: any) => (
+                              <TableRow key={doctor.id}>
+                                <TableCell>
+                                  <button
+                                    onClick={() => handleDoctorClick(doctor.login, doctor.password_hash)}
+                                    className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                                  >
+                                    {doctor.full_name}
+                                  </button>
+                                </TableCell>
+                                <TableCell>{doctor.specialization}</TableCell>
+                                <TableCell>{doctor.position}</TableCell>
+                                <TableCell>{doctor.phone}</TableCell>
+                                <TableCell>{doctor.work_experience || '—'}</TableCell>
+                                <TableCell>{doctor.office_number || '—'}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
+                  ))}
+                  {Object.keys(filteredGroupedDoctors).length === 0 && (
+                    <div className="text-center text-muted-foreground py-8">
+                      {doctors.length === 0 ? 'Нет данных' : 'Ничего не найдено'}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
