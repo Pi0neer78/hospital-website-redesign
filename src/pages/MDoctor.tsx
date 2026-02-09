@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
@@ -27,6 +30,10 @@ const MDoctor = () => {
   const [dateTo, setDateTo] = useState('');
   const [searchFio, setSearchFio] = useState('');
   const [searchPosition, setSearchPosition] = useState('');
+  const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
+  const [complaintComment, setComplaintComment] = useState('');
+  const [complaintStatus, setComplaintStatus] = useState('');
+  const [showComplaintDialog, setShowComplaintDialog] = useState(false);
 
   const loadDoctors = async () => {
     try {
@@ -108,6 +115,43 @@ const MDoctor = () => {
       window.open('/doctor', '_blank');
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось перейти в кабинет врача', variant: 'destructive' });
+    }
+  };
+
+  const handleComplaintAction = (complaint: any) => {
+    setSelectedComplaint(complaint);
+    setComplaintComment(complaint.comment || '');
+    setComplaintStatus(complaint.status);
+    setShowComplaintDialog(true);
+  };
+
+  const updateComplaintStatus = async () => {
+    if (!selectedComplaint) return;
+
+    try {
+      const response = await fetch(API_URLS.complaints, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_status',
+          complaint_id: selectedComplaint.id,
+          status: complaintStatus,
+          comment: complaintComment,
+          resolved_at: complaintStatus === 'resolved' ? new Date().toISOString() : null
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast({ title: 'Успех', description: 'Статус жалобы обновлён' });
+        loadComplaints();
+        setShowComplaintDialog(false);
+        setSelectedComplaint(null);
+      } else {
+        toast({ title: 'Ошибка', description: data.message || 'Не удалось обновить статус', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
     }
   };
 
@@ -357,10 +401,12 @@ const MDoctor = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Дата</TableHead>
-                        <TableHead>Пациент</TableHead>
-                        <TableHead>Врач</TableHead>
+                        <TableHead>ФИО</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Телефон</TableHead>
                         <TableHead>Текст жалобы</TableHead>
+                        <TableHead>Комментарий</TableHead>
+                        <TableHead>Дата и время</TableHead>
                         <TableHead>Статус</TableHead>
                         <TableHead>Действия</TableHead>
                       </TableRow>
@@ -368,47 +414,51 @@ const MDoctor = () => {
                     <TableBody>
                       {complaints.map((complaint: any) => (
                         <TableRow key={complaint.id}>
-                          <TableCell>{new Date(complaint.created_at).toLocaleDateString('ru-RU')}</TableCell>
-                          <TableCell>{complaint.patient_name || complaint.patient_email}</TableCell>
-                          <TableCell>{complaint.doctor_name}</TableCell>
-                          <TableCell className="max-w-xs truncate">{complaint.complaint_text}</TableCell>
+                          <TableCell>{complaint.patient_name || '—'}</TableCell>
+                          <TableCell>{complaint.patient_email || '—'}</TableCell>
+                          <TableCell>{complaint.patient_phone || '—'}</TableCell>
+                          <TableCell className="max-w-xs">
+                            <div className="line-clamp-2">{complaint.complaint_text}</div>
+                          </TableCell>
+                          <TableCell className="max-w-xs">
+                            <div className="line-clamp-2">{complaint.comment || '—'}</div>
+                          </TableCell>
                           <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs ${
+                            <div>{new Date(complaint.created_at).toLocaleDateString('ru-RU')}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(complaint.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                            {complaint.resolved_at && (
+                              <div className="text-xs text-green-600 mt-1">
+                                Решена: {new Date(complaint.resolved_at).toLocaleDateString('ru-RU')} {new Date(complaint.resolved_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <span className={`px-2 py-1 rounded-full text-xs whitespace-nowrap ${
                               complaint.status === 'resolved' ? 'bg-green-100 text-green-800' :
                               complaint.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
                               'bg-gray-100 text-gray-800'
                             }`}>
                               {complaint.status === 'resolved' ? 'Решена' :
-                               complaint.status === 'in_progress' ? 'В работе' : 'Новая'}
+                               complaint.status === 'in_progress' ? 'На рассмотрении' : 'Новая'}
                             </span>
                           </TableCell>
                           <TableCell>
-                            <div className="flex gap-2">
-                              {complaint.status === 'pending' && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => updateComplaintStatus(complaint.id, 'in_progress')}
-                                >
-                                  В работу
-                                </Button>
-                              )}
-                              {complaint.status === 'in_progress' && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => updateComplaintStatus(complaint.id, 'resolved')}
-                                >
-                                  Решена
-                                </Button>
-                              )}
-                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleComplaintAction(complaint)}
+                            >
+                              <Icon name="Edit" size={14} className="mr-1" />
+                              Изменить
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
                       {complaints.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center text-muted-foreground">
                             Нет данных
                           </TableCell>
                         </TableRow>
@@ -460,6 +510,62 @@ const MDoctor = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <Dialog open={showComplaintDialog} onOpenChange={setShowComplaintDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Обработка жалобы</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">ФИО пациента</label>
+              <Input value={selectedComplaint?.patient_name || '—'} disabled />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Email</label>
+              <Input value={selectedComplaint?.patient_email || '—'} disabled />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Телефон</label>
+              <Input value={selectedComplaint?.patient_phone || '—'} disabled />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Текст жалобы</label>
+              <Textarea value={selectedComplaint?.complaint_text || ''} disabled rows={4} />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Статус</label>
+              <Select value={complaintStatus} onValueChange={setComplaintStatus}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Новая</SelectItem>
+                  <SelectItem value="in_progress">На рассмотрении</SelectItem>
+                  <SelectItem value="resolved">Решена</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Комментарий</label>
+              <Textarea 
+                value={complaintComment} 
+                onChange={(e) => setComplaintComment(e.target.value)}
+                rows={3}
+                placeholder="Введите комментарий..."
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowComplaintDialog(false)}>
+                Отмена
+              </Button>
+              <Button onClick={updateComplaintStatus}>
+                Сохранить
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
