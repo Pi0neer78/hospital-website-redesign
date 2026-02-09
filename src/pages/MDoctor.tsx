@@ -548,7 +548,8 @@ const MDoctor = () => {
                         printWindow.close();
                       }, 250);
                     }} className="h-9">
-                      <Icon name="Printer" size={14} />
+                      <Icon name="Printer" size={14} className="mr-1" />
+                      Печать
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => {
                       const csv = [
