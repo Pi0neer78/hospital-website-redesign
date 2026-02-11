@@ -67,6 +67,9 @@ def handler(event: dict, context) -> dict:
         elif action == 'reschedule':
             body = json.loads(event.get('body', '{}'))
             result = reschedule_appointment(cursor, conn, body)
+        elif action == 'log':
+            body = json.loads(event.get('body', '{}'))
+            result = log_doctor_action(cursor, conn, body, event)
         else:
             result = {'error': 'Unknown action'}
             
@@ -335,6 +338,33 @@ def reschedule_appointment(cursor, conn, body):
         SET appointment_date = %s, appointment_time = %s
         WHERE id = %s
     """, (new_date, new_time, appointment_id))
+    
+    conn.commit()
+    
+    return {'success': True}
+
+def log_doctor_action(cursor, conn, body, event):
+    """Логирование действий врача"""
+    doctor_id = body.get('doctor_id')
+    user_login = body.get('user_login')
+    action_type = body.get('action_type')
+    details = body.get('details')
+    computer_name = body.get('computer_name')
+    
+    # Получение реального IP-адреса из заголовков
+    headers = event.get('headers', {})
+    ip_address = (
+        headers.get('X-Forwarded-For', '').split(',')[0].strip() or
+        headers.get('X-Real-IP', '') or
+        headers.get('CF-Connecting-IP', '') or
+        event.get('requestContext', {}).get('identity', {}).get('sourceIp', '')
+    )
+    
+    cursor.execute("""
+        INSERT INTO t_p30358746_hospital_website_red.doctor_logs 
+        (doctor_id, user_login, action_type, details, ip_address, computer_name)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (doctor_id, user_login, action_type, details, ip_address, computer_name))
     
     conn.commit()
     
