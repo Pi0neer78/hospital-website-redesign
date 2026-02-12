@@ -19,7 +19,7 @@ import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
   schedules: 'https://functions.poehali.dev/6f53f66d-3e47-4e57-93dd-52d63c16d38f',
-  appointments: 'https://functions.poehali.dev/85500362-f417-4a13-9095-7cd6af335624',
+  appointments: 'https://functions.poehali.dev/b3b698ed-7035-4503-8c49-85be11de75e5',
 };
 
 const DAYS_OF_WEEK = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
