@@ -120,8 +120,8 @@ const MDoctor = () => {
 
   const handleDoctorClick = async (doctor: any) => {
     try {
-      // Переход в кабинет врача по ID
-      window.open(`/doctor?id=${doctor.id}`, '_blank');
+      // Переход в кабинет врача по ID с меткой главного врача
+      window.open(`/doctor?id=${doctor.id}&source=chief`, '_blank');
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось перейти в кабинет врача', variant: 'destructive' });
     }
