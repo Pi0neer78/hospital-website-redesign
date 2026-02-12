@@ -186,6 +186,7 @@ const Registrar = () => {
   const generateAvailableDates = async () => {
     setIsLoadingDates(true);
     const dates = [];
+    
     for (let i = 0; i <= 20; i++) {
       const date = new Date();
       date.setDate(date.getDate() + i);
@@ -196,17 +197,6 @@ const Registrar = () => {
       const calendarOverride = calendarData[dateStr];
       const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
       
-      let slotsCount = 0;
-      if (isWorking && selectedDoctor) {
-        try {
-          const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${selectedDoctor.id}&date=${dateStr}`);
-          const data = await response.json();
-          slotsCount = (data.available_slots || []).length;
-        } catch (error) {
-          console.error('Failed to load slots count:', error);
-        }
-      }
-      
       dates.push({
         date: dateStr,
         label: date.toLocaleDateString('ru-RU', { 
@@ -215,9 +205,33 @@ const Registrar = () => {
           month: 'short' 
         }),
         isWorking,
-        slotsCount
+        slotsCount: 0
       });
     }
+    
+    // ОПТИМИЗАЦИЯ: Батчинг - один запрос вместо 21
+    if (selectedDoctor && dates.length > 0) {
+      try {
+        const startDateStr = dates[0].date;
+        const endDateStr = dates[dates.length - 1].date;
+        
+        const response = await fetch(
+          `${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${selectedDoctor.id}&start_date=${startDateStr}&end_date=${endDateStr}`
+        );
+        const data = await response.json();
+        const slotsByDate = data.slots_by_date || {};
+        
+        dates.forEach(dateObj => {
+          const dayData = slotsByDate[dateObj.date];
+          if (dayData && dateObj.isWorking) {
+            dateObj.slotsCount = dayData.available_slots?.length || 0;
+          }
+        });
+      } catch (error) {
+        console.error('Failed to load slot counts:', error);
+      }
+    }
+    
     setAvailableDates(dates);
     setIsLoadingDates(false);
   };

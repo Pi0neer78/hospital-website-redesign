@@ -1075,6 +1075,9 @@ const Doctor = () => {
     const startDate = new Date(currentYear, currentMonth, 1);
     const endDate = new Date(currentYear, currentMonth + 2, 0);
     
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = endDate.toISOString().split('T')[0];
+    
     const dates: string[] = [];
     const currentDate = new Date(startDate);
     
@@ -1089,35 +1092,39 @@ const Doctor = () => {
     
     const totalDays = dates.length;
     
-    for (let i = 0; i < dates.length; i++) {
-      const dateStr = dates[i];
+    try {
+      // ОПТИМИЗАЦИЯ: Батчинг - один запрос вместо ~90
+      const response = await fetch(
+        `${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${doctorInfo.id}&start_date=${startDateStr}&end_date=${endDateStr}`
+      );
+      const data = await response.json();
+      const slotsByDate = data.slots_by_date || {};
       
-      try {
-        const response = await fetch(
-          `${API_URLS.appointments}?action=available-slots&doctor_id=${doctorInfo.id}&date=${dateStr}`
-        );
-        const data = await response.json();
-        
-        const availableSlots = data.available_slots?.length || 0;
-        const allSlots = data.all_slots?.length || 0;
-        const bookedSlots = allSlots - availableSlots;
-        
-        setSlotStats(prev => ({
-          ...prev,
-          [dateStr]: {
-            available: availableSlots,
-            booked: bookedSlots
-          }
-        }));
-      } catch (error) {
-        setSlotStats(prev => ({
-          ...prev,
-          [dateStr]: { available: 0, booked: 0 }
-        }));
-      }
+      const newStats: {[key: string]: {available: number, booked: number}} = {};
       
-      const progress = Math.round(((i + 1) / totalDays) * 100);
-      setLoadingProgress(progress);
+      dates.forEach((dateStr, index) => {
+        const dayData = slotsByDate[dateStr];
+        if (dayData) {
+          newStats[dateStr] = {
+            available: dayData.available_slots?.length || 0,
+            booked: dayData.booked_slots || 0
+          };
+        } else {
+          newStats[dateStr] = { available: 0, booked: 0 };
+        }
+        
+        const progress = Math.round(((index + 1) / totalDays) * 100);
+        setLoadingProgress(progress);
+      });
+      
+      setSlotStats(newStats);
+    } catch (error) {
+      console.error('Failed to load slot stats:', error);
+      const emptyStats: {[key: string]: {available: number, booked: number}} = {};
+      dates.forEach(dateStr => {
+        emptyStats[dateStr] = { available: 0, booked: 0 };
+      });
+      setSlotStats(emptyStats);
     }
     
     setIsLoadingSlots(false);
@@ -1125,7 +1132,7 @@ const Doctor = () => {
     
     toast({
       title: "Готово",
-      description: `Загружена статистика слотов на ${totalDays} дней`,
+      description: `Загружена статистика слотов на ${totalDays} дней (1 запрос вместо ${totalDays})`,
     });
   };
 
@@ -1554,24 +1561,39 @@ const Doctor = () => {
   const preloadSlotCounts = async () => {
     if (!doctorInfo) return;
     
-    const counts: {[key: string]: number} = {};
     const days = getNext14DaysForDoctor();
+    if (days.length === 0) return;
     
-    for (const day of days) {
-      if (day.isWorking) {
-        try {
-          const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorInfo.id}&date=${day.date}`);
-          const data = await response.json();
-          counts[day.date] = data.available_slots?.length || 0;
-        } catch (error) {
+    const startDate = days[0].date;
+    const endDate = days[days.length - 1].date;
+    
+    try {
+      // ОПТИМИЗАЦИЯ: Батчинг - один запрос вместо 14
+      const response = await fetch(
+        `${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${doctorInfo.id}&start_date=${startDate}&end_date=${endDate}`
+      );
+      const data = await response.json();
+      const slotsByDate = data.slots_by_date || {};
+      
+      const counts: {[key: string]: number} = {};
+      days.forEach(day => {
+        if (day.isWorking) {
+          const dayData = slotsByDate[day.date];
+          counts[day.date] = dayData?.available_slots?.length || 0;
+        } else {
           counts[day.date] = 0;
         }
-      } else {
+      });
+      
+      setDateSlotCounts(counts);
+    } catch (error) {
+      console.error('Failed to preload slot counts:', error);
+      const counts: {[key: string]: number} = {};
+      days.forEach(day => {
         counts[day.date] = 0;
-      }
+      });
+      setDateSlotCounts(counts);
     }
-    
-    setDateSlotCounts(counts);
   };
 
   const getNext14DaysForDoctor = () => {
