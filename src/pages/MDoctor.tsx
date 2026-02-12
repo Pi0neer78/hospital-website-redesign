@@ -120,8 +120,7 @@ const MDoctor = () => {
 
   const handleDoctorClick = async (doctor: any) => {
     try {
-      // Переход в кабинет врача по ID с меткой главного врача
-      window.open(`/doctor?id=${doctor.id}&source=chief`, '_blank');
+      window.open(`/doctor?id=${doctor.id}`, '_blank');
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось перейти в кабинет врача', variant: 'destructive' });
     }
@@ -480,7 +479,7 @@ const MDoctor = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Все статусы</SelectItem>
-                          <SelectItem value="new">Новые</SelectItem>
+                          <SelectItem value="pending">Новые</SelectItem>
                           <SelectItem value="in_progress">На рассмотрении</SelectItem>
                           <SelectItem value="resolved">Решены</SelectItem>
                         </SelectContent>
@@ -490,7 +489,7 @@ const MDoctor = () => {
                       if (!printWindow) return;
                       
                       const statusText = complaintStatusFilter === 'all' ? 'Все статусы' : 
-                                        complaintStatusFilter === 'new' ? 'Новые' :
+                                        complaintStatusFilter === 'pending' ? 'Новые' :
                                         complaintStatusFilter === 'in_progress' ? 'На рассмотрении' : 'Решены';
                       const periodText = dateFrom || dateTo 
                         ? `Период: ${dateFrom ? new Date(dateFrom).toLocaleDateString('ru-RU') : 'начало'} - ${dateTo ? new Date(dateTo).toLocaleDateString('ru-RU') : 'сегодня'}`
@@ -584,7 +583,7 @@ const MDoctor = () => {
                           c.name, c.email, c.phone, c.message.replace(/,/g, ';'), 
                           (c.comment || '').replace(/,/g, ';'),
                           new Date(c.created_at).toLocaleDateString('ru-RU'),
-                          c.status === 'resolved' ? 'Решена' : c.status === 'in_progress' ? 'На рассмотрении' : c.status === 'new' ? 'Новая' : c.status
+                          c.status === 'resolved' ? 'Решена' : c.status === 'in_progress' ? 'На рассмотрении' : 'Новая'
                         ].join(','))
                       ].join('\\n');
                       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -795,7 +794,7 @@ const MDoctor = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="new">Новая</SelectItem>
+                  <SelectItem value="pending">Новая</SelectItem>
                   <SelectItem value="in_progress">На рассмотрении</SelectItem>
                   <SelectItem value="resolved">Решена</SelectItem>
                 </SelectContent>
