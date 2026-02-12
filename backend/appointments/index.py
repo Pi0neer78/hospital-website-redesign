@@ -87,7 +87,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     WHERE doctor_id = %s AND appointment_date = %s AND status IN ('scheduled', 'completed')
                 """, (doctor_id, date))
                 booked_appointments = cursor.fetchall()
-                booked_times = [str(appt['appointment_time']) for appt in booked_appointments]
+                booked_times = [str(appt['appointment_time'])[:5] for appt in booked_appointments]
                 
                 start_time_str = str(schedule['start_time']) if schedule['start_time'] else '09:00:00'
                 end_time_str = str(schedule['end_time']) if schedule['end_time'] else '18:00:00'
@@ -163,7 +163,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     if date and date not in booked_by_date:
                         booked_by_date[date] = []
                     if date:
-                        booked_by_date[date].append(str(appt['appointment_time']))
+                        booked_by_date[date].append(str(appt['appointment_time'])[:5])
                 
                 current_date = datetime.strptime(start_date, '%Y-%m-%d')
                 end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
