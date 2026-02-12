@@ -89,14 +89,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 booked_appointments = cursor.fetchall()
                 booked_times = [str(appt['appointment_time']) for appt in booked_appointments]
                 
-                start_time = datetime.strptime(schedule['start_time'], '%H:%M:%S')
-                end_time = datetime.strptime(schedule['end_time'], '%H:%M:%S')
+                start_time_str = str(schedule['start_time']) if schedule['start_time'] else '09:00:00'
+                end_time_str = str(schedule['end_time']) if schedule['end_time'] else '18:00:00'
+                start_time = datetime.strptime(start_time_str, '%H:%M:%S')
+                end_time = datetime.strptime(end_time_str, '%H:%M:%S')
                 slot_duration = schedule.get('slot_duration', 15)
                 
                 break_start = schedule.get('break_start_time')
                 break_end = schedule.get('break_end_time')
-                break_start_time = datetime.strptime(break_start, '%H:%M:%S') if break_start else None
-                break_end_time = datetime.strptime(break_end, '%H:%M:%S') if break_end else None
+                break_start_time = datetime.strptime(str(break_start), '%H:%M:%S') if break_start else None
+                break_end_time = datetime.strptime(str(break_end), '%H:%M:%S') if break_end else None
                 
                 available_slots = []
                 current_time = start_time
@@ -177,14 +179,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     if schedule:
                         booked_times = booked_by_date.get(date_str, [])
                         
-                        start_time = datetime.strptime(schedule['start_time'], '%H:%M:%S')
-                        end_time = datetime.strptime(schedule['end_time'], '%H:%M:%S')
+                        start_time_str = str(schedule['start_time']) if schedule['start_time'] else '09:00:00'
+                        end_time_str = str(schedule['end_time']) if schedule['end_time'] else '18:00:00'
+                        start_time = datetime.strptime(start_time_str, '%H:%M:%S')
+                        end_time = datetime.strptime(end_time_str, '%H:%M:%S')
                         slot_duration = schedule.get('slot_duration', 15)
                         
                         break_start = schedule.get('break_start_time')
                         break_end = schedule.get('break_end_time')
-                        break_start_time = datetime.strptime(break_start, '%H:%M:%S') if break_start else None
-                        break_end_time = datetime.strptime(break_end, '%H:%M:%S') if break_end else None
+                        break_start_time = datetime.strptime(str(break_start), '%H:%M:%S') if break_start else None
+                        break_end_time = datetime.strptime(str(break_end), '%H:%M:%S') if break_end else None
                         
                         available_slots = []
                         current_time = start_time
