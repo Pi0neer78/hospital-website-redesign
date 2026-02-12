@@ -120,7 +120,7 @@ const MDoctor = () => {
 
   const handleDoctorClick = async (doctor: any) => {
     try {
-      window.open(`/doctor?id=${doctor.id}`, '_blank');
+      window.open(`/doctor?id=${doctor.id}&source=mdoctor`, '_blank');
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось перейти в кабинет врача', variant: 'destructive' });
     }

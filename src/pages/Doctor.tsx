@@ -29,6 +29,7 @@ const Doctor = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [doctorInfo, setDoctorInfo] = useState<any>(null);
   const [isRegistrarAccess, setIsRegistrarAccess] = useState(false);
+  const [isMDoctorAccess, setIsMDoctorAccess] = useState(false);
   const [loginForm, setLoginForm] = useState({ login: '', password: '' });
   const [schedules, setSchedules] = useState<any[]>([]);
   const [dailySchedules, setDailySchedules] = useState<any[]>([]);
@@ -218,7 +219,7 @@ const Doctor = () => {
     const sourceFromUrl = urlParams.get('source');
     
     if (doctorIdFromUrl) {
-      loadDoctorById(parseInt(doctorIdFromUrl));
+      loadDoctorById(parseInt(doctorIdFromUrl), sourceFromUrl);
       return;
     }
     
@@ -272,7 +273,7 @@ const Doctor = () => {
 
 
 
-  const loadDoctorById = async (doctorId: number) => {
+  const loadDoctorById = async (doctorId: number, source: string | null = null) => {
     try {
       const url = 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688';
       console.log('🔍 Загрузка врача по ID:', doctorId);
@@ -291,7 +292,12 @@ const Doctor = () => {
           
           setDoctorInfo(doctor);
           setIsAuthenticated(true);
-          setIsRegistrarAccess(true);
+          
+          if (source === 'mdoctor') {
+            setIsMDoctorAccess(true);
+          } else {
+            setIsRegistrarAccess(true);
+          }
           loadSchedules(doctor.id);
           loadDailySchedules(doctor.id);
           loadAppointments(doctor.id);
@@ -2082,6 +2088,12 @@ const Doctor = () => {
                 <span className="text-xs font-semibold text-blue-900">Доступ регистратора</span>
               </div>
             )}
+            {isMDoctorAccess && (
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-purple-50 border border-purple-200 rounded-lg">
+                <Icon name="ShieldCheck" size={16} className="text-purple-600" />
+                <span className="text-xs font-semibold text-purple-900">Доступ главного врача</span>
+              </div>
+            )}
 
           </div>
           <div className="flex gap-2 items-center">
@@ -2171,7 +2183,7 @@ const Doctor = () => {
       <Tabs defaultValue="calendar">
         <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-border shadow-md">
           <div className="container mx-auto px-4 py-3">
-            <TabsList className={`grid w-full ${isRegistrarAccess ? 'grid-cols-2' : 'grid-cols-3'} h-auto p-1 bg-gradient-to-r from-blue-50 to-indigo-50`}>
+            <TabsList className={`grid w-full ${isRegistrarAccess && !isMDoctorAccess ? 'grid-cols-2' : 'grid-cols-3'} h-auto p-1 bg-gradient-to-r from-blue-50 to-indigo-50`}>
               <TabsTrigger 
                 value="calendar"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md py-2 px-4 font-semibold text-sm transition-all"
@@ -2186,7 +2198,7 @@ const Doctor = () => {
                 <Icon name="Clock" size={18} className="mr-1.5" />
                 Расписание
               </TabsTrigger>
-              {!isRegistrarAccess && (
+              {(!isRegistrarAccess || isMDoctorAccess) && (
                 <TabsTrigger 
                   value="appointments"
                   className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md py-2 px-4 font-semibold text-sm transition-all"
