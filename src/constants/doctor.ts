@@ -1,7 +1,7 @@
 export const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
   schedules: 'https://functions.poehali.dev/6f53f66d-3e47-4e57-93dd-52d63c16d38f',
-  appointments: 'https://functions.poehali.dev/a7f148cd-e1c2-40e3-9762-cc8b2bc2dffb',
+  appointments: 'https://functions.poehali.dev/b1d89a5b-55d9-4ee9-bf3e-78d8f2013f83',
   appointmentsEdit: 'https://functions.poehali.dev/edit-appointment',
 };
 

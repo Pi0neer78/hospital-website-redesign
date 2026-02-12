@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
 
-const API_URL = 'https://functions.poehali.dev/a7f148cd-e1c2-40e3-9762-cc8b2bc2dffb';
+const API_URL = 'https://functions.poehali.dev/b1d89a5b-55d9-4ee9-bf3e-78d8f2013f83';
 const REGISTRARS_API = 'https://functions.poehali.dev/bda47195-c96f-4fb7-b72c-59d877add3c2';
 
 interface UseRegistrarAppointmentsProps {
