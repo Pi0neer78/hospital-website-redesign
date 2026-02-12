@@ -87,7 +87,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     WHERE doctor_id = %s AND appointment_date = %s AND status IN ('scheduled', 'completed')
                 """, (doctor_id, date))
                 booked_appointments = cursor.fetchall()
-                booked_times = [appt['appointment_time'] for appt in booked_appointments]
+                booked_times = [str(appt['appointment_time']) for appt in booked_appointments]
                 
                 start_time = datetime.strptime(schedule['start_time'], '%H:%M:%S')
                 end_time = datetime.strptime(schedule['end_time'], '%H:%M:%S')
@@ -146,7 +146,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     SELECT * FROM t_p30358746_hospital_website_red.daily_schedules 
                     WHERE doctor_id = %s AND schedule_date BETWEEN %s AND %s AND is_active = TRUE
                 """, (doctor_id, start_date, end_date))
-                daily_schedules = {ds['schedule_date']: ds for ds in cursor.fetchall()}
+                daily_schedules = {str(ds['schedule_date']): ds for ds in cursor.fetchall()}
                 
                 cursor.execute("""
                     SELECT appointment_date, appointment_time FROM t_p30358746_hospital_website_red.appointments_v2 
@@ -157,10 +157,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 booked_by_date = {}
                 for appt in all_appointments:
-                    date = appt['appointment_date']
-                    if date not in booked_by_date:
+                    date = str(appt['appointment_date']) if appt['appointment_date'] else None
+                    if date and date not in booked_by_date:
                         booked_by_date[date] = []
-                    booked_by_date[date].append(appt['appointment_time'])
+                    if date:
+                        booked_by_date[date].append(str(appt['appointment_time']))
                 
                 current_date = datetime.strptime(start_date, '%Y-%m-%d')
                 end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
