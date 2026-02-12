@@ -54,6 +54,14 @@ const SecurityStatistics = ({ stats, loading, searchIP, onSearchIPChange }: Secu
     searchIP ? ip.ip_address.includes(searchIP) : true
   ) || [];
 
+  // Подсчет лимитов
+  const functionsCount = stats?.endpoint_stats.length || 0;
+  const functionsLimit = 100;
+  const callsCount = stats?.endpoint_stats.reduce((sum, stat) => sum + stat.total_requests, 0) || 0;
+  const callsLimit = 100000;
+  const functionsPercent = (functionsCount / functionsLimit) * 100;
+  const callsPercent = (callsCount / callsLimit) * 100;
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -123,6 +131,49 @@ const SecurityStatistics = ({ stats, loading, searchIP, onSearchIPChange }: Secu
           </CardContent>
         </Card>
       </div>
+
+      <Card className="bg-gradient-to-br from-background to-muted/20 border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="Zap" size={20} className="text-primary" />
+            Облачные функции
+          </CardTitle>
+          <CardDescription>
+            Ваш проект использует функции. У каждого тарифа есть лимиты на количество функций и количество вызовов функций:
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Количество функций</span>
+              <span className="font-semibold">
+                {functionsCount} / {functionsLimit}
+              </span>
+            </div>
+            <div className="w-full bg-muted/50 rounded-full h-3 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-primary to-primary/80 h-3 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, functionsPercent)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Вызовов функций</span>
+              <span className="font-semibold">
+                {callsCount.toLocaleString('ru-RU')} / {callsLimit.toLocaleString('ru-RU')}
+              </span>
+            </div>
+            <div className="w-full bg-muted/50 rounded-full h-3 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-primary to-primary/80 h-3 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, callsPercent)}%` }}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
