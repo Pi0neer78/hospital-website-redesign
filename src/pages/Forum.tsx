@@ -838,7 +838,7 @@ const Forum = () => {
                       </DialogDescription>
                     </DialogHeader>
                     {phoneVerificationStep === 'form' && (
-                      <form onSubmit={handleSendPhoneCode} className="space-y-4">
+                      <form onSubmit={handleSendPhoneVerification} className="space-y-4">
                         <Input
                           type="text"
                           placeholder="Имя пользователя"

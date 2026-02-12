@@ -127,7 +127,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            message_text = f"Ваш код подтверждения для записи на прием: {code}\n\nКод действителен 10 минут."
+            message_text = f"Ваш код подтверждения: {code}\n\nКод действителен 10 минут."
             message_sent = False
             show_code_on_screen = False
             
