@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { useRateLimiter } from '@/hooks/use-rate-limiter';
-import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
+
 
 const BACKEND_URLS = {
   appointments: 'https://functions.poehali.dev/85500362-f417-4a13-9095-7cd6af335624',
@@ -369,18 +369,7 @@ const Index = () => {
       return;
     }
 
-    const slotCheck = await checkSlotAvailability(
-      BACKEND_URLS.appointments,
-      selectedDoctor.id,
-      selectedDate,
-      appointmentForm.appointment_time
-    );
-
-    if (!slotCheck.available) {
-      showSlotErrorDialog(slotCheck.error || 'Слот времени занят');
-      return;
-    }
-
+    // ОПТИМИЗАЦИЯ: проверка слота встроена в create_appointment (1 запрос вместо 2)
     setIsSubmitting(true);
 
     try {
@@ -391,7 +380,8 @@ const Index = () => {
           doctor_id: selectedDoctor.id,
           appointment_date: selectedDate,
           ...appointmentForm,
-          created_by: 1
+          created_by: 1,
+          skip_slot_check: false
         }),
       });
 

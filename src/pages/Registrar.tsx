@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
+
 import { EditAppointmentForm } from '@/components/EditAppointmentForm';
 import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
 
@@ -251,12 +251,13 @@ const Registrar = () => {
 
   const loadAppointments = async (doctorId: number) => {
     try {
+      // ОПТИМИЗАЦИЯ: всегда используем action=list с фильтрацией по датам
       const today = new Date().toISOString().split('T')[0];
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + 30);
       const endDateStr = endDate.toISOString().split('T')[0];
       
-      const response = await fetch(`${API_URLS.appointments}?doctor_id=${doctorId}&start_date=${today}&end_date=${endDateStr}`);
+      const response = await fetch(`${API_URLS.appointments}?action=list&doctor_id=${doctorId}&start_date=${today}&end_date=${endDateStr}`);
       const data = await response.json();
       setAppointments(data.appointments || []);
     } catch (error) {
@@ -272,18 +273,7 @@ const Registrar = () => {
       return;
     }
 
-    const slotCheck = await checkSlotAvailability(
-      API_URLS.appointments,
-      selectedDoctor.id,
-      selectedDate,
-      newAppointmentDialog.time
-    );
-
-    if (!slotCheck.available) {
-      showSlotErrorDialog(slotCheck.error || 'Слот времени занят');
-      return;
-    }
-
+    // ОПТИМИЗАЦИЯ: проверка слота встроена в create_appointment (1 запрос вместо 2)
     try {
       const response = await fetch(API_URLS.appointments, {
         method: 'POST',
@@ -297,7 +287,8 @@ const Registrar = () => {
           appointment_date: selectedDate,
           appointment_time: newAppointmentDialog.time,
           description: newAppointmentDialog.description,
-          created_by: 3
+          created_by: 3,
+          skip_slot_check: false
         }),
       });
 

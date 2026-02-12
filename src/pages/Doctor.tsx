@@ -366,6 +366,7 @@ const Doctor = () => {
       const twoMonthsLater = new Date(today);
       twoMonthsLater.setMonth(today.getMonth() + 2);
       
+      // ОПТИМИЗАЦИЯ: используем фильтрацию по датам для уменьшения объема
       const response = await fetch(`${API_URLS.schedules}?action=daily&doctor_id=${doctorId}&start_date=${today.toISOString().split('T')[0]}&end_date=${twoMonthsLater.toISOString().split('T')[0]}`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -521,10 +522,11 @@ const Doctor = () => {
 
   const loadAppointments = async (doctorId: number, checkForNew = false) => {
     try {
+      // ОПТИМИЗАЦИЯ: всегда используем фильтрацию по датам
       const startDate = dateFilterFrom || new Date().toISOString().split('T')[0];
       const endDate = dateFilterTo || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       const timestamp = Date.now();
-      const response = await fetch(`${API_URLS.appointments}?doctor_id=${doctorId}&start_date=${startDate}&end_date=${endDate}&_t=${timestamp}`);
+      const response = await fetch(`${API_URLS.appointments}?action=list&doctor_id=${doctorId}&start_date=${startDate}&end_date=${endDate}&_t=${timestamp}`);
       const data = await response.json();
       const newAppointments = data.appointments || [];
       
@@ -1700,6 +1702,7 @@ const Doctor = () => {
     const newDate = rescheduleDialog.newDate;
     const newTime = rescheduleDialog.newTime;
 
+    // ОПТИМИЗАЦИЯ: для переноса (PUT) используем встроенную проверку через check-slot
     const slotCheck = await checkSlotAvailability(
       API_URLS.appointments,
       doctorInfo.id,
@@ -1770,18 +1773,7 @@ const Doctor = () => {
       return;
     }
 
-    const slotCheck = await checkSlotAvailability(
-      API_URLS.appointments,
-      doctorInfo.id,
-      newAppointmentDialog.date,
-      newAppointmentDialog.time
-    );
-
-    if (!slotCheck.available) {
-      showSlotErrorDialog(slotCheck.error || 'Слот времени занят');
-      return;
-    }
-
+    // ОПТИМИЗАЦИЯ: проверка слота встроена в create_appointment, убираем отдельный запрос
     try {
       const response = await fetch(API_URLS.appointments, {
         method: 'POST',
@@ -1795,7 +1787,8 @@ const Doctor = () => {
           appointment_date: newAppointmentDialog.date,
           appointment_time: newAppointmentDialog.time,
           description: newAppointmentDialog.description,
-          created_by: 2
+          created_by: 2,
+          skip_slot_check: false
         }),
       });
 
