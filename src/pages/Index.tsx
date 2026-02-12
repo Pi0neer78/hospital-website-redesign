@@ -124,25 +124,44 @@ const Index = () => {
     
     setIsLoadingCalendar(true);
     const days = getNext7Days();
-    const slotsMap: any = {};
     
-    for (const day of days) {
-      try {
-        const response = await fetch(
-          `${BACKEND_URLS.appointments}?action=available-slots&doctor_id=${selectedDoctor.id}&date=${day.date}`
-        );
-        const data = await response.json();
-        slotsMap[day.date] = {
-          available: data.available_slots || [],
-          hasSchedule: data.available_slots && data.available_slots.length > 0
-        };
-      } catch (error) {
-        slotsMap[day.date] = { available: [], hasSchedule: false };
-      }
+    if (days.length === 0) {
+      setIsLoadingCalendar(false);
+      return;
     }
     
-    setAllSlots(slotsMap);
-    setIsLoadingCalendar(false);
+    const startDate = days[0].date;
+    const endDate = days[days.length - 1].date;
+    
+    try {
+      // Батчинг: один запрос вместо 14
+      const response = await fetch(
+        `${BACKEND_URLS.appointments}?action=available-slots-bulk&doctor_id=${selectedDoctor.id}&start_date=${startDate}&end_date=${endDate}`
+      );
+      const data = await response.json();
+      const slotsByDate = data.slots_by_date || {};
+      
+      const slotsMap: any = {};
+      days.forEach(day => {
+        const dayData = slotsByDate[day.date];
+        slotsMap[day.date] = {
+          available: dayData?.available_slots || [],
+          hasSchedule: dayData?.available_slots && dayData.available_slots.length > 0
+        };
+      });
+      
+      setAllSlots(slotsMap);
+    } catch (error) {
+      console.error('Failed to load slots:', error);
+      // Фоллбэк на пустые слоты
+      const slotsMap: any = {};
+      days.forEach(day => {
+        slotsMap[day.date] = { available: [], hasSchedule: false };
+      });
+      setAllSlots(slotsMap);
+    } finally {
+      setIsLoadingCalendar(false);
+    }
   };
 
   const loadAvailableSlots = async () => {

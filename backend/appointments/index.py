@@ -51,6 +51,8 @@ def handler(event: dict, context) -> dict:
                 result = {'error': 'Invalid PUT request'}
         elif action == 'available-slots':
             result = get_available_slots(cursor, params)
+        elif action == 'available-slots-bulk':
+            result = get_available_slots_bulk(cursor, params)
         elif action == 'check-slot':
             result = check_slot_availability(cursor, params)
         elif action == 'create':
@@ -151,6 +153,84 @@ def get_available_slots(cursor, params):
     
     return {'available_slots': available_slots}
 
+def get_available_slots_bulk(cursor, params):
+    """Получение доступных слотов за период (неделя/месяц) одним запросом"""
+    doctor_id = int(params.get('doctor_id', 0))
+    start_date_str = params.get('start_date', '')
+    end_date_str = params.get('end_date', '')
+    
+    if not doctor_id or not start_date_str or not end_date_str:
+        return {'slots_by_date': {}}
+    
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    
+    # Получаем все расписания за период одним запросом
+    cursor.execute("""
+        SELECT schedule_date, start_time, end_time, break_start_time, break_end_time, slot_duration
+        FROM t_p30358746_hospital_website_red.daily_schedules
+        WHERE doctor_id = %s AND schedule_date BETWEEN %s AND %s AND is_active = true
+        ORDER BY schedule_date
+    """, (doctor_id, start_date, end_date))
+    
+    schedules = cursor.fetchall()
+    
+    if not schedules:
+        return {'slots_by_date': {}}
+    
+    # Получаем все занятые слоты за период одним запросом
+    cursor.execute("""
+        SELECT appointment_date, appointment_time
+        FROM t_p30358746_hospital_website_red.appointments_v2
+        WHERE doctor_id = %s AND appointment_date BETWEEN %s AND %s AND status != 'cancelled'
+    """, (doctor_id, start_date, end_date))
+    
+    booked_slots = cursor.fetchall()
+    booked_times_by_date = {}
+    for slot in booked_slots:
+        date_key = slot['appointment_date'].strftime('%Y-%m-%d')
+        if date_key not in booked_times_by_date:
+            booked_times_by_date[date_key] = set()
+        booked_times_by_date[date_key].add(slot['appointment_time'])
+    
+    # Генерируем слоты для каждой даты
+    slots_by_date = {}
+    for schedule in schedules:
+        target_date = schedule['schedule_date']
+        date_key = target_date.strftime('%Y-%m-%d')
+        start_time = schedule['start_time']
+        end_time = schedule['end_time']
+        break_start = schedule['break_start_time']
+        break_end = schedule['break_end_time']
+        slot_duration = schedule['slot_duration']
+        
+        booked_times = booked_times_by_date.get(date_key, set())
+        
+        available_slots = []
+        current_time = datetime.combine(target_date, start_time)
+        end_datetime = datetime.combine(target_date, end_time)
+        
+        while current_time < end_datetime:
+            slot_time = current_time.time()
+            
+            if break_start and break_end:
+                if break_start <= slot_time < break_end:
+                    current_time += timedelta(minutes=slot_duration)
+                    continue
+            
+            if slot_time not in booked_times:
+                available_slots.append(slot_time.strftime('%H:%M'))
+            
+            current_time += timedelta(minutes=slot_duration)
+        
+        slots_by_date[date_key] = {
+            'available_slots': available_slots,
+            'total_slots': len(available_slots) + len(booked_times),
+            'booked_slots': len(booked_times)
+        }
+    
+    return {'slots_by_date': slots_by_date}
+
 def check_slot_availability(cursor, params):
     """Проверка доступности конкретного слота времени"""
     doctor_id = params.get('doctor_id')
@@ -201,16 +281,6 @@ def create_appointment(cursor, conn, body):
     patient_snils = body.get('patient_snils', '')
     patient_oms = body.get('patient_oms', '')
     created_by = body.get('created_by', 1)
-    
-    # Проверяем доступность слота перед созданием записи
-    availability = check_slot_availability(cursor, {
-        'doctor_id': str(doctor_id),
-        'date': appointment_date,
-        'time': appointment_time
-    })
-    
-    if not availability.get('available'):
-        return {'success': False, 'error': availability.get('error', 'Слот времени уже занят')}
     
     cursor.execute("""
         INSERT INTO t_p30358746_hospital_website_red.appointments_v2 
