@@ -66,7 +66,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if not daily_schedule:
                     cursor.execute("""
-                        SELECT * FROM t_p30358746_hospital_website_red.schedules 
+                        SELECT * FROM t_p30358746_hospital_website_red.doctor_schedules 
                         WHERE doctor_id = %s AND day_of_week = %s AND is_active = TRUE
                     """, (doctor_id, day_of_week))
                     schedule = cursor.fetchone()
@@ -83,7 +83,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cursor.execute("""
-                    SELECT appointment_time FROM t_p30358746_hospital_website_red.appointments 
+                    SELECT appointment_time FROM t_p30358746_hospital_website_red.appointments_v2 
                     WHERE doctor_id = %s AND appointment_date = %s AND status IN ('scheduled', 'completed')
                 """, (doctor_id, date))
                 booked_appointments = cursor.fetchall()
@@ -137,7 +137,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 
                 cursor.execute("""
-                    SELECT * FROM t_p30358746_hospital_website_red.schedules 
+                    SELECT * FROM t_p30358746_hospital_website_red.doctor_schedules 
                     WHERE doctor_id = %s AND is_active = TRUE
                 """, (doctor_id,))
                 schedules = {s['day_of_week']: s for s in cursor.fetchall()}
@@ -149,7 +149,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 daily_schedules = {ds['schedule_date']: ds for ds in cursor.fetchall()}
                 
                 cursor.execute("""
-                    SELECT appointment_date, appointment_time FROM t_p30358746_hospital_website_red.appointments 
+                    SELECT appointment_date, appointment_time FROM t_p30358746_hospital_website_red.appointments_v2 
                     WHERE doctor_id = %s AND appointment_date BETWEEN %s AND %s 
                     AND status IN ('scheduled', 'completed')
                 """, (doctor_id, start_date, end_date))
@@ -238,13 +238,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if appointment_id:
                     cursor.execute("""
-                        SELECT * FROM t_p30358746_hospital_website_red.appointments 
+                        SELECT * FROM t_p30358746_hospital_website_red.appointments_v2 
                         WHERE doctor_id = %s AND appointment_date = %s AND appointment_time = %s 
                         AND status IN ('scheduled', 'completed') AND id != %s
                     """, (doctor_id, date, time, appointment_id))
                 else:
                     cursor.execute("""
-                        SELECT * FROM t_p30358746_hospital_website_red.appointments 
+                        SELECT * FROM t_p30358746_hospital_website_red.appointments_v2 
                         WHERE doctor_id = %s AND appointment_date = %s AND appointment_time = %s 
                         AND status IN ('scheduled', 'completed')
                     """, (doctor_id, date, time))
@@ -285,7 +285,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 
-                query = "SELECT * FROM t_p30358746_hospital_website_red.appointments WHERE doctor_id = %s"
+                query = "SELECT * FROM t_p30358746_hospital_website_red.appointments_v2 WHERE doctor_id = %s"
                 query_params = [doctor_id]
                 
                 if start_date:
@@ -360,7 +360,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if not skip_slot_check:
                     cursor.execute("""
-                        SELECT * FROM t_p30358746_hospital_website_red.appointments 
+                        SELECT * FROM t_p30358746_hospital_website_red.appointments_v2 
                         WHERE doctor_id = %s AND appointment_date = %s AND appointment_time = %s 
                         AND status IN ('scheduled', 'completed')
                     """, (doctor_id, appointment_date, appointment_time))
@@ -376,7 +376,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         }
                 
                 cursor.execute("""
-                    INSERT INTO t_p30358746_hospital_website_red.appointments 
+                    INSERT INTO t_p30358746_hospital_website_red.appointments_v2 
                     (doctor_id, patient_name, patient_phone, patient_snils, patient_oms, 
                      appointment_date, appointment_time, description, status, created_by) 
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'scheduled', %s)
@@ -435,14 +435,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 new_time = body['appointment_time']
                 
                 cursor.execute("""
-                    SELECT doctor_id FROM t_p30358746_hospital_website_red.appointments 
+                    SELECT doctor_id FROM t_p30358746_hospital_website_red.appointments_v2 
                     WHERE id = %s
                 """, (appointment_id,))
                 appt = cursor.fetchone()
                 
                 if appt:
                     cursor.execute("""
-                        SELECT * FROM t_p30358746_hospital_website_red.appointments 
+                        SELECT * FROM t_p30358746_hospital_website_red.appointments_v2 
                         WHERE doctor_id = %s AND appointment_date = %s AND appointment_time = %s 
                         AND status IN ('scheduled', 'completed') AND id != %s
                     """, (appt['doctor_id'], new_date, new_time, appointment_id))
@@ -488,7 +488,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             update_values.append(appointment_id)
-            query = f"UPDATE t_p30358746_hospital_website_red.appointments SET {', '.join(update_fields)} WHERE id = %s"
+            query = f"UPDATE t_p30358746_hospital_website_red.appointments_v2 SET {', '.join(update_fields)} WHERE id = %s"
             
             cursor.execute(query, tuple(update_values))
             conn.commit()
@@ -514,7 +514,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute("DELETE FROM t_p30358746_hospital_website_red.appointments WHERE id = %s", (appointment_id,))
+            cursor.execute("DELETE FROM t_p30358746_hospital_website_red.appointments_v2 WHERE id = %s", (appointment_id,))
             conn.commit()
             cursor.close()
             
