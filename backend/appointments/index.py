@@ -109,7 +109,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             current_time += timedelta(minutes=slot_duration)
                             continue
                     
-                    time_str = current_time.strftime('%H:%M:%S')
+                    time_str = current_time.strftime('%H:%M')
                     if time_str not in booked_times:
                         available_slots.append(time_str)
                     
@@ -199,7 +199,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                     current_time += timedelta(minutes=slot_duration)
                                     continue
                             
-                            time_str = current_time.strftime('%H:%M:%S')
+                            time_str = current_time.strftime('%H:%M')
                             if time_str not in booked_times:
                                 available_slots.append(time_str)
                             
