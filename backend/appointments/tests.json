@@ -7,15 +7,25 @@
       "expectedStatus": 200
     },
     {
+      "name": "Test available-slots-bulk (optimized batch loading)",
+      "method": "GET",
+      "path": "/?action=available-slots-bulk&doctor_id=10&start_date=2026-02-10&end_date=2026-02-17",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "slots_by_date": "object"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
       "name": "Test check slot availability returns result",
       "method": "GET",
       "path": "/?action=check-slot&doctor_id=10&date=2026-02-10&time=10:00",
       "expectedStatus": 200
     },
     {
-      "name": "Test list appointments returns data",
+      "name": "Test list appointments with date filter (optimized)",
       "method": "GET",
-      "path": "/?action=list&doctor_id=10",
+      "path": "/?action=list&doctor_id=10&start_date=2026-02-01&end_date=2026-02-28",
       "expectedStatus": 200
     },
     {

@@ -271,7 +271,7 @@ def check_slot_availability(cursor, params):
     return {'available': True}
 
 def create_appointment(cursor, conn, body):
-    """Создание новой записи пациента"""
+    """Создание новой записи пациента (ОПТИМИЗИРОВАНО: встроенная валидация слота)"""
     doctor_id = body.get('doctor_id')
     patient_name = body.get('patient_name')
     patient_phone = body.get('patient_phone')
@@ -281,6 +281,19 @@ def create_appointment(cursor, conn, body):
     patient_snils = body.get('patient_snils', '')
     patient_oms = body.get('patient_oms', '')
     created_by = body.get('created_by', 1)
+    skip_slot_check = body.get('skip_slot_check', False)
+    
+    # ОПТИМИЗАЦИЯ: проверка доступности слота перед вставкой (если не пропущена)
+    if not skip_slot_check:
+        cursor.execute("""
+            SELECT COUNT(*) as count
+            FROM t_p30358746_hospital_website_red.appointments_v2
+            WHERE doctor_id = %s AND appointment_date = %s AND appointment_time = %s AND status != 'cancelled'
+        """, (doctor_id, appointment_date, appointment_time))
+        
+        result = cursor.fetchone()
+        if result['count'] > 0:
+            return {'success': False, 'error': 'Этот слот времени уже занят'}
     
     cursor.execute("""
         INSERT INTO t_p30358746_hospital_website_red.appointments_v2 
@@ -295,8 +308,10 @@ def create_appointment(cursor, conn, body):
     return {'success': True, 'appointment_id': appointment['id'], 'appointment': dict(appointment)}
 
 def list_appointments(cursor, params):
-    """Получение списка записей"""
+    """Получение списка записей (ОПТИМИЗИРОВАНО: фильтрация по датам)"""
     doctor_id = params.get('doctor_id')
+    start_date = params.get('start_date')
+    end_date = params.get('end_date')
     
     query = """
         SELECT a.*, d.full_name as doctor_name, d.specialization
@@ -310,7 +325,20 @@ def list_appointments(cursor, params):
         query += " AND a.doctor_id = %s"
         query_params.append(int(doctor_id))
     
+    # ОПТИМИЗАЦИЯ: фильтруем по датам для уменьшения объема данных
+    if start_date:
+        query += " AND a.appointment_date >= %s"
+        query_params.append(start_date)
+    
+    if end_date:
+        query += " AND a.appointment_date <= %s"
+        query_params.append(end_date)
+    
     query += " ORDER BY a.appointment_date DESC, a.appointment_time DESC"
+    
+    # ОПТИМИЗАЦИЯ: ограничиваем выборку для защиты от больших данных
+    if not start_date and not end_date:
+        query += " LIMIT 500"
     
     cursor.execute(query, query_params)
     appointments = cursor.fetchall()
