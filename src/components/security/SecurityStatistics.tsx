@@ -56,7 +56,7 @@ const SecurityStatistics = ({ stats, loading, searchIP, onSearchIPChange }: Secu
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -68,6 +68,23 @@ const SecurityStatistics = ({ stats, loading, searchIP, onSearchIPChange }: Secu
             <div className="text-3xl font-bold">{stats?.endpoint_stats.length || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Активных за 24 часа
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Icon name="Zap" size={16} />
+              Использовано вызовов
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {stats?.endpoint_stats.reduce((sum, stat) => sum + stat.total_requests, 0) || 0}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              За последние 24 часа
             </p>
           </CardContent>
         </Card>
