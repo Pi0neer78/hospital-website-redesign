@@ -1,0 +1,1 @@
+{"tests": [{"name": "Get registry records", "method": "GET", "path": "/", "expectedStatus": 200, "expectedBody": {"records": "array"}, "bodyMatcher": "partial"}]}

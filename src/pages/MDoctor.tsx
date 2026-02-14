@@ -19,6 +19,7 @@ const API_URLS = {
   complaints: 'https://functions.poehali.dev/a6c04c63-0223-4bcc-b146-24acdef33536',
   sendEmail: 'https://functions.poehali.dev/d84a5ebe-b78c-4f71-8651-84a53f83538e',
   sendMax: 'https://functions.poehali.dev/2c30c595-bb80-4a76-ada9-ce851777ada2',
+  registry: 'https://functions.poehali.dev/e644fdea-011f-4d16-b984-98838c4e6c69',
 };
 
 const MDoctor = () => {
@@ -44,6 +45,13 @@ const MDoctor = () => {
   const [emailErrorAddress, setEmailErrorAddress] = useState('');
   const [hoveredDoctorPhoto, setHoveredDoctorPhoto] = useState<string | null>(null);
   const [photoPosition, setPhotoPosition] = useState({ x: 0, y: 0 });
+  const [registryRecords, setRegistryRecords] = useState<any[]>([]);
+  const [registrySearch, setRegistrySearch] = useState('');
+  const [registrySelected, setRegistrySelected] = useState<Set<number>>(new Set());
+  const [showSendDialog, setShowSendDialog] = useState(false);
+  const [sendChannel, setSendChannel] = useState<'email' | 'max'>('email');
+  const [sendMessage, setSendMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   const loadDoctors = async () => {
     try {
@@ -73,12 +81,60 @@ const MDoctor = () => {
     }
   };
 
+  const loadRegistry = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (registrySearch) params.append('search', registrySearch);
+      const response = await fetch(`${API_URLS.registry}?${params}`);
+      const data = await response.json();
+      if (data.records) setRegistryRecords(data.records);
+    } catch (error) {
+      console.error('Error loading registry:', error);
+    }
+  };
+
+  const handleRegistrySend = async () => {
+    if (registrySelected.size === 0 || !sendMessage.trim()) {
+      toast({ title: 'Ошибка', description: 'Выберите записи и введите текст сообщения', variant: 'destructive' });
+      return;
+    }
+    setIsSending(true);
+    try {
+      const response = await fetch(API_URLS.registry, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: sendChannel === 'email' ? 'send_email' : 'send_max',
+          ids: Array.from(registrySelected),
+          message: sendMessage
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast({ title: 'Успех', description: `Отправлено: ${data.sent_count}${data.errors?.length ? `. Ошибки: ${data.errors.length}` : ''}` });
+        if (data.errors?.length) {
+          console.log('Send errors:', data.errors);
+        }
+        setShowSendDialog(false);
+        setSendMessage('');
+        loadRegistry();
+      } else {
+        toast({ title: 'Ошибка', description: data.error || 'Не удалось отправить', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('mdoctor_token');
     if (token) {
       setIsAuthenticated(true);
       loadDoctors();
       loadComplaints();
+      loadRegistry();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -376,7 +432,7 @@ const MDoctor = () => {
 
       <main className="container mx-auto px-4 py-4">
         <Tabs defaultValue="doctors" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto h-10">
+          <TabsList className="grid w-full grid-cols-4 max-w-xl mx-auto h-10">
             <TabsTrigger value="doctors" className="py-1.5">
               <Icon name="Users" className="mr-2" size={16} />
               Врачи
@@ -384,6 +440,10 @@ const MDoctor = () => {
             <TabsTrigger value="complaints" className="py-1.5">
               <Icon name="AlertCircle" className="mr-2" size={16} />
               Жалобы
+            </TabsTrigger>
+            <TabsTrigger value="registry" className="py-1.5" onClick={() => loadRegistry()}>
+              <Icon name="BookUser" className="mr-2" size={16} />
+              Реестр
             </TabsTrigger>
             <TabsTrigger value="reports" className="py-1.5">
               <Icon name="FileText" className="mr-2" size={16} />
@@ -797,6 +857,149 @@ const MDoctor = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="registry">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Реестр пациентов</CardTitle>
+                <CardDescription>База контактов для рассылки уведомлений</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-3 flex gap-2 items-end flex-wrap">
+                  <div className="w-64">
+                    <Input
+                      placeholder="Поиск по ФИО, телефону, email..."
+                      value={registrySearch}
+                      onChange={(e) => setRegistrySearch(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && loadRegistry()}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  <Button size="sm" variant="outline" onClick={loadRegistry} className="h-8">
+                    <Icon name="Search" size={12} className="mr-1" />
+                    <span className="text-xs">Найти</span>
+                  </Button>
+                  <div className="flex gap-1 ml-auto">
+                    <Button size="sm" variant="outline" onClick={() => {
+                      const allIds = new Set(registryRecords.map((r: any) => r.id));
+                      setRegistrySelected(allIds);
+                    }} className="h-8" title="Выбрать все">
+                      <Icon name="CheckSquare" size={12} className="mr-1" />
+                      <span className="text-xs">Все</span>
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => setRegistrySelected(new Set())} className="h-8" title="Снять все">
+                      <Icon name="Square" size={12} className="mr-1" />
+                      <span className="text-xs">Снять</span>
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => {
+                      const inverted = new Set<number>();
+                      registryRecords.forEach((r: any) => {
+                        if (!registrySelected.has(r.id)) inverted.add(r.id);
+                      });
+                      setRegistrySelected(inverted);
+                    }} className="h-8" title="Инвертировать">
+                      <Icon name="Replace" size={12} className="mr-1" />
+                      <span className="text-xs">Инверт.</span>
+                    </Button>
+                  </div>
+                  <Button size="sm" onClick={() => { setSendChannel('email'); setShowSendDialog(true); }} disabled={registrySelected.size === 0} className="h-8 bg-blue-600 hover:bg-blue-700">
+                    <Icon name="Mail" size={12} className="mr-1" />
+                    <span className="text-xs">Отправить на почту ({registrySelected.size})</span>
+                  </Button>
+                  <Button size="sm" onClick={() => { setSendChannel('max'); setShowSendDialog(true); }} disabled={registrySelected.size === 0} className="h-8 bg-green-600 hover:bg-green-700">
+                    <Icon name="MessageCircle" size={12} className="mr-1" />
+                    <span className="text-xs">Отправить в MAX ({registrySelected.size})</span>
+                  </Button>
+                </div>
+
+                <div className="overflow-x-auto border rounded-md" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-blue-100 z-10">
+                      <TableRow className="text-xs">
+                        <TableHead className="py-2 w-10">
+                          <input
+                            type="checkbox"
+                            checked={registryRecords.length > 0 && registrySelected.size === registryRecords.length}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setRegistrySelected(new Set(registryRecords.map((r: any) => r.id)));
+                              } else {
+                                setRegistrySelected(new Set());
+                              }
+                            }}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                        </TableHead>
+                        <TableHead className="py-2">ФИО</TableHead>
+                        <TableHead className="py-2">Телефон</TableHead>
+                        <TableHead className="py-2">Email</TableHead>
+                        <TableHead className="py-2">Источник</TableHead>
+                        <TableHead className="py-2">Жалоба</TableHead>
+                        <TableHead className="py-2">Запись</TableHead>
+                        <TableHead className="py-2">Посл. email</TableHead>
+                        <TableHead className="py-2">Посл. MAX</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {registryRecords.map((rec: any) => (
+                        <TableRow key={rec.id} className={`text-xs ${registrySelected.has(rec.id) ? 'bg-blue-50' : ''}`}>
+                          <TableCell className="py-2">
+                            <input
+                              type="checkbox"
+                              checked={registrySelected.has(rec.id)}
+                              onChange={(e) => {
+                                const next = new Set(registrySelected);
+                                if (e.target.checked) next.add(rec.id);
+                                else next.delete(rec.id);
+                                setRegistrySelected(next);
+                              }}
+                              className="w-4 h-4 cursor-pointer"
+                            />
+                          </TableCell>
+                          <TableCell className="py-2 font-medium">{rec.full_name || '—'}</TableCell>
+                          <TableCell className="py-2">{rec.phone || '—'}</TableCell>
+                          <TableCell className="py-2" style={{ fontSize: '11px' }}>{rec.email || '—'}</TableCell>
+                          <TableCell className="py-2">
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] ${rec.source_type === 'complaint' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                              {rec.source_type === 'complaint' ? 'Жалоба' : 'Запись'}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-2">{rec.complaint_date ? new Date(rec.complaint_date).toLocaleDateString('ru-RU') : '—'}</TableCell>
+                          <TableCell className="py-2">{rec.appointment_date ? new Date(rec.appointment_date).toLocaleDateString('ru-RU') : '—'}</TableCell>
+                          <TableCell className="py-2">
+                            {rec.last_email_sent_at ? (
+                              <div title={rec.last_email_text || ''}>
+                                <div className="text-blue-600">{new Date(rec.last_email_sent_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '')}</div>
+                                <div className="text-[10px] text-muted-foreground line-clamp-1 max-w-[120px]">{rec.last_email_text}</div>
+                              </div>
+                            ) : '—'}
+                          </TableCell>
+                          <TableCell className="py-2">
+                            {rec.last_max_sent_at ? (
+                              <div title={rec.last_max_text || ''}>
+                                <div className="text-green-600">{new Date(rec.last_max_sent_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '')}</div>
+                                <div className="text-[10px] text-muted-foreground line-clamp-1 max-w-[120px]">{rec.last_max_text}</div>
+                              </div>
+                            ) : '—'}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {registryRecords.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                            Нет данных
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="mt-2 text-sm text-muted-foreground">
+                  Всего записей: {registryRecords.length} | Выбрано: {registrySelected.size}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="reports">
             <Card>
               <CardHeader>
@@ -967,6 +1170,37 @@ const MDoctor = () => {
             <Button onClick={() => setShowEmailError(false)} className="w-full">
               Понятно
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSendDialog} onOpenChange={setShowSendDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-base flex items-center gap-2">
+              <Icon name={sendChannel === 'email' ? 'Mail' : 'MessageCircle'} size={18} className={sendChannel === 'email' ? 'text-blue-600' : 'text-green-600'} />
+              {sendChannel === 'email' ? 'Рассылка на почту' : 'Рассылка в MAX'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="text-sm text-muted-foreground">
+              Выбрано получателей: <strong>{registrySelected.size}</strong>
+            </div>
+            <Textarea
+              placeholder="Введите текст сообщения для рассылки..."
+              value={sendMessage}
+              onChange={(e) => setSendMessage(e.target.value)}
+              rows={6}
+              className="text-sm"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowSendDialog(false)} size="sm">
+                Отмена
+              </Button>
+              <Button onClick={handleRegistrySend} disabled={isSending || !sendMessage.trim()} size="sm" className={sendChannel === 'email' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'}>
+                {isSending ? 'Отправка...' : `Отправить (${registrySelected.size})`}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
