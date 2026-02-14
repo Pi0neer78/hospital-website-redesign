@@ -1239,18 +1239,19 @@ const MDoctor = () => {
                         if (!pw) return;
                         let tableHtml = '';
                         Object.entries(grouped).forEach(([clinic, rows]) => {
-                          tableHtml += `<tr><td colspan="7" style="background:#e8f0fe;font-weight:bold;padding:8px;">${clinic}</td></tr>`;
+                          tableHtml += `<tr><td colspan="8" style="background:#e8f0fe;font-weight:bold;padding:8px;">${clinic}</td></tr>`;
                           (rows as any[]).forEach((r: any) => {
                             const gray = r.scheduled === 0 ? ' style="color:#999"' : '';
-                            tableHtml += `<tr${gray}><td>${r.full_name}</td><td>${r.position}</td><td>${r.phone||'—'}</td><td style="text-align:center">${r.scheduled}</td><td style="text-align:center">${r.completed}</td><td style="text-align:center">${r.cancelled}</td><td style="text-align:center;${r.violations>0?'color:red;font-weight:bold':''}">${r.violations}</td></tr>`;
+                            tableHtml += `<tr${gray}><td>${r.full_name}</td><td>${r.position}</td><td>${r.phone||'—'}</td><td style="text-align:center">${r.scheduled}</td><td style="text-align:center">${r.booked||0}</td><td style="text-align:center">${r.completed}</td><td style="text-align:center">${r.cancelled}</td><td style="text-align:center;${r.violations>0?'color:red;font-weight:bold':''}">${r.violations}</td></tr>`;
                           });
                         });
                         const totS = filtered.reduce((s: number, r: any) => s + r.scheduled, 0);
+                        const totB = filtered.reduce((s: number, r: any) => s + (r.booked||0), 0);
                         const totC = filtered.reduce((s: number, r: any) => s + r.completed, 0);
                         const totCa = filtered.reduce((s: number, r: any) => s + r.cancelled, 0);
                         const totV = filtered.reduce((s: number, r: any) => s + r.violations, 0);
-                        tableHtml += `<tr style="font-weight:bold;background:#f0f0f0"><td colspan="3">Итого</td><td style="text-align:center">${totS}</td><td style="text-align:center">${totC}</td><td style="text-align:center">${totCa}</td><td style="text-align:center">${totV}</td></tr>`;
-                        pw.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Отчёт по врачам</title><style>@page{size:landscape;margin:10mm}body{font-family:Arial,sans-serif;font-size:13px}.header{text-align:center;margin-bottom:15px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:6px;text-align:left}th{background:#f0f0f0;font-size:12px}</style></head><body><div class="header"><h2>Отчёт по врачам</h2><p>${periodText}</p></div><table><thead><tr><th>ФИО</th><th>Должность</th><th>Телефон</th><th style="text-align:center">Запланир.</th><th style="text-align:center">Обслужено</th><th style="text-align:center">Отменено</th><th style="text-align:center">Нарушений</th></tr></thead><tbody>${tableHtml}</tbody></table></body></html>`);
+                        tableHtml += `<tr style="font-weight:bold;background:#f0f0f0"><td colspan="3">Итого</td><td style="text-align:center">${totS}</td><td style="text-align:center">${totB}</td><td style="text-align:center">${totC}</td><td style="text-align:center">${totCa}</td><td style="text-align:center">${totV}</td></tr>`;
+                        pw.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Отчёт по врачам</title><style>@page{size:landscape;margin:10mm}body{font-family:Arial,sans-serif;font-size:13px}.header{text-align:center;margin-bottom:15px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:6px;text-align:left}th{background:#f0f0f0;font-size:12px}</style></head><body><div class="header"><h2>Отчёт по врачам</h2><p>${periodText}</p></div><table><thead><tr><th>ФИО</th><th>Должность</th><th>Телефон</th><th style="text-align:center">Запланир.</th><th style="text-align:center">Записано</th><th style="text-align:center">Обслужено</th><th style="text-align:center">Отменено</th><th style="text-align:center">Нарушений</th></tr></thead><tbody>${tableHtml}</tbody></table></body></html>`);
                         pw.document.close();
                         pw.focus();
                         setTimeout(() => { pw.print(); pw.close(); }, 250);
@@ -1274,12 +1275,13 @@ const MDoctor = () => {
                           'Должность': r.position,
                           'Телефон': r.phone || '',
                           'Запланировано': r.scheduled,
+                          'Записано': r.booked || 0,
                           'Обслужено': r.completed,
                           'Отменено': r.cancelled,
                           'Нарушений': r.violations
                         }));
                         const ws = XLSX.utils.json_to_sheet(rows);
-                        ws['!cols'] = [{ wch: 30 }, { wch: 30 }, { wch: 25 }, { wch: 18 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
+                        ws['!cols'] = [{ wch: 30 }, { wch: 30 }, { wch: 25 }, { wch: 18 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
                         const wb = XLSX.utils.book_new();
                         XLSX.utils.book_append_sheet(wb, ws, 'Отчёт');
                         XLSX.writeFile(wb, 'отчёт_врачи.xlsx');
@@ -1324,6 +1326,7 @@ const MDoctor = () => {
                   }
 
                   const totS = filtered.reduce((s: number, r: any) => s + r.scheduled, 0);
+                  const totB = filtered.reduce((s: number, r: any) => s + (r.booked||0), 0);
                   const totC = filtered.reduce((s: number, r: any) => s + r.completed, 0);
                   const totCa = filtered.reduce((s: number, r: any) => s + r.cancelled, 0);
                   const totV = filtered.reduce((s: number, r: any) => s + r.violations, 0);
@@ -1337,6 +1340,7 @@ const MDoctor = () => {
                             <TableHead className="py-2">Должность</TableHead>
                             <TableHead className="py-2">Телефон</TableHead>
                             <TableHead className="py-2 text-center">Запланировано</TableHead>
+                            <TableHead className="py-2 text-center">Записано</TableHead>
                             <TableHead className="py-2 text-center">Обслужено</TableHead>
                             <TableHead className="py-2 text-center">Отменено</TableHead>
                             <TableHead className="py-2 text-center">Нарушений</TableHead>
@@ -1346,7 +1350,7 @@ const MDoctor = () => {
                           {Object.entries(grouped).map(([clinic, rows]) => (
                             <>
                               <TableRow key={`clinic-${clinic}`} className="bg-blue-50">
-                                <TableCell colSpan={7} className="py-2 font-semibold text-sm">
+                                <TableCell colSpan={8} className="py-2 font-semibold text-sm">
                                   <div className="flex items-center gap-2">
                                     <Icon name="Building2" size={14} />
                                     {clinic}
@@ -1360,6 +1364,7 @@ const MDoctor = () => {
                                   <TableCell className="py-2">{row.position}</TableCell>
                                   <TableCell className="py-2">{row.phone || '—'}</TableCell>
                                   <TableCell className="py-2 text-center">{row.scheduled}</TableCell>
+                                  <TableCell className="py-2 text-center">{row.booked || 0}</TableCell>
                                   <TableCell className="py-2 text-center">{row.completed}</TableCell>
                                   <TableCell className="py-2 text-center">{row.cancelled}</TableCell>
                                   <TableCell className="py-2 text-center">
@@ -1372,6 +1377,7 @@ const MDoctor = () => {
                           <TableRow className="text-xs font-semibold bg-gray-50">
                             <TableCell className="py-2" colSpan={3}>Итого</TableCell>
                             <TableCell className="py-2 text-center">{totS}</TableCell>
+                            <TableCell className="py-2 text-center">{totB}</TableCell>
                             <TableCell className="py-2 text-center">{totC}</TableCell>
                             <TableCell className="py-2 text-center">{totCa}</TableCell>
                             <TableCell className="py-2 text-center">{totV}</TableCell>

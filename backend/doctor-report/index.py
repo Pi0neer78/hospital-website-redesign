@@ -5,7 +5,7 @@ from psycopg2.extras import RealDictCursor
 
 
 def handler(event, context):
-    """Формирование отчёта по врачам: слоты, обслуживание, отмены, нарушения (превышение времени слота >5 мин)."""
+    """Формирование отчёта по врачам: слоты из расписания, записи, обслуживание, отмены, нарушения (>5 мин)."""
     method = event.get('httpMethod', 'GET')
 
     if method == 'OPTIONS':
@@ -29,13 +29,17 @@ def handler(event, context):
     date_from = params.get('date_from', '')
     date_to = params.get('date_to', '')
 
-    date_filter = ""
+    appt_date_filter = ""
+    sched_date_filter = ""
     if date_from and date_to:
-        date_filter = "AND a.appointment_date BETWEEN '%s' AND '%s'" % (date_from, date_to)
+        appt_date_filter = "AND a.appointment_date BETWEEN '%s' AND '%s'" % (date_from, date_to)
+        sched_date_filter = "AND ds.schedule_date BETWEEN '%s' AND '%s'" % (date_from, date_to)
     elif date_from:
-        date_filter = "AND a.appointment_date >= '%s'" % date_from
+        appt_date_filter = "AND a.appointment_date >= '%s'" % date_from
+        sched_date_filter = "AND ds.schedule_date >= '%s'" % date_from
     elif date_to:
-        date_filter = "AND a.appointment_date <= '%s'" % date_to
+        appt_date_filter = "AND a.appointment_date <= '%s'" % date_to
+        sched_date_filter = "AND ds.schedule_date <= '%s'" % date_to
 
     conn = psycopg2.connect(database_url)
     try:
@@ -47,37 +51,53 @@ def handler(event, context):
                     d.position,
                     d.phone,
                     d.clinic,
-                    COALESCE(slots.scheduled, 0) AS scheduled,
-                    COALESCE(slots.completed, 0) AS completed,
-                    COALESCE(slots.cancelled, 0) AS cancelled,
+                    COALESCE(sched.total_slots, 0) AS scheduled,
+                    COALESCE(appt.booked, 0) AS booked,
+                    COALESCE(appt.completed, 0) AS completed,
+                    COALESCE(appt.cancelled, 0) AS cancelled,
                     COALESCE(viol.violations, 0) AS violations
                 FROM doctors d
                 LEFT JOIN (
                     SELECT
+                        ds.doctor_id,
+                        SUM(
+                            FLOOR(
+                                (
+                                    EXTRACT(EPOCH FROM (ds.end_time - ds.start_time))
+                                    - COALESCE(EXTRACT(EPOCH FROM (ds.break_end_time - ds.break_start_time)), 0)
+                                ) / (ds.slot_duration * 60)
+                            )
+                        )::int AS total_slots
+                    FROM daily_schedules ds
+                    WHERE ds.is_active = true %s
+                    GROUP BY ds.doctor_id
+                ) sched ON sched.doctor_id = d.id
+                LEFT JOIN (
+                    SELECT
                         a.doctor_id,
-                        COUNT(*) FILTER (WHERE a.status = 'scheduled') AS scheduled,
+                        COUNT(*) AS booked,
                         COUNT(*) FILTER (WHERE a.status = 'completed') AS completed,
                         COUNT(*) FILTER (WHERE a.status = 'cancelled') AS cancelled
                     FROM appointments_v2 a
                     WHERE 1=1 %s
                     GROUP BY a.doctor_id
-                ) slots ON slots.doctor_id = d.id
+                ) appt ON appt.doctor_id = d.id
                 LEFT JOIN (
                     SELECT
                         a.doctor_id,
                         COUNT(*) AS violations
                     FROM appointments_v2 a
-                    JOIN daily_schedules ds
-                        ON ds.doctor_id = a.doctor_id AND ds.schedule_date = a.appointment_date
+                    JOIN daily_schedules ds2
+                        ON ds2.doctor_id = a.doctor_id AND ds2.schedule_date = a.appointment_date
                     WHERE a.status = 'completed'
                         AND a.completed_at IS NOT NULL
-                        AND (a.completed_at::time - (a.appointment_time + (ds.slot_duration || ' minutes')::interval)) > interval '5 minutes'
+                        AND (a.completed_at::time - (a.appointment_time + (ds2.slot_duration || ' minutes')::interval)) > interval '5 minutes'
                         %s
                     GROUP BY a.doctor_id
                 ) viol ON viol.doctor_id = d.id
                 WHERE d.is_active = true
                 ORDER BY d.clinic, d.full_name
-            """ % (date_filter, date_filter))
+            """ % (sched_date_filter, appt_date_filter, appt_date_filter))
 
             rows = cur.fetchall()
             result = []
@@ -89,6 +109,7 @@ def handler(event, context):
                     'phone': r['phone'] or '',
                     'clinic': r['clinic'] or 'Не указано',
                     'scheduled': r['scheduled'],
+                    'booked': r['booked'],
                     'completed': r['completed'],
                     'cancelled': r['cancelled'],
                     'violations': r['violations']
