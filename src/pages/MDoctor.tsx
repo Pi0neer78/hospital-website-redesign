@@ -574,11 +574,11 @@ const MDoctor = () => {
       <tr>
         <th style="width: 6%">Почта</th>
         <th style="width: 6%">MAX</th>
-        <th style="width: 11%">ФИО</th>
-        <th style="width: 11%">Email</th>
+        <th style="width: 8%">ФИО</th>
+        <th style="width: 10%">Email</th>
         <th style="width: 9%">Телефон</th>
-        <th style="width: 24%">Текст жалобы</th>
-        <th style="width: 16%">Комментарий</th>
+        <th style="width: 22%">Текст жалобы</th>
+        <th style="width: 22%">Комментарий</th>
         <th style="width: 10%">Дата</th>
         <th style="width: 7%">Статус</th>
       </tr>
@@ -624,12 +624,14 @@ const MDoctor = () => {
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => {
                       const csv = [
-                        ['ФИО', 'Email', 'Телефон', 'Жалоба', 'Комментарий', 'Дата', 'Статус'].join(','),
+                        ['ФИО', 'Email', 'Телефон', 'Жалоба', 'Комментарий', 'Дата', 'Статус', 'Ответ почта', 'Ответ MAX'].join(','),
                         ...filteredComplaints.map((c: any) => [
                           c.name, c.email, c.phone, c.message.replace(/,/g, ';'), 
                           (c.comment || '').replace(/,/g, ';'),
                           new Date(c.created_at).toLocaleDateString('ru-RU'),
-                          c.status === 'resolved' ? 'Решена' : c.status === 'in_progress' ? 'На рассмотрении' : c.status === 'new' ? 'Новая' : c.status
+                          c.status === 'resolved' ? 'Решена' : c.status === 'in_progress' ? 'На рассмотрении' : c.status === 'new' ? 'Новая' : c.status,
+                          c.responded_at ? new Date(c.responded_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : '',
+                          c.max_responded_at ? new Date(c.max_responded_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : ''
                         ].join(','))
                       ].join('\\n');
                       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
