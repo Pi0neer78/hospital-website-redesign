@@ -951,7 +951,7 @@ const MDoctor = () => {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">Реестр пациентов</CardTitle>
-                <CardDescription>База контактов для рассылки уведомлений</CardDescription>
+
               </CardHeader>
               <CardContent>
                 <div className="mb-3 flex gap-2 items-end flex-wrap">
