@@ -575,11 +575,11 @@ const MDoctor = () => {
       <tr>
         <th style="width: 6%">Почта</th>
         <th style="width: 6%">MAX</th>
-        <th style="width: 8%">ФИО</th>
+        <th style="width: 6%">ФИО</th>
         <th style="width: 10%">Email</th>
         <th style="width: 9%">Телефон</th>
         <th style="width: 22%">Текст жалобы</th>
-        <th style="width: 22%">Комментарий</th>
+        <th style="width: 24%">Комментарий</th>
         <th style="width: 10%">Дата</th>
         <th style="width: 7%">Статус</th>
       </tr>
