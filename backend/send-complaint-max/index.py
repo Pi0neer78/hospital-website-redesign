@@ -26,7 +26,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'}),
+            'body': json.dumps({'error': 'Метод не поддерживается'}),
             'isBase64Encoded': False
         }
 
@@ -51,7 +51,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'GREEN-API credentials not configured'}),
+            'body': json.dumps({'error': 'Настройки GREEN-API не указаны'}),
             'isBase64Encoded': False
         }
 

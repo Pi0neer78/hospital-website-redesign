@@ -30,7 +30,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Database configuration missing'}),
+            'body': json.dumps({'error': 'Ошибка конфигурации базы данных'}),
             'isBase64Encoded': False
         }
     
@@ -76,7 +76,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Missing fields'}),
+                        'body': json.dumps({'error': 'Не заполнены обязательные поля'}),
                         'isBase64Encoded': False
                     }
                 
@@ -138,7 +138,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Missing required fields'}),
+                        'body': json.dumps({'error': 'Не заполнены обязательные поля'}),
                         'isBase64Encoded': False
                     }
                 
@@ -179,7 +179,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 405,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Method not allowed'}),
+                'body': json.dumps({'error': 'Метод не поддерживается'}),
                 'isBase64Encoded': False
             }
     
