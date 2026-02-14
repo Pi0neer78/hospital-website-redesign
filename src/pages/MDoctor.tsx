@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, ContextMenuSeparator } from '@/components/ui/context-menu';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
@@ -52,6 +53,9 @@ const MDoctor = () => {
   const [sendChannel, setSendChannel] = useState<'email' | 'max'>('email');
   const [sendMessage, setSendMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editRecord, setEditRecord] = useState<any>(null);
+  const [editForm, setEditForm] = useState({ full_name: '', phone: '', email: '' });
 
   const loadDoctors = async () => {
     try {
@@ -125,6 +129,76 @@ const MDoctor = () => {
       toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const openEditDialog = (rec: any) => {
+    setEditRecord(rec);
+    setEditForm({ full_name: rec.full_name || '', phone: rec.phone || '', email: rec.email || '' });
+    setShowEditDialog(true);
+  };
+
+  const handleRegistryUpdate = async () => {
+    if (!editRecord) return;
+    try {
+      const response = await fetch(API_URLS.registry, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update', id: editRecord.id, ...editForm })
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast({ title: 'Сохранено' });
+        setShowEditDialog(false);
+        loadRegistry();
+      } else {
+        toast({ title: 'Ошибка', description: data.error || 'Не удалось сохранить', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+    }
+  };
+
+  const handleRegistryDelete = async (rec: any) => {
+    if (!confirm(`Удалить запись "${rec.full_name}"?`)) return;
+    try {
+      const response = await fetch(API_URLS.registry, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', id: rec.id })
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast({ title: 'Удалено' });
+        const next = new Set(registrySelected);
+        next.delete(rec.id);
+        setRegistrySelected(next);
+        loadRegistry();
+      } else {
+        toast({ title: 'Ошибка', description: data.error, variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+    }
+  };
+
+  const handleRegistryDeleteSelected = async () => {
+    if (registrySelected.size === 0) return;
+    if (!confirm(`Удалить выбранные записи (${registrySelected.size})?`)) return;
+    try {
+      const response = await fetch(API_URLS.registry, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', ids: Array.from(registrySelected) })
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast({ title: 'Удалено', description: `Удалено записей: ${data.deleted}` });
+        setRegistrySelected(new Set());
+        loadRegistry();
+      }
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
     }
   };
 
@@ -903,11 +977,15 @@ const MDoctor = () => {
                   </div>
                   <Button size="sm" onClick={() => { setSendChannel('email'); setShowSendDialog(true); }} disabled={registrySelected.size === 0} className="h-8 bg-blue-600 hover:bg-blue-700">
                     <Icon name="Mail" size={12} className="mr-1" />
-                    <span className="text-xs">Отправить на почту ({registrySelected.size})</span>
+                    <span className="text-xs">На почту ({registrySelected.size})</span>
                   </Button>
                   <Button size="sm" onClick={() => { setSendChannel('max'); setShowSendDialog(true); }} disabled={registrySelected.size === 0} className="h-8 bg-green-600 hover:bg-green-700">
                     <Icon name="MessageCircle" size={12} className="mr-1" />
-                    <span className="text-xs">Отправить в MAX ({registrySelected.size})</span>
+                    <span className="text-xs">В MAX ({registrySelected.size})</span>
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={handleRegistryDeleteSelected} disabled={registrySelected.size === 0} className="h-8 text-red-600 border-red-300 hover:bg-red-50">
+                    <Icon name="Trash2" size={12} className="mr-1" />
+                    <span className="text-xs">Удалить ({registrySelected.size})</span>
                   </Button>
                 </div>
 
@@ -937,55 +1015,81 @@ const MDoctor = () => {
                         <TableHead className="py-2">Запись</TableHead>
                         <TableHead className="py-2">Посл. email</TableHead>
                         <TableHead className="py-2">Посл. MAX</TableHead>
+                        <TableHead className="py-2 w-16"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {registryRecords.map((rec: any) => (
-                        <TableRow key={rec.id} className={`text-xs ${registrySelected.has(rec.id) ? 'bg-blue-50' : ''}`}>
-                          <TableCell className="py-2">
-                            <input
-                              type="checkbox"
-                              checked={registrySelected.has(rec.id)}
-                              onChange={(e) => {
-                                const next = new Set(registrySelected);
-                                if (e.target.checked) next.add(rec.id);
-                                else next.delete(rec.id);
-                                setRegistrySelected(next);
-                              }}
-                              className="w-4 h-4 cursor-pointer"
-                            />
-                          </TableCell>
-                          <TableCell className="py-2 font-medium">{rec.full_name || '—'}</TableCell>
-                          <TableCell className="py-2">{rec.phone || '—'}</TableCell>
-                          <TableCell className="py-2" style={{ fontSize: '11px' }}>{rec.email || '—'}</TableCell>
-                          <TableCell className="py-2">
-                            <span className={`px-1.5 py-0.5 rounded text-[10px] ${rec.source_type === 'complaint' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
-                              {rec.source_type === 'complaint' ? 'Жалоба' : 'Запись'}
-                            </span>
-                          </TableCell>
-                          <TableCell className="py-2">{rec.complaint_date ? new Date(rec.complaint_date).toLocaleDateString('ru-RU') : '—'}</TableCell>
-                          <TableCell className="py-2">{rec.appointment_date ? new Date(rec.appointment_date).toLocaleDateString('ru-RU') : '—'}</TableCell>
-                          <TableCell className="py-2">
-                            {rec.last_email_sent_at ? (
-                              <div title={rec.last_email_text || ''}>
-                                <div className="text-blue-600">{new Date(rec.last_email_sent_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '')}</div>
-                                <div className="text-[10px] text-muted-foreground line-clamp-1 max-w-[120px]">{rec.last_email_text}</div>
-                              </div>
-                            ) : '—'}
-                          </TableCell>
-                          <TableCell className="py-2">
-                            {rec.last_max_sent_at ? (
-                              <div title={rec.last_max_text || ''}>
-                                <div className="text-green-600">{new Date(rec.last_max_sent_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '')}</div>
-                                <div className="text-[10px] text-muted-foreground line-clamp-1 max-w-[120px]">{rec.last_max_text}</div>
-                              </div>
-                            ) : '—'}
-                          </TableCell>
-                        </TableRow>
+                        <ContextMenu key={rec.id}>
+                          <ContextMenuTrigger asChild>
+                            <TableRow className={`text-xs ${registrySelected.has(rec.id) ? 'bg-blue-50' : ''}`}>
+                              <TableCell className="py-2">
+                                <input
+                                  type="checkbox"
+                                  checked={registrySelected.has(rec.id)}
+                                  onChange={(e) => {
+                                    const next = new Set(registrySelected);
+                                    if (e.target.checked) next.add(rec.id);
+                                    else next.delete(rec.id);
+                                    setRegistrySelected(next);
+                                  }}
+                                  className="w-4 h-4 cursor-pointer"
+                                />
+                              </TableCell>
+                              <TableCell className="py-2 font-medium">{rec.full_name || '—'}</TableCell>
+                              <TableCell className="py-2">{rec.phone || '—'}</TableCell>
+                              <TableCell className="py-2" style={{ fontSize: '11px' }}>{rec.email || '—'}</TableCell>
+                              <TableCell className="py-2">
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] ${rec.source_type === 'complaint' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                                  {rec.source_type === 'complaint' ? 'Жалоба' : 'Запись'}
+                                </span>
+                              </TableCell>
+                              <TableCell className="py-2">{rec.complaint_date ? new Date(rec.complaint_date).toLocaleDateString('ru-RU') : '—'}</TableCell>
+                              <TableCell className="py-2">{rec.appointment_date ? new Date(rec.appointment_date).toLocaleDateString('ru-RU') : '—'}</TableCell>
+                              <TableCell className="py-2">
+                                {rec.last_email_sent_at ? (
+                                  <div title={rec.last_email_text || ''}>
+                                    <div className="text-blue-600">{new Date(rec.last_email_sent_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '')}</div>
+                                    <div className="text-[10px] text-muted-foreground line-clamp-1 max-w-[120px]">{rec.last_email_text}</div>
+                                  </div>
+                                ) : '—'}
+                              </TableCell>
+                              <TableCell className="py-2">
+                                {rec.last_max_sent_at ? (
+                                  <div title={rec.last_max_text || ''}>
+                                    <div className="text-green-600">{new Date(rec.last_max_sent_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '')}</div>
+                                    <div className="text-[10px] text-muted-foreground line-clamp-1 max-w-[120px]">{rec.last_max_text}</div>
+                                  </div>
+                                ) : '—'}
+                              </TableCell>
+                              <TableCell className="py-2">
+                                <div className="flex gap-1">
+                                  <button onClick={() => openEditDialog(rec)} className="p-1 rounded hover:bg-blue-100 text-blue-600" title="Изменить">
+                                    <Icon name="Pencil" size={14} />
+                                  </button>
+                                  <button onClick={() => handleRegistryDelete(rec)} className="p-1 rounded hover:bg-red-100 text-red-500" title="Удалить">
+                                    <Icon name="Trash2" size={14} />
+                                  </button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          </ContextMenuTrigger>
+                          <ContextMenuContent>
+                            <ContextMenuItem onClick={() => openEditDialog(rec)} className="cursor-pointer">
+                              <Icon name="Pencil" size={14} className="mr-2 text-blue-600" />
+                              Изменить
+                            </ContextMenuItem>
+                            <ContextMenuSeparator />
+                            <ContextMenuItem onClick={() => handleRegistryDelete(rec)} className="cursor-pointer text-red-600 focus:text-red-600">
+                              <Icon name="Trash2" size={14} className="mr-2" />
+                              Удалить
+                            </ContextMenuItem>
+                          </ContextMenuContent>
+                        </ContextMenu>
                       ))}
                       {registryRecords.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                          <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                             Нет данных
                           </TableCell>
                         </TableRow>
@@ -1200,6 +1304,32 @@ const MDoctor = () => {
               <Button onClick={handleRegistrySend} disabled={isSending || !sendMessage.trim()} size="sm" className={sendChannel === 'email' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'}>
                 {isSending ? 'Отправка...' : `Отправить (${registrySelected.size})`}
               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base">Редактирование записи</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">ФИО</label>
+              <Input value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} className="h-8 text-sm" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Телефон</label>
+              <Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} className="h-8 text-sm" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Email</label>
+              <Input value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className="h-8 text-sm" />
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="outline" onClick={() => setShowEditDialog(false)} size="sm">Отмена</Button>
+              <Button onClick={handleRegistryUpdate} size="sm">Сохранить</Button>
             </div>
           </div>
         </DialogContent>

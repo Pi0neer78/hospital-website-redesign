@@ -25,7 +25,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Max-Age': '86400'
             },
@@ -50,6 +50,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return handle_send_email(conn, body)
             elif action == 'send_max':
                 return handle_send_max(conn, body)
+            elif action == 'update':
+                return handle_update(conn, body)
+            elif action == 'delete':
+                return handle_delete(conn, body)
             else:
                 return resp(400, {'error': 'Неизвестное действие'})
         else:
@@ -222,6 +226,63 @@ def handle_send_max(conn, body):
         'sent_count': sent_count,
         'errors': errors
     })
+
+
+def handle_update(conn, body):
+    rec_id = body.get('id')
+    if not rec_id:
+        return resp(400, {'error': 'Не указан id записи'})
+
+    full_name = body.get('full_name', '').strip()
+    phone = body.get('phone', '').strip() or None
+    email = body.get('email', '').strip() or None
+
+    if not full_name:
+        return resp(400, {'error': 'ФИО обязательно'})
+
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    if phone:
+        cursor.execute(f"SELECT id FROM {SCHEMA}.reest_phone_max WHERE phone = %s AND id != %s", (phone, rec_id))
+        if cursor.fetchone():
+            cursor.close()
+            return resp(400, {'error': 'Такой номер телефона уже есть в реестре'})
+
+    if email:
+        cursor.execute(f"SELECT id FROM {SCHEMA}.reest_phone_max WHERE email = %s AND id != %s", (email, rec_id))
+        if cursor.fetchone():
+            cursor.close()
+            return resp(400, {'error': 'Такой email уже есть в реестре'})
+
+    cursor.execute(
+        f"UPDATE {SCHEMA}.reest_phone_max SET full_name = %s, phone = %s, email = %s, updated_at = NOW() WHERE id = %s",
+        (full_name, phone, email, rec_id)
+    )
+    conn.commit()
+    cursor.close()
+    return resp(200, {'success': True})
+
+
+def handle_delete(conn, body):
+    rec_id = body.get('id')
+    ids = body.get('ids', [])
+
+    if not rec_id and not ids:
+        return resp(400, {'error': 'Не указан id записи'})
+
+    cursor = conn.cursor()
+
+    if ids:
+        placeholders = ','.join(['%s'] * len(ids))
+        cursor.execute(f"DELETE FROM {SCHEMA}.reest_phone_max WHERE id IN ({placeholders})", tuple(ids))
+        deleted = cursor.rowcount
+    else:
+        cursor.execute(f"DELETE FROM {SCHEMA}.reest_phone_max WHERE id = %s", (rec_id,))
+        deleted = cursor.rowcount
+
+    conn.commit()
+    cursor.close()
+    return resp(200, {'success': True, 'deleted': deleted})
 
 
 def resp(status_code, body):
