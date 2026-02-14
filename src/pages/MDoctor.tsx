@@ -297,6 +297,8 @@ const MDoctor = () => {
     setShowComplaintDialog(true);
   };
 
+  const isComplaintResolved = selectedComplaint?.status === 'resolved';
+
   const updateComplaintStatus = async () => {
     if (!selectedComplaint) return;
 
@@ -1396,7 +1398,12 @@ const MDoctor = () => {
       <Dialog open={showComplaintDialog} onOpenChange={setShowComplaintDialog}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle className="text-base">Обработка жалобы</DialogTitle>
+            <DialogTitle className="text-base flex items-center gap-2">
+              Обработка жалобы
+              {isComplaintResolved && (
+                <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-medium">Решена — только просмотр</span>
+              )}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div>
@@ -1419,7 +1426,7 @@ const MDoctor = () => {
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">Статус</label>
-              <Select value={complaintStatus} onValueChange={setComplaintStatus}>
+              <Select value={complaintStatus} onValueChange={setComplaintStatus} disabled={isComplaintResolved}>
                 <SelectTrigger className="h-8 text-sm">
                   <SelectValue />
                 </SelectTrigger>
@@ -1438,63 +1445,68 @@ const MDoctor = () => {
                 rows={6}
                 placeholder="Введите комментарий..."
                 className="text-sm"
+                disabled={isComplaintResolved}
               />
             </div>
             <div className="flex flex-col gap-2 pt-1">
-              <div className="flex flex-wrap gap-2">
-                {selectedComplaint?.responded_at ? (
-                  <Button variant="outline" disabled size="sm">
-                    <Icon name="Mail" size={14} className="mr-1.5" />
-                    <span className="text-xs">Почта: {new Date(selectedComplaint.responded_at).toLocaleString('ru-RU', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    }).replace(',', '')}</span>
-                  </Button>
-                ) : (
-                  <Button 
-                    variant="outline" 
-                    onClick={sendEmailResponse}
-                    disabled={!selectedComplaint?.email || !complaintComment}
-                    size="sm"
-                  >
-                    <Icon name="Mail" size={14} className="mr-1.5" />
-                    <span className="text-xs">Ответить по почте</span>
-                  </Button>
-                )}
-                {selectedComplaint?.max_responded_at ? (
-                  <Button variant="outline" disabled size="sm" className="border-green-300 bg-green-50">
-                    <Icon name="MessageCircle" size={14} className="mr-1.5 text-green-600" />
-                    <span className="text-xs text-green-700">MAX: {new Date(selectedComplaint.max_responded_at).toLocaleString('ru-RU', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    }).replace(',', '')}</span>
-                  </Button>
-                ) : (
-                  <Button 
-                    variant="outline" 
-                    onClick={sendMaxResponse}
-                    disabled={!selectedComplaint?.phone || !complaintComment}
-                    size="sm"
-                    className="border-green-300 hover:bg-green-50"
-                  >
-                    <Icon name="MessageCircle" size={14} className="mr-1.5 text-green-600" />
-                    <span className="text-xs">Ответить по MAX</span>
-                  </Button>
-                )}
-              </div>
+              {!isComplaintResolved && (
+                <div className="flex flex-wrap gap-2">
+                  {selectedComplaint?.responded_at ? (
+                    <Button variant="outline" disabled size="sm">
+                      <Icon name="Mail" size={14} className="mr-1.5" />
+                      <span className="text-xs">Почта: {new Date(selectedComplaint.responded_at).toLocaleString('ru-RU', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }).replace(',', '')}</span>
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      onClick={sendEmailResponse}
+                      disabled={!selectedComplaint?.email || !complaintComment}
+                      size="sm"
+                    >
+                      <Icon name="Mail" size={14} className="mr-1.5" />
+                      <span className="text-xs">Ответить по почте</span>
+                    </Button>
+                  )}
+                  {selectedComplaint?.max_responded_at ? (
+                    <Button variant="outline" disabled size="sm" className="border-green-300 bg-green-50">
+                      <Icon name="MessageCircle" size={14} className="mr-1.5 text-green-600" />
+                      <span className="text-xs text-green-700">MAX: {new Date(selectedComplaint.max_responded_at).toLocaleString('ru-RU', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }).replace(',', '')}</span>
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      onClick={sendMaxResponse}
+                      disabled={!selectedComplaint?.phone || !complaintComment}
+                      size="sm"
+                      className="border-green-300 hover:bg-green-50"
+                    >
+                      <Icon name="MessageCircle" size={14} className="mr-1.5 text-green-600" />
+                      <span className="text-xs">Ответить по MAX</span>
+                    </Button>
+                  )}
+                </div>
+              )}
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setShowComplaintDialog(false)} size="sm">
-                  Отмена
+                  {isComplaintResolved ? 'Закрыть' : 'Отмена'}
                 </Button>
-                <Button onClick={updateComplaintStatus} size="sm">
-                  Сохранить
-                </Button>
+                {!isComplaintResolved && (
+                  <Button onClick={updateComplaintStatus} size="sm">
+                    Сохранить
+                  </Button>
+                )}
               </div>
             </div>
           </div>
