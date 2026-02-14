@@ -1,0 +1,1 @@
+{"tests": [{"name": "Get report without dates", "method": "GET", "path": "/", "expectedStatus": 200, "expectedBody": {"report": "array"}, "bodyMatcher": "partial"}, {"name": "Get report with dates", "method": "GET", "path": "/?date_from=2026-01-01&date_to=2026-12-31", "expectedStatus": 200, "expectedBody": {"report": "array"}, "bodyMatcher": "partial"}]}

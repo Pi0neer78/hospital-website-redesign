@@ -21,6 +21,7 @@ const API_URLS = {
   sendEmail: 'https://functions.poehali.dev/d84a5ebe-b78c-4f71-8651-84a53f83538e',
   sendMax: 'https://functions.poehali.dev/2c30c595-bb80-4a76-ada9-ce851777ada2',
   registry: 'https://functions.poehali.dev/e644fdea-011f-4d16-b984-98838c4e6c69',
+  doctorReport: 'https://functions.poehali.dev/8c48472a-a65f-4daf-9336-5a0454915673',
 };
 
 const MDoctor = () => {
@@ -57,6 +58,10 @@ const MDoctor = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editRecord, setEditRecord] = useState<any>(null);
   const [editForm, setEditForm] = useState({ full_name: '', phone: '', email: '' });
+  const [reportDateFrom, setReportDateFrom] = useState('');
+  const [reportDateTo, setReportDateTo] = useState('');
+  const [reportData, setReportData] = useState<any[]>([]);
+  const [reportLoading, setReportLoading] = useState(false);
 
   const loadDoctors = async () => {
     try {
@@ -130,6 +135,22 @@ const MDoctor = () => {
       toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const loadReport = async () => {
+    setReportLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (reportDateFrom) params.append('date_from', reportDateFrom);
+      if (reportDateTo) params.append('date_to', reportDateTo);
+      const response = await fetch(`${API_URLS.doctorReport}?${params}`);
+      const data = await response.json();
+      if (data.report) setReportData(data.report);
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось загрузить отчёт', variant: 'destructive' });
+    } finally {
+      setReportLoading(false);
     }
   };
 
@@ -1122,39 +1143,88 @@ const MDoctor = () => {
 
           <TabsContent value="reports">
             <Card>
-              <CardHeader>
-                <CardTitle>Отчеты</CardTitle>
-                <CardDescription>Аналитика и статистика работы клиники</CardDescription>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Отчёты</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4 md:grid-cols-3">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm">Всего врачей</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold">{doctors.length}</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm">Всего жалоб</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold">{complaints.length}</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm">Решено жалоб</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold">
-                        {complaints.filter((c: any) => c.status === 'resolved').length}
-                      </p>
-                    </CardContent>
-                  </Card>
+                <div className="flex gap-6 mb-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Icon name="Users" size={16} className="text-blue-600" />
+                    <span className="text-muted-foreground">Всего врачей:</span>
+                    <span className="font-semibold">{doctors.length}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Icon name="MessageSquareWarning" size={16} className="text-orange-600" />
+                    <span className="text-muted-foreground">Всего жалоб:</span>
+                    <span className="font-semibold">{complaints.length}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Icon name="CheckCircle" size={16} className="text-green-600" />
+                    <span className="text-muted-foreground">Решено жалоб:</span>
+                    <span className="font-semibold">{complaints.filter((c: any) => c.status === 'resolved').length}</span>
+                  </div>
                 </div>
+
+                <div className="flex gap-2 items-end mb-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground">С</label>
+                    <Input type="date" value={reportDateFrom} onChange={(e) => setReportDateFrom(e.target.value)} className="h-8 w-40 text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">По</label>
+                    <Input type="date" value={reportDateTo} onChange={(e) => setReportDateTo(e.target.value)} className="h-8 w-40 text-sm" />
+                  </div>
+                  <Button size="sm" onClick={loadReport} disabled={reportLoading} className="h-8">
+                    <Icon name={reportLoading ? "Loader2" : "FileText"} size={14} className={`mr-1 ${reportLoading ? 'animate-spin' : ''}`} />
+                    <span className="text-xs">Сформировать отчёт</span>
+                  </Button>
+                </div>
+
+                {reportData.length > 0 && (
+                  <div className="overflow-x-auto border rounded-md" style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                    <Table>
+                      <TableHeader className="sticky top-0 bg-blue-100 z-10">
+                        <TableRow className="text-xs">
+                          <TableHead className="py-2">ФИО</TableHead>
+                          <TableHead className="py-2">Должность</TableHead>
+                          <TableHead className="py-2">Телефон</TableHead>
+                          <TableHead className="py-2 text-center">Запланировано</TableHead>
+                          <TableHead className="py-2 text-center">Обслужено</TableHead>
+                          <TableHead className="py-2 text-center">Отменено</TableHead>
+                          <TableHead className="py-2 text-center">Нарушений</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {reportData.map((row: any) => (
+                          <TableRow key={row.id} className="text-xs">
+                            <TableCell className="py-2 font-medium">{row.full_name}</TableCell>
+                            <TableCell className="py-2">{row.position}</TableCell>
+                            <TableCell className="py-2">{row.phone || '—'}</TableCell>
+                            <TableCell className="py-2 text-center">{row.scheduled}</TableCell>
+                            <TableCell className="py-2 text-center">{row.completed}</TableCell>
+                            <TableCell className="py-2 text-center">{row.cancelled}</TableCell>
+                            <TableCell className="py-2 text-center">
+                              <span className={row.violations > 0 ? 'text-red-600 font-semibold' : ''}>{row.violations}</span>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        <TableRow className="text-xs font-semibold bg-gray-50">
+                          <TableCell className="py-2" colSpan={3}>Итого</TableCell>
+                          <TableCell className="py-2 text-center">{reportData.reduce((s: number, r: any) => s + r.scheduled, 0)}</TableCell>
+                          <TableCell className="py-2 text-center">{reportData.reduce((s: number, r: any) => s + r.completed, 0)}</TableCell>
+                          <TableCell className="py-2 text-center">{reportData.reduce((s: number, r: any) => s + r.cancelled, 0)}</TableCell>
+                          <TableCell className="py-2 text-center">{reportData.reduce((s: number, r: any) => s + r.violations, 0)}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+
+                {reportData.length === 0 && !reportLoading && (
+                  <div className="text-center text-muted-foreground py-8 text-sm">
+                    Выберите период и нажмите «Сформировать отчёт»
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
