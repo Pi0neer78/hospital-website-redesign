@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -548,7 +549,7 @@ const MDoctor = () => {
   <meta charset="utf-8">
   <title>Жалобы</title>
   <style>
-    @page { size: landscape; margin: 10mm; }
+    @page { size: landscape; margin: 10mm 10mm 20mm 10mm; @bottom-center { content: "Страница " counter(page) " из " counter(pages); font-size: 10px; color: #666; } }
     body { font-family: Arial, sans-serif; font-size: 13px; }
     .header { text-align: center; margin-bottom: 15px; }
     .header h2 { margin: 5px 0; font-size: 18px; }
@@ -560,7 +561,7 @@ const MDoctor = () => {
     .status-progress { color: orange; }
     .status-new { color: gray; }
     .footer { font-size: 11px; color: #666; margin-top: 10px; }
-    .envelope { font-size: 16px; }
+    .page-footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 10px; color: #666; padding: 5px 0; }
   </style>
 </head>
 <body>
@@ -623,22 +624,22 @@ const MDoctor = () => {
                       <span className="text-xs">Печать</span>
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => {
-                      const csv = [
-                        ['ФИО', 'Email', 'Телефон', 'Жалоба', 'Комментарий', 'Дата', 'Статус', 'Ответ почта', 'Ответ MAX'].join(','),
-                        ...filteredComplaints.map((c: any) => [
-                          c.name, c.email, c.phone, c.message.replace(/,/g, ';'), 
-                          (c.comment || '').replace(/,/g, ';'),
-                          new Date(c.created_at).toLocaleDateString('ru-RU'),
-                          c.status === 'resolved' ? 'Решена' : c.status === 'in_progress' ? 'На рассмотрении' : c.status === 'new' ? 'Новая' : c.status,
-                          c.responded_at ? new Date(c.responded_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : '',
-                          c.max_responded_at ? new Date(c.max_responded_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : ''
-                        ].join(','))
-                      ].join('\\n');
-                      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                      const link = document.createElement('a');
-                      link.href = URL.createObjectURL(blob);
-                      link.download = 'жалобы.csv';
-                      link.click();
+                      const rows = filteredComplaints.map((c: any) => ({
+                        'ФИО': c.name || '',
+                        'Email': c.email || '',
+                        'Телефон': c.phone || '',
+                        'Жалоба': c.message || '',
+                        'Комментарий': c.comment || '',
+                        'Дата': new Date(c.created_at).toLocaleDateString('ru-RU'),
+                        'Статус': c.status === 'resolved' ? 'Решена' : c.status === 'in_progress' ? 'На рассмотрении' : c.status === 'new' ? 'Новая' : c.status,
+                        'Ответ почта': c.responded_at ? new Date(c.responded_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : '',
+                        'Ответ MAX': c.max_responded_at ? new Date(c.max_responded_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : ''
+                      }));
+                      const ws = XLSX.utils.json_to_sheet(rows);
+                      ws['!cols'] = [{ wch: 20 }, { wch: 25 }, { wch: 15 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 15 }, { wch: 18 }, { wch: 18 }];
+                      const wb = XLSX.utils.book_new();
+                      XLSX.utils.book_append_sheet(wb, ws, 'Жалобы');
+                      XLSX.writeFile(wb, 'жалобы.xlsx');
                       }} className="h-8 bg-green-600 text-white hover:bg-green-700 border-green-600">
                         <Icon name="Download" size={12} className="mr-1" />
                         <span className="text-xs">Экспорт в Эксель</span>
