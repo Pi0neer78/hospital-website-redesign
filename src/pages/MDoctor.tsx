@@ -41,6 +41,7 @@ const MDoctor = () => {
   const [showComplaintDialog, setShowComplaintDialog] = useState(false);
   const [complaintSearch, setComplaintSearch] = useState('');
   const [complaintPageSize, setComplaintPageSize] = useState(20);
+  const [complaintPage, setComplaintPage] = useState(1);
   const [complaintStatusFilter, setComplaintStatusFilter] = useState('all');
   const [showEmailError, setShowEmailError] = useState(false);
   const [emailErrorAddress, setEmailErrorAddress] = useState('');
@@ -423,11 +424,8 @@ const MDoctor = () => {
     return acc;
   }, {} as Record<string, any[]>);
 
-  const filteredComplaints = complaints.filter((c: any) => {
-    // Фильтр по статусу
+  const allFilteredComplaints = complaints.filter((c: any) => {
     if (complaintStatusFilter !== 'all' && c.status !== complaintStatusFilter) return false;
-    
-    // Фильтр по поиску
     if (!complaintSearch) return true;
     const search = complaintSearch.toLowerCase();
     return (
@@ -435,7 +433,10 @@ const MDoctor = () => {
       c.phone?.toLowerCase().includes(search) ||
       c.message?.toLowerCase().includes(search)
     );
-  }).slice(0, complaintPageSize);
+  });
+  const complaintTotalPages = Math.max(1, Math.ceil(allFilteredComplaints.length / complaintPageSize));
+  const safeComplaintPage = Math.min(complaintPage, complaintTotalPages);
+  const filteredComplaints = allFilteredComplaints.slice((safeComplaintPage - 1) * complaintPageSize, safeComplaintPage * complaintPageSize);
 
   if (!isAuthenticated) {
     return (
@@ -635,7 +636,7 @@ const MDoctor = () => {
                           className="h-8 text-sm"
                         />
                       </div>
-                      <Button size="sm" variant="outline" onClick={() => { setComplaintSearch(''); setDateFrom(''); setDateTo(''); setComplaintStatusFilter('all'); }} className="h-8 w-8 p-0">
+                      <Button size="sm" variant="outline" onClick={() => { setComplaintSearch(''); setDateFrom(''); setDateTo(''); setComplaintStatusFilter('all'); setComplaintPage(1); }} className="h-8 w-8 p-0">
                         <Icon name="X" size={12} />
                       </Button>
                       <div>
@@ -910,11 +911,26 @@ const MDoctor = () => {
                 
                 <div className="mt-3 flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    Показано {filteredComplaints.length} из {complaints.length}
+                    Показано {(safeComplaintPage - 1) * complaintPageSize + 1}–{Math.min(safeComplaintPage * complaintPageSize, allFilteredComplaints.length)} из {allFilteredComplaints.length}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={safeComplaintPage <= 1} onClick={() => setComplaintPage(1)} title="Первая страница">
+                      <Icon name="ChevronsLeft" size={14} />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={safeComplaintPage <= 1} onClick={() => setComplaintPage(safeComplaintPage - 1)} title="Предыдущая">
+                      <Icon name="ChevronLeft" size={14} />
+                    </Button>
+                    <span className="text-sm px-2">{safeComplaintPage} / {complaintTotalPages}</span>
+                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={safeComplaintPage >= complaintTotalPages} onClick={() => setComplaintPage(safeComplaintPage + 1)} title="Следующая">
+                      <Icon name="ChevronRight" size={14} />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={safeComplaintPage >= complaintTotalPages} onClick={() => setComplaintPage(complaintTotalPages)} title="Последняя страница">
+                      <Icon name="ChevronsRight" size={14} />
+                    </Button>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm">Показывать:</span>
-                    <Select value={complaintPageSize.toString()} onValueChange={(v) => setComplaintPageSize(Number(v))}>
+                    <Select value={complaintPageSize.toString()} onValueChange={(v) => { setComplaintPageSize(Number(v)); setComplaintPage(1); }}>
                       <SelectTrigger className="h-8 w-20">
                         <SelectValue />
                       </SelectTrigger>
