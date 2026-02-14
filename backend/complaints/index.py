@@ -98,6 +98,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     update_fields.append('responded_at = %s')
                     update_values.append(responded_at)
                 
+                max_responded_at = body.get('max_responded_at')
+                if max_responded_at:
+                    update_fields.append('max_responded_at = %s')
+                    update_values.append(max_responded_at)
+                
                 update_values.append(complaint_id)
                 
                 cursor.execute(

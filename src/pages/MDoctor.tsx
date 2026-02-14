@@ -17,6 +17,7 @@ const API_URLS = {
   doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
   complaints: 'https://functions.poehali.dev/a6c04c63-0223-4bcc-b146-24acdef33536',
   sendEmail: 'https://functions.poehali.dev/d84a5ebe-b78c-4f71-8651-84a53f83538e',
+  sendMax: 'https://functions.poehali.dev/2c30c595-bb80-4a76-ada9-ce851777ada2',
 };
 
 const MDoctor = () => {
@@ -221,6 +222,51 @@ const MDoctor = () => {
     } catch (error) {
       setEmailErrorAddress(selectedComplaint.email);
       setShowEmailError(true);
+    }
+  };
+
+  const sendMaxResponse = async () => {
+    if (!selectedComplaint || !selectedComplaint.phone || !complaintComment) {
+      toast({ title: 'Ошибка', description: 'Необходимо указать телефон и комментарий', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const response = await fetch(API_URLS.sendMax, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: selectedComplaint.phone,
+          complaint_date: selectedComplaint.created_at,
+          complaint_message: selectedComplaint.message,
+          comment: complaintComment
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast({ title: 'Успех', description: 'Ответ отправлен в мессенджер MAX' });
+
+        await fetch(API_URLS.complaints, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'update_status',
+            complaint_id: selectedComplaint.id,
+            status: complaintStatus,
+            comment: complaintComment,
+            max_responded_at: data.sent_at,
+            admin_login: localStorage.getItem('mdoctor_user') ? JSON.parse(localStorage.getItem('mdoctor_user')!).login : 'admin'
+          })
+        });
+
+        setSelectedComplaint({ ...selectedComplaint, max_responded_at: data.sent_at });
+        await loadComplaints();
+      } else {
+        toast({ title: 'Ошибка', description: data.error || 'Не удалось отправить сообщение в MAX', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось отправить сообщение в MAX', variant: 'destructive' });
     }
   };
 
@@ -623,23 +669,49 @@ const MDoctor = () => {
                       {filteredComplaints.map((complaint: any) => (
                         <TableRow key={complaint.id} className="text-xs">
                           <TableCell className="py-2">
-                            <Icon 
-                              name="Mail" 
-                              size={16} 
-                              className={complaint.responded_at ? 'text-blue-600' : 'text-gray-400'} 
-                            />
+                            <div className="flex gap-1">
+                              <Icon 
+                                name="Mail" 
+                                size={14} 
+                                className={complaint.responded_at ? 'text-blue-600' : 'text-gray-300'} 
+                                title={complaint.responded_at ? 'Ответ по почте отправлен' : 'Почта: не отвечено'}
+                              />
+                              <Icon 
+                                name="MessageCircle" 
+                                size={14} 
+                                className={complaint.max_responded_at ? 'text-green-600' : 'text-gray-300'} 
+                                title={complaint.max_responded_at ? 'Ответ по MAX отправлен' : 'MAX: не отвечено'}
+                              />
+                            </div>
                           </TableCell>
                           <TableCell className="py-2">
-                            {complaint.responded_at 
-                              ? new Date(complaint.responded_at).toLocaleString('ru-RU', {
-                                  day: '2-digit',
-                                  month: '2-digit',
-                                  year: '2-digit',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                }).replace(',', '')
-                              : '—'
-                            }
+                            <div className="space-y-0.5">
+                              {complaint.responded_at && (
+                                <div className="flex items-center gap-1 text-blue-600">
+                                  <Icon name="Mail" size={10} />
+                                  <span>{new Date(complaint.responded_at).toLocaleString('ru-RU', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  }).replace(',', '')}</span>
+                                </div>
+                              )}
+                              {complaint.max_responded_at && (
+                                <div className="flex items-center gap-1 text-green-600">
+                                  <Icon name="MessageCircle" size={10} />
+                                  <span>{new Date(complaint.max_responded_at).toLocaleString('ru-RU', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  }).replace(',', '')}</span>
+                                </div>
+                              )}
+                              {!complaint.responded_at && !complaint.max_responded_at && '—'}
+                            </div>
                           </TableCell>
                           <TableCell className="py-2">{complaint.name || '—'}</TableCell>
                           <TableCell className="py-2">{complaint.email || '—'}</TableCell>
@@ -810,30 +882,55 @@ const MDoctor = () => {
                 className="text-sm"
               />
             </div>
-            <div className="flex justify-between items-center pt-1">
-              {selectedComplaint?.responded_at ? (
-                <Button variant="outline" disabled size="sm">
-                  <Icon name="Mail" size={14} className="mr-1.5" />
-                  <span className="text-xs">Отвечено {new Date(selectedComplaint.responded_at).toLocaleString('ru-RU', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  }).replace(',', '')}</span>
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  onClick={sendEmailResponse}
-                  disabled={!selectedComplaint?.email || !complaintComment}
-                  size="sm"
-                >
-                  <Icon name="Mail" size={14} className="mr-1.5" />
-                  <span className="text-xs">Ответить по почте</span>
-                </Button>
-              )}
-              <div className="flex gap-2">
+            <div className="flex flex-col gap-2 pt-1">
+              <div className="flex flex-wrap gap-2">
+                {selectedComplaint?.responded_at ? (
+                  <Button variant="outline" disabled size="sm">
+                    <Icon name="Mail" size={14} className="mr-1.5" />
+                    <span className="text-xs">Почта: {new Date(selectedComplaint.responded_at).toLocaleString('ru-RU', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    }).replace(',', '')}</span>
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    onClick={sendEmailResponse}
+                    disabled={!selectedComplaint?.email || !complaintComment}
+                    size="sm"
+                  >
+                    <Icon name="Mail" size={14} className="mr-1.5" />
+                    <span className="text-xs">Ответить по почте</span>
+                  </Button>
+                )}
+                {selectedComplaint?.max_responded_at ? (
+                  <Button variant="outline" disabled size="sm" className="border-green-300 bg-green-50">
+                    <Icon name="MessageCircle" size={14} className="mr-1.5 text-green-600" />
+                    <span className="text-xs text-green-700">MAX: {new Date(selectedComplaint.max_responded_at).toLocaleString('ru-RU', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    }).replace(',', '')}</span>
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    onClick={sendMaxResponse}
+                    disabled={!selectedComplaint?.phone || !complaintComment}
+                    size="sm"
+                    className="border-green-300 hover:bg-green-50"
+                  >
+                    <Icon name="MessageCircle" size={14} className="mr-1.5 text-green-600" />
+                    <span className="text-xs">Ответить по MAX</span>
+                  </Button>
+                )}
+              </div>
+              <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setShowComplaintDialog(false)} size="sm">
                   Отмена
                 </Button>

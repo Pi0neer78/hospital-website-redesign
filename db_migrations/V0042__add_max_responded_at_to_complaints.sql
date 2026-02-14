@@ -1,0 +1,1 @@
+ALTER TABLE t_p30358746_hospital_website_red.complaints ADD COLUMN max_responded_at timestamp without time zone NULL;
