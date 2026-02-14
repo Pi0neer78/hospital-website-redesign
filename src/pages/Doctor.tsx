@@ -3095,6 +3095,74 @@ const Doctor = () => {
                       >
                         Месяц
                       </DropdownMenuItem>
+                      {isMDoctorAccess && (
+                        <>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              const today = new Date();
+                              const yesterday = new Date(today);
+                              yesterday.setDate(today.getDate() - 1);
+                              setDateFilterFrom(yesterday.toISOString().split('T')[0]);
+                              setDateFilterTo(yesterday.toISOString().split('T')[0]);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Icon name="History" size={14} className="mr-1.5 text-purple-500" />
+                            Вчера
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              const today = new Date();
+                              const weekAgo = new Date(today);
+                              weekAgo.setDate(today.getDate() - 7);
+                              setDateFilterFrom(weekAgo.toISOString().split('T')[0]);
+                              setDateFilterTo(today.toISOString().split('T')[0]);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Icon name="History" size={14} className="mr-1.5 text-purple-500" />
+                            Прошлая неделя
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              const today = new Date();
+                              const monthAgo = new Date(today);
+                              monthAgo.setMonth(today.getMonth() - 1);
+                              setDateFilterFrom(monthAgo.toISOString().split('T')[0]);
+                              setDateFilterTo(today.toISOString().split('T')[0]);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Icon name="History" size={14} className="mr-1.5 text-purple-500" />
+                            Прошлый месяц
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              const today = new Date();
+                              const threeMonthsAgo = new Date(today);
+                              threeMonthsAgo.setMonth(today.getMonth() - 3);
+                              setDateFilterFrom(threeMonthsAgo.toISOString().split('T')[0]);
+                              setDateFilterTo(today.toISOString().split('T')[0]);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Icon name="History" size={14} className="mr-1.5 text-purple-500" />
+                            3 месяца назад
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              const today = new Date();
+                              const yearStart = new Date(today.getFullYear(), 0, 1);
+                              setDateFilterFrom(yearStart.toISOString().split('T')[0]);
+                              setDateFilterTo(today.toISOString().split('T')[0]);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Icon name="History" size={14} className="mr-1.5 text-purple-500" />
+                            С начала года
+                          </DropdownMenuItem>
+                        </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                   
