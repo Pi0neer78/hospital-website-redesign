@@ -5,7 +5,7 @@ from psycopg2.extras import RealDictCursor
 
 
 def handler(event, context):
-    """Формирование отчёта по врачам: слоты, обслуживание, отмены, нарушения за период."""
+    """Формирование отчёта по врачам: слоты, обслуживание, отмены, нарушения (превышение времени слота >5 мин)."""
     method = event.get('httpMethod', 'GET')
 
     if method == 'OPTIONS':
@@ -29,35 +29,28 @@ def handler(event, context):
     date_from = params.get('date_from', '')
     date_to = params.get('date_to', '')
 
+    date_filter = ""
+    if date_from and date_to:
+        date_filter = "AND a.appointment_date BETWEEN '%s' AND '%s'" % (date_from, date_to)
+    elif date_from:
+        date_filter = "AND a.appointment_date >= '%s'" % date_from
+    elif date_to:
+        date_filter = "AND a.appointment_date <= '%s'" % date_to
+
     conn = psycopg2.connect(database_url)
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            date_filter = ""
-            if date_from and date_to:
-                date_filter = "AND a.appointment_date BETWEEN '%s' AND '%s'" % (date_from, date_to)
-            elif date_from:
-                date_filter = "AND a.appointment_date >= '%s'" % date_from
-            elif date_to:
-                date_filter = "AND a.appointment_date <= '%s'" % date_to
-
-            log_date_filter = ""
-            if date_from and date_to:
-                log_date_filter = "AND dl.created_at::date BETWEEN '%s' AND '%s'" % (date_from, date_to)
-            elif date_from:
-                log_date_filter = "AND dl.created_at::date >= '%s'" % date_from
-            elif date_to:
-                log_date_filter = "AND dl.created_at::date <= '%s'" % date_to
-
             cur.execute("""
                 SELECT
                     d.id,
                     d.full_name,
                     d.position,
                     d.phone,
+                    d.clinic,
                     COALESCE(slots.scheduled, 0) AS scheduled,
                     COALESCE(slots.completed, 0) AS completed,
                     COALESCE(slots.cancelled, 0) AS cancelled,
-                    COALESCE(logs.violations, 0) AS violations
+                    COALESCE(viol.violations, 0) AS violations
                 FROM doctors d
                 LEFT JOIN (
                     SELECT
@@ -71,15 +64,20 @@ def handler(event, context):
                 ) slots ON slots.doctor_id = d.id
                 LEFT JOIN (
                     SELECT
-                        dl.doctor_id,
+                        a.doctor_id,
                         COUNT(*) AS violations
-                    FROM doctor_logs dl
-                    WHERE dl.action_type IN ('Отмена записи', 'Перенос записи') %s
-                    GROUP BY dl.doctor_id
-                ) logs ON logs.doctor_id = d.id
+                    FROM appointments_v2 a
+                    JOIN daily_schedules ds
+                        ON ds.doctor_id = a.doctor_id AND ds.schedule_date = a.appointment_date
+                    WHERE a.status = 'completed'
+                        AND a.completed_at IS NOT NULL
+                        AND (a.completed_at::time - (a.appointment_time + (ds.slot_duration || ' minutes')::interval)) > interval '5 minutes'
+                        %s
+                    GROUP BY a.doctor_id
+                ) viol ON viol.doctor_id = d.id
                 WHERE d.is_active = true
-                ORDER BY d.full_name
-            """ % (date_filter, log_date_filter))
+                ORDER BY d.clinic, d.full_name
+            """ % (date_filter, date_filter))
 
             rows = cur.fetchall()
             result = []
@@ -89,6 +87,7 @@ def handler(event, context):
                     'full_name': r['full_name'],
                     'position': r['position'],
                     'phone': r['phone'] or '',
+                    'clinic': r['clinic'] or 'Не указано',
                     'scheduled': r['scheduled'],
                     'completed': r['completed'],
                     'cancelled': r['cancelled'],
