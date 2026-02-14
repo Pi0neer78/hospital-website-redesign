@@ -44,6 +44,7 @@ const Index = () => {
   const [complaintForm, setComplaintForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [complaintVerificationStep, setComplaintVerificationStep] = useState<'form' | 'code' | 'verified'>('form');
   const [complaintVerificationCode, setComplaintVerificationCode] = useState('');
+  const [complaintGdprConsent, setComplaintGdprConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [gdprConsent, setGdprConsent] = useState(false);
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
@@ -564,6 +565,7 @@ const Index = () => {
         setComplaintForm({ name: '', email: '', phone: '', message: '' });
         setComplaintVerificationStep('form');
         setComplaintVerificationCode('');
+        setComplaintGdprConsent(false);
       } else {
         toast({
           title: "Ошибка",
@@ -1623,10 +1625,31 @@ const Index = () => {
                       required
                       rows={4}
                     />
+                    <div className="flex items-start gap-2 p-3 border rounded-lg bg-muted/30">
+                      <input
+                        type="checkbox"
+                        id="complaint-gdpr-consent"
+                        checked={complaintGdprConsent}
+                        onChange={(e) => setComplaintGdprConsent(e.target.checked)}
+                        className="mt-1 w-4 h-4 cursor-pointer"
+                        required
+                      />
+                      <label htmlFor="complaint-gdpr-consent" className="text-xs text-muted-foreground cursor-pointer">
+                        Я даю согласие на обработку моих персональных данных в соответствии с{' '}
+                        <a 
+                          href="http://www.consultant.ru/document/cons_doc_LAW_61801/" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline font-medium"
+                        >
+                          Федеральным законом №152-ФЗ «О персональных данных»
+                        </a>
+                      </label>
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       На указанный номер будет отправлен код подтверждения через мессенджер MAX
                     </p>
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    <Button type="submit" className="w-full" disabled={isSubmitting || !complaintGdprConsent}>
                       {isSubmitting ? 'Отправка кода...' : 'Получить код подтверждения'}
                     </Button>
                   </form>
@@ -1682,6 +1705,20 @@ const Index = () => {
                       <p><strong>Email:</strong> {complaintForm.email}</p>
                       <p><strong>Телефон:</strong> {complaintForm.phone}</p>
                       <p><strong>Сообщение:</strong> {complaintForm.message}</p>
+                    </div>
+                    <div className="flex items-start gap-2 p-3 border rounded-lg bg-muted/30">
+                      <Icon name="CheckCircle" size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-muted-foreground">
+                        Согласие на обработку персональных данных получено в соответствии с{' '}
+                        <a 
+                          href="http://www.consultant.ru/document/cons_doc_LAW_61801/" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline font-medium"
+                        >
+                          ФЗ-152
+                        </a>
+                      </p>
                     </div>
                     <Button type="submit" className="w-full" disabled={isSubmitting}>
                       {isSubmitting ? 'Отправка...' : 'Отправить обращение'}
