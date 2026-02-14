@@ -42,6 +42,8 @@ const Index = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [sentCode, setSentCode] = useState('');
   const [complaintForm, setComplaintForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [complaintVerificationStep, setComplaintVerificationStep] = useState<'form' | 'code' | 'verified'>('form');
+  const [complaintVerificationCode, setComplaintVerificationCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [gdprConsent, setGdprConsent] = useState(false);
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
@@ -428,8 +430,110 @@ const Index = () => {
     }
   };
 
+  const handleComplaintSendCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const rateLimitCheck = await checkComplaintLimit();
+    if (!rateLimitCheck.allowed) {
+      toast({
+        title: 'Ограничение запросов',
+        description: rateLimitCheck.reason || 'Слишком много попыток. Подождите немного.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(BACKEND_URLS.smsVerify, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'send',
+          phone_number: complaintForm.phone 
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({
+          title: "Код отправлен в MAX",
+          description: `Проверьте сообщения в мессенджере MAX на номере ${complaintForm.phone}`,
+          duration: 10000,
+        });
+        setComplaintVerificationStep('code');
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.error || "Не удалось отправить код",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Проблема с подключением к серверу",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleComplaintVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(BACKEND_URLS.smsVerify, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'verify',
+          phone_number: complaintForm.phone,
+          code: complaintVerificationCode
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setComplaintVerificationStep('verified');
+        toast({
+          title: "Номер подтвержден",
+          description: "Теперь вы можете отправить обращение",
+        });
+      } else {
+        toast({
+          title: "Неверный код",
+          description: data.error || "Проверьте введенный код и попробуйте снова",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Проблема с подключением к серверу",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleComplaint = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (complaintVerificationStep !== 'verified') {
+      toast({
+        title: "Требуется верификация",
+        description: "Сначала подтвердите номер телефона",
+        variant: "destructive",
+      });
+      return;
+    }
     
     const rateLimitCheck = await checkComplaintLimit();
     if (!rateLimitCheck.allowed) {
@@ -458,6 +562,8 @@ const Index = () => {
           description: "Мы рассмотрим ваше обращение в ближайшее время.",
         });
         setComplaintForm({ name: '', email: '', phone: '', message: '' });
+        setComplaintVerificationStep('form');
+        setComplaintVerificationCode('');
       } else {
         toast({
           title: "Ошибка",
@@ -1488,38 +1594,100 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleComplaint} className="space-y-4">
-                  <Input
-                    placeholder="Ваше имя"
-                    value={complaintForm.name}
-                    onChange={(e) => setComplaintForm({ ...complaintForm, name: e.target.value })}
-                    required
-                  />
-                  <Input
-                    placeholder="Email"
-                    type="email"
-                    value={complaintForm.email}
-                    onChange={(e) => setComplaintForm({ ...complaintForm, email: e.target.value })}
-                    required
-                  />
-                  <Input
-                    placeholder="Номер телефона"
-                    type="tel"
-                    value={complaintForm.phone}
-                    onChange={(e) => setComplaintForm({ ...complaintForm, phone: e.target.value })}
-                    required
-                  />
-                  <Textarea
-                    placeholder="Ваше сообщение"
-                    value={complaintForm.message}
-                    onChange={(e) => setComplaintForm({ ...complaintForm, message: e.target.value })}
-                    required
-                    rows={4}
-                  />
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? 'Отправка...' : 'Отправить'}
-                  </Button>
-                </form>
+                {complaintVerificationStep === 'form' && (
+                  <form onSubmit={handleComplaintSendCode} className="space-y-4">
+                    <Input
+                      placeholder="Ваше имя"
+                      value={complaintForm.name}
+                      onChange={(e) => setComplaintForm({ ...complaintForm, name: e.target.value })}
+                      required
+                    />
+                    <Input
+                      placeholder="Email"
+                      type="email"
+                      value={complaintForm.email}
+                      onChange={(e) => setComplaintForm({ ...complaintForm, email: e.target.value })}
+                      required
+                    />
+                    <Input
+                      placeholder="Телефон (+79991234567)"
+                      type="tel"
+                      value={complaintForm.phone}
+                      onChange={(e) => setComplaintForm({ ...complaintForm, phone: e.target.value })}
+                      required
+                    />
+                    <Textarea
+                      placeholder="Ваше сообщение"
+                      value={complaintForm.message}
+                      onChange={(e) => setComplaintForm({ ...complaintForm, message: e.target.value })}
+                      required
+                      rows={4}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      На указанный номер будет отправлен код подтверждения через мессенджер MAX
+                    </p>
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting ? 'Отправка кода...' : 'Получить код подтверждения'}
+                    </Button>
+                  </form>
+                )}
+
+                {complaintVerificationStep === 'code' && (
+                  <form onSubmit={handleComplaintVerifyCode} className="space-y-4">
+                    <Card className="bg-blue-50 border-blue-200">
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-blue-900">
+                          Код отправлен на номер <strong>{complaintForm.phone}</strong> через мессенджер MAX
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Input
+                      placeholder="Введите 6-значный код"
+                      value={complaintVerificationCode}
+                      onChange={(e) => setComplaintVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      required
+                      maxLength={6}
+                      className="text-center text-2xl tracking-widest"
+                    />
+                    <div className="flex gap-2">
+                      <Button type="submit" className="flex-1" disabled={isSubmitting || complaintVerificationCode.length !== 6}>
+                        {isSubmitting ? 'Проверка...' : 'Подтвердить'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setComplaintVerificationStep('form');
+                          setComplaintVerificationCode('');
+                        }}
+                      >
+                        Назад
+                      </Button>
+                    </div>
+                  </form>
+                )}
+
+                {complaintVerificationStep === 'verified' && (
+                  <form onSubmit={handleComplaint} className="space-y-4">
+                    <Card className="bg-green-50 border-green-200">
+                      <CardContent className="pt-4">
+                        <div className="flex items-center gap-2">
+                          <Icon name="CheckCircle" size={20} className="text-green-600" />
+                          <p className="font-medium text-green-900">Номер подтвержден</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <div className="space-y-2 text-sm">
+                      <p><strong>Имя:</strong> {complaintForm.name}</p>
+                      <p><strong>Email:</strong> {complaintForm.email}</p>
+                      <p><strong>Телефон:</strong> {complaintForm.phone}</p>
+                      <p><strong>Сообщение:</strong> {complaintForm.message}</p>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting ? 'Отправка...' : 'Отправить обращение'}
+                    </Button>
+                  </form>
+                )}
               </CardContent>
             </Card>
 
