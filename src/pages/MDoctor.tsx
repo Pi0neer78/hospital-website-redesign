@@ -572,8 +572,8 @@ const MDoctor = () => {
   <table>
     <thead>
       <tr>
-        <th style="width: 3%">✉️</th>
-        <th style="width: 9%">Ответ</th>
+        <th style="width: 6%">Почта</th>
+        <th style="width: 6%">MAX</th>
         <th style="width: 11%">ФИО</th>
         <th style="width: 11%">Email</th>
         <th style="width: 9%">Телефон</th>
@@ -586,8 +586,8 @@ const MDoctor = () => {
     <tbody>
       ${filteredComplaints.map((c: any) => `
         <tr>
-          <td class="envelope">${c.responded_at ? '📧' : '✉️'}</td>
-          <td style="font-size: 11px;">${c.responded_at ? new Date(c.responded_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : '—'}</td>
+          <td style="font-size: 11px;">${c.responded_at ? '📧 ' + new Date(c.responded_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : '—'}</td>
+          <td style="font-size: 11px;">${c.max_responded_at ? '💬 ' + new Date(c.max_responded_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : '—'}</td>
           <td>${c.name || '—'}</td>
           <td style="font-size: 11px;">${c.email || '—'}</td>
           <td>${c.phone || '—'}</td>
