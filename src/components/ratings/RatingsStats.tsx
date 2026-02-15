@@ -28,6 +28,11 @@ const RatingsStats = () => {
     loadStats();
   }, []);
 
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
   const renderPeriodCard = (title: string, periodKey: string, icon: string) => {
     const periodData = stats?.[periodKey];
     if (!periodData) return null;
@@ -40,6 +45,10 @@ const RatingsStats = () => {
       periodData.rating_5
     ) || 1;
 
+    const dateRange = periodKey === 'day' 
+      ? formatDate(periodData.date_to)
+      : `${formatDate(periodData.date_from)} — ${formatDate(periodData.date_to)}`;
+
     return (
       <Card key={periodKey}>
         <CardHeader className="pb-3">
@@ -47,6 +56,7 @@ const RatingsStats = () => {
             <Icon name={icon} size={18} className="text-blue-600" />
             {title}
           </CardTitle>
+          <div className="text-xs text-muted-foreground mt-1">{dateRange}</div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -113,11 +123,12 @@ const RatingsStats = () => {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {renderPeriodCard('За сутки', 'day', 'Clock')}
         {renderPeriodCard('За неделю', 'week', 'Calendar')}
         {renderPeriodCard('За месяц', 'month', 'CalendarDays')}
         {renderPeriodCard('С начала года', 'year', 'CalendarRange')}
+        {renderPeriodCard('За все время', 'all', 'Infinity')}
       </div>
     </div>
   );
