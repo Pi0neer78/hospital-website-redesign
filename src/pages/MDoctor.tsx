@@ -614,7 +614,7 @@ const MDoctor = () => {
 
       <main className="container mx-auto px-4 py-4">
         <Tabs defaultValue="doctors" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4 max-w-xl mx-auto h-10">
+          <TabsList className="grid w-full grid-cols-5 max-w-3xl mx-auto h-10">
             <TabsTrigger value="doctors" className="py-1.5">
               <Icon name="Users" className="mr-2" size={16} />
               Врачи
