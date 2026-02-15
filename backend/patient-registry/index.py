@@ -41,6 +41,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     try:
         if method == 'GET':
+            params = event.get('queryStringParameters') or {}
+            if params.get('action') == 'logs':
+                return handle_get_logs(conn, params)
             return handle_get(conn, event)
         elif method == 'POST':
             body = json.loads(event.get('body', '{}'))
@@ -54,6 +57,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return handle_update(conn, body)
             elif action == 'delete':
                 return handle_delete(conn, body)
+            elif action == 'log':
+                return handle_log(conn, body, event)
             else:
                 return resp(400, {'error': 'Неизвестное действие'})
         else:
@@ -283,6 +288,56 @@ def handle_delete(conn, body):
     conn.commit()
     cursor.close()
     return resp(200, {'success': True, 'deleted': deleted})
+
+
+def handle_log(conn, body, event):
+    admin_login = body.get('admin_login', '')
+    action_type = body.get('action_type', '')
+    details = body.get('details', '')
+
+    if not action_type:
+        return resp(400, {'error': 'action_type обязателен'})
+
+    headers_req = event.get('headers', {})
+    ip_address = (
+        headers_req.get('X-Forwarded-For', '').split(',')[0].strip() or
+        headers_req.get('X-Real-IP', '') or
+        event.get('requestContext', {}).get('identity', {}).get('sourceIp', '')
+    )
+    computer_name = body.get('computer_name', '')
+
+    cursor = conn.cursor()
+    cursor.execute(
+        f"INSERT INTO {SCHEMA}.mdoctor_logs (admin_login, action_type, details, ip_address, computer_name) VALUES (%s, %s, %s, %s, %s)",
+        (admin_login, action_type, details, ip_address, computer_name)
+    )
+    conn.commit()
+    cursor.close()
+    return resp(200, {'success': True})
+
+
+def handle_get_logs(conn, params):
+    admin_login = params.get('admin_login', '')
+    limit = int(params.get('limit', '200'))
+    if limit > 1000:
+        limit = 1000
+
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    if admin_login:
+        cursor.execute(
+            f"SELECT id, admin_login, action_type, details, ip_address, computer_name, created_at FROM {SCHEMA}.mdoctor_logs WHERE admin_login = %s ORDER BY created_at DESC LIMIT %s",
+            (admin_login, limit)
+        )
+    else:
+        cursor.execute(
+            f"SELECT id, admin_login, action_type, details, ip_address, computer_name, created_at FROM {SCHEMA}.mdoctor_logs ORDER BY created_at DESC LIMIT %s",
+            (limit,)
+        )
+
+    logs = cursor.fetchall()
+    cursor.close()
+    return resp(200, {'logs': logs})
 
 
 def resp(status_code, body):

@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import SecurityLogin from '@/components/security/SecurityLogin';
 import SecurityStatistics from '@/components/security/SecurityStatistics';
 import AdminManagement from '@/components/security/AdminManagement';
@@ -9,6 +12,7 @@ import AdminManagement from '@/components/security/AdminManagement';
 const RATE_LIMITER_URL = 'https://functions.poehali.dev/dd760420-6c65-41e9-bd95-171dec0f3ac9';
 const AUTH_URL = 'https://functions.poehali.dev/c5b009b8-4d0d-4b09-91f5-1ab8bdf740bb';
 const ADMIN_MANAGEMENT_URL = 'https://functions.poehali.dev/41b28850-cf23-4959-9bd7-7f728c1ad124';
+const REGISTRY_URL = 'https://functions.poehali.dev/e644fdea-011f-4d16-b984-98838c4e6c69';
 
 interface EndpointStat {
   endpoint: string;
@@ -55,6 +59,10 @@ const Security = () => {
   const [showAddAdmin, setShowAddAdmin] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<Admin | null>(null);
   const [newAdmin, setNewAdmin] = useState({ login: '', email: '', password: '', full_name: '' });
+  const [showLogDialog, setShowLogDialog] = useState(false);
+  const [logEntries, setLogEntries] = useState<any[]>([]);
+  const [logLoading, setLogLoading] = useState(false);
+  const [logFilterAdmin, setLogFilterAdmin] = useState<string>('');
 
   useEffect(() => {
     const token = localStorage.getItem('security_token');
@@ -113,6 +121,27 @@ const Security = () => {
         variant: 'destructive',
       });
     }
+  };
+
+  const loadMDoctorLogs = async (adminLogin?: string) => {
+    setLogLoading(true);
+    setLogFilterAdmin(adminLogin || '');
+    try {
+      const params = new URLSearchParams({ action: 'logs', limit: '200' });
+      if (adminLogin) params.append('admin_login', adminLogin);
+      const response = await fetch(`${REGISTRY_URL}?${params}`);
+      const data = await response.json();
+      if (data.logs) setLogEntries(data.logs);
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось загрузить журнал', variant: 'destructive' });
+    } finally {
+      setLogLoading(false);
+    }
+  };
+
+  const handleViewLogs = (adminLogin?: string) => {
+    loadMDoctorLogs(adminLogin);
+    setShowLogDialog(true);
   };
 
   const handleLogout = () => {
@@ -397,9 +426,71 @@ const Security = () => {
             onAddAdmin={handleAddAdmin}
             onUpdateAdmin={handleUpdateAdmin}
             onDeleteAdmin={handleDeleteAdmin}
+            onViewLogs={handleViewLogs}
           />
         )}
       </main>
+
+      <Dialog open={showLogDialog} onOpenChange={setShowLogDialog}>
+        <DialogContent className="max-w-4xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="text-base flex items-center gap-2">
+              <Icon name="ScrollText" size={18} />
+              {logFilterAdmin ? `Журнал действий: ${logFilterAdmin}` : 'Общий журнал действий главного врача'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="overflow-y-auto" style={{ maxHeight: '60vh' }}>
+            {logLoading ? (
+              <div className="text-center py-8 text-muted-foreground">Загрузка...</div>
+            ) : logEntries.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">Нет записей</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow className="text-xs">
+                    <TableHead className="py-2">Дата</TableHead>
+                    <TableHead className="py-2">Администратор</TableHead>
+                    <TableHead className="py-2">Действие</TableHead>
+                    <TableHead className="py-2">Подробности</TableHead>
+                    <TableHead className="py-2">IP</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {logEntries.map((log: any) => (
+                    <TableRow key={log.id} className="text-xs">
+                      <TableCell className="py-2 whitespace-nowrap">
+                        {new Date(log.created_at).toLocaleString('ru-RU', {
+                          day: '2-digit', month: '2-digit', year: '2-digit',
+                          hour: '2-digit', minute: '2-digit'
+                        }).replace(',', '')}
+                      </TableCell>
+                      <TableCell className="py-2">{log.admin_login || '—'}</TableCell>
+                      <TableCell className="py-2">
+                        <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px]">
+                          {log.action_type}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-2 max-w-xs">
+                        <div className="line-clamp-2 text-[11px] text-muted-foreground" title={log.details}>
+                          {(() => {
+                            try {
+                              const d = JSON.parse(log.details);
+                              return Object.entries(d).map(([k, v]) => `${k}: ${v}`).join(', ');
+                            } catch {
+                              return log.details;
+                            }
+                          })()}
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-2 text-[10px] text-muted-foreground">{log.ip_address || '—'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -65,6 +65,9 @@ const MDoctor = () => {
   const [reportFilterScheduled, setReportFilterScheduled] = useState('all');
   const [reportFilterCompleted, setReportFilterCompleted] = useState('all');
   const [reportFilterViolations, setReportFilterViolations] = useState('all');
+  const [showLogDialog, setShowLogDialog] = useState(false);
+  const [logEntries, setLogEntries] = useState<any[]>([]);
+  const [logLoading, setLogLoading] = useState(false);
 
   const loadDoctors = async () => {
     try {
@@ -124,6 +127,11 @@ const MDoctor = () => {
       });
       const data = await response.json();
       if (data.success) {
+        await logAction(sendChannel === 'email' ? 'Рассылка email из реестра' : 'Рассылка MAX из реестра', {
+          recipients_count: registrySelected.size,
+          sent_count: data.sent_count,
+          message: sendMessage.substring(0, 200)
+        });
         toast({ title: 'Успех', description: `Отправлено: ${data.sent_count}${data.errors?.length ? `. Ошибки: ${data.errors.length}` : ''}` });
         if (data.errors?.length) {
           console.log('Send errors:', data.errors);
@@ -173,6 +181,12 @@ const MDoctor = () => {
       });
       const data = await response.json();
       if (data.success) {
+        await logAction('Редактирование записи реестра', {
+          record_id: editRecord.id,
+          full_name: editForm.full_name,
+          phone: editForm.phone,
+          email: editForm.email
+        });
         toast({ title: 'Сохранено' });
         setShowEditDialog(false);
         loadRegistry();
@@ -194,6 +208,11 @@ const MDoctor = () => {
       });
       const data = await response.json();
       if (data.success) {
+        await logAction('Удаление записи реестра', {
+          record_id: rec.id,
+          full_name: rec.full_name,
+          phone: rec.phone
+        });
         toast({ title: 'Удалено' });
         const next = new Set(registrySelected);
         next.delete(rec.id);
@@ -218,12 +237,52 @@ const MDoctor = () => {
       });
       const data = await response.json();
       if (data.success) {
+        await logAction('Массовое удаление из реестра', {
+          deleted_count: data.deleted,
+          ids: Array.from(registrySelected)
+        });
         toast({ title: 'Удалено', description: `Удалено записей: ${data.deleted}` });
         setRegistrySelected(new Set());
         loadRegistry();
       }
     } catch {
       toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+    }
+  };
+
+  const logAction = async (actionType: string, details: any) => {
+    try {
+      const mdoctorUser = localStorage.getItem('mdoctor_user');
+      const adminLogin = mdoctorUser ? JSON.parse(mdoctorUser).login : 'admin';
+      
+      await fetch(API_URLS.registry, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'log',
+          admin_login: adminLogin,
+          action_type: actionType,
+          details: JSON.stringify(details),
+          computer_name: navigator.userAgent
+        })
+      });
+    } catch (error) {
+      console.error('Failed to log action:', error);
+    }
+  };
+
+  const loadLogs = async (adminLogin?: string) => {
+    setLogLoading(true);
+    try {
+      const params = new URLSearchParams({ action: 'logs', limit: '200' });
+      if (adminLogin) params.append('admin_login', adminLogin);
+      const response = await fetch(`${API_URLS.registry}?${params}`);
+      const data = await response.json();
+      if (data.logs) setLogEntries(data.logs);
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось загрузить журнал', variant: 'destructive' });
+    } finally {
+      setLogLoading(false);
     }
   };
 
@@ -322,6 +381,13 @@ const MDoctor = () => {
       const data = await response.json();
       console.log('Update complaint response:', data);
       if (data.success || data.message === 'Статус жалобы обновлён') {
+        await logAction('Изменение статуса жалобы', {
+          complaint_id: selectedComplaint.id,
+          patient_name: selectedComplaint.name,
+          old_status: selectedComplaint.status,
+          new_status: complaintStatus,
+          comment: complaintComment
+        });
         toast({ title: 'Успех', description: 'Статус жалобы обновлён' });
         loadComplaints();
         setShowComplaintDialog(false);
@@ -354,6 +420,12 @@ const MDoctor = () => {
 
       const data = await response.json();
       if (data.success) {
+        await logAction('Отправка email по жалобе', {
+          complaint_id: selectedComplaint.id,
+          patient_name: selectedComplaint.name,
+          email: selectedComplaint.email,
+          comment: complaintComment
+        });
         toast({ title: 'Успех', description: 'Ответ отправлен на email пациента' });
         
         // Обновляем статус жалобы с пометкой о дате ответа
@@ -403,6 +475,12 @@ const MDoctor = () => {
 
       const data = await response.json();
       if (data.success) {
+        await logAction('Отправка MAX по жалобе', {
+          complaint_id: selectedComplaint.id,
+          patient_name: selectedComplaint.name,
+          phone: selectedComplaint.phone,
+          comment: complaintComment
+        });
         toast({ title: 'Успех', description: 'Ответ отправлен в мессенджер MAX' });
 
         await fetch(API_URLS.complaints, {
@@ -524,10 +602,16 @@ const MDoctor = () => {
             </Button>
             <h1 className="text-2xl font-bold text-gray-800">Кабинет главного врача</h1>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <Icon name="LogOut" className="mr-2" size={16} />
-            Выйти
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => { loadLogs(); setShowLogDialog(true); }}>
+              <Icon name="ScrollText" className="mr-2" size={16} />
+              Журнал
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>
+              <Icon name="LogOut" className="mr-2" size={16} />
+              Выйти
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -1674,6 +1758,65 @@ const MDoctor = () => {
               <Button variant="outline" onClick={() => setShowEditDialog(false)} size="sm">Отмена</Button>
               <Button onClick={handleRegistryUpdate} size="sm">Сохранить</Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showLogDialog} onOpenChange={setShowLogDialog}>
+        <DialogContent className="max-w-4xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="text-base flex items-center gap-2">
+              <Icon name="ScrollText" size={18} />
+              Журнал действий главного врача
+            </DialogTitle>
+          </DialogHeader>
+          <div className="overflow-y-auto" style={{ maxHeight: '60vh' }}>
+            {logLoading ? (
+              <div className="text-center py-8 text-muted-foreground">Загрузка...</div>
+            ) : logEntries.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">Нет записей</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow className="text-xs">
+                    <TableHead className="py-2">Дата</TableHead>
+                    <TableHead className="py-2">Администратор</TableHead>
+                    <TableHead className="py-2">Действие</TableHead>
+                    <TableHead className="py-2">Подробности</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {logEntries.map((log: any) => (
+                    <TableRow key={log.id} className="text-xs">
+                      <TableCell className="py-2 whitespace-nowrap">
+                        {new Date(log.created_at).toLocaleString('ru-RU', {
+                          day: '2-digit', month: '2-digit', year: '2-digit',
+                          hour: '2-digit', minute: '2-digit'
+                        }).replace(',', '')}
+                      </TableCell>
+                      <TableCell className="py-2">{log.admin_login || '\u2014'}</TableCell>
+                      <TableCell className="py-2">
+                        <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px]">
+                          {log.action_type}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-2 max-w-xs">
+                        <div className="line-clamp-2 text-[11px] text-muted-foreground" title={log.details}>
+                          {(() => {
+                            try {
+                              const d = JSON.parse(log.details);
+                              return Object.entries(d).map(([k, v]) => `${k}: ${v}`).join(', ');
+                            } catch {
+                              return log.details;
+                            }
+                          })()}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </div>
         </DialogContent>
       </Dialog>

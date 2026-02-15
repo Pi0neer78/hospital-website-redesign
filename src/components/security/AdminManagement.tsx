@@ -28,6 +28,7 @@ interface AdminManagementProps {
   onAddAdmin: (e: React.FormEvent) => void;
   onUpdateAdmin: (e: React.FormEvent) => void;
   onDeleteAdmin: (id: number) => void;
+  onViewLogs?: (adminLogin?: string) => void;
 }
 
 const AdminManagement = ({
@@ -41,6 +42,7 @@ const AdminManagement = ({
   onAddAdmin,
   onUpdateAdmin,
   onDeleteAdmin,
+  onViewLogs,
 }: AdminManagementProps) => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showEditPassword, setShowEditPassword] = useState(false);
@@ -59,10 +61,18 @@ const AdminManagement = ({
     <>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Управление администраторами</h2>
-        <Button onClick={() => onShowAddAdmin(true)}>
-          <Icon name="Plus" size={16} className="mr-2" />
-          Добавить администратора
-        </Button>
+        <div className="flex gap-2">
+          {onViewLogs && (
+            <Button variant="outline" onClick={() => onViewLogs()}>
+              <Icon name="ScrollText" size={16} className="mr-2" />
+              Общий журнал
+            </Button>
+          )}
+          <Button onClick={() => onShowAddAdmin(true)}>
+            <Icon name="Plus" size={16} className="mr-2" />
+            Добавить администратора
+          </Button>
+        </div>
       </div>
 
       {showAddAdmin && (
@@ -221,6 +231,16 @@ const AdminManagement = ({
                   </div>
                 </div>
                 <div className="flex gap-2">
+                  {onViewLogs && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onViewLogs(admin.login)}
+                    >
+                      <Icon name="ScrollText" size={16} className="mr-2" />
+                      Журнал
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
