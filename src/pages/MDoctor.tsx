@@ -639,26 +639,134 @@ const MDoctor = () => {
 
           <TabsContent value="doctors">
             <Card>
-              <CardHeader>
-                <CardTitle>Список врачей</CardTitle>
-                <CardDescription>Все зарегистрированные врачи в системе</CardDescription>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Список врачей</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="mb-4 flex gap-4">
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Поиск по ФИО..."
-                      value={searchFio}
-                      onChange={(e) => setSearchFio(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Поиск по должности..."
-                      value={searchPosition}
-                      onChange={(e) => setSearchPosition(e.target.value)}
-                    />
-                  </div>
+                <div className="mb-3 flex gap-2">
+                  <Input
+                    placeholder="Поиск по ФИО..."
+                    value={searchFio}
+                    onChange={(e) => setSearchFio(e.target.value)}
+                    className="h-8 text-sm flex-1"
+                  />
+                  <Input
+                    placeholder="Поиск по должности..."
+                    value={searchPosition}
+                    onChange={(e) => setSearchPosition(e.target.value)}
+                    className="h-8 text-sm flex-1"
+                  />
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => { setSearchFio(''); setSearchPosition(''); }}
+                    className="h-8 w-8 p-0"
+                    title="Очистить"
+                  >
+                    <Icon name="X" size={14} />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => {
+                      const printWindow = window.open('', '_blank');
+                      if (!printWindow) return;
+                      const printContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Список врачей</title>
+  <style>
+    @page { margin: 10mm; }
+    body { font-family: Arial, sans-serif; font-size: 11px; }
+    .header { text-align: center; margin-bottom: 15px; }
+    .header h2 { margin: 5px 0; font-size: 16px; }
+    .clinic-section { margin-bottom: 20px; page-break-inside: avoid; }
+    .clinic-title { font-size: 13px; font-weight: bold; margin-bottom: 8px; border-bottom: 2px solid #333; padding-bottom: 3px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #333; padding: 4px; text-align: left; font-size: 10px; }
+    th { background: #f0f0f0; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>Список врачей</h2>
+    <p>ГБУЗ Антрацитовская ЦГМБ ЛНР</p>
+    <p>Дата печати: ${new Date().toLocaleString('ru-RU')}</p>
+  </div>
+  ${Object.entries(filteredGroupedDoctors).map(([clinic, docs]) => `
+    <div class="clinic-section">
+      <div class="clinic-title">${clinic} (${(docs as any[]).length})</div>
+      <table>
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>ФИО</th>
+            <th>Специализация</th>
+            <th>Должность</th>
+            <th>Телефон</th>
+            <th>Стаж</th>
+            <th>Кабинет</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${(docs as any[]).map((doc: any, idx: number) => `
+            <tr>
+              <td>${idx + 1}</td>
+              <td>${doc.full_name}</td>
+              <td>${doc.specialization}</td>
+              <td>${doc.position}</td>
+              <td>${doc.phone}</td>
+              <td>${doc.work_experience || '—'}</td>
+              <td>${doc.office_number || '—'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `).join('')}
+</body>
+</html>`;
+                      printWindow.document.write(printContent);
+                      printWindow.document.close();
+                      printWindow.focus();
+                      setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
+                    }}
+                    className="h-8 w-8 p-0"
+                    title="Печать"
+                  >
+                    <Icon name="Printer" size={14} />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => {
+                      const rows: any[] = [];
+                      Object.entries(filteredGroupedDoctors).forEach(([clinic, docs]) => {
+                        (docs as any[]).forEach((doc: any) => {
+                          rows.push({
+                            'Больница': clinic,
+                            'ФИО': doc.full_name,
+                            'Специализация': doc.specialization,
+                            'Должность': doc.position,
+                            'Телефон': doc.phone,
+                            'Стаж': doc.work_experience || '',
+                            'Кабинет': doc.office_number || ''
+                          });
+                        });
+                      });
+                      const ws = XLSX.utils.json_to_sheet(rows);
+                      ws['!cols'] = [{ wch: 40 }, { wch: 30 }, { wch: 25 }, { wch: 25 }, { wch: 15 }, { wch: 10 }, { wch: 10 }];
+                      const wb = XLSX.utils.book_new();
+                      XLSX.utils.book_append_sheet(wb, ws, 'Врачи');
+                      XLSX.writeFile(wb, 'список_врачей.xlsx');
+                    }}
+                    className="h-8 w-8 p-0 bg-green-600 text-white hover:bg-green-700 border-green-600"
+                    title="Экспорт в Excel"
+                  >
+                    <Icon name="Download" size={14} />
+                  </Button>
                 </div>
                 <div className="space-y-6">
                   {Object.entries(filteredGroupedDoctors).map(([clinic, docs]) => (
@@ -671,20 +779,20 @@ const MDoctor = () => {
                       <div className="overflow-x-auto">
                         <Table>
                           <TableHeader>
-                            <TableRow>
-                              <TableHead className="w-12"></TableHead>
-                              <TableHead>ФИО</TableHead>
-                              <TableHead>Специализация</TableHead>
-                              <TableHead>Должность</TableHead>
-                              <TableHead>Телефон</TableHead>
-                              <TableHead>Стаж</TableHead>
-                              <TableHead>Кабинет</TableHead>
+                            <TableRow className="text-xs">
+                              <TableHead className="w-10 py-2"></TableHead>
+                              <TableHead className="py-2">ФИО</TableHead>
+                              <TableHead className="py-2">Специализация</TableHead>
+                              <TableHead className="py-2">Должность</TableHead>
+                              <TableHead className="py-2">Телефон</TableHead>
+                              <TableHead className="py-2">Стаж</TableHead>
+                              <TableHead className="py-2">Кабинет</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {(docs as any[]).map((doctor: any) => (
-                              <TableRow key={doctor.id}>
-                                <TableCell>
+                              <TableRow key={doctor.id} className="text-xs">
+                                <TableCell className="py-2">
                                   {doctor.photo_url && (
                                     <div
                                       className="relative"
@@ -695,12 +803,12 @@ const MDoctor = () => {
                                       <img
                                         src={doctor.photo_url}
                                         alt={doctor.full_name}
-                                        className="w-8 h-8 object-cover cursor-pointer"
+                                        className="w-7 h-7 object-cover cursor-pointer rounded"
                                       />
                                     </div>
                                   )}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="py-2">
                                   <button
                                     onClick={() => handleDoctorClick(doctor)}
                                     className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
@@ -708,11 +816,11 @@ const MDoctor = () => {
                                     {doctor.full_name}
                                   </button>
                                 </TableCell>
-                                <TableCell>{doctor.specialization}</TableCell>
-                                <TableCell>{doctor.position}</TableCell>
-                                <TableCell>{doctor.phone}</TableCell>
-                                <TableCell>{doctor.work_experience || '—'}</TableCell>
-                                <TableCell>{doctor.office_number || '—'}</TableCell>
+                                <TableCell className="py-2">{doctor.specialization}</TableCell>
+                                <TableCell className="py-2">{doctor.position}</TableCell>
+                                <TableCell className="py-2">{doctor.phone}</TableCell>
+                                <TableCell className="py-2">{doctor.work_experience || '—'}</TableCell>
+                                <TableCell className="py-2">{doctor.office_number || '—'}</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
