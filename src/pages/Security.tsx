@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import SecurityLogin from '@/components/security/SecurityLogin';
 import SecurityStatistics from '@/components/security/SecurityStatistics';
 import AdminManagement from '@/components/security/AdminManagement';
+import * as XLSX from 'xlsx';
 
 const RATE_LIMITER_URL = 'https://functions.poehali.dev/dd760420-6c65-41e9-bd95-171dec0f3ac9';
 const AUTH_URL = 'https://functions.poehali.dev/c5b009b8-4d0d-4b09-91f5-1ab8bdf740bb';
@@ -439,6 +440,109 @@ const Security = () => {
               {logFilterAdmin ? `Журнал действий: ${logFilterAdmin}` : 'Общий журнал действий главного врача'}
             </DialogTitle>
           </DialogHeader>
+          <div className="flex gap-2 mb-3">
+            <Button variant="outline" size="sm" onClick={() => {
+              if (logEntries.length === 0) return;
+              const printWindow = window.open('', '_blank');
+              if (!printWindow) return;
+              const title = logFilterAdmin ? `Журнал действий: ${logFilterAdmin}` : 'Общий журнал действий главного врача';
+              const printContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${title}</title>
+  <style>
+    @page { margin: 10mm; }
+    body { font-family: Arial, sans-serif; font-size: 12px; }
+    .header { text-align: center; margin-bottom: 15px; }
+    .header h2 { margin: 5px 0; font-size: 16px; }
+    .header p { margin: 3px 0; font-size: 11px; color: #666; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #333; padding: 5px; text-align: left; font-size: 11px; }
+    th { background: #f0f0f0; font-weight: bold; }
+    .footer { font-size: 10px; color: #666; margin-top: 10px; text-align: right; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>${title}</h2>
+    <p>ГБУЗ Антрацитовская ЦГМБ ЛНР</p>
+    <p>Дата печати: ${new Date().toLocaleString('ru-RU')}</p>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>№</th>
+        <th>Дата</th>
+        <th>Администратор</th>
+        <th>Действие</th>
+        <th>Подробности</th>
+        <th>IP</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${logEntries.map((log: any, idx: number) => {
+        let details = '';
+        try {
+          const d = JSON.parse(log.details);
+          details = Object.entries(d).map(([k, v]) => `${k}: ${v}`).join(', ');
+        } catch {
+          details = log.details || '';
+        }
+        return `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${new Date(log.created_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '')}</td>
+          <td>${log.admin_login || '—'}</td>
+          <td>${log.action_type}</td>
+          <td>${details}</td>
+          <td>${log.ip_address || '—'}</td>
+        </tr>
+        `;
+      }).join('')}
+    </tbody>
+  </table>
+  <div class="footer">Всего записей: ${logEntries.length}</div>
+</body>
+</html>`;
+              printWindow.document.write(printContent);
+              printWindow.document.close();
+              printWindow.focus();
+              setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
+            }} disabled={logEntries.length === 0}>
+              <Icon name="Printer" size={14} className="mr-1" />
+              Печать
+            </Button>
+            <Button variant="outline" size="sm" className="bg-green-600 text-white hover:bg-green-700 border-green-600" onClick={() => {
+              if (logEntries.length === 0) return;
+              const rows = logEntries.map((log: any) => {
+                let details = '';
+                try {
+                  const d = JSON.parse(log.details);
+                  details = Object.entries(d).map(([k, v]) => `${k}: ${v}`).join(', ');
+                } catch {
+                  details = log.details || '';
+                }
+                return {
+                  'Дата': new Date(log.created_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', ''),
+                  'Администратор': log.admin_login || '',
+                  'Действие': log.action_type || '',
+                  'Подробности': details,
+                  'IP': log.ip_address || ''
+                };
+              });
+              const ws = XLSX.utils.json_to_sheet(rows);
+              ws['!cols'] = [{ wch: 16 }, { wch: 20 }, { wch: 30 }, { wch: 50 }, { wch: 15 }];
+              const wb = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(wb, ws, 'Журнал');
+              const fileName = logFilterAdmin ? `журнал_${logFilterAdmin}_${new Date().toISOString().split('T')[0]}.xlsx` : `журнал_главврач_${new Date().toISOString().split('T')[0]}.xlsx`;
+              XLSX.writeFile(wb, fileName);
+            }} disabled={logEntries.length === 0}>
+              <Icon name="Download" size={14} className="mr-1" />
+              Экспорт в Excel
+            </Button>
+          </div>
           <div className="overflow-y-auto" style={{ maxHeight: '60vh' }}>
             {logLoading ? (
               <div className="text-center py-8 text-muted-foreground">Загрузка...</div>
