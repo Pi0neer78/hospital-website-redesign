@@ -643,12 +643,13 @@ const MDoctor = () => {
                 <CardTitle className="text-lg">Список врачей</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="mb-3 flex gap-2">
+                <div className="mb-3 flex gap-2 items-center">
                   <Input
                     placeholder="Поиск по ФИО и должности..."
                     value={searchFio}
                     onChange={(e) => setSearchFio(e.target.value)}
-                    className="h-8 text-sm flex-1"
+                    className="h-8 text-sm"
+                    style={{ maxWidth: '320px' }}
                   />
                   <Button 
                     size="sm" 
