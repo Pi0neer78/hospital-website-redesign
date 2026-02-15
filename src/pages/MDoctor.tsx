@@ -998,13 +998,11 @@ const MDoctor = () => {
                     <Button size="sm" variant="outline" onClick={() => {
                       const allIds = new Set(registryRecords.map((r: any) => r.id));
                       setRegistrySelected(allIds);
-                    }} className="h-8" title="Выбрать все">
-                      <Icon name="CheckSquare" size={12} className="mr-1" />
-                      <span className="text-xs">Все</span>
+                    }} className="h-8 w-8 p-0" title="Выбрать все">
+                      <Icon name="CheckSquare" size={12} />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => setRegistrySelected(new Set())} className="h-8" title="Снять все">
-                      <Icon name="Square" size={12} className="mr-1" />
-                      <span className="text-xs">Снять</span>
+                    <Button size="sm" variant="outline" onClick={() => setRegistrySelected(new Set())} className="h-8 w-8 p-0" title="Снять все">
+                      <Icon name="Square" size={12} />
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => {
                       const inverted = new Set<number>();
@@ -1012,9 +1010,94 @@ const MDoctor = () => {
                         if (!registrySelected.has(r.id)) inverted.add(r.id);
                       });
                       setRegistrySelected(inverted);
-                    }} className="h-8" title="Инвертировать">
-                      <Icon name="Replace" size={12} className="mr-1" />
-                      <span className="text-xs">Инверт.</span>
+                    }} className="h-8 w-8 p-0" title="Инвертировать">
+                      <Icon name="Replace" size={12} />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => {
+                      const printWindow = window.open('', '_blank');
+                      if (!printWindow) return;
+                      const printContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Реестр пациентов</title>
+  <style>
+    @page { size: landscape; margin: 10mm; }
+    body { font-family: Arial, sans-serif; font-size: 12px; }
+    .header { text-align: center; margin-bottom: 15px; }
+    .header h2 { margin: 5px 0; font-size: 18px; }
+    .header p { margin: 3px 0; font-size: 12px; color: #666; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #333; padding: 5px; text-align: left; }
+    th { background: #f0f0f0; font-weight: bold; font-size: 11px; }
+    td { font-size: 11px; }
+    .footer { font-size: 11px; color: #666; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>Реестр пациентов</h2>
+    <p>Дата печати: ${new Date().toLocaleString('ru-RU')}</p>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>ФИО</th>
+        <th>Телефон</th>
+        <th>Email</th>
+        <th>Источник</th>
+        <th>Жалоба</th>
+        <th>Запись</th>
+        <th>Посл. email</th>
+        <th>Посл. MAX</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${registryRecords.map((r: any) => `
+        <tr>
+          <td>${r.full_name || '—'}</td>
+          <td>${r.phone || '—'}</td>
+          <td>${r.email || '—'}</td>
+          <td>${r.source_type === 'complaint' ? 'Жалоба' : 'Запись'}</td>
+          <td>${r.complaint_date ? new Date(r.complaint_date).toLocaleDateString('ru-RU') : '—'}</td>
+          <td>${r.appointment_date ? new Date(r.appointment_date).toLocaleDateString('ru-RU') : '—'}</td>
+          <td>${r.last_email_sent_at ? new Date(r.last_email_sent_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : '—'}</td>
+          <td>${r.last_max_sent_at ? new Date(r.last_max_sent_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : '—'}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+  <div class="footer">Всего записей: ${registryRecords.length}</div>
+</body>
+</html>`;
+                      printWindow.document.write(printContent);
+                      printWindow.document.close();
+                      printWindow.focus();
+                      setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
+                    }} className="h-8 w-8 p-0" title="Печать">
+                      <Icon name="Printer" size={12} />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => {
+                      const rows = registryRecords.map((r: any) => ({
+                        'ФИО': r.full_name || '',
+                        'Телефон': r.phone || '',
+                        'Email': r.email || '',
+                        'Источник': r.source_type === 'complaint' ? 'Жалоба' : 'Запись',
+                        'Дата жалобы': r.complaint_date ? new Date(r.complaint_date).toLocaleDateString('ru-RU') : '',
+                        'Дата записи': r.appointment_date ? new Date(r.appointment_date).toLocaleDateString('ru-RU') : '',
+                        'Посл. email': r.last_email_sent_at ? new Date(r.last_email_sent_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : '',
+                        'Текст email': r.last_email_text || '',
+                        'Посл. MAX': r.last_max_sent_at ? new Date(r.last_max_sent_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', '') : '',
+                        'Текст MAX': r.last_max_text || ''
+                      }));
+                      const ws = XLSX.utils.json_to_sheet(rows);
+                      ws['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 25 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 18 }, { wch: 30 }, { wch: 18 }, { wch: 30 }];
+                      const wb = XLSX.utils.book_new();
+                      XLSX.utils.book_append_sheet(wb, ws, 'Реестр');
+                      XLSX.writeFile(wb, 'реестр_пациентов.xlsx');
+                    }} className="h-8 w-8 p-0 bg-green-600 text-white hover:bg-green-700 border-green-600" title="Экспорт в Excel">
+                      <Icon name="Download" size={12} />
                     </Button>
                   </div>
                   <Button size="sm" onClick={() => { setSendChannel('email'); setShowSendDialog(true); }} disabled={registrySelected.size === 0} className="h-8 bg-blue-600 hover:bg-blue-700">
