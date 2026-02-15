@@ -603,10 +603,6 @@ const MDoctor = () => {
             <h1 className="text-2xl font-bold text-gray-800">Кабинет главного врача</h1>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => { loadLogs(); setShowLogDialog(true); }}>
-              <Icon name="ScrollText" className="mr-2" size={16} />
-              Журнал
-            </Button>
             <Button variant="outline" onClick={handleLogout}>
               <Icon name="LogOut" className="mr-2" size={16} />
               Выйти
