@@ -798,7 +798,7 @@ const MDoctor = () => {
                                       <img
                                         src={doctor.photo_url}
                                         alt={doctor.full_name}
-                                        className="w-7 h-7 object-cover cursor-pointer rounded"
+                                        className="w-7 h-7 object-contain cursor-pointer rounded"
                                       />
                                     </div>
                                   )}
