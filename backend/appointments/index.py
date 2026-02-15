@@ -363,12 +363,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 details = body.get('details')
                 computer_name = body.get('computer_name', '')
                 
+                headers_req = event.get('headers', {})
+                ip_address = (
+                    headers_req.get('X-Forwarded-For', '').split(',')[0].strip() or
+                    headers_req.get('X-Real-IP', '') or
+                    event.get('requestContext', {}).get('identity', {}).get('sourceIp', '')
+                )
+                
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 cursor.execute("""
                     INSERT INTO t_p30358746_hospital_website_red.doctor_logs 
-                    (doctor_id, user_login, action_type, details, computer_name) 
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (doctor_id, user_login, action_type, details, computer_name))
+                    (doctor_id, user_login, action_type, details, ip_address, computer_name) 
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (doctor_id, user_login, action_type, details, ip_address, computer_name))
                 conn.commit()
                 cursor.close()
                 
