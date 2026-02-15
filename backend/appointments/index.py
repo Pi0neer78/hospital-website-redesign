@@ -275,6 +275,44 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'logs':
+                doctor_id = params.get('doctor_id')
+                limit = int(params.get('limit', '500'))
+                if limit > 2000:
+                    limit = 2000
+                
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                
+                if doctor_id:
+                    cursor.execute("""
+                        SELECT dl.id, dl.doctor_id, dl.action_type, dl.details, 
+                               dl.ip_address, dl.computer_name, dl.created_at, dl.user_login,
+                               d.full_name as doctor_name
+                        FROM t_p30358746_hospital_website_red.doctor_logs dl
+                        LEFT JOIN t_p30358746_hospital_website_red.doctors d ON d.id = dl.doctor_id
+                        WHERE dl.doctor_id = %s
+                        ORDER BY dl.created_at DESC LIMIT %s
+                    """, (doctor_id, limit))
+                else:
+                    cursor.execute("""
+                        SELECT dl.id, dl.doctor_id, dl.action_type, dl.details, 
+                               dl.ip_address, dl.computer_name, dl.created_at, dl.user_login,
+                               d.full_name as doctor_name
+                        FROM t_p30358746_hospital_website_red.doctor_logs dl
+                        LEFT JOIN t_p30358746_hospital_website_red.doctors d ON d.id = dl.doctor_id
+                        ORDER BY dl.created_at DESC LIMIT %s
+                    """, (limit,))
+                
+                logs = cursor.fetchall()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'logs': logs}, default=str),
+                    'isBase64Encoded': False
+                }
+            
             else:
                 doctor_id = params.get('doctor_id')
                 start_date = params.get('start_date')

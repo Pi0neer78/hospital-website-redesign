@@ -19,6 +19,26 @@
         "available_slots": "array"
       },
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get doctor logs",
+      "method": "GET",
+      "path": "/?action=logs&limit=10",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "logs": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get doctor logs by doctor_id",
+      "method": "GET",
+      "path": "/?action=logs&doctor_id=7&limit=5",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "logs": "array"
+      },
+      "bodyMatcher": "partial"
     }
   ]
 }
