@@ -775,7 +775,7 @@ const MDoctor = () => {
                         <Table>
                           <TableHeader>
                             <TableRow className="text-xs">
-                              <TableHead className="w-10 py-2"></TableHead>
+                              <TableHead className="w-16 py-2"></TableHead>
                               <TableHead className="py-2">ФИО</TableHead>
                               <TableHead className="py-2">Специализация</TableHead>
                               <TableHead className="py-2">Должность</TableHead>
@@ -798,7 +798,7 @@ const MDoctor = () => {
                                       <img
                                         src={doctor.photo_url}
                                         alt={doctor.full_name}
-                                        className="w-7 h-7 object-contain cursor-pointer rounded"
+                                        className="w-10 h-10 object-cover cursor-pointer rounded"
                                       />
                                     </div>
                                   )}
