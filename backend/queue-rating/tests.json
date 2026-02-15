@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Save rating",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "appointment_id": 1,
+        "patient_name": "Иванов Иван Иванович",
+        "rating": 5
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Invalid rating",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "appointment_id": 1,
+        "patient_name": "Иванов Иван Иванович",
+        "rating": 6
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,6 +51,9 @@ const Index = () => {
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successAppointmentData, setSuccessAppointmentData] = useState<any>(null);
+  const [queueRating, setQueueRating] = useState(0);
+  const [hoveredStar, setHoveredStar] = useState(0);
+  const [hasRated, setHasRated] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [maxTextIndex, setMaxTextIndex] = useState(0);
   const [isMaxBannerVisible, setIsMaxBannerVisible] = useState(false);
@@ -402,9 +406,12 @@ const Index = () => {
           patient_phone: appointmentForm.patient_phone,
           patient_snils: appointmentForm.patient_snils,
           patient_oms: appointmentForm.patient_oms,
-          description: appointmentForm.description
+          description: appointmentForm.description,
+          appointment_id: data.appointment?.id
         });
         setShowSuccessModal(true);
+        setQueueRating(0);
+        setHasRated(false);
         setIsAppointmentOpen(false);
         setAppointmentForm({ patient_name: '', patient_phone: '', patient_snils: '', patient_oms: '', appointment_time: '', description: '' });
         setSelectedDate('');
@@ -428,6 +435,34 @@ const Index = () => {
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleRatingSubmit = async (rating: number) => {
+    if (!successAppointmentData?.appointment_id) return;
+    
+    try {
+      const response = await fetch('https://functions.poehali.dev/c79c1676-b7db-416a-9147-72fc369a5950', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          appointment_id: successAppointmentData.appointment_id,
+          patient_name: successAppointmentData.patient_name,
+          rating: rating
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setHasRated(true);
+        toast({
+          title: "Спасибо за оценку!",
+          description: "Ваше мнение поможет нам стать лучше",
+        });
+      }
+    } catch (error) {
+      console.error('Rating error:', error);
     }
   };
 
@@ -2063,6 +2098,45 @@ const Index = () => {
                   </>
                 )}
               </div>
+
+              {!hasRated && successAppointmentData?.appointment_id && (
+                <div className="mt-3 pt-3 border-t border-green-200 text-center">
+                  <p className="text-xs text-muted-foreground mb-2">Оцените работу электронной очереди</p>
+                  <div className="flex justify-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => {
+                          setQueueRating(star);
+                          handleRatingSubmit(star);
+                        }}
+                        onMouseEnter={() => setHoveredStar(star)}
+                        onMouseLeave={() => setHoveredStar(0)}
+                        className="transition-transform hover:scale-110 focus:outline-none"
+                      >
+                        <Icon 
+                          name="Star" 
+                          size={24} 
+                          className={`${
+                            star <= (hoveredStar || queueRating) 
+                              ? 'fill-yellow-400 text-yellow-400' 
+                              : 'text-gray-300'
+                          } transition-colors`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {hasRated && (
+                <div className="mt-3 pt-3 border-t border-green-200 text-center">
+                  <p className="text-xs text-green-600 font-medium flex items-center justify-center gap-1">
+                    <Icon name="CheckCircle" size={14} />
+                    Спасибо за вашу оценку!
+                  </p>
+                </div>
+              )}
             </div>
           </div>
           
