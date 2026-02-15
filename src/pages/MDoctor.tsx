@@ -12,6 +12,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, C
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import RatingsStats from '@/components/ratings/RatingsStats';
 import * as XLSX from 'xlsx';
 
 const API_URLS = {
@@ -629,6 +630,10 @@ const MDoctor = () => {
             <TabsTrigger value="reports" className="py-1.5">
               <Icon name="FileText" className="mr-2" size={16} />
               Отчеты
+            </TabsTrigger>
+            <TabsTrigger value="ratings" className="py-1.5">
+              <Icon name="Star" className="mr-2" size={16} />
+              Голосование
             </TabsTrigger>
           </TabsList>
 
@@ -1554,6 +1559,10 @@ const MDoctor = () => {
                 })()}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="ratings">
+            <RatingsStats />
           </TabsContent>
         </Tabs>
       </main>
