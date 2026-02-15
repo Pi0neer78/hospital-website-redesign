@@ -518,9 +518,9 @@ const MDoctor = () => {
 
   const filteredGroupedDoctors = Object.entries(groupedDoctors).reduce((acc: Record<string, any[]>, [clinic, docs]: [string, any]) => {
     const filtered = (docs as any[]).filter((doc: any) => {
-      const fioMatch = !searchFio || doc.full_name?.toLowerCase().includes(searchFio.toLowerCase());
-      const positionMatch = !searchPosition || doc.position?.toLowerCase().includes(searchPosition.toLowerCase());
-      return fioMatch && positionMatch;
+      if (!searchFio) return true;
+      const search = searchFio.toLowerCase();
+      return doc.full_name?.toLowerCase().includes(search) || doc.position?.toLowerCase().includes(search);
     });
     
     if (filtered.length > 0) {
@@ -645,21 +645,15 @@ const MDoctor = () => {
               <CardContent>
                 <div className="mb-3 flex gap-2">
                   <Input
-                    placeholder="Поиск по ФИО..."
+                    placeholder="Поиск по ФИО и должности..."
                     value={searchFio}
                     onChange={(e) => setSearchFio(e.target.value)}
-                    className="h-8 text-sm flex-1"
-                  />
-                  <Input
-                    placeholder="Поиск по должности..."
-                    value={searchPosition}
-                    onChange={(e) => setSearchPosition(e.target.value)}
                     className="h-8 text-sm flex-1"
                   />
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    onClick={() => { setSearchFio(''); setSearchPosition(''); }}
+                    onClick={() => { setSearchFio(''); }}
                     className="h-8 w-8 p-0"
                     title="Очистить"
                   >
