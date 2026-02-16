@@ -54,6 +54,7 @@ const Index = () => {
   const [queueRating, setQueueRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [hasRated, setHasRated] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [maxTextIndex, setMaxTextIndex] = useState(0);
   const [isMaxBannerVisible, setIsMaxBannerVisible] = useState(false);
@@ -2144,7 +2145,14 @@ const Index = () => {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => setShowSuccessModal(false)}
+              onClick={() => {
+                if (!hasRated && successAppointmentData?.appointment_id) {
+                  setShowSuccessModal(false);
+                  setShowRatingModal(true);
+                } else {
+                  setShowSuccessModal(false);
+                }
+              }}
             >
               Закрыть
             </Button>
@@ -2338,6 +2346,66 @@ const Index = () => {
               onClick={() => setPhotoModalOpen(false)}
             >
               <Icon name="X" size={24} />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showRatingModal} onOpenChange={setShowRatingModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl">Оцените электронную очередь</DialogTitle>
+            <DialogDescription className="text-center">
+              Ваше мнение поможет нам улучшить сервис
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-6">
+            <p className="text-center text-sm text-muted-foreground mb-4">
+              Насколько удобна электронная очередь?
+            </p>
+            <div className="flex justify-center gap-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => {
+                    setQueueRating(star);
+                    handleRatingSubmit(star);
+                    setShowRatingModal(false);
+                  }}
+                  onMouseEnter={() => setHoveredStar(star)}
+                  onMouseLeave={() => setHoveredStar(0)}
+                  className="transition-transform hover:scale-125 focus:outline-none"
+                >
+                  <Icon 
+                    name="Star" 
+                    size={36} 
+                    className={`${
+                      star <= (hoveredStar || queueRating) 
+                        ? 'fill-yellow-400 text-yellow-400' 
+                        : 'text-gray-300'
+                    } transition-colors`}
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setHasRated(true);
+                setShowRatingModal(false);
+              }}
+            >
+              Не хочу голосовать
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setShowRatingModal(false)}
+            >
+              Закрыть
             </Button>
           </div>
         </DialogContent>
