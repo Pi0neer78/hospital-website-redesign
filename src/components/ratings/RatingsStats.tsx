@@ -1,13 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 const STATS_URL = 'https://functions.poehali.dev/3b25f41d-7581-4cd1-b467-47d00b68f03c';
 
 const RatingsStats = () => {
+  const { toast } = useToast();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [lastUpdateTime, setLastUpdateTime] = useState<string>('');
 
   const loadStats = async () => {
     setLoading(true);
@@ -16,12 +20,29 @@ const RatingsStats = () => {
       const data = await response.json();
       if (data.stats) {
         setStats(data.stats);
+        const now = new Date();
+        setLastUpdateTime(now.toLocaleString('ru-RU', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric',
+          hour: '2-digit', 
+          minute: '2-digit',
+          second: '2-digit'
+        }));
       }
     } catch (error) {
       console.error('Error loading stats:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRefresh = async () => {
+    await loadStats();
+    toast({
+      title: "Статистика обновлена",
+      description: "Данные голосования актуализированы",
+    });
   };
 
   useEffect(() => {
@@ -123,6 +144,23 @@ const RatingsStats = () => {
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between gap-3 px-4 py-3 bg-muted/30 rounded-lg border">
+        <div className="text-left">
+          <p className="text-xs text-muted-foreground">Последнее обновление статистики</p>
+          <p className="text-sm font-medium">{lastUpdateTime || 'Загрузка...'}</p>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleRefresh}
+          disabled={loading}
+          className="gap-2"
+        >
+          <Icon name="RefreshCw" size={16} className={loading ? 'animate-spin' : ''} />
+          Обновить
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {renderPeriodCard('За сутки', 'day', 'Clock')}
         {renderPeriodCard('За неделю', 'week', 'Calendar')}
