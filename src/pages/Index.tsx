@@ -62,6 +62,7 @@ const Index = () => {
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [photoModalUrl, setPhotoModalUrl] = useState('');
+  const [lastUpdateTime, setLastUpdateTime] = useState<string>('');
 
   const maxTexts = [
     'Максимум возможностей для жизни',
@@ -74,6 +75,15 @@ const Index = () => {
 
   useEffect(() => {
     loadDoctors();
+    const now = new Date();
+    setLastUpdateTime(now.toLocaleString('ru-RU', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: '2-digit'
+    }));
     
     const bannerClosed = localStorage.getItem('maxBannerClosed');
     if (!bannerClosed) {
@@ -2391,22 +2401,54 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setHasRated(true);
-                setShowRatingModal(false);
-              }}
-            >
-              Не хочу голосовать
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setShowRatingModal(false)}
-            >
-              Закрыть
-            </Button>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3 px-3 py-2 bg-muted/30 rounded-lg border">
+              <div className="text-left">
+                <p className="text-xs text-muted-foreground">Последнее обновление</p>
+                <p className="text-xs font-medium">{lastUpdateTime || 'Загрузка...'}</p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const now = new Date();
+                  setLastUpdateTime(now.toLocaleString('ru-RU', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                  }));
+                  toast({
+                    title: "Данные обновлены",
+                    description: "Информация актуализирована",
+                  });
+                }}
+                className="gap-1"
+              >
+                <Icon name="RefreshCw" size={14} />
+                Обновить
+              </Button>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setHasRated(true);
+                  setShowRatingModal(false);
+                }}
+              >
+                Не хочу голосовать
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setShowRatingModal(false)}
+              >
+                Закрыть
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
