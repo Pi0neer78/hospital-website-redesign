@@ -1346,8 +1346,8 @@ const Index = () => {
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
               Узнайте больше о нашей больнице
             </h2>
-            <p className="text-lg text-muted-foreground mb-10">История, коллектив, современное оборудование и 
-цифровые технологии ГУ "АЦГМБ" ЛНР</p>
+            <p className="text-lg text-muted-foreground mb-10">История, коллектив, современное оборудование и цифровые 
+технологии ГБУЗ "АЦГМБ" ЛНР</p>
             <a href="/about">
               <Button 
                 size="lg" 
