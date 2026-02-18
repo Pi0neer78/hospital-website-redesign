@@ -283,8 +283,9 @@ const HowToBook = () => {
             <CardContent className="space-y-4">
               <div>
                 <h4 className="font-semibold mb-2">Телефоны:</h4>
-                <p className="text-muted-foreground">Регистратура: +7-857-312-51-02</p>
                 <p className="text-muted-foreground">Приемная главного врача: +7-857-312-51-02</p>
+                <p className="text-muted-foreground">Регистратура детской поликлиники: +7-857-312-59-59</p>
+                <p className="text-muted-foreground">Регистратура поликлиники (взрослая): +7-857-312-60-44</p>
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Email:</h4>
