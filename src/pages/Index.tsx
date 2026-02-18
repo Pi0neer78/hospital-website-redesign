@@ -1457,7 +1457,7 @@ const Index = () => {
                   <Icon name="Stethoscope" size={32} className="text-white" />
                 </div>
                 <CardTitle className="text-lg">Чумак А.А.</CardTitle>
-                <CardDescription className="text-base font-medium">Зам. главного врача по мед. обслуживанию</CardDescription>
+                <CardDescription className="text-base font-medium">Заместитель главного врача по организационно-методической работе</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
