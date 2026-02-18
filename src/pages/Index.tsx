@@ -1375,8 +1375,8 @@ const Index = () => {
                   alt="Бровкин Е.В."
                   className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
                 />
-                <CardTitle className="text-lg">БРОВКИН Евгений Владимирович
-</CardTitle>
+                <CardTitle className="text-lg">БРОВКИН
+Евгений Владимирович</CardTitle>
                 <CardDescription className="text-base font-medium">Главный врач ГБУЗ «АЦГМБ» ЛНР</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -1395,8 +1395,8 @@ const Index = () => {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20 mb-4">
                   <Icon name="User" size={32} className="text-primary" />
                 </div>
-                <CardTitle className="text-lg">СУЯЛКИН Олег Павлович
-</CardTitle>
+                <CardTitle className="text-lg">СУЯЛКИН
+Олег Павлович</CardTitle>
                 <CardDescription className="text-base font-medium">Зам. главного врача по медицинской части</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -1415,8 +1415,8 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
                   <Icon name="ClipboardCheck" size={32} className="text-white" />
                 </div>
-                <CardTitle className="text-lg">КОМАРОВА Елена Геннадиевна
-</CardTitle>
+                <CardTitle className="text-lg">КОМАРОВА
+Елена Геннадиевна</CardTitle>
                 <CardDescription className="text-base font-medium">Заместитель главного врача по поликлинической работе</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -1435,8 +1435,8 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
                   <Icon name="Stethoscope" size={32} className="text-white" />
                 </div>
-                <CardTitle className="text-lg">ЧУМАК Анна Анатольевна
-</CardTitle>
+                <CardTitle className="text-lg">ЧУМАК
+Анна Анатольевна</CardTitle>
                 <CardDescription className="text-base font-medium">Заместитель главного врача по организационно-методической работе</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -1455,8 +1455,8 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
                   <Icon name="HeartPulse" size={32} className="text-white" />
                 </div>
-                <CardTitle className="text-lg">УКОЛОВА Юлия Михайловна
-</CardTitle>
+                <CardTitle className="text-lg">УКОЛОВА
+Юлия Михайловна</CardTitle>
                 <CardDescription className="text-base font-medium">Заместитель главного врача по клинико-экспертной работе</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
