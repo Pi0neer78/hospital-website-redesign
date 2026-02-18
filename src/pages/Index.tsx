@@ -1770,9 +1770,7 @@ const Index = () => {
       <section id="contacts" className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-4">Контактные данные</h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Связь с администрацией и специалистами ГУ «АЦГМБ» ЛНР
-          </p>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">Связь с администрацией и специалистами ГБУЗ «АЦГМБ» ЛНР</p>
 
           <div className="max-w-5xl mx-auto space-y-8">
             <Card className="border-2 border-primary/20">
