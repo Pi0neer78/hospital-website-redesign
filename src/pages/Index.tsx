@@ -1492,7 +1492,7 @@ const Index = () => {
                     </div>
                     <div>
                       <p className="font-semibold">Позвоните в приемную</p>
-                      <p className="text-sm text-muted-foreground">Телефон: +7-857-312-51-02</p>
+                      <p className="text-sm text-muted-foreground">Телефон: +7959020696 или +78573126057</p>
                       <p className="text-sm text-muted-foreground">Время работы: Пн-Пт 09:00-17:00</p>
                     </div>
                   </div>
