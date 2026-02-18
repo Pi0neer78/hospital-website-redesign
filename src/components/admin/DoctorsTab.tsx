@@ -142,7 +142,7 @@ const DoctorsTab = ({
                 <Button size="sm" variant="ghost" onClick={() => onToggleActive(doctor)}>
                   <Icon name={doctor.is_active ? 'EyeOff' : 'Eye'} size={16} />
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => { setEditingDoctor(doctor); setIsEditOpen(true); }}>
+                <Button size="sm" variant="ghost" onClick={() => { setEditingDoctor({ ...doctor, password: '' }); setIsEditOpen(true); }}>
                   <Icon name="Edit" size={16} />
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => onDeleteDoctor(doctor.id)}>
