@@ -1402,7 +1402,8 @@ const Index = () => {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20 mb-4">
                   <Icon name="User" size={32} className="text-primary" />
                 </div>
-                <CardTitle className="text-lg">Суялкин О.П.</CardTitle>
+                <CardTitle className="text-lg">СУЯЛКИН Олег Павлович
+</CardTitle>
                 <CardDescription className="text-base font-medium">Зам. главного врача по медицинской части</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
