@@ -549,10 +549,15 @@ const Admin = () => {
     e.preventDefault();
     
     try {
+      const updateData = { ...editingDoctor };
+      if (!updateData.password || updateData.password.trim() === '') {
+        delete updateData.password;
+      }
+      
       const response = await fetch(API_URLS.doctors, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingDoctor),
+        body: JSON.stringify(updateData),
       });
       
       const data = await response.json();
