@@ -41,6 +41,7 @@ const Admin = () => {
   });
   const [isOpen, setIsOpen] = useState(false);
   const [editingDoctor, setEditingDoctor] = useState<any>(null);
+  const [editDoctorPassword, setEditDoctorPassword] = useState('');
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -550,8 +551,8 @@ const Admin = () => {
     
     try {
       const updateData = { ...editingDoctor };
-      if (!updateData.password || updateData.password.trim() === '') {
-        delete updateData.password;
+      if (editDoctorPassword && editDoctorPassword.trim() !== '') {
+        updateData.password = editDoctorPassword.trim();
       }
       console.log('[DEBUG] Отправка данных врача:', updateData);
       
@@ -565,9 +566,9 @@ const Admin = () => {
       
       if (response.ok && data.success) {
         toast({ title: "Успешно", description: "Данные врача обновлены" });
-        setDoctorForm({ full_name: '', phone: '', position: '', specialization: '', login: '', password: '', photo_url: '', clinic: 'Центральная городская поликлиника', education: '', work_experience: '', office_number: '' });
         setIsEditOpen(false);
         setEditingDoctor(null);
+        setEditDoctorPassword('');
         loadDoctors();
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось обновить врача", variant: "destructive" });
@@ -701,19 +702,7 @@ const Admin = () => {
 
   const openEditDialog = (doctor: any) => {
     setEditingDoctor(doctor);
-    setDoctorForm({
-      full_name: doctor.full_name,
-      phone: doctor.phone || '',
-      position: doctor.position,
-      specialization: doctor.specialization || '',
-      login: doctor.login,
-      password: '',
-      photo_url: doctor.photo_url || '',
-      clinic: doctor.clinic || 'Центральная городская поликлиника',
-      education: doctor.education || '',
-      work_experience: doctor.work_experience || '',
-      office_number: doctor.office_number || ''
-    });
+    setEditDoctorPassword('');
     setIsEditOpen(true);
   };
 
@@ -1620,8 +1609,8 @@ const Admin = () => {
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">ФИО врача *</label>
                       <Input
-                        value={doctorForm.full_name}
-                        onChange={(e) => setDoctorForm({ ...doctorForm, full_name: e.target.value })}
+                        value={editingDoctor?.full_name || ''}
+                        onChange={(e) => setEditingDoctor({ ...editingDoctor, full_name: e.target.value })}
                         required
                         className="h-9"
                       />
@@ -1629,8 +1618,8 @@ const Admin = () => {
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Телефон</label>
                       <Input
-                        value={doctorForm.phone}
-                        onChange={(e) => setDoctorForm({ ...doctorForm, phone: e.target.value })}
+                        value={editingDoctor?.phone || ''}
+                        onChange={(e) => setEditingDoctor({ ...editingDoctor, phone: e.target.value })}
                         className="h-9"
                       />
                     </div>
@@ -1640,8 +1629,8 @@ const Admin = () => {
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Должность *</label>
                       <Input
-                        value={doctorForm.position}
-                        onChange={(e) => setDoctorForm({ ...doctorForm, position: e.target.value })}
+                        value={editingDoctor?.position || ''}
+                        onChange={(e) => setEditingDoctor({ ...editingDoctor, position: e.target.value })}
                         required
                         className="h-9"
                       />
@@ -1649,8 +1638,8 @@ const Admin = () => {
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Специализация</label>
                       <Input
-                        value={doctorForm.specialization}
-                        onChange={(e) => setDoctorForm({ ...doctorForm, specialization: e.target.value })}
+                        value={editingDoctor?.specialization || ''}
+                        onChange={(e) => setEditingDoctor({ ...editingDoctor, specialization: e.target.value })}
                         className="h-9"
                       />
                     </div>
@@ -1660,8 +1649,8 @@ const Admin = () => {
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Учебное заведение</label>
                       <Input
-                        value={doctorForm.education}
-                        onChange={(e) => setDoctorForm({ ...doctorForm, education: e.target.value })}
+                        value={editingDoctor?.education || ''}
+                        onChange={(e) => setEditingDoctor({ ...editingDoctor, education: e.target.value })}
                         className="h-9"
                       />
                     </div>
@@ -1669,16 +1658,16 @@ const Admin = () => {
                       <label className="text-xs font-medium text-muted-foreground">Стаж работы (лет)</label>
                       <Input
                         type="number"
-                        value={doctorForm.work_experience}
-                        onChange={(e) => setDoctorForm({ ...doctorForm, work_experience: e.target.value })}
+                        value={editingDoctor?.work_experience || ''}
+                        onChange={(e) => setEditingDoctor({ ...editingDoctor, work_experience: e.target.value })}
                         className="h-9"
                       />
                     </div>
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Номер кабинета</label>
                       <Input
-                        value={doctorForm.office_number}
-                        onChange={(e) => setDoctorForm({ ...doctorForm, office_number: e.target.value })}
+                        value={editingDoctor?.office_number || ''}
+                        onChange={(e) => setEditingDoctor({ ...editingDoctor, office_number: e.target.value })}
                         className="h-9"
                       />
                     </div>
@@ -1687,8 +1676,8 @@ const Admin = () => {
                   <div>
                     <label className="text-xs font-medium text-muted-foreground">Поликлиника</label>
                     <Select 
-                      value={doctorForm.clinic} 
-                      onValueChange={(value) => setDoctorForm({ ...doctorForm, clinic: value })}
+                      value={editingDoctor?.clinic || ''} 
+                      onValueChange={(value) => setEditingDoctor({ ...editingDoctor, clinic: value })}
                     >
                       <SelectTrigger className="h-9">
                         <SelectValue placeholder="Выберите поликлинику" />
@@ -1707,8 +1696,8 @@ const Admin = () => {
                   <div>
                     <label className="text-xs font-medium text-muted-foreground">Логин</label>
                     <Input
-                      value={doctorForm.login}
-                      onChange={(e) => setDoctorForm({ ...doctorForm, login: e.target.value })}
+                      value={editingDoctor?.login || ''}
+                      onChange={(e) => setEditingDoctor({ ...editingDoctor, login: e.target.value })}
                       className="h-9"
                     />
                   </div>
@@ -1723,10 +1712,10 @@ const Admin = () => {
                         isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
                       }`}
                     >
-                      {doctorForm.photo_url ? (
+                      {editingDoctor?.photo_url ? (
                         <div className="flex items-center gap-3">
                           <img 
-                            src={doctorForm.photo_url} 
+                            src={editingDoctor.photo_url} 
                             alt="Предпросмотр" 
                             className="w-16 h-16 object-cover rounded-lg"
                             onError={(e) => {
@@ -1737,7 +1726,7 @@ const Admin = () => {
                             type="button" 
                             variant="outline" 
                             size="sm" 
-                            onClick={() => setDoctorForm({ ...doctorForm, photo_url: '' })}
+                            onClick={() => setEditingDoctor({ ...editingDoctor, photo_url: '' })}
                           >
                             <Icon name="Trash2" size={14} className="mr-1" />
                             Удалить
@@ -1762,8 +1751,8 @@ const Admin = () => {
                           </label>
                           <Input
                             placeholder="или URL"
-                            value={doctorForm.photo_url}
-                            onChange={(e) => setDoctorForm({ ...doctorForm, photo_url: e.target.value })}
+                            value={editingDoctor?.photo_url || ''}
+                            onChange={(e) => setEditingDoctor({ ...editingDoctor, photo_url: e.target.value })}
                             className="h-9 max-w-[200px]"
                           />
                         </div>
@@ -1775,8 +1764,8 @@ const Admin = () => {
                     <div className="relative">
                       <Input
                         type={showPassword ? "text" : "password"}
-                        value={doctorForm.password}
-                        onChange={(e) => setDoctorForm({ ...doctorForm, password: e.target.value })}
+                        value={editDoctorPassword}
+                        onChange={(e) => setEditDoctorPassword(e.target.value)}
                         className="h-9 pr-10"
                       />
                       <Button

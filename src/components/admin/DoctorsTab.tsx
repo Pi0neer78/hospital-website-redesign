@@ -14,6 +14,8 @@ interface DoctorsTabProps {
   setIsOpen: (open: boolean) => void;
   editingDoctor: any;
   setEditingDoctor: (doctor: any) => void;
+  editDoctorPassword: string;
+  setEditDoctorPassword: (password: string) => void;
   isEditOpen: boolean;
   setIsEditOpen: (open: boolean) => void;
   onCreateDoctor: (e: React.FormEvent) => void;
@@ -28,6 +30,7 @@ interface DoctorsTabProps {
 
 const DoctorsTab = ({
   doctors, doctorForm, setDoctorForm, isOpen, setIsOpen, editingDoctor, setEditingDoctor,
+  editDoctorPassword, setEditDoctorPassword,
   isEditOpen, setIsEditOpen, onCreateDoctor, onUpdateDoctor, onDeleteDoctor, onToggleActive,
   isUploading, isDragging, setIsDragging, onUploadPhoto
 }: DoctorsTabProps) => {
@@ -142,7 +145,7 @@ const DoctorsTab = ({
                 <Button size="sm" variant="ghost" onClick={() => onToggleActive(doctor)}>
                   <Icon name={doctor.is_active ? 'EyeOff' : 'Eye'} size={16} />
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => { setEditingDoctor({ ...doctor, password: '' }); setIsEditOpen(true); }}>
+                <Button size="sm" variant="ghost" onClick={() => { setEditingDoctor(doctor); setEditDoctorPassword(''); setIsEditOpen(true); }}>
                   <Icon name="Edit" size={16} />
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => onDeleteDoctor(doctor.id)}>
@@ -191,13 +194,8 @@ const DoctorsTab = ({
                 <Input 
                   type={showEditPassword ? "text" : "password"} 
                   placeholder="Новый пароль (оставьте пустым)" 
-                  value={editingDoctor.password || ''} 
-                  onChange={(e) => {
-                    const newPassword = e.target.value;
-                    console.log('[DEBUG] Изменение пароля:', newPassword);
-                    setEditingDoctor({...editingDoctor, password: newPassword});
-                    console.log('[DEBUG] После изменения:', {...editingDoctor, password: newPassword});
-                  }} 
+                  value={editDoctorPassword} 
+                  onChange={(e) => setEditDoctorPassword(e.target.value)} 
                   className="pr-10" 
                 />
                 <Button type="button" variant="ghost" size="sm" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent">
