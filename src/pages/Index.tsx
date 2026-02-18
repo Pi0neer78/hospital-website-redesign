@@ -1363,114 +1363,11 @@ const Index = () => {
 
       <section id="doctors" className="py-16 bg-muted/50">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-4">График приёма граждан</h2>
-          <p className="text-center text-muted-foreground mb-2 max-w-3xl mx-auto text-lg">
-            главным врачом и заместителями главного врача ГБУЗ «АЦГМБ» ЛНР
+          <h2 className="text-4xl font-bold text-center mb-4">График приема граждан</h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Прием граждан по личным вопросам осуществляется руководством и специалистами больницы
           </p>
-          <p className="text-center text-sm text-muted-foreground mb-12 max-w-2xl mx-auto">
-            В случае если на понедельник выпадает праздничный или нерабочий день, приём осуществляется в первый рабочий день, следующий за понедельником
-          </p>
-
-          <div className="max-w-6xl mx-auto overflow-x-auto mb-8">
-            <table className="w-full border-collapse bg-white rounded-lg shadow-lg overflow-hidden">
-              <thead>
-                <tr className="bg-primary text-primary-foreground">
-                  <th className="px-6 py-4 text-left font-bold">ФИО</th>
-                  <th className="px-6 py-4 text-left font-bold">ДОЛЖНОСТЬ</th>
-                  <th className="px-6 py-4 text-left font-bold">ДНИ НЕДЕЛИ И ЧАСЫ</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b hover:bg-muted/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-semibold">БРОВКИН</div>
-                    <div>Евгений</div>
-                    <div>Владимирович</div>
-                  </td>
-                  <td className="px-6 py-4">Главный врач ГБУЗ «АЦГМБ» ЛНР</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Icon name="Clock" size={18} className="text-primary" />
-                      <div>
-                        <div className="font-semibold">Понедельник</div>
-                        <div className="text-sm text-muted-foreground">с 12<sup>00</sup> по 14<sup>00</sup></div>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-b hover:bg-muted/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-semibold">СУЯЛКИН</div>
-                    <div>Олег</div>
-                    <div>Павлович</div>
-                  </td>
-                  <td className="px-6 py-4">Заместитель главного врача по медицинской части</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Icon name="Clock" size={18} className="text-primary" />
-                      <div>
-                        <div className="font-semibold">Вторник</div>
-                        <div className="text-sm text-muted-foreground">с 10<sup>00</sup> по 12<sup>00</sup></div>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-b hover:bg-muted/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-semibold">КОМАРОВА</div>
-                    <div>Елена</div>
-                    <div>Геннадиевна</div>
-                  </td>
-                  <td className="px-6 py-4">Заместитель главного врача по поликлинической работе</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Icon name="Clock" size={18} className="text-primary" />
-                      <div>
-                        <div className="font-semibold">Среда</div>
-                        <div className="text-sm text-muted-foreground">с 10<sup>00</sup> по 12<sup>00</sup></div>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-b hover:bg-muted/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-semibold">ЧУМАК</div>
-                    <div>Анна</div>
-                    <div>Анатольевна</div>
-                  </td>
-                  <td className="px-6 py-4">Заместитель главного врача по организационно-методической работе</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Icon name="Clock" size={18} className="text-primary" />
-                      <div>
-                        <div className="font-semibold">Четверг</div>
-                        <div className="text-sm text-muted-foreground">с 10<sup>00</sup> по 12<sup>00</sup></div>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="hover:bg-muted/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-semibold">УКОЛОВА</div>
-                    <div>Юлия</div>
-                    <div>Михайловна</div>
-                  </td>
-                  <td className="px-6 py-4">Заместитель главного врача по клинико-экспертной работе</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Icon name="Clock" size={18} className="text-primary" />
-                      <div>
-                        <div className="font-semibold">Пятница</div>
-                        <div className="text-sm text-muted-foreground">с 10<sup>00</sup> по 12<sup>00</sup></div>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
                 <img 
@@ -1615,33 +1512,63 @@ const Index = () => {
 
           <Card className="mt-8 max-w-4xl mx-auto bg-primary/5 border-2 border-primary/20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-3 text-xl">
-                <Icon name="Phone" size={24} />
-                Предварительная запись и контакты
-              </CardTitle>
+              <CardTitle className="flex items-center gap-3 text-xl">Как записаться на прием по личным вопросам к руководству больницы</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <Icon name="Phone" size={20} className="text-primary mt-1" />
-                  <div>
-                    <p className="font-semibold">Телефоны для записи:</p>
-                    <p className="text-muted-foreground">+7 959 020 69 6</p>
-                    <p className="text-muted-foreground">+7 857 312 60 57</p>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white font-bold text-sm">1</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Позвоните в приемную</p>
+                      <p className="text-sm text-muted-foreground">Телефон: +7-857-312-51-02</p>
+                      <p className="text-sm text-muted-foreground">Время работы: Пн-Пт 09:00-17:00</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white font-bold text-sm">2</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Укажите данные</p>
+                      <p className="text-sm text-muted-foreground">ФИО, контактный телефон, суть вопроса</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="Mail" size={20} className="text-primary mt-1" />
-                  <div>
-                    <p className="font-semibold">Электронная почта:</p>
-                    <p className="text-muted-foreground">antrasit_1gorbolnica@mail.ru</p>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white font-bold text-sm">3</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Выберите должностное лицо</p>
+                      <p className="text-sm text-muted-foreground">Специалист запишет вас на удобное время приема</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white font-bold text-sm">4</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Получите подтверждение</p>
+                      <p className="text-sm text-muted-foreground">Вам сообщат дату, время и место приема</p>
+                    </div>
                   </div>
                 </div>
+              </div>
+              <div className="mt-6 p-4 bg-white rounded-lg border border-primary/20">
                 <div className="flex items-start gap-3">
-                  <Icon name="IdCard" size={20} className="text-primary mt-1" />
+                  <Icon name="AlertCircle" size={24} className="text-primary mt-1 flex-shrink-0" />
                   <div>
-                    <p className="font-semibold">Необходимые документы:</p>
-                    <p className="text-muted-foreground">При себе необходимо иметь документ, удостоверяющий личность</p>
+                    <p className="font-semibold mb-2">Важная информация:</p>
+                    <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                      <li>Прием осуществляется строго по предварительной записи</li>
+                      <li>При себе иметь документ, удостоверяющий личность</li>
+                      <li>Просьба приходить за 5-10 минут до назначенного времени</li>
+                      <li>В случае невозможности прийти, просьба заранее предупредить по телефону</li>
+                    </ul>
                   </div>
                 </div>
               </div>
