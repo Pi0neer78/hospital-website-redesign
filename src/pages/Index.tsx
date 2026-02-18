@@ -1476,6 +1476,14 @@ const Index = () => {
               <CardTitle className="flex items-center gap-3 text-xl">Как записаться на прием по личным вопросам к руководству больницы</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <Icon name="AlertCircle" size={20} className="text-amber-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-amber-900">
+                    В случае если на понедельник выпадает праздничный или нерабочий день, приём осуществляется в первый рабочий день, следующий за понедельником.
+                  </p>
+                </div>
+              </div>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
