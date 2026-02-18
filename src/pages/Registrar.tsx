@@ -103,16 +103,16 @@ const Registrar = () => {
   }, [selectedDoctor]);
 
   useEffect(() => {
-    if (rescheduleSelectedDate) {
+    if (rescheduleSelectedDate && rescheduleDialog) {
       loadRescheduleSlots(rescheduleSelectedDate);
     }
-  }, [rescheduleSelectedDate]);
+  }, [rescheduleSelectedDate, rescheduleDialog]);
 
   useEffect(() => {
-    if (cloneSelectedDate) {
+    if (cloneSelectedDate && cloneDialog) {
       loadCloneSlots(cloneSelectedDate);
     }
-  }, [cloneSelectedDate]);
+  }, [cloneSelectedDate, cloneDialog]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
