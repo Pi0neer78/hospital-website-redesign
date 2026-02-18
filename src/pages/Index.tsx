@@ -1538,10 +1538,7 @@ const Index = () => {
 
           <Card className="mt-8 max-w-4xl mx-auto bg-primary/5 border-2 border-primary/20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-3 text-xl">
-                <Icon name="Info" size={28} className="text-primary" />
-                Как записаться на прием
-              </CardTitle>
+              <CardTitle className="flex items-center gap-3 text-xl">Как записаться на прием по личным вопросам к руководству больницы</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid md:grid-cols-2 gap-6">
