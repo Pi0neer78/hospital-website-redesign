@@ -1375,7 +1375,8 @@ const Index = () => {
                   alt="Бровкин Е.В."
                   className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
                 />
-                <CardTitle className="text-lg">Бровкин Е.В.</CardTitle>
+                <CardTitle className="text-lg">БРОВКИН Евгений Владимирович
+</CardTitle>
                 <CardDescription className="text-base font-medium">Главный врач</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -1427,8 +1428,7 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
                   <Icon name="ClipboardCheck" size={32} className="text-white" />
                 </div>
-                <CardTitle className="text-lg">УКОЛОВА Ю.М.
-</CardTitle>
+                <CardTitle className="text-lg">Уколова Ю.М.</CardTitle>
                 <CardDescription className="text-base font-medium">Зам. главного врача по экспертизе ВН</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
