@@ -1412,11 +1412,12 @@ const Index = () => {
 
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
-                  <Icon name="ClipboardCheck" size={32} className="text-white" />
-                </div>
-                <CardTitle className="text-lg">КОМАРОВА
-Елена Геннадиевна</CardTitle>
+                <img 
+                  src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/70adb75d-09a3-4187-a320-8cf3e5b2a4fc.jpg" 
+                  alt="Комарова Е.Г."
+                  className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
+                />
+                <CardTitle className="text-lg">КОМАРОВА Елена Геннадиевна</CardTitle>
                 <CardDescription className="text-base font-medium">Заместитель главного врача по поликлинической работе</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
