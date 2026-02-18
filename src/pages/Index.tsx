@@ -1600,6 +1600,39 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
+
+          <Card className="mt-8 max-w-4xl mx-auto bg-accent/5 border-2 border-accent/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <Icon name="Phone" size={28} className="text-accent" />
+                Для записи на прием к врачам
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="flex items-start gap-4 p-4 bg-white rounded-lg border border-accent/20">
+                  <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
+                    <Icon name="Baby" size={24} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-lg mb-1">Детская поликлиника</p>
+                    <a href="tel:+78573125959" className="text-accent hover:underline font-medium text-lg">+7-857-312-59-59</a>
+                    <p className="text-sm text-muted-foreground mt-1">Регистратура</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-4 bg-white rounded-lg border border-accent/20">
+                  <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
+                    <Icon name="Users" size={24} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-lg mb-1">Взрослая поликлиника</p>
+                    <a href="tel:+78573126044" className="text-accent hover:underline font-medium text-lg">+7-857-312-60-44</a>
+                    <p className="text-sm text-muted-foreground mt-1">Регистратура</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
