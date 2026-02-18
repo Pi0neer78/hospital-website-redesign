@@ -1482,7 +1482,8 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
                   <Icon name="HeartPulse" size={32} className="text-white" />
                 </div>
-                <CardTitle className="text-lg">Станкевич Л.К.</CardTitle>
+                <CardTitle className="text-lg">УКОЛОВА Юлия Михайловна
+</CardTitle>
                 <CardDescription className="text-base font-medium">Главная медицинская сестра</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
