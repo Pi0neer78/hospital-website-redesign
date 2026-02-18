@@ -1392,11 +1392,12 @@ const Index = () => {
 
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20 mb-4">
-                  <Icon name="User" size={32} className="text-primary" />
-                </div>
-                <CardTitle className="text-lg">СУЯЛКИН
-Олег Павлович</CardTitle>
+                <img 
+                  src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/fea71775-0c41-4242-9517-06d9695482a5.jpg" 
+                  alt="Суялкин О.П."
+                  className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
+                />
+                <CardTitle className="text-lg">СУЯЛКИН Олег Павлович</CardTitle>
                 <CardDescription className="text-base font-medium">Зам. главного врача по медицинской части</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
