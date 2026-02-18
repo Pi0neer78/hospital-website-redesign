@@ -1454,11 +1454,12 @@ const Index = () => {
 
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
-                  <Icon name="HeartPulse" size={32} className="text-white" />
-                </div>
-                <CardTitle className="text-lg">УКОЛОВА
-Юлия Михайловна</CardTitle>
+                <img 
+                  src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/1a3c881a-dfc9-4de4-9be8-aa29dfb7088d.jpg" 
+                  alt="Уколова Ю.М."
+                  className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
+                />
+                <CardTitle className="text-lg">УКОЛОВА Юлия Михайловна</CardTitle>
                 <CardDescription className="text-base font-medium">Заместитель главного врача по клинико-экспертной работе</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
