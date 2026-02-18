@@ -188,7 +188,18 @@ const DoctorsTab = ({
               <Input placeholder="Стаж" value={editingDoctor.work_experience} onChange={(e) => setEditingDoctor({...editingDoctor, work_experience: e.target.value})} />
               <Input placeholder="Кабинет" value={editingDoctor.office_number} onChange={(e) => setEditingDoctor({...editingDoctor, office_number: e.target.value})} />
               <div className="relative">
-                <Input type={showEditPassword ? "text" : "password"} placeholder="Новый пароль (оставьте пустым)" value={editingDoctor.password || ''} onChange={(e) => setEditingDoctor({...editingDoctor, password: e.target.value})} className="pr-10" />
+                <Input 
+                  type={showEditPassword ? "text" : "password"} 
+                  placeholder="Новый пароль (оставьте пустым)" 
+                  value={editingDoctor.password || ''} 
+                  onChange={(e) => {
+                    const newPassword = e.target.value;
+                    console.log('[DEBUG] Изменение пароля:', newPassword);
+                    setEditingDoctor({...editingDoctor, password: newPassword});
+                    console.log('[DEBUG] После изменения:', {...editingDoctor, password: newPassword});
+                  }} 
+                  className="pr-10" 
+                />
                 <Button type="button" variant="ghost" size="sm" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-0 top-0 h-10 px-3 hover:bg-transparent">
                   <Icon name={showEditPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
                 </Button>
