@@ -553,6 +553,7 @@ const Admin = () => {
       if (!updateData.password || updateData.password.trim() === '') {
         delete updateData.password;
       }
+      console.log('[DEBUG] Отправка данных врача:', updateData);
       
       const response = await fetch(API_URLS.doctors, {
         method: 'PUT',
