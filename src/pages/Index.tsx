@@ -1484,7 +1484,7 @@ const Index = () => {
                 </div>
                 <CardTitle className="text-lg">УКОЛОВА Юлия Михайловна
 </CardTitle>
-                <CardDescription className="text-base font-medium">Главная медицинская сестра</CardDescription>
+                <CardDescription className="text-base font-medium">Заместитель главного врача по клинико-экспертной работе</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
