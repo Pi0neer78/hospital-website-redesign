@@ -1429,7 +1429,8 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
                   <Icon name="ClipboardCheck" size={32} className="text-white" />
                 </div>
-                <CardTitle className="text-lg">Уколова Ю.М.</CardTitle>
+                <CardTitle className="text-lg">КОМАРОВА Елена Геннадиевна
+</CardTitle>
                 <CardDescription className="text-base font-medium">Зам. главного врача по экспертизе ВН</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
