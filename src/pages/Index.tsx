@@ -1384,14 +1384,7 @@ const Index = () => {
                   <Icon name="Calendar" size={20} className="text-primary mt-1" />
                   <div>
                     <p className="font-semibold text-sm">Понедельник</p>
-                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
-                  <div>
-                    <p className="font-semibold text-sm">Среда</p>
-                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                    <p className="text-sm text-muted-foreground">12:00 - 14:00</p>
                   </div>
                 </div>
               </CardContent>
@@ -1411,14 +1404,7 @@ const Index = () => {
                   <Icon name="Calendar" size={20} className="text-primary mt-1" />
                   <div>
                     <p className="font-semibold text-sm">Вторник</p>
-                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
-                  <div>
-                    <p className="font-semibold text-sm">Четверг</p>
-                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                    <p className="text-sm text-muted-foreground">10:00 - 12:00</p>
                   </div>
                 </div>
               </CardContent>
@@ -1431,21 +1417,14 @@ const Index = () => {
                 </div>
                 <CardTitle className="text-lg">КОМАРОВА Елена Геннадиевна
 </CardTitle>
-                <CardDescription className="text-base font-medium">Заместитель главного врача поликлинической работе</CardDescription>
+                <CardDescription className="text-base font-medium">Заместитель главного врача по поликлинической работе</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
                   <Icon name="Calendar" size={20} className="text-primary mt-1" />
                   <div>
                     <p className="font-semibold text-sm">Среда</p>
-                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
-                  <div>
-                    <p className="font-semibold text-sm">Пятница</p>
-                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                    <p className="text-sm text-muted-foreground">10:00 - 12:00</p>
                   </div>
                 </div>
               </CardContent>
@@ -1456,7 +1435,8 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mb-4">
                   <Icon name="Stethoscope" size={32} className="text-white" />
                 </div>
-                <CardTitle className="text-lg">Чумак А.А.</CardTitle>
+                <CardTitle className="text-lg">ЧУМАК Анна Анатольевна
+</CardTitle>
                 <CardDescription className="text-base font-medium">Заместитель главного врача по организационно-методической работе</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -1464,14 +1444,7 @@ const Index = () => {
                   <Icon name="Calendar" size={20} className="text-primary mt-1" />
                   <div>
                     <p className="font-semibold text-sm">Четверг</p>
-                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
-                  <div>
-                    <p className="font-semibold text-sm">Пятница</p>
-                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                    <p className="text-sm text-muted-foreground">10:00 - 12:00</p>
                   </div>
                 </div>
               </CardContent>
@@ -1490,22 +1463,8 @@ const Index = () => {
                 <div className="flex items-start gap-3">
                   <Icon name="Calendar" size={20} className="text-primary mt-1" />
                   <div>
-                    <p className="font-semibold text-sm">Вторник</p>
-                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
-                  <div>
-                    <p className="font-semibold text-sm">Четверг</p>
-                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
-                  <div>
                     <p className="font-semibold text-sm">Пятница</p>
-                    <p className="text-sm text-muted-foreground">09:00 - 15:00</p>
+                    <p className="text-sm text-muted-foreground">10:00 - 12:00</p>
                   </div>
                 </div>
               </CardContent>
