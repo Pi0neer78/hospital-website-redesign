@@ -1377,7 +1377,7 @@ const Index = () => {
                 />
                 <CardTitle className="text-lg">БРОВКИН Евгений Владимирович
 </CardTitle>
-                <CardDescription className="text-base font-medium">Главный врач</CardDescription>
+                <CardDescription className="text-base font-medium">Главный врач ГБУЗ «АЦГМБ» ЛНР</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
