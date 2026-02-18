@@ -1340,7 +1340,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-br from-primary/5 via-white to-primary/10">
+      <section className="bg-gradient-to-br from-primary/5 via-white to-primary/10 py-[19px]">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
