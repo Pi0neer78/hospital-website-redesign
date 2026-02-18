@@ -1581,10 +1581,9 @@ const Index = () => {
 
       <section id="services" className="py-16 bg-white/90">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">Структура ГУ "АЦГМБ" ЛНР</h2>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Полная информация о поликлиниках, амбулаториях, отделениях и службах больницы
-          </p>
+          <h2 className="text-4xl font-bold mb-4">Структура ГБУЗ "АЦГМБ" ЛНР</h2>
+          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">Полная информация о поликлиниках, амбулаториях, 
+отделениях и службах больницы</p>
           <Button asChild size="lg" className="gap-2">
             <a href="/structure">
               <Icon name="Building2" size={20} />
