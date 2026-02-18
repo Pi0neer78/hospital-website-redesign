@@ -1340,51 +1340,24 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="about" className="py-16 bg-white">
+      <section className="py-20 bg-gradient-to-br from-primary/5 via-white to-primary/10">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">О нас</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <Icon name="Award" size={32} className="text-primary" />
-                </div>
-                <CardTitle>Огромный опыт работы</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  Наша больница предоставляет качественную медицинскую помощь тысячам пациентов.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <Icon name="Users" size={32} className="text-primary" />
-                </div>
-                <CardTitle>Опытные врачи</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  В нашей больнице работают квалифицированные специалисты высшей категории с многолетним стажем.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <Icon name="Microscope" size={32} className="text-primary" />
-                </div>
-                <CardTitle>Современное оборудование</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  Используем передовые технологии и новейшее медицинское оборудование для точной диагностики.
-                </CardDescription>
-              </CardContent>
-            </Card>
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
+              Узнайте больше о нашей больнице
+            </h2>
+            <p className="text-lg text-muted-foreground mb-10">
+              История, коллектив, современное оборудование и цифровые технологии ГУ "АЦГМБ" ЛНР
+            </p>
+            <a href="/about">
+              <Button 
+                size="lg" 
+                className="text-lg px-12 py-7 h-auto shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              >
+                <Icon name="Info" size={24} className="mr-3" />
+                Информация о нас
+              </Button>
+            </a>
           </div>
         </div>
       </section>
