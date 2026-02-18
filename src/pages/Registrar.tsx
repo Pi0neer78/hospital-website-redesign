@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 
 import { EditAppointmentForm } from '@/components/EditAppointmentForm';
 import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
+import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
