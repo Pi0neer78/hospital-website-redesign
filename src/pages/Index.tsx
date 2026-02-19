@@ -1913,8 +1913,8 @@ const Index = () => {
                           className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
                         />
                         <div>
-                          <p className="font-semibold text-sm">Зам. главного врача</p>
-                          <p className="text-sm text-muted-foreground">по мед. обслуживанию</p>
+                          <p className="font-semibold text-sm">Заместитель главного врача</p>
+                          <p className="text-sm text-muted-foreground">по организационно-методической работе</p>
                           <p className="text-base font-bold text-primary">Чумак Анна Анатольевна</p>
                         </div>
                       </div>
