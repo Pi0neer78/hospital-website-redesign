@@ -803,12 +803,12 @@ const Index = () => {
                           onClick={() => setSelectedDoctor(doctor)}
                         >
                           <CardContent className="p-3">
-                            <div className="flex items-start gap-3">
+                            <div className="flex items-center gap-4 w-full">
                               {doctor.photo_url ? (
                                 <img 
                                   src={doctor.photo_url} 
                                   alt={doctor.full_name} 
-                                  className="w-30 h-30 rounded-full object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
+                                  className="w-24 h-24 rounded-lg object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setPhotoModalUrl(doctor.photo_url);
@@ -819,8 +819,8 @@ const Index = () => {
                                   }}
                                 />
                               ) : (
-                                <div className="w-30 h-30 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                  <Icon name="User" size={48} className="text-primary" />
+                                <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                  <Icon name="User" size={40} className="text-primary" />
                                 </div>
                               )}
                               <div className="flex-1 min-w-0 space-y-1">
