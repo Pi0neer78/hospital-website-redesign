@@ -835,7 +835,7 @@ const Index = () => {
                                 <img 
                                   src={doctor.photo_url} 
                                   alt={doctor.full_name} 
-                                  className="w-96 h-96 rounded-lg object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
+                                  className="w-20 h-20 rounded-full object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setPhotoModalUrl(doctor.photo_url);
@@ -846,8 +846,8 @@ const Index = () => {
                                   }}
                                 />
                               ) : (
-                                <div className="w-96 h-96 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                  <Icon name="User" size={160} className="text-primary" />
+                                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                  <Icon name="User" size={32} className="text-primary" />
                                 </div>
                               )}
                             </div>
