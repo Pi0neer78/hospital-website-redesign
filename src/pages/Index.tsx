@@ -1378,14 +1378,18 @@ const Index = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
-                <img 
-                  src="https://cdn.poehali.dev/files/Бровкин ЕВ.jpg" 
-                  alt="Бровкин Е.В."
-                  className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
-                />
-                <CardTitle className="text-lg">БРОВКИН
+                <div className="flex items-start gap-4">
+                  <img 
+                    src="https://cdn.poehali.dev/files/Бровкин ЕВ.jpg" 
+                    alt="Бровкин Е.В."
+                    className="w-24 h-24 rounded-full object-cover border-2 border-primary/20"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg">БРОВКИН
 Евгений Владимирович</CardTitle>
-                <CardDescription className="text-base font-medium">Главный врач ГБУЗ «АЦГМБ» ЛНР</CardDescription>
+                    <CardDescription className="text-base font-medium">Главный врач ГБУЗ «АЦГМБ» ЛНР</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
@@ -1400,13 +1404,17 @@ const Index = () => {
 
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
-                <img 
-                  src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/fea71775-0c41-4242-9517-06d9695482a5.jpg" 
-                  alt="Суялкин О.П."
-                  className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
-                />
-                <CardTitle className="text-lg">СУЯЛКИН Олег Павлович</CardTitle>
-                <CardDescription className="text-base font-medium">Зам. главного врача по медицинской части</CardDescription>
+                <div className="flex items-start gap-4">
+                  <img 
+                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/fea71775-0c41-4242-9517-06d9695482a5.jpg" 
+                    alt="Суялкин О.П."
+                    className="w-24 h-24 rounded-full object-cover border-2 border-primary/20"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg">СУЯЛКИН Олег Павлович</CardTitle>
+                    <CardDescription className="text-base font-medium">Зам. главного врача по медицинской части</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
@@ -1421,13 +1429,17 @@ const Index = () => {
 
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
-                <img 
-                  src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/70adb75d-09a3-4187-a320-8cf3e5b2a4fc.jpg" 
-                  alt="Комарова Е.Г."
-                  className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
-                />
-                <CardTitle className="text-lg">КОМАРОВА Елена Геннадиевна</CardTitle>
-                <CardDescription className="text-base font-medium">Заместитель главного врача по поликлинической работе</CardDescription>
+                <div className="flex items-start gap-4">
+                  <img 
+                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/70adb75d-09a3-4187-a320-8cf3e5b2a4fc.jpg" 
+                    alt="Комарова Е.Г."
+                    className="w-24 h-24 rounded-full object-cover border-2 border-primary/20"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg">КОМАРОВА Елена Геннадиевна</CardTitle>
+                    <CardDescription className="text-base font-medium">Заместитель главного врача по поликлинической работе</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
@@ -1442,13 +1454,17 @@ const Index = () => {
 
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
-                <img 
-                  src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/76cfdf87-1510-4684-bf3b-a67c6d47bb64.jpg" 
-                  alt="Чумак А.А."
-                  className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
-                />
-                <CardTitle className="text-lg">ЧУМАК Анна Анатольевна</CardTitle>
-                <CardDescription className="text-base font-medium">Заместитель главного врача по организационно-методической работе</CardDescription>
+                <div className="flex items-start gap-4">
+                  <img 
+                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/76cfdf87-1510-4684-bf3b-a67c6d47bb64.jpg" 
+                    alt="Чумак А.А."
+                    className="w-24 h-24 rounded-full object-cover border-2 border-primary/20"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg">ЧУМАК Анна Анатольевна</CardTitle>
+                    <CardDescription className="text-base font-medium">Заместитель главного врача по организационно-методической работе</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
@@ -1463,13 +1479,17 @@ const Index = () => {
 
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
-                <img 
-                  src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/1a3c881a-dfc9-4de4-9be8-aa29dfb7088d.jpg" 
-                  alt="Уколова Ю.М."
-                  className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 mb-4"
-                />
-                <CardTitle className="text-lg">УКОЛОВА Юлия Михайловна</CardTitle>
-                <CardDescription className="text-base font-medium">Заместитель главного врача по клинико-экспертной работе</CardDescription>
+                <div className="flex items-start gap-4">
+                  <img 
+                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/1a3c881a-dfc9-4de4-9be8-aa29dfb7088d.jpg" 
+                    alt="Уколова Ю.М."
+                    className="w-24 h-24 rounded-full object-cover border-2 border-primary/20"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg">УКОЛОВА Юлия Михайловна</CardTitle>
+                    <CardDescription className="text-base font-medium">Заместитель главного врача по клинико-экспертной работе</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
