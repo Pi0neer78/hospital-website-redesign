@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 
 const stats = [
-  { value: '114', label: 'врачей', icon: 'Stethoscope' },
+  { value: '114', label: 'врачей', icon: 'Stethoscope', image: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/dff9bd65-1816-4521-a27a-8cf8fb8ffb3e.png' },
   { value: '548', label: 'средних медработников', icon: 'Users' },
   { value: '78%', label: 'врачей с квалификационной категорией', icon: 'Award' },
   { value: '88 500', label: 'человек обслуживаемого населения', icon: 'MapPin' },
@@ -128,9 +128,17 @@ const AboutUs = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((s) => (
               <div key={s.label} className="flex flex-col items-center text-center p-6 rounded-2xl bg-primary/5 border border-primary/10 hover:shadow-md transition-shadow">
-                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-3">
-                  <Icon name={s.icon as any} size={28} className="text-primary" />
-                </div>
+                {(s as any).image ? (
+                  <img 
+                    src={(s as any).image} 
+                    alt={s.label}
+                    className="w-24 h-24 rounded-2xl object-cover border-2 border-primary/20 mb-3"
+                  />
+                ) : (
+                  <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                    <Icon name={s.icon as any} size={28} className="text-primary" />
+                  </div>
+                )}
                 <span className="text-3xl font-bold text-primary">{s.value}</span>
                 <span className="text-sm text-muted-foreground mt-1">{s.label}</span>
               </div>
