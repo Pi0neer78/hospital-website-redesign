@@ -134,7 +134,7 @@ const AboutUs = () => {
                   <img 
                     src={(s as any).image} 
                     alt={s.label}
-                    className="w-24 h-24 rounded-2xl object-cover border-2 border-primary/20 mb-3"
+                    className="w-48 h-24 rounded-2xl object-cover border-2 border-primary/20 mb-3"
                   />
                 ) : (
                   <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-3">
