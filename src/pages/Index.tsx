@@ -1890,7 +1890,7 @@ const Index = () => {
                           className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
                         />
                         <div>
-                          <p className="font-semibold text-sm">Зам. главного врача</p>
+                          <p className="font-semibold text-sm">Заместитель главного врача</p>
                           <p className="text-sm text-muted-foreground">по медицинской части</p>
                           <p className="text-base font-bold text-primary">Суялкин Олег Павлович</p>
                         </div>
