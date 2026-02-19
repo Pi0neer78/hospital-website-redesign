@@ -1412,7 +1412,7 @@ const Index = () => {
                   />
                   <div className="flex-1 min-w-0">
                     <CardTitle className="text-lg">СУЯЛКИН Олег Павлович</CardTitle>
-                    <CardDescription className="text-base font-medium">Зам. главного врача по медицинской части</CardDescription>
+                    <CardDescription className="text-base font-medium">Заместитель главного врача по медицинской части</CardDescription>
                   </div>
                 </div>
               </CardHeader>
