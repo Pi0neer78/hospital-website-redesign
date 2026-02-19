@@ -1151,34 +1151,36 @@ const Index = () => {
                               onChange={(e) => setAppointmentForm({ ...appointmentForm, patient_phone: e.target.value })}
                               required
                             />
-                            <Input
-                              placeholder="СНИЛС (123-456-789-01, необязательно)"
-                              type="text"
-                              value={appointmentForm.patient_snils}
-                              onChange={(e) => {
-                                let value = e.target.value.replace(/\D/g, '');
-                                if (value.length > 11) value = value.slice(0, 11);
-                                if (value.length >= 3) value = value.slice(0, 3) + '-' + value.slice(3);
-                                if (value.length >= 7) value = value.slice(0, 7) + '-' + value.slice(7);
-                                if (value.length >= 11) value = value.slice(0, 11) + '-' + value.slice(11);
-                                setAppointmentForm({ ...appointmentForm, patient_snils: value });
-                              }}
-                              maxLength={14}
-                            />
-                            <Input
-                              placeholder="ОМС (1234-5678-9012-3456, необязательно)"
-                              type="text"
-                              value={appointmentForm.patient_oms}
-                              onChange={(e) => {
-                                let value = e.target.value.replace(/\D/g, '');
-                                if (value.length > 16) value = value.slice(0, 16);
-                                if (value.length >= 4) value = value.slice(0, 4) + '-' + value.slice(4);
-                                if (value.length >= 9) value = value.slice(0, 9) + '-' + value.slice(9);
-                                if (value.length >= 14) value = value.slice(0, 14) + '-' + value.slice(14);
-                                setAppointmentForm({ ...appointmentForm, patient_oms: value });
-                              }}
-                              maxLength={19}
-                            />
+                            <div className="grid grid-cols-2 gap-3">
+                              <Input
+                                placeholder="СНИЛС (123-456-789-01, необязательно)"
+                                type="text"
+                                value={appointmentForm.patient_snils}
+                                onChange={(e) => {
+                                  let value = e.target.value.replace(/\D/g, '');
+                                  if (value.length > 11) value = value.slice(0, 11);
+                                  if (value.length >= 3) value = value.slice(0, 3) + '-' + value.slice(3);
+                                  if (value.length >= 7) value = value.slice(0, 7) + '-' + value.slice(7);
+                                  if (value.length >= 11) value = value.slice(0, 11) + '-' + value.slice(11);
+                                  setAppointmentForm({ ...appointmentForm, patient_snils: value });
+                                }}
+                                maxLength={14}
+                              />
+                              <Input
+                                placeholder="ОМС (1234-5678-9012-3456, необязательно)"
+                                type="text"
+                                value={appointmentForm.patient_oms}
+                                onChange={(e) => {
+                                  let value = e.target.value.replace(/\D/g, '');
+                                  if (value.length > 16) value = value.slice(0, 16);
+                                  if (value.length >= 4) value = value.slice(0, 4) + '-' + value.slice(4);
+                                  if (value.length >= 9) value = value.slice(0, 9) + '-' + value.slice(9);
+                                  if (value.length >= 14) value = value.slice(0, 14) + '-' + value.slice(14);
+                                  setAppointmentForm({ ...appointmentForm, patient_oms: value });
+                                }}
+                                maxLength={19}
+                              />
+                            </div>
                             <Textarea
                               placeholder="Краткое описание проблемы (необязательно)"
                               value={appointmentForm.description}
