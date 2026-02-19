@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
@@ -4328,11 +4328,27 @@ const Doctor = () => {
                   <SelectValue placeholder={doctors.length === 0 ? "Загрузка врачей..." : "Выберите врача"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {doctors.map((doctor: any) => (
-                    <SelectItem key={doctor.id} value={doctor.id.toString()}>
-                      {doctor.full_name} — {doctor.position || doctor.specialization}
-                    </SelectItem>
-                  ))}
+                  {(() => {
+                    const groupedDoctors = doctors.reduce((groups: any, doctor: any) => {
+                      const clinic = doctor.clinic || 'Не указана';
+                      if (!groups[clinic]) {
+                        groups[clinic] = [];
+                      }
+                      groups[clinic].push(doctor);
+                      return groups;
+                    }, {});
+
+                    return Object.entries(groupedDoctors).map(([clinic, clinicDoctors]: [string, any]) => (
+                      <SelectGroup key={clinic}>
+                        <SelectLabel>{clinic}</SelectLabel>
+                        {clinicDoctors.map((doctor: any) => (
+                          <SelectItem key={doctor.id} value={doctor.id.toString()}>
+                            {doctor.full_name} — {doctor.position || doctor.specialization}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    ));
+                  })()}
                 </SelectContent>
               </Select>
             </div>
