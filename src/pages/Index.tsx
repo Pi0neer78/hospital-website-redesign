@@ -1630,10 +1630,7 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="MessageSquare" size={24} className="text-primary" />
-                  Книга жалоб и предложений
-                </CardTitle>
+                <CardTitle className="flex items-center gap-2">Официальная книга жалоб и предложений</CardTitle>
               </CardHeader>
               <CardContent>
                 {complaintVerificationStep === 'form' && (
