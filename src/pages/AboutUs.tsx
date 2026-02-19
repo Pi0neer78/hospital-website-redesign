@@ -265,6 +265,11 @@ const AboutUs = () => {
               <p className="text-sm text-foreground/80">Современная эндолапароскопическая техника сокращает восстановительный период и позволяет выписать пациента уже через <strong>7 суток</strong>.</p>
             </div>
             <div className="p-5 rounded-xl bg-primary/5 border border-primary/10">
+              <img 
+                src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/e9ffb5eb-5d28-42f7-99d1-b1e8702775de.png"
+                alt="Терапия"
+                className="w-full h-48 object-cover rounded-xl mb-4 border-2 border-primary/20"
+              />
               <div className="flex items-center gap-2 mb-2">
                 <Icon name="Heart" size={18} className="text-primary" />
                 <span className="font-semibold text-sm">Терапия</span>
