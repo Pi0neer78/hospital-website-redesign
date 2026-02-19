@@ -54,6 +54,7 @@ const equipment = [
     icon: 'Move',
     name: 'УНИКОМПАКТ П',
     desc: 'Аппарат рентген-диагностический передвижной — мобильность там, где это необходимо.',
+    image: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/249abe9e-14a6-419e-a519-a267d8842ec1.jpg',
   },
   {
     icon: 'RefreshCw',
