@@ -277,6 +277,11 @@ const AboutUs = () => {
               <p className="text-sm text-foreground/80">Квалифицированная помощь при заболеваниях лёгких, ЖКТ и эндокринной системы.</p>
             </div>
             <div className="p-5 rounded-xl bg-primary/5 border border-primary/10">
+              <img 
+                src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/79d8052b-8e3d-4909-aafd-4462d5edd119.png"
+                alt="Неврология"
+                className="w-full h-48 object-cover rounded-xl mb-4 border-2 border-primary/20"
+              />
               <div className="flex items-center gap-2 mb-2">
                 <Icon name="Brain" size={18} className="text-primary" />
                 <span className="font-semibold text-sm">Неврология</span>
