@@ -1859,9 +1859,11 @@ const Index = () => {
                   <Card className="border-primary/20">
                     <CardHeader className="pb-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20">
-                          <Icon name="User" size={32} className="text-primary" />
-                        </div>
+                        <img 
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/868ffdc2-7761-4c23-b94b-f064a1566964.jpg" 
+                          alt="Суялкин О.П."
+                          className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
+                        />
                         <div>
                           <p className="font-semibold text-sm">Зам. главного врача</p>
                           <p className="text-sm text-muted-foreground">по медицинской части</p>
