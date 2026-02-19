@@ -228,6 +228,21 @@ const AboutUs = () => {
             </div>
             <h3 className="text-2xl font-bold text-foreground">Стационарная помощь (круглосуточно)</h3>
           </div>
+          
+          <div className="flex justify-center gap-6 mb-8">
+            {[
+              'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/bdcdd983-d7cc-43aa-8055-44f0e07dba0b.png',
+              'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/837c67aa-aae0-4265-93f5-ac2ce83d75fd.png',
+              'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/1d4cad76-57bc-44c4-abfe-d287027c9141.png'
+            ].map((img, idx) => (
+              <img
+                key={idx}
+                src={img}
+                alt={`Стационар ${idx + 1}`}
+                className="w-64 h-48 object-cover rounded-2xl border-2 border-primary/20 hover:scale-[3] transition-transform duration-300 cursor-pointer z-10"
+              />
+            ))}
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8">
             {departments.map((d) => (
               <div key={d.name} className="flex flex-col items-center text-center p-4 rounded-xl bg-white border border-border hover:border-primary/30 hover:shadow-sm transition-all">
