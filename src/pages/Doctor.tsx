@@ -20,6 +20,7 @@ const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
   schedules: 'https://functions.poehali.dev/6f53f66d-3e47-4e57-93dd-52d63c16d38f',
   appointments: 'https://functions.poehali.dev/b3b698ed-7035-4503-8c49-85be11de75e5',
+  doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
 };
 
 const DAYS_OF_WEEK = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
@@ -188,6 +189,9 @@ const Doctor = () => {
     patientOms: string;
     description: string;
     availableSlots: string[];
+    availableDates: string[];
+    isLoadingDates: boolean;
+    isLoadingSlots: boolean;
   }>({
     open: false,
     selectedDoctorId: '',
@@ -198,7 +202,10 @@ const Doctor = () => {
     patientSnils: '',
     patientOms: '',
     description: '',
-    availableSlots: []
+    availableSlots: [],
+    availableDates: [],
+    isLoadingDates: false,
+    isLoadingSlots: false
   });
   const [doctors, setDoctors] = useState<any[]>([]);
   
@@ -1866,26 +1873,49 @@ const Doctor = () => {
 
   const loadDoctorsList = async () => {
     try {
-      const response = await fetch(`${API_URLS.auth}?action=list`);
+      const response = await fetch(API_URLS.doctors);
       const data = await response.json();
-      if (data.success && data.doctors) {
-        setDoctors(data.doctors.filter((d: any) => d.id !== doctorInfo?.id));
+      if (data.doctors) {
+        setDoctors(data.doctors.filter((d: any) => d.id !== doctorInfo?.id && d.is_active));
       }
     } catch (err) {
       console.error('Error loading doctors:', err);
     }
   };
 
-  const loadAvailableSlotsForOtherDoctor = async (doctorId: string, date: string) => {
-    if (!doctorId || !date) return;
+  const loadAvailableDatesForOtherDoctor = async (doctorId: string) => {
+    if (!doctorId) return;
+    setOtherDoctorDialog(prev => ({ ...prev, isLoadingDates: true, availableDates: [], date: '', time: '', availableSlots: [] }));
     try {
-      const response = await fetch(`${API_URLS.appointments}?action=available_slots&doctor_id=${doctorId}&date=${date}`);
+      const startDate = new Date().toISOString().split('T')[0];
+      const endDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const response = await fetch(`${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${doctorId}&start_date=${startDate}&end_date=${endDate}`);
       const data = await response.json();
-      if (data.success && data.slots) {
-        setOtherDoctorDialog(prev => ({ ...prev, availableSlots: data.slots }));
+      if (data.slots_by_date) {
+        const datesWithSlots = Object.entries(data.slots_by_date)
+          .filter(([, info]: [string, any]) => info.available_slots && info.available_slots.length > 0)
+          .map(([date]) => date)
+          .sort();
+        setOtherDoctorDialog(prev => ({ ...prev, availableDates: datesWithSlots, isLoadingDates: false }));
+      } else {
+        setOtherDoctorDialog(prev => ({ ...prev, isLoadingDates: false }));
       }
     } catch (err) {
+      console.error('Error loading available dates:', err);
+      setOtherDoctorDialog(prev => ({ ...prev, isLoadingDates: false }));
+    }
+  };
+
+  const loadAvailableSlotsForOtherDoctor = async (doctorId: string, date: string) => {
+    if (!doctorId || !date) return;
+    setOtherDoctorDialog(prev => ({ ...prev, isLoadingSlots: true, time: '', availableSlots: [] }));
+    try {
+      const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorId}&date=${date}`);
+      const data = await response.json();
+      setOtherDoctorDialog(prev => ({ ...prev, availableSlots: data.available_slots || [], isLoadingSlots: false }));
+    } catch (err) {
       console.error('Error loading slots for other doctor:', err);
+      setOtherDoctorDialog(prev => ({ ...prev, isLoadingSlots: false }));
     }
   };
 
@@ -1967,7 +1997,10 @@ const Doctor = () => {
           patientSnils: '',
           patientOms: '',
           description: '',
-          availableSlots: []
+          availableSlots: [],
+          availableDates: [],
+          isLoadingDates: false,
+          isLoadingSlots: false
         });
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось создать запись", variant: "destructive" });
@@ -3401,7 +3434,10 @@ const Doctor = () => {
                         patientSnils: '',
                         patientOms: '',
                         description: '',
-                        availableSlots: []
+                        availableSlots: [],
+                        availableDates: [],
+                        isLoadingDates: false,
+                        isLoadingSlots: false
                       });
                     }}
                     className="gap-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs h-8 font-bold"
@@ -4264,7 +4300,10 @@ const Doctor = () => {
             patientSnils: '',
             patientOms: '',
             description: '',
-            availableSlots: []
+            availableSlots: [],
+            availableDates: [],
+            isLoadingDates: false,
+            isLoadingSlots: false
           });
         }
       }}>
@@ -4281,19 +4320,17 @@ const Doctor = () => {
               <Select
                 value={otherDoctorDialog.selectedDoctorId}
                 onValueChange={(value) => {
-                  setOtherDoctorDialog({...otherDoctorDialog, selectedDoctorId: value, time: '', availableSlots: []});
-                  if (otherDoctorDialog.date) {
-                    loadAvailableSlotsForOtherDoctor(value, otherDoctorDialog.date);
-                  }
+                  setOtherDoctorDialog(prev => ({...prev, selectedDoctorId: value, date: '', time: '', availableSlots: [], availableDates: []}));
+                  loadAvailableDatesForOtherDoctor(value);
                 }}
               >
                 <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="Выберите врача" />
+                  <SelectValue placeholder={doctors.length === 0 ? "Загрузка врачей..." : "Выберите врача"} />
                 </SelectTrigger>
                 <SelectContent>
                   {doctors.map((doctor: any) => (
                     <SelectItem key={doctor.id} value={doctor.id.toString()}>
-                      {doctor.full_name} - {doctor.position}
+                      {doctor.full_name} — {doctor.position || doctor.specialization}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -4303,26 +4340,45 @@ const Doctor = () => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-medium mb-1 block">Дата приема</label>
-                <Input
-                  type="date"
-                  value={otherDoctorDialog.date}
-                  onChange={(e) => {
-                    setOtherDoctorDialog({...otherDoctorDialog, date: e.target.value, time: '', availableSlots: []});
-                    if (otherDoctorDialog.selectedDoctorId) {
-                      loadAvailableSlotsForOtherDoctor(otherDoctorDialog.selectedDoctorId, e.target.value);
-                    }
-                  }}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="h-9 text-sm"
-                  required
-                />
+                {otherDoctorDialog.isLoadingDates ? (
+                  <div className="h-9 flex items-center px-3 border rounded-md bg-muted text-sm text-muted-foreground">
+                    <Icon name="Loader2" size={14} className="mr-2 animate-spin" />
+                    Загрузка дат...
+                  </div>
+                ) : (
+                  <Select
+                    value={otherDoctorDialog.date}
+                    onValueChange={(value) => {
+                      setOtherDoctorDialog(prev => ({...prev, date: value, time: '', availableSlots: []}));
+                      loadAvailableSlotsForOtherDoctor(otherDoctorDialog.selectedDoctorId, value);
+                    }}
+                    disabled={!otherDoctorDialog.selectedDoctorId || otherDoctorDialog.availableDates.length === 0}
+                  >
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue placeholder={!otherDoctorDialog.selectedDoctorId ? "Сначала врача" : otherDoctorDialog.availableDates.length === 0 ? "Нет дат" : "Выберите дату"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {otherDoctorDialog.availableDates.map((date) => (
+                        <SelectItem key={date} value={date}>
+                          {new Date(date + 'T00:00:00').toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'long' })}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
               <div>
                 <label className="text-xs font-medium mb-1 block">Время приема</label>
+                {otherDoctorDialog.isLoadingSlots ? (
+                  <div className="h-9 flex items-center px-3 border rounded-md bg-muted text-sm text-muted-foreground">
+                    <Icon name="Loader2" size={14} className="mr-2 animate-spin" />
+                    Загрузка...
+                  </div>
+                ) : (
                 <Select
                   value={otherDoctorDialog.time}
-                  onValueChange={(value) => setOtherDoctorDialog({...otherDoctorDialog, time: value})}
-                  disabled={!otherDoctorDialog.date || !otherDoctorDialog.selectedDoctorId || otherDoctorDialog.availableSlots.length === 0}
+                  onValueChange={(value) => setOtherDoctorDialog(prev => ({...prev, time: value}))}
+                  disabled={!otherDoctorDialog.date || otherDoctorDialog.availableSlots.length === 0}
                 >
                   <SelectTrigger className="h-9 text-sm">
                     <SelectValue placeholder={otherDoctorDialog.availableSlots.length === 0 && otherDoctorDialog.date && otherDoctorDialog.selectedDoctorId ? "Нет слотов" : "Выберите время"} />
@@ -4333,6 +4389,7 @@ const Doctor = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                )}
               </div>
             </div>
 
@@ -4451,7 +4508,10 @@ const Doctor = () => {
                   patientSnils: '',
                   patientOms: '',
                   description: '',
-                  availableSlots: []
+                  availableSlots: [],
+                  availableDates: [],
+                  isLoadingDates: false,
+                  isLoadingSlots: false
                 })}
               >
                 Отмена
