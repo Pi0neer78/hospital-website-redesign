@@ -725,7 +725,7 @@ const Index = () => {
                 setIsAppointmentOpen(open);
               }}>
                 <DialogTrigger asChild>
-                  <Button size="lg" className="gap-2 shadow-lg hover:shadow-xl transition-shadow w-full sm:w-auto sm:min-w-[200px] bg-blue-900 hover:bg-blue-800">
+                  <Button size="lg" className="gap-2 shadow-lg hover:shadow-xl transition-shadow w-full sm:w-auto sm:min-w-[200px] bg-blue-900 hover:bg-blue-800" data-appointment-trigger>
                     <Icon name="Calendar" size={20} />
                     Записаться на прием
                   </Button>
