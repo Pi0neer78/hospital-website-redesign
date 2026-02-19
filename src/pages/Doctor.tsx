@@ -176,6 +176,31 @@ const Doctor = () => {
   const [dayOffWarning, setDayOffWarning] = useState<{open: boolean, date: string, appointmentCount: number}>({open: false, date: '', appointmentCount: 0});
   
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+
+  const [otherDoctorDialog, setOtherDoctorDialog] = useState<{
+    open: boolean;
+    selectedDoctorId: string;
+    date: string;
+    time: string;
+    patientName: string;
+    patientPhone: string;
+    patientSnils: string;
+    patientOms: string;
+    description: string;
+    availableSlots: string[];
+  }>({
+    open: false,
+    selectedDoctorId: '',
+    date: '',
+    time: '',
+    patientName: '',
+    patientPhone: '',
+    patientSnils: '',
+    patientOms: '',
+    description: '',
+    availableSlots: []
+  });
+  const [doctors, setDoctors] = useState<any[]>([]);
   
   const [editDialog, setEditDialog] = useState<{
     open: boolean;
@@ -1833,6 +1858,120 @@ const Doctor = () => {
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось создать запись", variant: "destructive" });
       }
+    } catch (err) {
+      console.error('Error creating appointment:', err);
+      toast({ title: "Ошибка", description: "Не удалось создать запись", variant: "destructive" });
+    }
+  };
+
+  const loadDoctorsList = async () => {
+    try {
+      const response = await fetch(`${API_URLS.auth}?action=list`);
+      const data = await response.json();
+      if (data.success && data.doctors) {
+        setDoctors(data.doctors.filter((d: any) => d.id !== doctorInfo?.id));
+      }
+    } catch (err) {
+      console.error('Error loading doctors:', err);
+    }
+  };
+
+  const loadAvailableSlotsForOtherDoctor = async (doctorId: string, date: string) => {
+    if (!doctorId || !date) return;
+    try {
+      const response = await fetch(`${API_URLS.appointments}?action=available_slots&doctor_id=${doctorId}&date=${date}`);
+      const data = await response.json();
+      if (data.success && data.slots) {
+        setOtherDoctorDialog(prev => ({ ...prev, availableSlots: data.slots }));
+      }
+    } catch (err) {
+      console.error('Error loading slots for other doctor:', err);
+    }
+  };
+
+  const handleCreateAppointmentForOtherDoctor = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!otherDoctorDialog.date || !otherDoctorDialog.time) {
+      toast({ title: "Ошибка", description: "Заполните дату и время приема", variant: "destructive" });
+      return;
+    }
+
+    if (!otherDoctorDialog.patientName || !otherDoctorDialog.patientPhone) {
+      toast({ title: "Ошибка", description: "Заполните ФИО и телефон пациента", variant: "destructive" });
+      return;
+    }
+
+    if (!otherDoctorDialog.selectedDoctorId) {
+      toast({ title: "Ошибка", description: "Выберите врача", variant: "destructive" });
+      return;
+    }
+
+    const slotCheckResult = await checkSlotAvailability(
+      otherDoctorDialog.selectedDoctorId,
+      otherDoctorDialog.date,
+      otherDoctorDialog.time,
+      API_URLS
+    );
+
+    if (!slotCheckResult.available) {
+      showSlotErrorDialog(slotCheckResult, toast);
+      return;
+    }
+
+    try {
+      const response = await fetch(API_URLS.appointments, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create',
+          doctor_id: otherDoctorDialog.selectedDoctorId,
+          appointment_date: otherDoctorDialog.date,
+          appointment_time: otherDoctorDialog.time,
+          patient_name: otherDoctorDialog.patientName,
+          patient_phone: otherDoctorDialog.patientPhone,
+          patient_snils: otherDoctorDialog.patientSnils,
+          patient_oms: otherDoctorDialog.patientOms,
+          description: otherDoctorDialog.description,
+          created_by_doctor_id: doctorInfo.id
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        const selectedDoctor = doctors.find(d => d.id === parseInt(otherDoctorDialog.selectedDoctorId));
+        toast({ 
+          title: "Успешно", 
+          description: `Пациент ${otherDoctorDialog.patientName} записан к врачу ${selectedDoctor?.full_name} на ${new Date(otherDoctorDialog.date + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в ${otherDoctorDialog.time}` 
+        });
+        
+        await logAction('Создание записи к другому врачу', {
+          appointment_id: data.appointment?.id,
+          doctor_id: otherDoctorDialog.selectedDoctorId,
+          doctor_name: selectedDoctor?.full_name,
+          patient_name: otherDoctorDialog.patientName,
+          patient_phone: otherDoctorDialog.patientPhone,
+          patient_snils: otherDoctorDialog.patientSnils,
+          patient_oms: otherDoctorDialog.patientOms,
+          appointment_date: otherDoctorDialog.date,
+          appointment_time: otherDoctorDialog.time,
+          description: otherDoctorDialog.description
+        });
+        
+        setOtherDoctorDialog({
+          open: false,
+          selectedDoctorId: '',
+          date: '',
+          time: '',
+          patientName: '',
+          patientPhone: '',
+          patientSnils: '',
+          patientOms: '',
+          description: '',
+          availableSlots: []
+        });
+      } else {
+        toast({ title: "Ошибка", description: data.error || "Не удалось создать запись", variant: "destructive" });
+      }
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
     }
@@ -3238,6 +3377,7 @@ const Doctor = () => {
                       patientName: '',
                       patientPhone: '',
                       patientSnils: '',
+                      patientOms: '',
                       description: '',
                       availableSlots: []
                     })}
@@ -3245,6 +3385,29 @@ const Doctor = () => {
                   >
                     <Icon name="UserPlus" size={14} />
                     Записать пациента
+                  </Button>
+                  <Button 
+                    variant="default" 
+                    size="sm"
+                    onClick={() => {
+                      loadDoctorsList();
+                      setOtherDoctorDialog({
+                        open: true,
+                        selectedDoctorId: '',
+                        date: '',
+                        time: '',
+                        patientName: '',
+                        patientPhone: '',
+                        patientSnils: '',
+                        patientOms: '',
+                        description: '',
+                        availableSlots: []
+                      });
+                    }}
+                    className="gap-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs h-8 font-bold"
+                  >
+                    <Icon name="Users" size={14} />
+                    Другой врач
                   </Button>
                   <Button 
                     variant="outline" 
@@ -4080,6 +4243,223 @@ const Doctor = () => {
                 type="submit"
                 className="flex-1"
                 disabled={!newAppointmentDialog.date || !newAppointmentDialog.time || !newAppointmentDialog.patientName || !newAppointmentDialog.patientPhone}
+              >
+                <Icon name="UserPlus" size={16} className="mr-2" />
+                Записать
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={otherDoctorDialog.open} onOpenChange={(open) => {
+        if (!open) {
+          setOtherDoctorDialog({
+            open: false,
+            selectedDoctorId: '',
+            date: '',
+            time: '',
+            patientName: '',
+            patientPhone: '',
+            patientSnils: '',
+            patientOms: '',
+            description: '',
+            availableSlots: []
+          });
+        }
+      }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Записать пациента к другому врачу</DialogTitle>
+            <DialogDescription>
+              Выберите врача, дату и время приема
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreateAppointmentForOtherDoctor} className="space-y-3">
+            <div>
+              <label className="text-xs font-medium mb-1 block">Выберите врача</label>
+              <Select
+                value={otherDoctorDialog.selectedDoctorId}
+                onValueChange={(value) => {
+                  setOtherDoctorDialog({...otherDoctorDialog, selectedDoctorId: value, time: '', availableSlots: []});
+                  if (otherDoctorDialog.date) {
+                    loadAvailableSlotsForOtherDoctor(value, otherDoctorDialog.date);
+                  }
+                }}
+              >
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Выберите врача" />
+                </SelectTrigger>
+                <SelectContent>
+                  {doctors.map((doctor: any) => (
+                    <SelectItem key={doctor.id} value={doctor.id.toString()}>
+                      {doctor.full_name} - {doctor.position}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium mb-1 block">Дата приема</label>
+                <Input
+                  type="date"
+                  value={otherDoctorDialog.date}
+                  onChange={(e) => {
+                    setOtherDoctorDialog({...otherDoctorDialog, date: e.target.value, time: '', availableSlots: []});
+                    if (otherDoctorDialog.selectedDoctorId) {
+                      loadAvailableSlotsForOtherDoctor(otherDoctorDialog.selectedDoctorId, e.target.value);
+                    }
+                  }}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="h-9 text-sm"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block">Время приема</label>
+                <Select
+                  value={otherDoctorDialog.time}
+                  onValueChange={(value) => setOtherDoctorDialog({...otherDoctorDialog, time: value})}
+                  disabled={!otherDoctorDialog.date || !otherDoctorDialog.selectedDoctorId || otherDoctorDialog.availableSlots.length === 0}
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder={otherDoctorDialog.availableSlots.length === 0 && otherDoctorDialog.date && otherDoctorDialog.selectedDoctorId ? "Нет слотов" : "Выберите время"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {otherDoctorDialog.availableSlots.map((slot: string) => (
+                      <SelectItem key={slot} value={slot}>{slot}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium mb-1 block">ФИО пациента</label>
+              <Input
+                value={otherDoctorDialog.patientName}
+                onChange={(e) => setOtherDoctorDialog({...otherDoctorDialog, patientName: e.target.value})}
+                placeholder="Иванов Иван Иванович"
+                className="h-9 text-sm"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-medium mb-1 block">Телефон</label>
+              <Input
+                value={otherDoctorDialog.patientPhone}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, '');
+                  let formatted = '';
+                  if (digits.length > 0) {
+                    formatted = '+7';
+                    if (digits.length > 1) {
+                      formatted += ` (${digits.slice(1, 4)}`;
+                      if (digits.length >= 4) {
+                        formatted += `) ${digits.slice(4, 7)}`;
+                        if (digits.length >= 7) {
+                          formatted += `-${digits.slice(7, 9)}`;
+                          if (digits.length >= 9) {
+                            formatted += `-${digits.slice(9, 11)}`;
+                          }
+                        }
+                      }
+                    }
+                  }
+                  setOtherDoctorDialog({...otherDoctorDialog, patientPhone: formatted});
+                }}
+                placeholder="+7 (999) 999-99-99"
+                className="h-9 text-sm"
+                maxLength={18}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium mb-1 block">СНИЛС</label>
+                <Input
+                  value={otherDoctorDialog.patientSnils}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '');
+                    let formatted = '';
+                    if (digits.length <= 3) {
+                      formatted = digits;
+                    } else if (digits.length <= 6) {
+                      formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+                    } else if (digits.length <= 9) {
+                      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+                    } else {
+                      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 9)} ${digits.slice(9, 11)}`;
+                    }
+                    setOtherDoctorDialog({...otherDoctorDialog, patientSnils: formatted});
+                  }}
+                  placeholder="123-456-789 00"
+                  className="h-9 text-sm"
+                  maxLength={14}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1 block">ОМС</label>
+                <Input
+                  value={otherDoctorDialog.patientOms}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '');
+                    let formatted = '';
+                    if (digits.length <= 4) {
+                      formatted = digits;
+                    } else if (digits.length <= 8) {
+                      formatted = `${digits.slice(0, 4)}-${digits.slice(4)}`;
+                    } else if (digits.length <= 12) {
+                      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`;
+                    } else {
+                      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 12)}-${digits.slice(12, 16)}`;
+                    }
+                    setOtherDoctorDialog({...otherDoctorDialog, patientOms: formatted});
+                  }}
+                  placeholder="1234-1234-1234-1234"
+                  className="h-9 text-sm"
+                  maxLength={19}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1 block">Описание</label>
+              <Input
+                value={otherDoctorDialog.description}
+                onChange={(e) => setOtherDoctorDialog({...otherDoctorDialog, description: e.target.value})}
+                placeholder="Краткое описание"
+                className="h-9 text-sm"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => setOtherDoctorDialog({
+                  open: false,
+                  selectedDoctorId: '',
+                  date: '',
+                  time: '',
+                  patientName: '',
+                  patientPhone: '',
+                  patientSnils: '',
+                  patientOms: '',
+                  description: '',
+                  availableSlots: []
+                })}
+              >
+                Отмена
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={!otherDoctorDialog.selectedDoctorId || !otherDoctorDialog.date || !otherDoctorDialog.time || !otherDoctorDialog.patientName || !otherDoctorDialog.patientPhone}
               >
                 <Icon name="UserPlus" size={16} className="mr-2" />
                 Записать
