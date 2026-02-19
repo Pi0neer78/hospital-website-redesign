@@ -59,6 +59,7 @@ const equipment = [
     icon: 'RefreshCw',
     name: 'РЕНЕКС (С-дуга)',
     desc: 'Рентгеновский аппарат для интервенционных процедур. Подвижная С-образная конструкция позволяет свободно позиционировать аппарат вокруг пациента без изменения его положения — незаменим при сложных хирургических вмешательствах.',
+    image: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/9408f27c-c908-4c17-89cc-d790bca53c64.png',
   },
   {
     icon: 'Layers',
@@ -272,6 +273,15 @@ const AboutUs = () => {
                   <CardTitle className="text-base">{eq.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
+                  {(eq as any).image && (
+                    <div className="mb-4 -mx-6 -mt-2">
+                      <img 
+                        src={(eq as any).image} 
+                        alt={eq.name}
+                        className="w-full h-48 object-contain bg-gradient-to-br from-primary/5 to-accent/5"
+                      />
+                    </div>
+                  )}
                   <p className="text-sm text-muted-foreground leading-relaxed">{eq.desc}</p>
                 </CardContent>
               </Card>
