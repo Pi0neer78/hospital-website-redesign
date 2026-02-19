@@ -39,6 +39,7 @@ const equipment = [
     icon: 'Truck',
     name: 'Передвижной ФАП',
     desc: 'Оказание первичной и специализированной медицинской помощи жителям отдалённых населённых пунктов.',
+    image: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/cd3ee83a-7cb4-42d3-aa73-b48225e4c212.jpg',
   },
   {
     icon: 'Scan',
