@@ -254,7 +254,7 @@ const AboutUs = () => {
           <div className="grid md:grid-cols-3 gap-5">
             <div className="p-5 rounded-xl bg-primary/5 border border-primary/10">
               <img 
-                src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/0fcb33e9-a6b4-4385-8977-1e29bf6067ab.png"
+                src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/7ceff4d7-cfb9-47bd-9d37-ac685373f34e.png"
                 alt="Хирургия"
                 className="w-full h-48 object-cover rounded-xl mb-4 border-2 border-primary/20"
               />
