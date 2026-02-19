@@ -1938,14 +1938,14 @@ const Doctor = () => {
     }
 
     const slotCheckResult = await checkSlotAvailability(
-      otherDoctorDialog.selectedDoctorId,
+      API_URLS.appointments,
+      parseInt(otherDoctorDialog.selectedDoctorId),
       otherDoctorDialog.date,
-      otherDoctorDialog.time,
-      API_URLS
+      otherDoctorDialog.time
     );
 
     if (!slotCheckResult.available) {
-      showSlotErrorDialog(slotCheckResult, toast);
+      showSlotErrorDialog(slotCheckResult.error || 'Слот недоступен');
       return;
     }
 
