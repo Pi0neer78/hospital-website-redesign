@@ -239,7 +239,7 @@ const AboutUs = () => {
                 key={idx}
                 src={img}
                 alt={`Стационар ${idx + 1}`}
-                className="w-64 h-48 object-cover rounded-2xl border-2 border-primary/20 hover:scale-[3] transition-transform duration-300 cursor-pointer z-10"
+                className="w-64 h-48 object-cover rounded-2xl border-2 border-primary/20"
               />
             ))}
           </div>
