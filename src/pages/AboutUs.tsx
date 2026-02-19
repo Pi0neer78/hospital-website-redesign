@@ -344,21 +344,13 @@ const AboutUs = () => {
             Развитие телекоммуникационных систем управления: <strong>видеоконференц-связь</strong>, телемедицинские коммуникации с российскими медицинскими коллегами, <strong>запись на приём к врачу через Интернет</strong>.
           </p>
           <div className="mt-6">
-            <button
-              onClick={() => {
-                window.location.href = '/#appointment';
-                setTimeout(() => {
-                  const appointmentButton = document.querySelector('[data-appointment-trigger]') as HTMLButtonElement;
-                  if (appointmentButton) {
-                    appointmentButton.click();
-                  }
-                }, 300);
-              }}
-              className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors cursor-pointer"
+            <Link
+              to="/?openAppointment=true"
+              className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors"
             >
               <Icon name="CalendarCheck" size={18} />
               Записаться на приём онлайн
-            </button>
+            </Link>
           </div>
         </div>
       </section>

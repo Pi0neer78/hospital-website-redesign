@@ -92,6 +92,14 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openAppointment') === 'true') {
+      setIsAppointmentOpen(true);
+      window.history.replaceState({}, '', '/');
+    }
+  }, []);
+
+  useEffect(() => {
     if (selectedDoctor) {
       loadDoctorSchedule();
       loadAllSlots();
