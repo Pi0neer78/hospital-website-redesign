@@ -639,7 +639,7 @@ const Index = () => {
               <nav className="hidden lg:flex gap-4 text-sm">
                 <a href="/about" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">О нас</a>
                 <a href="#doctors" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">График приема граждан</a>
-                <a href="/structure" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Структура ГУ "АЦГМБ" ЛНР</a>
+                <a href="/structure" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Структура</a>
                 <a href="#contacts" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Контакты</a>
               </nav>
               <Button 
