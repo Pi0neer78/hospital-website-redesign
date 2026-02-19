@@ -169,6 +169,13 @@ const AboutUs = () => {
             <p>
               Больница предоставляет услуги пациентам по системе <strong>обязательного медицинского страхования (ОМС)</strong>.
             </p>
+            <div className="flex justify-center mt-8">
+              <img 
+                src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/c315fb5a-e61d-49b9-a3da-396577abd021.jpg"
+                alt="ОМС"
+                className="w-full max-w-3xl h-64 object-cover rounded-2xl border-2 border-primary/20"
+              />
+            </div>
           </div>
         </div>
       </section>
