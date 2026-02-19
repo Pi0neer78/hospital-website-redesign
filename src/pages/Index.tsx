@@ -804,6 +804,25 @@ const Index = () => {
                         >
                           <CardContent className="p-3">
                             <div className="flex items-start gap-3">
+                              {doctor.photo_url ? (
+                                <img 
+                                  src={doctor.photo_url} 
+                                  alt={doctor.full_name} 
+                                  className="w-30 h-30 rounded-full object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setPhotoModalUrl(doctor.photo_url);
+                                    setPhotoModalOpen(true);
+                                  }}
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-30 h-30 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                  <Icon name="User" size={48} className="text-primary" />
+                                </div>
+                              )}
                               <div className="flex-1 min-w-0 space-y-1">
                                 <p className="font-semibold text-sm">{doctor.full_name}</p>
                                 <p className="text-xs text-muted-foreground">{doctor.position}</p>
@@ -831,25 +850,6 @@ const Index = () => {
                                   )}
                                 </div>
                               </div>
-                              {doctor.photo_url ? (
-                                <img 
-                                  src={doctor.photo_url} 
-                                  alt={doctor.full_name} 
-                                  className="w-20 h-20 rounded-full object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setPhotoModalUrl(doctor.photo_url);
-                                    setPhotoModalOpen(true);
-                                  }}
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                  }}
-                                />
-                              ) : (
-                                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                  <Icon name="User" size={32} className="text-primary" />
-                                </div>
-                              )}
                             </div>
                           </CardContent>
                         </Card>
