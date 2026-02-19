@@ -99,8 +99,19 @@ const AboutUs = () => {
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-primary/10 via-background to-accent/10 py-16">
-        <div className="container mx-auto px-4 text-center">
+      <section className="bg-gradient-to-br from-primary/10 via-background to-accent/10 py-16 relative overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <img 
+            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/9c845097-846f-4d17-b494-9a37725f7596.jpg"
+            alt="АЦГМБ"
+            className="w-full max-w-4xl opacity-20 rounded-3xl object-cover"
+            style={{
+              maskImage: 'radial-gradient(ellipse at center, black 20%, transparent 70%)',
+              WebkitMaskImage: 'radial-gradient(ellipse at center, black 20%, transparent 70%)'
+            }}
+          />
+        </div>
+        <div className="container mx-auto px-4 text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">О нас</h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             ГБУЗ «АЦГМБ» ЛНР — многопрофильная больница, объединяющая опытных врачей и профессиональных медицинских работников, искренне преданных своему делу.
