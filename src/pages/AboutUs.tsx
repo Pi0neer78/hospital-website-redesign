@@ -6,7 +6,7 @@ const stats = [
   { value: '114', label: 'врачей', icon: 'Stethoscope', image: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/dff9bd65-1816-4521-a27a-8cf8fb8ffb3e.png' },
   { value: '548', label: 'средних медработников', icon: 'Users' },
   { value: '78%', label: 'врачей с квалификационной категорией', icon: 'Award' },
-  { value: '88 500', label: 'человек обслуживаемого населения', icon: 'MapPin' },
+  { value: '88 500', label: 'человек обслуживаемого населения', icon: 'MapPin', image: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/01af3145-687f-43b3-b104-2c1e080eab3d.png' },
 ];
 
 const departments = [
