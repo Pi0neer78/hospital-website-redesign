@@ -49,6 +49,7 @@ const equipment = [
     icon: 'Zap',
     name: 'УНИЭКСПЕРТ 2 ПЛЮС',
     desc: 'Современный цифровой рентгеновский аппарат для высококачественной диагностики.',
+    image: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/3de3449c-3f3e-4440-8a0e-16f7fc29e5f6.jpg',
   },
   {
     icon: 'Move',
