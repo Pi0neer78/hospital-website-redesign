@@ -135,9 +135,9 @@ const HowToBook = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img 
-              src="https://cdn.poehali.dev/files/d1c15da6-7ffe-46bb-b5db-3d114b408cec.jpg" 
+              src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adf474e3-ca46-4949-958c-72bcaef3e542.jpg" 
               alt="Логотип АЦГМБ ЛНР" 
-              className="w-12 h-12 object-contain mix-blend-multiply"
+              className="w-12 h-12 object-contain mix-blend-multiply rounded-full"
             />
             <div>
               <p className="text-[10px] text-muted-foreground leading-tight">ГБУЗ "АЦГМБ" ЛНР</p>
