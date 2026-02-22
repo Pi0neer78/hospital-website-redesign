@@ -1165,8 +1165,13 @@ const MDoctor = () => {
           <TabsContent value="registry">
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Реестр пациентов</CardTitle>
-
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Реестр пациентов</CardTitle>
+                  <Button size="sm" variant="outline" onClick={loadRegistry} className="h-8 gap-1">
+                    <Icon name="RefreshCw" size={14} />
+                    <span className="text-xs">Обновить</span>
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="mb-3 flex gap-2 items-end flex-wrap">
