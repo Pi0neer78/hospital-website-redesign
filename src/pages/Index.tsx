@@ -712,9 +712,9 @@ const Index = () => {
       <section className="py-20 text-center">
         <div className="container mx-auto px-4">
           <img 
-            src="https://cdn.poehali.dev/files/d1c15da6-7ffe-46bb-b5db-3d114b408cec.jpg" 
+            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adf474e3-ca46-4949-958c-72bcaef3e542.jpg" 
             alt="Логотип АЦГМБ ЛНР" 
-            className="w-48 h-48 mx-auto mb-8 object-contain animate-fade-in mix-blend-multiply"
+            className="w-48 h-48 mx-auto mb-8 object-contain animate-fade-in mix-blend-multiply rounded-full"
           />
           <h2 className="font-bold mb-2 text-foreground animate-fade-in text-2xl md:text-4xl">ГБУЗ "Антрацитовская центральная городская многопрофильная больница"</h2>
           <p className="text-sm md:text-lg text-muted-foreground mb-8 animate-fade-in">Луганской Народной Республики</p>
