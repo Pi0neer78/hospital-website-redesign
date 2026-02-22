@@ -190,7 +190,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn.close()
 
 
-def upsert_registry(cursor, full_name, phone, email, source_type):
+def upsert_registry(cursor, full_name, phone, email, source):
     now = datetime.now().isoformat()
     if phone:
         cursor.execute(
@@ -199,11 +199,8 @@ def upsert_registry(cursor, full_name, phone, email, source_type):
         )
         existing = cursor.fetchone()
         if existing:
-            fields = ['updated_at = NOW()']
-            vals = []
-            if source_type == 'complaint':
-                fields.append('complaint_date = %s')
-                vals.append(now)
+            fields = ['updated_at = NOW()', 'complaint_date = %s']
+            vals = [now]
             if full_name:
                 fields.append('full_name = %s')
                 vals.append(full_name)
@@ -230,11 +227,8 @@ def upsert_registry(cursor, full_name, phone, email, source_type):
         )
         existing = cursor.fetchone()
         if existing:
-            fields = ['updated_at = NOW()']
-            vals = []
-            if source_type == 'complaint':
-                fields.append('complaint_date = %s')
-                vals.append(now)
+            fields = ['updated_at = NOW()', 'complaint_date = %s']
+            vals = [now]
             if full_name:
                 fields.append('full_name = %s')
                 vals.append(full_name)
@@ -254,9 +248,7 @@ def upsert_registry(cursor, full_name, phone, email, source_type):
             )
             return
 
-    complaint_date = now if source_type == 'complaint' else None
-    appointment_date = now if source_type == 'appointment' else None
     cursor.execute(
-        "INSERT INTO t_p30358746_hospital_website_red.reest_phone_max (full_name, phone, email, source_type, complaint_date, appointment_date) VALUES (%s, %s, %s, %s, %s, %s)",
-        (full_name, phone or None, email or None, source_type, complaint_date, appointment_date)
+        "INSERT INTO t_p30358746_hospital_website_red.reest_phone_max (full_name, phone, email, source_type, source, complaint_date) VALUES (%s, %s, %s, %s, %s, %s)",
+        (full_name, phone or None, email or None, source, source, now)
     )

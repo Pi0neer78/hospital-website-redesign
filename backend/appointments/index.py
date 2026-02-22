@@ -436,7 +436,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 result = cursor.fetchone()
 
-                upsert_registry(cursor, patient_name, patient_phone, None, 'appointment')
+                source_map = {1: 'self', 2: 'doctor', 3: 'registrar'}
+                registry_source = source_map.get(created_by, 'self')
+                upsert_registry(cursor, patient_name, patient_phone, None, registry_source)
 
                 conn.commit()
                 cursor.close()
@@ -590,7 +592,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn.close()
 
 
-def upsert_registry(cursor, full_name, phone, email, source_type):
+def upsert_registry(cursor, full_name, phone, email, source):
     now = datetime.now().isoformat()
     if phone:
         cursor.execute(
@@ -599,11 +601,8 @@ def upsert_registry(cursor, full_name, phone, email, source_type):
         )
         existing = cursor.fetchone()
         if existing:
-            fields = ['updated_at = NOW()']
-            vals = []
-            if source_type == 'appointment':
-                fields.append('appointment_date = %s')
-                vals.append(now)
+            fields = ['updated_at = NOW()', 'appointment_date = %s']
+            vals = [now]
             if full_name:
                 fields.append('full_name = %s')
                 vals.append(full_name)
@@ -614,9 +613,7 @@ def upsert_registry(cursor, full_name, phone, email, source_type):
             )
             return
 
-    complaint_date = now if source_type == 'complaint' else None
-    appointment_date = now if source_type == 'appointment' else None
     cursor.execute(
-        "INSERT INTO t_p30358746_hospital_website_red.reest_phone_max (full_name, phone, email, source_type, complaint_date, appointment_date) VALUES (%s, %s, %s, %s, %s, %s)",
-        (full_name, phone or None, email or None, source_type, complaint_date, appointment_date)
+        "INSERT INTO t_p30358746_hospital_website_red.reest_phone_max (full_name, phone, email, source_type, source, appointment_date) VALUES (%s, %s, %s, %s, %s, %s)",
+        (full_name, phone or None, email or None, source, source, now)
     )
