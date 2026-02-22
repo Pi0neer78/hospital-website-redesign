@@ -51,6 +51,7 @@ const MDoctor = () => {
   const [photoPosition, setPhotoPosition] = useState({ x: 0, y: 0 });
   const [registryRecords, setRegistryRecords] = useState<any[]>([]);
   const [registrySearch, setRegistrySearch] = useState('');
+  const [registrySourceFilter, setRegistrySourceFilter] = useState<string>('all');
   const [registrySelected, setRegistrySelected] = useState<Set<number>>(new Set());
   const [showSendDialog, setShowSendDialog] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'max'>('email');
@@ -1182,6 +1183,17 @@ const MDoctor = () => {
                     <Icon name="Search" size={12} className="mr-1" />
                     <span className="text-xs">Найти</span>
                   </Button>
+                  <select
+                    value={registrySourceFilter}
+                    onChange={(e) => setRegistrySourceFilter(e.target.value)}
+                    className="h-8 text-xs border rounded px-2 bg-white"
+                  >
+                    <option value="all">Все источники</option>
+                    <option value="self">Самостоятельно</option>
+                    <option value="doctor">Врач</option>
+                    <option value="registrar">Регистратор</option>
+                    <option value="complaint">Жалоба</option>
+                  </select>
                   <div className="flex gap-1 ml-auto">
                     <Button size="sm" variant="outline" onClick={() => {
                       const allIds = new Set(registryRecords.map((r: any) => r.id));
@@ -1332,7 +1344,7 @@ const MDoctor = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {registryRecords.map((rec: any) => (
+                      {registryRecords.filter((rec: any) => registrySourceFilter === 'all' || rec.source === registrySourceFilter).map((rec: any) => (
                         <ContextMenu key={rec.id}>
                           <ContextMenuTrigger asChild>
                             <TableRow className={`text-xs ${registrySelected.has(rec.id) ? 'bg-blue-50' : ''}`}>
@@ -1353,8 +1365,16 @@ const MDoctor = () => {
                               <TableCell className="py-2">{rec.phone || '—'}</TableCell>
                               <TableCell className="py-2" style={{ fontSize: '11px' }}>{rec.email || '—'}</TableCell>
                               <TableCell className="py-2">
-                                <span className={`px-1.5 py-0.5 rounded text-[10px] ${rec.source_type === 'complaint' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
-                                  {rec.source_type === 'complaint' ? 'Жалоба' : 'Запись'}
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] ${
+                                  rec.source === 'complaint' ? 'bg-red-100 text-red-700' :
+                                  rec.source === 'doctor' ? 'bg-purple-100 text-purple-700' :
+                                  rec.source === 'registrar' ? 'bg-orange-100 text-orange-700' :
+                                  'bg-blue-100 text-blue-700'
+                                }`}>
+                                  {rec.source === 'complaint' ? 'Жалоба' :
+                                   rec.source === 'doctor' ? 'Врач' :
+                                   rec.source === 'registrar' ? 'Регистратор' :
+                                   'Самост.'}
                                 </span>
                               </TableCell>
                               <TableCell className="py-2">{rec.complaint_date ? new Date(rec.complaint_date).toLocaleDateString('ru-RU') : '—'}</TableCell>
