@@ -52,6 +52,8 @@ const MDoctor = () => {
   const [registryRecords, setRegistryRecords] = useState<any[]>([]);
   const [registrySearch, setRegistrySearch] = useState('');
   const [registrySourceFilter, setRegistrySourceFilter] = useState<string>('all');
+  const [registryDateFrom, setRegistryDateFrom] = useState('');
+  const [registryDateTo, setRegistryDateTo] = useState('');
   const [registrySelected, setRegistrySelected] = useState<Set<number>>(new Set());
   const [showSendDialog, setShowSendDialog] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'max'>('email');
@@ -1199,6 +1201,29 @@ const MDoctor = () => {
                     <option value="registrar">Регистратор</option>
                     <option value="complaint">Жалоба</option>
                   </select>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">Дата записи:</span>
+                    <input
+                      type="date"
+                      value={registryDateFrom}
+                      onChange={(e) => setRegistryDateFrom(e.target.value)}
+                      className="h-8 text-xs border rounded px-2 bg-white"
+                      title="С"
+                    />
+                    <span className="text-xs text-muted-foreground">—</span>
+                    <input
+                      type="date"
+                      value={registryDateTo}
+                      onChange={(e) => setRegistryDateTo(e.target.value)}
+                      className="h-8 text-xs border rounded px-2 bg-white"
+                      title="По"
+                    />
+                    {(registryDateFrom || registryDateTo) && (
+                      <Button size="sm" variant="ghost" onClick={() => { setRegistryDateFrom(''); setRegistryDateTo(''); }} className="h-8 w-6 p-0 text-muted-foreground">
+                        <Icon name="X" size={12} />
+                      </Button>
+                    )}
+                  </div>
                   <div className="flex gap-1 ml-auto">
                     <Button size="sm" variant="outline" onClick={() => {
                       const allIds = new Set(registryRecords.map((r: any) => r.id));
@@ -1372,7 +1397,23 @@ const MDoctor = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {registryRecords.filter((rec: any) => registrySourceFilter === 'all' || rec.source === registrySourceFilter).map((rec: any) => (
+                      {registryRecords
+                        .filter((rec: any) => {
+                          if (registrySourceFilter !== 'all' && rec.source !== registrySourceFilter) return false;
+                          if (registryDateFrom && rec.appointment_date) {
+                            if (new Date(rec.appointment_date) < new Date(registryDateFrom)) return false;
+                          }
+                          if (registryDateTo && rec.appointment_date) {
+                            if (new Date(rec.appointment_date) > new Date(registryDateTo + 'T23:59:59')) return false;
+                          }
+                          return true;
+                        })
+                        .sort((a: any, b: any) => {
+                          const da = a.appointment_date ? new Date(a.appointment_date).getTime() : 0;
+                          const db = b.appointment_date ? new Date(b.appointment_date).getTime() : 0;
+                          return db - da;
+                        })
+                        .map((rec: any) => (
                         <ContextMenu key={rec.id}>
                           <ContextMenuTrigger asChild>
                             <TableRow className={`text-xs ${registrySelected.has(rec.id) ? 'bg-blue-50' : ''}`}>
