@@ -1319,6 +1319,29 @@ const MDoctor = () => {
                   </Button>
                 </div>
 
+                <div className="sticky top-0 z-20 bg-white border rounded-md px-3 py-2 mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground shadow-sm">
+                  <span>Всего: <strong className="text-foreground">{registryRecords.length}</strong></span>
+                  <span>Выбрано: <strong className="text-foreground">{registrySelected.size}</strong></span>
+                  <span className="border-l pl-4 flex flex-wrap gap-x-3 gap-y-1">
+                    <span className="inline-flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
+                      Самост.: <strong>{registryRecords.filter((r:any) => r.source === 'self').length}</strong>
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-purple-400 inline-block" />
+                      Врач: <strong>{registryRecords.filter((r:any) => r.source === 'doctor').length}</strong>
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-orange-400 inline-block" />
+                      Регистратор: <strong>{registryRecords.filter((r:any) => r.source === 'registrar').length}</strong>
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-red-400 inline-block" />
+                      Жалоба: <strong>{registryRecords.filter((r:any) => r.source === 'complaint').length}</strong>
+                    </span>
+                  </span>
+                </div>
+
                 <div className="overflow-x-auto border rounded-md" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                   <Table>
                     <TableHeader className="sticky top-0 bg-blue-100 z-10">
@@ -1435,9 +1458,7 @@ const MDoctor = () => {
                     </TableBody>
                   </Table>
                 </div>
-                <div className="mt-2 text-sm text-muted-foreground">
-                  Всего записей: {registryRecords.length} | Выбрано: {registrySelected.size}
-                </div>
+
               </CardContent>
             </Card>
           </TabsContent>
