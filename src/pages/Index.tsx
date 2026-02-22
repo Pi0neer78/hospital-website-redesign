@@ -1977,6 +1977,45 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Праздничный виджет 23 февраля */}
+      <div className="fixed bottom-6 right-6 z-40 select-none pointer-events-none">
+        <div className="relative flex flex-col items-center gap-2 animate-bounce" style={{ animationDuration: '3s' }}>
+          {/* Флаг России */}
+          <div className="relative w-20 overflow-hidden rounded shadow-lg" style={{ height: '44px' }}>
+            <div className="w-full h-1/3 bg-white" />
+            <div className="w-full h-1/3 bg-[#0039A6]" />
+            <div className="w-full h-1/3 bg-[#D52B1E]" />
+            <div
+              className="absolute inset-0 w-full h-full"
+              style={{
+                background: 'linear-gradient(90deg, transparent 60%, rgba(255,255,255,0.18) 80%, transparent 100%)',
+                animation: 'flagWave 1.8s ease-in-out infinite',
+              }}
+            />
+          </div>
+          {/* Георгиевская лента */}
+          <div className="flex h-3 w-20 rounded overflow-hidden shadow">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className={`flex-1 ${i % 2 === 0 ? 'bg-[#F5A623]' : 'bg-black'}`} />
+            ))}
+          </div>
+          {/* Текст */}
+          <div
+            className="text-white font-black text-xs text-center px-3 py-1 rounded shadow-lg tracking-widest"
+            style={{ background: 'linear-gradient(135deg, #D52B1E, #0039A6)', textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}
+          >
+            С 23 ФЕВРАЛЯ!
+          </div>
+        </div>
+        <style>{`
+          @keyframes flagWave {
+            0% { transform: skewX(0deg) translateX(-100%); opacity: 0; }
+            40% { opacity: 1; }
+            100% { transform: skewX(0deg) translateX(200%); opacity: 0; }
+          }
+        `}</style>
+      </div>
+
       <footer className="bg-primary text-white py-8">
         <div className="container mx-auto px-4">
           <div className="text-center text-white/90">
