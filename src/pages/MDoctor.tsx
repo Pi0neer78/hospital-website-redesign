@@ -29,6 +29,10 @@ const MDoctor = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [adminFullName, setAdminFullName] = useState(() => {
+    const saved = localStorage.getItem('mdoctor_user');
+    return saved ? (JSON.parse(saved).full_name || '') : '';
+  });
   const [loginForm, setLoginForm] = useState({ login: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [doctors, setDoctors] = useState<any[]>([]);
@@ -317,7 +321,8 @@ const MDoctor = () => {
       
       if (data.success) {
         localStorage.setItem('mdoctor_token', data.token);
-        localStorage.setItem('mdoctor_user', JSON.stringify({ login: loginForm.login }));
+        localStorage.setItem('mdoctor_user', JSON.stringify({ login: loginForm.login, full_name: data.user?.full_name || '' }));
+        setAdminFullName(data.user?.full_name || '');
         setIsAuthenticated(true);
         toast({ title: 'Вход выполнен', description: 'Добро пожаловать!' });
         loadDoctors();
@@ -604,7 +609,12 @@ const MDoctor = () => {
             <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
               <Icon name="Home" size={20} />
             </Button>
-            <h1 className="text-2xl font-bold text-gray-800">Кабинет главного врача</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">Кабинет главного врача</h1>
+              {adminFullName && (
+                <p className="text-sm text-blue-600 font-medium mt-0.5">{adminFullName}</p>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleLogout}>
