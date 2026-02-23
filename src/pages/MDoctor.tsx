@@ -609,12 +609,9 @@ const MDoctor = () => {
             <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
               <Icon name="Home" size={20} />
             </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Кабинет главного врача</h1>
-              {adminFullName && (
-                <p className="text-sm text-blue-600 font-medium mt-0.5">{adminFullName}</p>
-              )}
-            </div>
+            <h1 className="text-2xl font-bold text-gray-800">
+              Кабинет главного врача{adminFullName && <span className="text-blue-600"> {adminFullName}</span>}
+            </h1>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleLogout}>
