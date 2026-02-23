@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Get voters for all period",
+      "method": "GET",
+      "path": "/?period=all",
+      "expectedStatus": 200,
+      "expectedBody": {"voters": "array"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get voters for day period",
+      "method": "GET",
+      "path": "/?period=day",
+      "expectedStatus": 200,
+      "expectedBody": {"voters": "array"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
