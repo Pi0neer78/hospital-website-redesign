@@ -31,7 +31,9 @@ const MDoctor = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [adminFullName, setAdminFullName] = useState(() => {
     const saved = localStorage.getItem('mdoctor_user');
-    return saved ? (JSON.parse(saved).full_name || '') : '';
+    if (!saved) return '';
+    const u = JSON.parse(saved);
+    return u.full_name ? `Пользователь : ${u.full_name}${u.login_at ? `   дата авторизации : ${u.login_at}` : ''}` : '';
   });
   const [loginForm, setLoginForm] = useState({ login: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -320,9 +322,11 @@ const MDoctor = () => {
       const data = await response.json();
       
       if (data.success) {
+        const loginAt = new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
         localStorage.setItem('mdoctor_token', data.token);
-        localStorage.setItem('mdoctor_user', JSON.stringify({ login: loginForm.login, full_name: data.user?.full_name || '' }));
-        setAdminFullName(data.user?.full_name || '');
+        localStorage.setItem('mdoctor_user', JSON.stringify({ login: loginForm.login, full_name: data.user?.full_name || '', login_at: loginAt }));
+        const fullName = data.user?.full_name || '';
+        setAdminFullName(fullName ? `Пользователь : ${fullName}   дата авторизации : ${loginAt}` : '');
         setIsAuthenticated(true);
         toast({ title: 'Вход выполнен', description: 'Добро пожаловать!' });
         loadDoctors();
@@ -609,9 +613,12 @@ const MDoctor = () => {
             <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
               <Icon name="Home" size={20} />
             </Button>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Кабинет главного врача{adminFullName && <span className="text-blue-600"> {adminFullName}</span>}
-            </h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">Кабинет главного врача</h1>
+              {adminFullName && (
+                <p className="text-sm text-blue-600 font-medium mt-0.5">{adminFullName}</p>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleLogout}>
