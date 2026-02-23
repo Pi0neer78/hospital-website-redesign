@@ -6,10 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import func2url from '../../../func2url.json';
-
 const STATS_URL = 'https://functions.poehali.dev/3b25f41d-7581-4cd1-b467-47d00b68f03c';
-const VOTERS_URL = (func2url as any)['queue-rating-voters'] || '';
+const VOTERS_URL = 'https://functions.poehali.dev/8a7de09a-52aa-4279-8b4e-2ebe90c6cbdd';
 
 const STAR_COLORS: Record<number, string> = {
   5: 'text-green-600 bg-green-50',
