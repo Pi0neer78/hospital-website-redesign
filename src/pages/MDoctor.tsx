@@ -58,7 +58,7 @@ const MDoctor = () => {
   const [registryRecords, setRegistryRecords] = useState<any[]>([]);
   const [registryTotal, setRegistryTotal] = useState(0);
   const [registryPage, setRegistryPage] = useState(1);
-  const registryPageSize = 100;
+  const [registryPageSize, setRegistryPageSize] = useState(20);
   const [registrySearch, setRegistrySearch] = useState('');
   const [registrySourceFilter, setRegistrySourceFilter] = useState<string>('all');
   const [registryDateFrom, setRegistryDateFrom] = useState('');
@@ -110,12 +110,12 @@ const MDoctor = () => {
     }
   };
 
-  const loadRegistry = async (page = registryPage) => {
+  const loadRegistry = async (page = registryPage, pageSize = registryPageSize) => {
     try {
       const params = new URLSearchParams();
       if (registrySearch) params.append('search', registrySearch);
       params.append('page', String(page));
-      params.append('page_size', String(registryPageSize));
+      params.append('page_size', String(pageSize));
       const response = await fetch(`${API_URLS.registry}?${params}`);
       const data = await response.json();
       if (data.records) {
@@ -1525,27 +1525,40 @@ const MDoctor = () => {
                   </Table>
                 </div>
 
-                {registryTotal > registryPageSize && (
-                  <div className="flex items-center justify-between mt-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={registryPage <= 1}
-                      onClick={() => loadRegistry(registryPage - 1)}
-                    >
-                      ← Назад
-                    </Button>
-                    <span className="text-xs text-muted-foreground">
-                      {(registryPage - 1) * registryPageSize + 1}–{Math.min(registryPage * registryPageSize, registryTotal)} из {registryTotal}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={registryPage >= Math.ceil(registryTotal / registryPageSize)}
-                      onClick={() => loadRegistry(registryPage + 1)}
-                    >
-                      Вперёд →
-                    </Button>
+                {registryTotal > 0 && (
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">
+                      Показано {(registryPage - 1) * registryPageSize + 1}–{Math.min(registryPage * registryPageSize, registryTotal)} из {registryTotal}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={registryPage <= 1} onClick={() => loadRegistry(1)} title="Первая страница">
+                        <Icon name="ChevronsLeft" size={14} />
+                      </Button>
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={registryPage <= 1} onClick={() => loadRegistry(registryPage - 1)} title="Предыдущая">
+                        <Icon name="ChevronLeft" size={14} />
+                      </Button>
+                      <span className="text-sm px-2">{registryPage} / {Math.max(1, Math.ceil(registryTotal / registryPageSize))}</span>
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={registryPage >= Math.ceil(registryTotal / registryPageSize)} onClick={() => loadRegistry(registryPage + 1)} title="Следующая">
+                        <Icon name="ChevronRight" size={14} />
+                      </Button>
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={registryPage >= Math.ceil(registryTotal / registryPageSize)} onClick={() => loadRegistry(Math.ceil(registryTotal / registryPageSize))} title="Последняя страница">
+                        <Icon name="ChevronsRight" size={14} />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">Показывать:</span>
+                      <Select value={registryPageSize.toString()} onValueChange={(v) => { const ps = Number(v); setRegistryPageSize(ps); loadRegistry(1, ps); }}>
+                        <SelectTrigger className="h-8 w-20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="10">10</SelectItem>
+                          <SelectItem value="20">20</SelectItem>
+                          <SelectItem value="50">50</SelectItem>
+                          <SelectItem value="100">100</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 )}
 
