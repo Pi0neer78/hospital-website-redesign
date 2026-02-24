@@ -12,6 +12,7 @@ import { EditAppointmentForm } from '@/components/EditAppointmentForm';
 import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
 import { validateFullName } from '@/utils/validation';
+import NameErrorModal from '@/components/NameErrorModal';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -67,6 +68,8 @@ const Registrar = () => {
   const [isLoadingDates, setIsLoadingDates] = useState(false);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [nameErrorModal, setNameErrorModal] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
+  const [newAppointmentNameError, setNewAppointmentNameError] = useState<string | null>(null);
 
   useEffect(() => {
     const auth = localStorage.getItem('registrar_auth');
@@ -277,9 +280,11 @@ const Registrar = () => {
 
     const nameError = validateFullName(newAppointmentDialog.patientName);
     if (nameError) {
-      toast({ title: "Ошибка в ФИО", description: nameError, variant: "destructive" });
+      setNewAppointmentNameError(nameError);
+      setNameErrorModal({ open: true, message: nameError });
       return;
     }
+    setNewAppointmentNameError(null);
 
     // ОПТИМИЗАЦИЯ: проверка слота встроена в create_appointment (1 запрос вместо 2)
     try {
@@ -1221,10 +1226,15 @@ const Registrar = () => {
                 <label className="text-xs font-medium text-muted-foreground">ФИО пациента *</label>
                 <Input
                   value={newAppointmentDialog.patientName}
-                  onChange={(e) => setNewAppointmentDialog({ ...newAppointmentDialog, patientName: e.target.value })}
+                  onChange={(e) => {
+                    setNewAppointmentDialog({ ...newAppointmentDialog, patientName: e.target.value });
+                    if (newAppointmentNameError) setNewAppointmentNameError(validateFullName(e.target.value));
+                  }}
+                  placeholder="Иванов Иван Иванович"
                   required
-                  className="h-9"
+                  className={`h-9${newAppointmentNameError ? ' border-red-500 focus-visible:ring-red-500' : ''}`}
                 />
+                {newAppointmentNameError && <p className="text-xs text-red-500 mt-1">{newAppointmentNameError}</p>}
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Телефон *</label>
@@ -1951,6 +1961,12 @@ const Registrar = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <NameErrorModal
+        open={nameErrorModal.open}
+        errorMessage={nameErrorModal.message}
+        onClose={() => setNameErrorModal({ open: false, message: '' })}
+      />
     </div>
   );
 };
