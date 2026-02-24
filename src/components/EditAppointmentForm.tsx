@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { validateFullName } from '@/utils/validation';
+import NameErrorModal from '@/components/NameErrorModal';
 
 interface Appointment {
   id: number;
@@ -35,6 +37,8 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
     description: appointment.description || ''
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [nameErrorModal, setNameErrorModal] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
 
   const formatSnils = (value: string) => {
     const digits = value.replace(/\D/g, '');
@@ -71,6 +75,14 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
       });
       return;
     }
+
+    const error = validateFullName(editForm.patient_name);
+    if (error) {
+      setNameError(error);
+      setNameErrorModal({ open: true, message: error });
+      return;
+    }
+    setNameError(null);
 
     setIsSaving(true);
     try {
@@ -127,9 +139,14 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
         <Input
           id="edit-name"
           value={editForm.patient_name}
-          onChange={(e) => setEditForm({ ...editForm, patient_name: e.target.value })}
+          onChange={(e) => {
+            setEditForm({ ...editForm, patient_name: e.target.value });
+            if (nameError) setNameError(validateFullName(e.target.value));
+          }}
           placeholder="Иванов Иван Иванович"
+          className={nameError ? 'border-red-500 focus-visible:ring-red-500' : ''}
         />
+        {nameError && <p className="text-xs text-red-500 mt-1">{nameError}</p>}
       </div>
 
       <div>
@@ -191,6 +208,12 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
           Отмена
         </Button>
       </div>
+
+      <NameErrorModal
+        open={nameErrorModal.open}
+        errorMessage={nameErrorModal.message}
+        onClose={() => setNameErrorModal({ open: false, message: '' })}
+      />
     </div>
   );
 }
