@@ -368,6 +368,7 @@ const Registrar = () => {
 
         toast({ title: "Успешно", description: "Запись отменена" });
         loadAppointments(selectedDoctor.id);
+        if (selectedDate) loadAvailableSlots(selectedDoctor.id, selectedDate);
         setCancelDialog(null);
       }
     } catch (error) {
@@ -564,6 +565,7 @@ const Registrar = () => {
         setRescheduleSelectedDate('');
         setRescheduleSelectedSlot('');
         loadAppointments(selectedDoctor.id);
+        if (selectedDate) loadAvailableSlots(selectedDoctor.id, selectedDate);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось перенести запись", variant: "destructive" });
       }
@@ -630,6 +632,7 @@ const Registrar = () => {
         setCloneSelectedDate('');
         setCloneSelectedSlot('');
         loadAppointments(selectedDoctor.id);
+        if (selectedDate) loadAvailableSlots(selectedDoctor.id, selectedDate);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось клонировать запись", variant: "destructive" });
       }
@@ -1955,6 +1958,7 @@ const Registrar = () => {
               onSuccess={() => {
                 setEditDialog(null);
                 loadAppointments(selectedDoctor.id);
+                if (selectedDate) loadAvailableSlots(selectedDoctor.id, selectedDate);
               }}
               onCancel={() => setEditDialog(null)}
             />
