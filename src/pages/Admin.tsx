@@ -1803,12 +1803,12 @@ const Admin = () => {
                                       (e.target as HTMLImageElement).style.display = 'none';
                                     }}
                                   />
-                                  <div className="absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                  <div className="fixed opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[9999] translate-x-16 -translate-y-8">
                                     <img 
                                       src={doctor.photo_url} 
                                       alt={doctor.full_name} 
                                       className="rounded-lg shadow-2xl border-4 border-white"
-                                      style={{ width: 'auto', maxWidth: '400px', height: 'auto', maxHeight: '400px' }}
+                                      style={{ width: 'auto', maxWidth: '300px', height: 'auto', maxHeight: '300px' }}
                                     />
                                   </div>
                                 </div>
