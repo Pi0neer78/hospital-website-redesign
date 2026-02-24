@@ -15,6 +15,7 @@ import * as XLSX from 'xlsx';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
 import { validateFullName } from '@/utils/validation';
 import { EditAppointmentForm } from '@/components/EditAppointmentForm';
+import NameErrorModal from '@/components/NameErrorModal';
 import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
 
 const API_URLS = {
@@ -172,6 +173,7 @@ const Doctor = () => {
     availableSlots: []
   });
   const [newAppointmentNameError, setNewAppointmentNameError] = useState<string | null>(null);
+  const [nameErrorModal, setNameErrorModal] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
   const [dateSlotCounts, setDateSlotCounts] = useState<{[key: string]: number}>({});
   const [tipsContentOpen, setTipsContentOpen] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
@@ -1816,6 +1818,7 @@ const Doctor = () => {
     const nameError = validateFullName(newAppointmentDialog.patientName);
     if (nameError) {
       setNewAppointmentNameError(nameError);
+      setNameErrorModal({ open: true, message: nameError });
       return;
     }
     setNewAppointmentNameError(null);
@@ -4870,6 +4873,11 @@ const Doctor = () => {
         </DialogContent>
       </Dialog>
 
+      <NameErrorModal
+        open={nameErrorModal.open}
+        errorMessage={nameErrorModal.message}
+        onClose={() => setNameErrorModal({ open: false, message: '' })}
+      />
     </div>
   );
 };
