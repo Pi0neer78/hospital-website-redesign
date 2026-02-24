@@ -990,6 +990,9 @@ const Doctor = () => {
         }
         
         loadAppointments(doctorInfo.id);
+        if (newAppointmentDialog.open && newAppointmentDialog.date) {
+          loadAvailableSlotsForNewAppointment(newAppointmentDialog.date);
+        }
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось обновить статус", variant: "destructive" });
       }
@@ -1582,6 +1585,9 @@ const Doctor = () => {
           availableSlots: []
         });
         loadAppointments(doctorInfo.id);
+        if (newAppointmentDialog.open && newAppointmentDialog.date) {
+          loadAvailableSlotsForNewAppointment(newAppointmentDialog.date);
+        }
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось клонировать запись", variant: "destructive" });
       }
@@ -1798,6 +1804,9 @@ const Doctor = () => {
           availableDates: []
         });
         loadAppointments(doctorInfo.id);
+        if (newAppointmentDialog.open && newAppointmentDialog.date) {
+          loadAvailableSlotsForNewAppointment(newAppointmentDialog.date);
+        }
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось перенести запись", variant: "destructive" });
       }
@@ -3795,6 +3804,9 @@ const Doctor = () => {
               onSuccess={() => {
                 setEditDialog({ open: false, appointment: null });
                 loadAppointments(doctorInfo.id);
+                if (newAppointmentDialog.open && newAppointmentDialog.date) {
+                  loadAvailableSlotsForNewAppointment(newAppointmentDialog.date);
+                }
               }}
               onCancel={() => setEditDialog({ open: false, appointment: null })}
             />
