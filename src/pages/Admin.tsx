@@ -1547,51 +1547,40 @@ const Admin = () => {
                         isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
                       }`}
                     >
-                      {doctorForm.photo_url ? (
-                        <div className="flex items-center gap-3">
-                          <img 
-                            src={doctorForm.photo_url} 
-                            alt="Предпросмотр" 
-                            className="w-16 h-16 object-cover rounded-lg"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = '';
-                            }}
+                      <div className="flex items-center justify-center gap-3">
+                        {doctorForm.photo_url?.startsWith('http') && (
+                          <img
+                            src={doctorForm.photo_url}
+                            alt="Предпросмотр"
+                            className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                           />
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => setDoctorForm({ ...doctorForm, photo_url: '' })}
-                          >
-                            <Icon name="Trash2" size={14} className="mr-1" />
-                            Удалить
+                        )}
+                        <Icon name="Upload" size={24} className="text-muted-foreground" />
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileSelect}
+                            className="hidden"
+                            disabled={isUploading}
+                          />
+                          <Button type="button" variant="outline" size="sm" disabled={isUploading} asChild>
+                            <span>{isUploading ? 'Загрузка...' : 'Выбрать файл'}</span>
                           </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-3">
-                          <Icon name="Upload" size={24} className="text-muted-foreground" />
-                          <label className="cursor-pointer">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleFileSelect}
-                              className="hidden"
-                              disabled={isUploading}
-                            />
-                            <Button type="button" variant="outline" size="sm" disabled={isUploading} asChild>
-                              <span>
-                                {isUploading ? 'Загрузка...' : 'Выбрать файл'}
-                              </span>
-                            </Button>
-                          </label>
-                          <Input
-                            placeholder="или URL"
-                            value={doctorForm.photo_url}
-                            onChange={(e) => setDoctorForm({ ...doctorForm, photo_url: e.target.value })}
-                            className="h-9 max-w-[200px]"
-                          />
-                        </div>
-                      )}
+                        </label>
+                        <Input
+                          placeholder="или URL"
+                          value={doctorForm.photo_url}
+                          onChange={(e) => setDoctorForm({ ...doctorForm, photo_url: e.target.value })}
+                          className="h-9 max-w-[200px]"
+                        />
+                        {doctorForm.photo_url && (
+                          <Button type="button" variant="outline" size="sm" onClick={() => setDoctorForm({ ...doctorForm, photo_url: '' })}>
+                            <Icon name="Trash2" size={14} />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <Button type="submit" className="w-full h-9">Создать врача</Button>
@@ -1712,51 +1701,40 @@ const Admin = () => {
                         isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
                       }`}
                     >
-                      {editingDoctor?.photo_url ? (
-                        <div className="flex items-center gap-3">
-                          <img 
-                            src={editingDoctor.photo_url} 
-                            alt="Предпросмотр" 
-                            className="w-16 h-16 object-cover rounded-lg"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = '';
-                            }}
+                      <div className="flex items-center justify-center gap-3">
+                        {editingDoctor?.photo_url?.startsWith('http') && (
+                          <img
+                            src={editingDoctor.photo_url}
+                            alt="Предпросмотр"
+                            className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                           />
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => setEditingDoctor({ ...editingDoctor, photo_url: '' })}
-                          >
-                            <Icon name="Trash2" size={14} className="mr-1" />
-                            Удалить
+                        )}
+                        <Icon name="Upload" size={24} className="text-muted-foreground" />
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileSelect}
+                            className="hidden"
+                            disabled={isUploading}
+                          />
+                          <Button type="button" variant="outline" size="sm" disabled={isUploading} asChild>
+                            <span>{isUploading ? 'Загрузка...' : 'Выбрать файл'}</span>
                           </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-3">
-                          <Icon name="Upload" size={24} className="text-muted-foreground" />
-                          <label className="cursor-pointer">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleFileSelect}
-                              className="hidden"
-                              disabled={isUploading}
-                            />
-                            <Button type="button" variant="outline" size="sm" disabled={isUploading} asChild>
-                              <span>
-                                {isUploading ? 'Загрузка...' : 'Выбрать файл'}
-                              </span>
-                            </Button>
-                          </label>
-                          <Input
-                            placeholder="или URL"
-                            value={editingDoctor?.photo_url || ''}
-                            onChange={(e) => setEditingDoctor({ ...editingDoctor, photo_url: e.target.value })}
-                            className="h-9 max-w-[200px]"
-                          />
-                        </div>
-                      )}
+                        </label>
+                        <Input
+                          placeholder="или URL"
+                          value={editingDoctor?.photo_url || ''}
+                          onChange={(e) => setEditingDoctor({ ...editingDoctor, photo_url: e.target.value })}
+                          className="h-9 max-w-[200px]"
+                        />
+                        {editingDoctor?.photo_url && (
+                          <Button type="button" variant="outline" size="sm" onClick={() => setEditingDoctor({ ...editingDoctor, photo_url: '' })}>
+                            <Icon name="Trash2" size={14} />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div>
