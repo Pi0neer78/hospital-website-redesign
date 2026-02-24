@@ -13,6 +13,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
+import { validateFullName } from '@/utils/validation';
 import { EditAppointmentForm } from '@/components/EditAppointmentForm';
 import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
 
@@ -170,6 +171,7 @@ const Doctor = () => {
     description: '',
     availableSlots: []
   });
+  const [newAppointmentNameError, setNewAppointmentNameError] = useState<string | null>(null);
   const [dateSlotCounts, setDateSlotCounts] = useState<{[key: string]: number}>({});
   const [tipsContentOpen, setTipsContentOpen] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
@@ -1811,6 +1813,12 @@ const Doctor = () => {
       toast({ title: "Ошибка", description: "Заполните все обязательные поля", variant: "destructive" });
       return;
     }
+    const nameError = validateFullName(newAppointmentDialog.patientName);
+    if (nameError) {
+      setNewAppointmentNameError(nameError);
+      return;
+    }
+    setNewAppointmentNameError(null);
 
     // ОПТИМИЗАЦИЯ: проверка слота встроена в create_appointment, убираем отдельный запрос
     try {
@@ -1861,6 +1869,7 @@ const Doctor = () => {
           description: '',
           availableSlots: []
         });
+        setNewAppointmentNameError(null);
         loadAppointments(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось создать запись", variant: "destructive" });
@@ -4178,11 +4187,14 @@ const Doctor = () => {
                 <label className="text-xs font-medium mb-1 block">ФИО пациента *</label>
                 <Input
                   value={newAppointmentDialog.patientName}
-                  onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, patientName: e.target.value})}
+                  onChange={(e) => {
+                    setNewAppointmentDialog({...newAppointmentDialog, patientName: e.target.value});
+                    if (newAppointmentNameError) setNewAppointmentNameError(validateFullName(e.target.value));
+                  }}
                   placeholder="Иванов Иван Иванович"
-                  className="h-9 text-sm"
-                  required
+                  className={`h-9 text-sm${newAppointmentNameError ? ' border-red-500 focus-visible:ring-red-500' : ''}`}
                 />
+                {newAppointmentNameError && <p className="text-xs text-red-500 mt-1">{newAppointmentNameError}</p>}
               </div>
 
               <div>
@@ -4262,16 +4274,20 @@ const Doctor = () => {
                 type="button"
                 variant="outline"
                 className="flex-1"
-                onClick={() => setNewAppointmentDialog({
-                  open: false,
-                  date: '',
-                  time: '',
-                  patientName: '',
-                  patientPhone: '',
-                  patientSnils: '',
-                  description: '',
-                  availableSlots: []
-                })}
+                onClick={() => {
+                  setNewAppointmentDialog({
+                    open: false,
+                    date: '',
+                    time: '',
+                    patientName: '',
+                    patientPhone: '',
+                    patientSnils: '',
+                    patientOms: '',
+                    description: '',
+                    availableSlots: []
+                  });
+                  setNewAppointmentNameError(null);
+                }}
               >
                 Отмена
               </Button>

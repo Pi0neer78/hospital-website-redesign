@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { validateFullName } from '@/utils/validation';
 
 interface NewAppointmentFormProps {
   open: boolean;
@@ -34,21 +36,40 @@ const NewAppointmentForm = ({
   onSubmit,
   onCancel
 }: NewAppointmentFormProps) => {
+  const [nameError, setNameError] = useState<string | null>(null);
+
+  const handleNameChange = (value: string) => {
+    onChangePatientName(value);
+    if (nameError) setNameError(validateFullName(value));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const error = validateFullName(patientName);
+    if (error) {
+      setNameError(error);
+      return;
+    }
+    setNameError(null);
+    onSubmit(e);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onCancel}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Новая запись</DialogTitle>
         </DialogHeader>
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-sm font-medium">ФИО пациента *</label>
             <Input
               value={patientName}
-              onChange={(e) => onChangePatientName(e.target.value)}
+              onChange={(e) => handleNameChange(e.target.value)}
               placeholder="Иванов Иван Иванович"
-              required
+              className={nameError ? 'border-red-500 focus-visible:ring-red-500' : ''}
             />
+            {nameError && <p className="text-xs text-red-500 mt-1">{nameError}</p>}
           </div>
           <div>
             <label className="text-sm font-medium">Телефон *</label>
