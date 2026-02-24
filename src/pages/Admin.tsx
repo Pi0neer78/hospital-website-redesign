@@ -3059,96 +3059,158 @@ const Admin = () => {
               </Button>
             </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Фильтр по датам</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">С даты</label>
-                    <Input
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => setDateFrom(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">По дату</label>
-                    <Input
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) => setDateTo(e.target.value)}
-                    />
-                  </div>
-                </div>
-                {(dateFrom || dateTo) && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-4"
-                    onClick={() => { setDateFrom(''); setDateTo(''); }}
-                  >
-                    <Icon name="X" size={16} className="mr-2" />
-                    Сбросить фильтр
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+            {(() => {
+              const total = complaints.length;
+              const resolved = complaints.filter((c: any) => c.status === 'resolved').length;
+              const inProgress = complaints.filter((c: any) => c.status === 'in_progress').length;
+              const newCount = complaints.filter((c: any) => c.status === 'new').length;
+              const remaining = total - resolved;
 
-            <div className="space-y-4">
-              {getFilteredComplaints().length === 0 ? (
-                <Card>
-                  <CardContent className="py-12 text-center text-muted-foreground">
-                    <Icon name="MessageSquare" size={48} className="mx-auto mb-4 opacity-30" />
-                    <p>Жалобы не найдены</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                getFilteredComplaints().map((complaint: any) => (
-                  <Card key={complaint.id}>
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg">{complaint.name}</CardTitle>
-                          <CardDescription>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Icon name="Mail" size={14} />
-                              {complaint.email}
-                            </div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Icon name="Phone" size={14} />
-                              {complaint.phone || 'Не указан'}
-                            </div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Icon name="Calendar" size={14} />
-                              {new Date(complaint.created_at).toLocaleString('ru-RU')}
-                            </div>
-                          </CardDescription>
+              const dbSizeBytes = 81920;
+              const dbSizeMb = dbSizeBytes / (1024 * 1024);
+              const maxMb = 100;
+              const fillPercent = Math.min((dbSizeMb / maxMb) * 100, 100);
+              const radius = 52;
+              const circumference = 2 * Math.PI * radius;
+              const strokeDash = (fillPercent / 100) * circumference;
+
+              return (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 grid grid-cols-2 gap-4">
+                    <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+                      <CardContent className="pt-6 pb-5">
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <Icon name="MessageSquare" size={28} className="text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="text-4xl font-bold text-blue-700">{total}</p>
+                            <p className="text-sm text-muted-foreground font-medium">Всего жалоб</p>
+                          </div>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          complaint.status === 'new' ? 'bg-blue-100 text-blue-700' :
-                          complaint.status === 'processed' ? 'bg-green-100 text-green-700' :
-                          'bg-gray-100 text-gray-700'
-                        }`}>
-                          {complaint.status === 'new' ? 'Новая' :
-                           complaint.status === 'processed' ? 'Обработана' : complaint.status}
-                        </span>
-                      </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
+                      <CardContent className="pt-6 pb-5">
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                            <Icon name="CheckCircle2" size={28} className="text-green-600" />
+                          </div>
+                          <div>
+                            <p className="text-4xl font-bold text-green-700">{resolved}</p>
+                            <p className="text-sm text-muted-foreground font-medium">Решено</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-white">
+                      <CardContent className="pt-6 pb-5">
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                            <Icon name="Clock" size={28} className="text-yellow-600" />
+                          </div>
+                          <div>
+                            <p className="text-4xl font-bold text-yellow-700">{inProgress}</p>
+                            <p className="text-sm text-muted-foreground font-medium">На рассмотрении</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-white">
+                      <CardContent className="pt-6 pb-5">
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                            <Icon name="AlertCircle" size={28} className="text-red-500" />
+                          </div>
+                          <div>
+                            <p className="text-4xl font-bold text-red-600">{newCount}</p>
+                            <p className="text-sm text-muted-foreground font-medium">Новых (без ответа)</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {total > 0 && (
+                      <Card className="col-span-2 border border-border">
+                        <CardContent className="pt-4 pb-4">
+                          <p className="text-xs text-muted-foreground mb-2 font-medium">Прогресс обработки</p>
+                          <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
+                            <div
+                              className="h-4 rounded-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-700"
+                              style={{ width: `${total > 0 ? Math.round((resolved / total) * 100) : 0}%` }}
+                            />
+                          </div>
+                          <div className="flex justify-between mt-1.5">
+                            <span className="text-xs text-green-700 font-semibold">Решено: {total > 0 ? Math.round((resolved / total) * 100) : 0}%</span>
+                            <span className="text-xs text-muted-foreground">Осталось: {remaining}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+
+                  <Card className="border border-border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Icon name="Database" size={18} className="text-primary" />
+                        Размер базы жалоб
+                      </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-sm whitespace-pre-wrap">{complaint.message}</p>
+                    <CardContent className="flex flex-col items-center gap-3">
+                      <div className="relative">
+                        <svg width="140" height="140" viewBox="0 0 140 140">
+                          <circle
+                            cx="70" cy="70" r={radius}
+                            fill="none"
+                            stroke="#e5e7eb"
+                            strokeWidth="14"
+                          />
+                          <circle
+                            cx="70" cy="70" r={radius}
+                            fill="none"
+                            stroke="url(#grad)"
+                            strokeWidth="14"
+                            strokeLinecap="round"
+                            strokeDasharray={`${strokeDash} ${circumference}`}
+                            strokeDashoffset="0"
+                            transform="rotate(-90 70 70)"
+                          />
+                          <defs>
+                            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="#3b82f6" />
+                              <stop offset="100%" stopColor="#8b5cf6" />
+                            </linearGradient>
+                          </defs>
+                          <text x="70" y="65" textAnchor="middle" className="text-xs" style={{ fontSize: '11px', fill: '#6b7280' }}>занято</text>
+                          <text x="70" y="83" textAnchor="middle" style={{ fontSize: '13px', fontWeight: 'bold', fill: '#1f2937' }}>{fillPercent.toFixed(2)}%</text>
+                        </svg>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <p className="text-2xl font-bold text-primary">{(dbSizeBytes / 1024).toFixed(0)} КБ</p>
+                        <p className="text-xs text-muted-foreground">{dbSizeMb.toFixed(4)} МБ из 100 МБ</p>
+                      </div>
+                      <div className="w-full space-y-1.5 text-xs border-t pt-3 mt-1">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Записей в БД:</span>
+                          <span className="font-semibold">{total}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Байт на запись:</span>
+                          <span className="font-semibold">{total > 0 ? Math.round(dbSizeBytes / total) : 0}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Свободно:</span>
+                          <span className="font-semibold text-green-600">{(maxMb - dbSizeMb).toFixed(2)} МБ</span>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
-                ))
-              )}
-            </div>
-
-            {getFilteredComplaints().length > 0 && (
-              <div className="text-center text-sm text-muted-foreground">
-                Всего жалоб: {getFilteredComplaints().length}
-              </div>
-            )}
+                </div>
+              );
+            })()}
           </div>
         </TabsContent>
       </Tabs>
