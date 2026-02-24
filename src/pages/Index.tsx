@@ -755,15 +755,15 @@ const Index = () => {
                     <h3 className="font-semibold text-lg">Выберите поликлинику:</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       <Card 
-                        className="opacity-50 cursor-not-allowed border-gray-200"
+                        className="cursor-pointer hover:shadow-xl transition-all hover:border-primary"
+                        onClick={() => setSelectedClinic('Центральная городская поликлиника')}
                       >
                         <CardHeader className="text-center">
-                          <div className="w-20 h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                            <Icon name="Building2" size={40} className="text-gray-400" />
+                          <div className="w-20 h-20 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                            <Icon name="Building2" size={40} className="text-blue-600" />
                           </div>
-                          <CardTitle className="text-xl text-gray-400">Центральная городская поликлиника</CardTitle>
+                          <CardTitle className="text-xl">Центральная городская поликлиника</CardTitle>
                           <CardDescription className="text-base">Взрослое отделение</CardDescription>
-                          <p className="text-sm text-red-500 font-medium mt-1">временно недоступно</p>
                         </CardHeader>
                       </Card>
                       
