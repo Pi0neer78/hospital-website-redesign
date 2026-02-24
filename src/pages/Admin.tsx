@@ -1779,7 +1779,7 @@ const Admin = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[60px]">Фото</TableHead>
+                          <TableHead className="w-[100px]">Фото</TableHead>
                           <TableHead>ФИО</TableHead>
                           <TableHead>Должность</TableHead>
                           <TableHead>Специализация</TableHead>
@@ -1798,7 +1798,7 @@ const Admin = () => {
                                   <img 
                                     src={doctor.photo_url} 
                                     alt={doctor.full_name} 
-                                    className="w-20 h-20 rounded-full object-cover cursor-pointer transition-transform"
+                                    className="w-20 h-24 rounded-lg object-cover cursor-pointer transition-transform"
                                     onError={(e) => {
                                       (e.target as HTMLImageElement).style.display = 'none';
                                     }}
@@ -1813,7 +1813,7 @@ const Admin = () => {
                                   </div>
                                 </div>
                               ) : (
-                                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                                <div className="w-20 h-24 rounded-lg bg-primary/10 flex items-center justify-center">
                                   <Icon name="User" size={32} className="text-primary" />
                                 </div>
                               )}
