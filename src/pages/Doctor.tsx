@@ -80,6 +80,12 @@ const Doctor = () => {
     date.setDate(date.getDate() + 7);
     return date.toISOString().split('T')[0];
   });
+  const [debouncedDateFrom, setDebouncedDateFrom] = useState(dateFilterFrom);
+  const [debouncedDateTo, setDebouncedDateTo] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+    return date.toISOString().split('T')[0];
+  });
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [copyFromSchedule, setCopyFromSchedule] = useState<any>(null);
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
@@ -250,6 +256,20 @@ const Doctor = () => {
 
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedDateFrom(dateFilterFrom);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [dateFilterFrom]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedDateTo(dateFilterTo);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [dateFilterTo]);
+
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const doctorIdFromUrl = urlParams.get('id');
     const sourceFromUrl = urlParams.get('source');
@@ -269,7 +289,7 @@ const Doctor = () => {
       loadAppointments(doctor.id);
       loadCalendar(doctor.id, selectedYear);
     }
-  }, [dateFilterFrom, dateFilterTo]);
+  }, [debouncedDateFrom, debouncedDateTo]);
 
   useEffect(() => {
     if (doctorInfo && selectedYear) {
