@@ -289,6 +289,12 @@ const Doctor = () => {
       loadAppointments(doctor.id);
       loadCalendar(doctor.id, selectedYear);
     }
+  }, []);
+
+  useEffect(() => {
+    if (doctorInfo) {
+      loadAppointments(doctorInfo.id);
+    }
   }, [debouncedDateFrom, debouncedDateTo]);
 
   useEffect(() => {
@@ -670,7 +676,6 @@ const Doctor = () => {
         setScheduleForm({ day_of_week: 0, start_time: '08:00', end_time: '17:00', break_start_time: '', break_end_time: '', slot_duration: 15 });
         setIsOpen(false);
         loadSchedules(doctorInfo.id);
-        loadDailySchedules(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось сохранить расписание", variant: "destructive" });
       }
@@ -695,7 +700,6 @@ const Doctor = () => {
       if (response.ok && data.success) {
         toast({ title: "Успешно", description: currentStatus ? "День деактивирован" : "День активирован" });
         loadSchedules(doctorInfo.id);
-        loadDailySchedules(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось изменить статус", variant: "destructive" });
       }
@@ -717,7 +721,6 @@ const Doctor = () => {
       if (response.ok && data.success) {
         toast({ title: "Успешно", description: "День удален из расписания" });
         loadSchedules(doctorInfo.id);
-        loadDailySchedules(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось удалить", variant: "destructive" });
       }
@@ -750,7 +753,6 @@ const Doctor = () => {
         setIsEditOpen(false);
         setEditingSchedule(null);
         loadSchedules(doctorInfo.id);
-        loadDailySchedules(doctorInfo.id);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось обновить", variant: "destructive" });
       }
@@ -1125,7 +1127,6 @@ const Doctor = () => {
       setCopyFromSchedule(null);
       setSelectedDaysToCopy([]);
       loadSchedules(doctorInfo.id);
-      loadDailySchedules(doctorInfo.id);
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
     }
@@ -1246,7 +1247,6 @@ const Doctor = () => {
       });
       setBulkSlotDialogOpen(false);
       loadSchedules(doctorInfo.id);
-      loadDailySchedules(doctorInfo.id);
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
     }
