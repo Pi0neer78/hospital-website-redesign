@@ -43,6 +43,7 @@ const Registrar = () => {
   });
   const [appointments, setAppointments] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [editDialog, setEditDialog] = useState<any>(null);
@@ -118,6 +119,13 @@ const Registrar = () => {
       loadCloneSlots(cloneSelectedDate);
     }
   }, [cloneSelectedDate, cloneDialog]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -648,9 +656,9 @@ const Registrar = () => {
   };
 
   const filteredAppointments = appointments.filter((app: any) => {
-    const searchMatch = searchQuery === '' || 
-      app.patient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.patient_phone.includes(searchQuery);
+    const searchMatch = debouncedSearchQuery === '' || 
+      app.patient_name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+      app.patient_phone.includes(debouncedSearchQuery);
     
     if (!searchMatch) return false;
     
@@ -985,6 +993,7 @@ const Registrar = () => {
                         setDateFrom('');
                         setDateTo('');
                         setSearchQuery('');
+                        setDebouncedSearchQuery('');
                       }}
                       className="h-9"
                     >
