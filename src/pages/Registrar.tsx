@@ -51,11 +51,13 @@ const Registrar = () => {
   const [rescheduleDialog, setRescheduleDialog] = useState<any>(null);
   const [rescheduleAvailableDates, setRescheduleAvailableDates] = useState<any[]>([]);
   const [rescheduleSelectedDate, setRescheduleSelectedDate] = useState<string>('');
+  const [debouncedRescheduleDate, setDebouncedRescheduleDate] = useState<string>('');
   const [rescheduleAvailableSlots, setRescheduleAvailableSlots] = useState<string[]>([]);
   const [rescheduleSelectedSlot, setRescheduleSelectedSlot] = useState<string>('');
   const [cloneDialog, setCloneDialog] = useState<any>(null);
   const [cloneAvailableDates, setCloneAvailableDates] = useState<any[]>([]);
   const [cloneSelectedDate, setCloneSelectedDate] = useState<string>('');
+  const [debouncedCloneDate, setDebouncedCloneDate] = useState<string>('');
   const [cloneAvailableSlots, setCloneAvailableSlots] = useState<string[]>([]);
   const [cloneSelectedSlot, setCloneSelectedSlot] = useState<string>('');
   const [calendarData, setCalendarData] = useState<{[key: string]: {is_working: boolean}}>({});
@@ -101,16 +103,26 @@ const Registrar = () => {
   }, [selectedDoctor]);
 
   useEffect(() => {
-    if (rescheduleSelectedDate && rescheduleDialog) {
-      loadRescheduleSlots(rescheduleSelectedDate);
-    }
-  }, [rescheduleSelectedDate, rescheduleDialog]);
+    const timer = setTimeout(() => setDebouncedRescheduleDate(rescheduleSelectedDate), 300);
+    return () => clearTimeout(timer);
+  }, [rescheduleSelectedDate]);
 
   useEffect(() => {
-    if (cloneSelectedDate && cloneDialog) {
-      loadCloneSlots(cloneSelectedDate);
+    const timer = setTimeout(() => setDebouncedCloneDate(cloneSelectedDate), 300);
+    return () => clearTimeout(timer);
+  }, [cloneSelectedDate]);
+
+  useEffect(() => {
+    if (debouncedRescheduleDate && rescheduleDialog) {
+      loadRescheduleSlots(debouncedRescheduleDate);
     }
-  }, [cloneSelectedDate, cloneDialog]);
+  }, [debouncedRescheduleDate, rescheduleDialog]);
+
+  useEffect(() => {
+    if (debouncedCloneDate && cloneDialog) {
+      loadCloneSlots(debouncedCloneDate);
+    }
+  }, [debouncedCloneDate, cloneDialog]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

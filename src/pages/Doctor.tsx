@@ -252,8 +252,9 @@ const Doctor = () => {
     return date.toISOString().split('T')[0];
   });
   const [pastDateWarning, setPastDateWarning] = useState<{open: boolean, attemptedDate: string}>({open: false, attemptedDate: ''});
-
-
+  const [debouncedCloneDate, setDebouncedCloneDate] = useState('');
+  const [debouncedRescheduleDate, setDebouncedRescheduleDate] = useState('');
+  const [debouncedNewAppointmentDate, setDebouncedNewAppointmentDate] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -268,6 +269,21 @@ const Doctor = () => {
     }, 500);
     return () => clearTimeout(timer);
   }, [dateFilterTo]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedCloneDate(cloneDialog.newDate), 300);
+    return () => clearTimeout(timer);
+  }, [cloneDialog.newDate]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedRescheduleDate(rescheduleDialog.newDate), 300);
+    return () => clearTimeout(timer);
+  }, [rescheduleDialog.newDate]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedNewAppointmentDate(newAppointmentDialog.date), 300);
+    return () => clearTimeout(timer);
+  }, [newAppointmentDialog.date]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -304,16 +320,16 @@ const Doctor = () => {
   }, [selectedYear]);
 
   useEffect(() => {
-    if (cloneDialog.newDate && doctorInfo) {
-      loadAvailableSlotsForClone(cloneDialog.newDate);
+    if (debouncedCloneDate && doctorInfo) {
+      loadAvailableSlotsForClone(debouncedCloneDate);
     }
-  }, [cloneDialog.newDate]);
+  }, [debouncedCloneDate]);
 
   useEffect(() => {
-    if (newAppointmentDialog.date && doctorInfo) {
-      loadAvailableSlotsForNewAppointment(newAppointmentDialog.date);
+    if (debouncedNewAppointmentDate && doctorInfo) {
+      loadAvailableSlotsForNewAppointment(debouncedNewAppointmentDate);
     }
-  }, [newAppointmentDialog.date]);
+  }, [debouncedNewAppointmentDate]);
 
   useEffect(() => {
     if (newAppointmentDialog.open && doctorInfo) {
@@ -322,10 +338,10 @@ const Doctor = () => {
   }, [newAppointmentDialog.open]);
 
   useEffect(() => {
-    if (rescheduleDialog.newDate && doctorInfo) {
-      loadAvailableSlotsForReschedule(rescheduleDialog.newDate);
+    if (debouncedRescheduleDate && doctorInfo) {
+      loadAvailableSlotsForReschedule(debouncedRescheduleDate);
     }
-  }, [rescheduleDialog.newDate]);
+  }, [debouncedRescheduleDate]);
 
   useEffect(() => {
     if (rescheduleDialog.open && doctorInfo) {
