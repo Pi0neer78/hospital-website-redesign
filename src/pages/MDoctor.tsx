@@ -56,6 +56,9 @@ const MDoctor = () => {
   const [hoveredDoctorPhoto, setHoveredDoctorPhoto] = useState<string | null>(null);
   const [photoPosition, setPhotoPosition] = useState({ x: 0, y: 0 });
   const [registryRecords, setRegistryRecords] = useState<any[]>([]);
+  const [registryTotal, setRegistryTotal] = useState(0);
+  const [registryPage, setRegistryPage] = useState(1);
+  const registryPageSize = 100;
   const [registrySearch, setRegistrySearch] = useState('');
   const [registrySourceFilter, setRegistrySourceFilter] = useState<string>('all');
   const [registryDateFrom, setRegistryDateFrom] = useState('');
@@ -107,13 +110,20 @@ const MDoctor = () => {
     }
   };
 
-  const loadRegistry = async () => {
+  const loadRegistry = async (page = registryPage) => {
     try {
       const params = new URLSearchParams();
       if (registrySearch) params.append('search', registrySearch);
+      params.append('page', String(page));
+      params.append('page_size', String(registryPageSize));
       const response = await fetch(`${API_URLS.registry}?${params}`);
       const data = await response.json();
-      if (data.records) setRegistryRecords(data.records);
+      if (data.records) {
+        setRegistryRecords(data.records);
+        setRegistryTotal(data.total || 0);
+        setRegistryPage(page);
+        setRegistrySelected(new Set());
+      }
     } catch (error) {
       console.error('Error loading registry:', error);
     }
@@ -1359,7 +1369,8 @@ const MDoctor = () => {
                 </div>
 
                 <div className="sticky top-0 z-20 bg-white border rounded-md px-3 py-2 mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground shadow-sm">
-                  <span>Всего: <strong className="text-foreground">{registryRecords.length}</strong></span>
+                  <span>Всего: <strong className="text-foreground">{registryTotal}</strong></span>
+                  <span>Страница: <strong className="text-foreground">{registryPage}</strong> из <strong className="text-foreground">{Math.ceil(registryTotal / registryPageSize)}</strong></span>
                   <span>Выбрано: <strong className="text-foreground">{registrySelected.size}</strong></span>
                   <span className="border-l pl-4 flex flex-wrap gap-x-3 gap-y-1">
                     <span className="inline-flex items-center gap-1">
@@ -1513,6 +1524,30 @@ const MDoctor = () => {
                     </TableBody>
                   </Table>
                 </div>
+
+                {registryTotal > registryPageSize && (
+                  <div className="flex items-center justify-between mt-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={registryPage <= 1}
+                      onClick={() => loadRegistry(registryPage - 1)}
+                    >
+                      ← Назад
+                    </Button>
+                    <span className="text-xs text-muted-foreground">
+                      {(registryPage - 1) * registryPageSize + 1}–{Math.min(registryPage * registryPageSize, registryTotal)} из {registryTotal}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={registryPage >= Math.ceil(registryTotal / registryPageSize)}
+                      onClick={() => loadRegistry(registryPage + 1)}
+                    >
+                      Вперёд →
+                    </Button>
+                  </div>
+                )}
 
               </CardContent>
             </Card>

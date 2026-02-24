@@ -70,24 +70,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 def handle_get(conn, event):
     params = event.get('queryStringParameters') or {}
     search = params.get('search', '')
+    page = int(params.get('page', 1))
+    page_size = int(params.get('page_size', 100))
+    offset = (page - 1) * page_size
 
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    query = f"SELECT * FROM {SCHEMA}.reest_phone_max"
+    where = ''
     query_params = []
 
     if search:
-        query += " WHERE full_name ILIKE %s OR phone ILIKE %s OR email ILIKE %s"
+        where = " WHERE full_name ILIKE %s OR phone ILIKE %s OR email ILIKE %s"
         s = f'%{search}%'
         query_params = [s, s, s]
 
-    query += " ORDER BY created_at DESC LIMIT 500"
+    count_query = f"SELECT COUNT(*) FROM {SCHEMA}.reest_phone_max" + where
+    cursor.execute(count_query, tuple(query_params))
+    total = int(cursor.fetchone()['count'])
 
-    cursor.execute(query, tuple(query_params))
+    query = f"SELECT * FROM {SCHEMA}.reest_phone_max" + where + " ORDER BY created_at DESC LIMIT %s OFFSET %s"
+    cursor.execute(query, tuple(query_params) + (page_size, offset))
     rows = cursor.fetchall()
     cursor.close()
 
-    return resp(200, {'records': rows})
+    return resp(200, {'records': rows, 'total': total, 'page': page, 'page_size': page_size})
 
 
 def handle_send_email(conn, body):
