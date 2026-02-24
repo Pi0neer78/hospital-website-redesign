@@ -17,12 +17,14 @@ import HowToBook from "./pages/HowToBook";
 import Security from "./pages/Security";
 import AboutUs from "./pages/AboutUs";
 import NotFound from "./pages/NotFound";
+import UpdateBanner from "@/components/UpdateBanner";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <UpdateBanner />
       <Toaster />
       <Sonner />
       <BrowserRouter>
