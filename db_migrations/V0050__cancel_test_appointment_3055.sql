@@ -1,0 +1,1 @@
+UPDATE t_p30358746_hospital_website_red.appointments_v2 SET status = 'cancelled' WHERE id = 3055 AND patient_name = 'ТЕСТ Иванов Иван Иванович';
