@@ -110,18 +110,18 @@ const MDoctor = () => {
     }
   };
 
-  const loadRegistry = async (page = registryPage, pageSize = registryPageSize) => {
+  const loadRegistry = async () => {
     try {
       const params = new URLSearchParams();
       if (registrySearch) params.append('search', registrySearch);
-      params.append('page', String(page));
-      params.append('page_size', String(pageSize));
+      params.append('page', '1');
+      params.append('page_size', '9999');
       const response = await fetch(`${API_URLS.registry}?${params}`);
       const data = await response.json();
       if (data.records) {
         setRegistryRecords(data.records);
-        setRegistryTotal(data.total || 0);
-        setRegistryPage(page);
+        setRegistryTotal(data.total || data.records.length);
+        setRegistryPage(1);
         setRegistrySelected(new Set());
       }
     } catch (error) {
@@ -1370,7 +1370,6 @@ const MDoctor = () => {
 
                 <div className="sticky top-0 z-20 bg-white border rounded-md px-3 py-2 mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground shadow-sm">
                   <span>Всего: <strong className="text-foreground">{registryTotal}</strong></span>
-                  <span>Страница: <strong className="text-foreground">{registryPage}</strong> из <strong className="text-foreground">{Math.ceil(registryTotal / registryPageSize)}</strong></span>
                   <span>Выбрано: <strong className="text-foreground">{registrySelected.size}</strong></span>
                   <span className="border-l pl-4 flex flex-wrap gap-x-3 gap-y-1">
                     <span className="inline-flex items-center gap-1">
@@ -1392,6 +1391,27 @@ const MDoctor = () => {
                   </span>
                 </div>
 
+                {(() => {
+                  const allFiltered = registryRecords
+                    .filter((rec: any) => {
+                      if (registrySourceFilter !== 'all' && rec.source !== registrySourceFilter) return false;
+                      if (registryDateFrom && rec.appointment_date) {
+                        if (new Date(rec.appointment_date) < new Date(registryDateFrom)) return false;
+                      }
+                      if (registryDateTo && rec.appointment_date) {
+                        if (new Date(rec.appointment_date) > new Date(registryDateTo + 'T23:59:59')) return false;
+                      }
+                      return true;
+                    })
+                    .sort((a: any, b: any) => {
+                      const da = a.appointment_date ? new Date(a.appointment_date).getTime() : 0;
+                      const db = b.appointment_date ? new Date(b.appointment_date).getTime() : 0;
+                      return db - da;
+                    });
+                  const registryTotalPages = Math.max(1, Math.ceil(allFiltered.length / registryPageSize));
+                  const safePage = Math.min(registryPage, registryTotalPages);
+                  const pageRecords = allFiltered.slice((safePage - 1) * registryPageSize, safePage * registryPageSize);
+                  return (<>
                 <div className="overflow-x-auto border rounded-md" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                   <Table>
                     <TableHeader className="sticky top-0 bg-blue-100 z-10">
@@ -1399,10 +1419,10 @@ const MDoctor = () => {
                         <TableHead className="py-2 w-10">
                           <input
                             type="checkbox"
-                            checked={registryRecords.length > 0 && registrySelected.size === registryRecords.length}
+                            checked={pageRecords.length > 0 && pageRecords.every((r: any) => registrySelected.has(r.id))}
                             onChange={(e) => {
                               if (e.target.checked) {
-                                setRegistrySelected(new Set(registryRecords.map((r: any) => r.id)));
+                                setRegistrySelected(new Set(pageRecords.map((r: any) => r.id)));
                               } else {
                                 setRegistrySelected(new Set());
                               }
@@ -1422,23 +1442,7 @@ const MDoctor = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {registryRecords
-                        .filter((rec: any) => {
-                          if (registrySourceFilter !== 'all' && rec.source !== registrySourceFilter) return false;
-                          if (registryDateFrom && rec.appointment_date) {
-                            if (new Date(rec.appointment_date) < new Date(registryDateFrom)) return false;
-                          }
-                          if (registryDateTo && rec.appointment_date) {
-                            if (new Date(rec.appointment_date) > new Date(registryDateTo + 'T23:59:59')) return false;
-                          }
-                          return true;
-                        })
-                        .sort((a: any, b: any) => {
-                          const da = a.appointment_date ? new Date(a.appointment_date).getTime() : 0;
-                          const db = b.appointment_date ? new Date(b.appointment_date).getTime() : 0;
-                          return db - da;
-                        })
-                        .map((rec: any) => (
+                      {pageRecords.map((rec: any) => (
                         <ContextMenu key={rec.id}>
                           <ContextMenuTrigger asChild>
                             <TableRow className={`text-xs ${registrySelected.has(rec.id) ? 'bg-blue-50' : ''}`}>
@@ -1525,29 +1529,29 @@ const MDoctor = () => {
                   </Table>
                 </div>
 
-                {registryTotal > 0 && (
+                {allFiltered.length > 0 && (
                   <div className="mt-3 flex items-center justify-between">
                     <div className="text-sm text-muted-foreground">
-                      Показано {(registryPage - 1) * registryPageSize + 1}–{Math.min(registryPage * registryPageSize, registryTotal)} из {registryTotal}
+                      Показано {(safePage - 1) * registryPageSize + 1}–{Math.min(safePage * registryPageSize, allFiltered.length)} из {allFiltered.length}
                     </div>
                     <div className="flex items-center gap-1">
-                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={registryPage <= 1} onClick={() => loadRegistry(1)} title="Первая страница">
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={safePage <= 1} onClick={() => setRegistryPage(1)} title="Первая страница">
                         <Icon name="ChevronsLeft" size={14} />
                       </Button>
-                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={registryPage <= 1} onClick={() => loadRegistry(registryPage - 1)} title="Предыдущая">
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={safePage <= 1} onClick={() => setRegistryPage(safePage - 1)} title="Предыдущая">
                         <Icon name="ChevronLeft" size={14} />
                       </Button>
-                      <span className="text-sm px-2">{registryPage} / {Math.max(1, Math.ceil(registryTotal / registryPageSize))}</span>
-                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={registryPage >= Math.ceil(registryTotal / registryPageSize)} onClick={() => loadRegistry(registryPage + 1)} title="Следующая">
+                      <span className="text-sm px-2">{safePage} / {registryTotalPages}</span>
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={safePage >= registryTotalPages} onClick={() => setRegistryPage(safePage + 1)} title="Следующая">
                         <Icon name="ChevronRight" size={14} />
                       </Button>
-                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={registryPage >= Math.ceil(registryTotal / registryPageSize)} onClick={() => loadRegistry(Math.ceil(registryTotal / registryPageSize))} title="Последняя страница">
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" disabled={safePage >= registryTotalPages} onClick={() => setRegistryPage(registryTotalPages)} title="Последняя страница">
                         <Icon name="ChevronsRight" size={14} />
                       </Button>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm">Показывать:</span>
-                      <Select value={registryPageSize.toString()} onValueChange={(v) => { const ps = Number(v); setRegistryPageSize(ps); loadRegistry(1, ps); }}>
+                      <Select value={registryPageSize.toString()} onValueChange={(v) => { setRegistryPageSize(Number(v)); setRegistryPage(1); }}>
                         <SelectTrigger className="h-8 w-20">
                           <SelectValue />
                         </SelectTrigger>
@@ -1561,6 +1565,8 @@ const MDoctor = () => {
                     </div>
                   </div>
                 )}
+                  </>);
+                })()}
 
               </CardContent>
             </Card>
