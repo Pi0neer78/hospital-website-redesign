@@ -84,17 +84,9 @@ const Registrar = () => {
 
   useEffect(() => {
     if (selectedDoctor) {
-      setIsLoadingDates(true);
-      loadSchedules(selectedDoctor.id);
-      loadCalendar(selectedDoctor.id);
+      loadSchedulesAndCalendar(selectedDoctor.id);
     }
   }, [selectedDoctor]);
-
-  useEffect(() => {
-    if (schedules.length > 0 || Object.keys(calendarData).length > 0) {
-      generateAvailableDates();
-    }
-  }, [schedules, calendarData]);
 
   useEffect(() => {
     if (selectedDate && selectedDoctor) {
@@ -196,8 +188,40 @@ const Registrar = () => {
     }
   };
 
-  const generateAvailableDates = async () => {
+  const loadSchedulesAndCalendar = async (doctorId: number) => {
     setIsLoadingDates(true);
+    try {
+      const year = new Date().getFullYear();
+      const [schedulesRes, calendarRes] = await Promise.all([
+        fetch(`${API_URLS.schedules}?doctor_id=${doctorId}`),
+        fetch(`${API_URLS.schedules}?action=calendar&doctor_id=${doctorId}&year=${year}`)
+      ]);
+      const [schedulesData, calendarData] = await Promise.all([
+        schedulesRes.json(),
+        calendarRes.json()
+      ]);
+
+      const loadedSchedules = schedulesData.schedules || [];
+      const calendarMap: {[key: string]: {is_working: boolean}} = {};
+      (calendarData.calendar || []).forEach((day: any) => {
+        calendarMap[day.calendar_date] = { is_working: day.is_working };
+      });
+
+      setSchedules(loadedSchedules);
+      setCalendarData(calendarMap);
+
+      await generateAvailableDatesWith(doctorId, loadedSchedules, calendarMap);
+    } catch (error) {
+      console.error('Failed to load schedules/calendar:', error);
+      setIsLoadingDates(false);
+    }
+  };
+
+  const generateAvailableDatesWith = async (
+    doctorId: number,
+    loadedSchedules: any[],
+    loadedCalendarData: {[key: string]: {is_working: boolean}}
+  ) => {
     const dates = [];
     
     for (let i = 0; i <= 20; i++) {
@@ -206,8 +230,8 @@ const Registrar = () => {
       const dateStr = date.toISOString().split('T')[0];
       const dayOfWeek = (date.getDay() + 6) % 7;
       
-      const hasSchedule = schedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
-      const calendarOverride = calendarData[dateStr];
+      const hasSchedule = loadedSchedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
+      const calendarOverride = loadedCalendarData[dateStr];
       const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
       
       dates.push({
@@ -222,14 +246,13 @@ const Registrar = () => {
       });
     }
     
-    // ОПТИМИЗАЦИЯ: Батчинг - один запрос вместо 21
-    if (selectedDoctor && dates.length > 0) {
+    if (dates.length > 0) {
       try {
         const startDateStr = dates[0].date;
         const endDateStr = dates[dates.length - 1].date;
         
         const response = await fetch(
-          `${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${selectedDoctor.id}&start_date=${startDateStr}&end_date=${endDateStr}`
+          `${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${doctorId}&start_date=${startDateStr}&end_date=${endDateStr}`
         );
         const data = await response.json();
         const slotsByDate = data.slots_by_date || {};
@@ -247,6 +270,12 @@ const Registrar = () => {
     
     setAvailableDates(dates);
     setIsLoadingDates(false);
+  };
+
+  const generateAvailableDates = async () => {
+    if (!selectedDoctor) return;
+    setIsLoadingDates(true);
+    await generateAvailableDatesWith(selectedDoctor.id, schedules, calendarData);
   };
 
   const loadAvailableSlots = async (doctorId: number, date: string) => {
