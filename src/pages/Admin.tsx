@@ -1791,14 +1791,14 @@ const Admin = () => {
                       </TableHeader>
                       <TableBody>
                         {clinicDoctors.map((doctor: any) => (
-                          <TableRow key={doctor.id} className={!doctor.is_active ? 'opacity-50' : ''}>
-                            <TableCell>
+                          <TableRow key={doctor.id} className={`${!doctor.is_active ? 'opacity-50' : ''}`}>
+                            <TableCell className="py-1">
                               {doctor.photo_url ? (
                                 <div className="relative group">
                                   <img 
                                     src={doctor.photo_url} 
                                     alt={doctor.full_name} 
-                                    className="w-20 h-24 rounded-lg object-cover cursor-pointer transition-transform"
+                                    className="w-14 h-16 rounded-lg object-cover cursor-pointer transition-transform"
                                     onError={(e) => {
                                       (e.target as HTMLImageElement).style.display = 'none';
                                     }}
@@ -1813,13 +1813,13 @@ const Admin = () => {
                                   </div>
                                 </div>
                               ) : (
-                                <div className="w-20 h-24 rounded-lg bg-primary/10 flex items-center justify-center">
-                                  <Icon name="User" size={32} className="text-primary" />
+                                <div className="w-14 h-16 rounded-lg bg-primary/10 flex items-center justify-center">
+                                  <Icon name="User" size={24} className="text-primary" />
                                 </div>
                               )}
                             </TableCell>
                             <TableCell 
-                              className="font-medium cursor-pointer hover:text-primary transition-colors"
+                              className="py-1 font-medium cursor-pointer hover:text-primary transition-colors"
                               onClick={() => {
                                 setSelectedDoctorForLogs(doctor);
                                 loadDoctorLogs(doctor.id);
@@ -1828,11 +1828,11 @@ const Admin = () => {
                             >
                               {doctor.full_name}
                             </TableCell>
-                            <TableCell>{doctor.position}</TableCell>
-                            <TableCell>{doctor.specialization || '—'}</TableCell>
-                            <TableCell className="text-center">{doctor.office_number || '—'}</TableCell>
-                            <TableCell className="text-center">{doctor.work_experience ? `${doctor.work_experience} лет` : '—'}</TableCell>
-                            <TableCell>
+                            <TableCell className="py-1">{doctor.position}</TableCell>
+                            <TableCell className="py-1">{doctor.specialization || '—'}</TableCell>
+                            <TableCell className="py-1 text-center">{doctor.office_number || '—'}</TableCell>
+                            <TableCell className="py-1 text-center">{doctor.work_experience ? `${doctor.work_experience} лет` : '—'}</TableCell>
+                            <TableCell className="py-1">
                               <div className="flex items-center justify-center gap-2">
                                 <button
                                   onClick={() => handleToggleStatus(doctor.id, !doctor.is_active)}
@@ -1853,7 +1853,7 @@ const Admin = () => {
                                 </span>
                               </div>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-1">
                               <div className="flex gap-2 justify-end">
                                 <Button 
                                   variant="outline" 
