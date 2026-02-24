@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { EditAppointmentForm } from '@/components/EditAppointmentForm';
 import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
+import { validateFullName } from '@/utils/validation';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -271,6 +272,12 @@ const Registrar = () => {
     
     if (!newAppointmentDialog.patientName || !newAppointmentDialog.patientPhone || !newAppointmentDialog.time || !selectedDate) {
       toast({ title: "Ошибка", description: "Заполните все обязательные поля", variant: "destructive" });
+      return;
+    }
+
+    const nameError = validateFullName(newAppointmentDialog.patientName);
+    if (nameError) {
+      toast({ title: "Ошибка в ФИО", description: nameError, variant: "destructive" });
       return;
     }
 
