@@ -1380,10 +1380,10 @@ const Admin = () => {
         </div>
       </header>
 
-      <section className="py-12">
+      <section className="py-6">
         <div className="container mx-auto px-4">
           <Tabs defaultValue="doctors" className="w-full">
-            <TabsList className="grid w-full max-w-5xl mx-auto grid-cols-5 mb-8">
+            <TabsList className="grid w-full max-w-5xl mx-auto grid-cols-5 mb-4">
               <TabsTrigger value="doctors">Врачи</TabsTrigger>
               <TabsTrigger value="registrars">Регистраторы</TabsTrigger>
               <TabsTrigger value="faq">FAQ</TabsTrigger>
@@ -1405,7 +1405,7 @@ const Admin = () => {
                     <Icon name="FileText" size={18} className="mr-2" />
                     Общий журнал
                   </Button>
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                  <Dialog open={isOpen} onOpenChange={setIsOpen}>
               <DialogTrigger asChild>
                 <Button size="lg">
                   <Icon name="Plus" size={20} className="mr-2" />
@@ -1587,6 +1587,8 @@ const Admin = () => {
                 </form>
               </DialogContent>
             </Dialog>
+                </div>
+          </div>
 
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
               <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -1761,15 +1763,13 @@ const Admin = () => {
                 </form>
               </DialogContent>
             </Dialog>
-                </div>
-          </div>
 
           {['Центральная городская поликлиника', 'Детская городская поликлиника'].map(clinic => {
             const clinicDoctors = doctors.filter((d: any) => d.clinic === clinic);
             if (clinicDoctors.length === 0) return null;
             
             return (
-              <div key={clinic} className="mb-8">
+              <div key={clinic} className="mb-4">
                 <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
                   <Icon name={clinic.includes('Детская') ? 'Baby' : 'Building2'} size={28} className="text-primary" />
                   {clinic}
