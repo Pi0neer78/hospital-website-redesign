@@ -709,7 +709,7 @@ const Index = () => {
         </div>
       </header>
 
-      <section className="py-20 text-center">
+      <section className="pt-4 pb-20 text-center">
         <div className="container mx-auto px-4">
           <img 
             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adf474e3-ca46-4949-958c-72bcaef3e542.jpg" 
