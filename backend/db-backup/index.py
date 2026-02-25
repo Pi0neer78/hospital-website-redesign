@@ -75,6 +75,22 @@ def get_backup_settings(conn):
     }
 
 
+def save_backup_record(conn, folder, full, results):
+    success_results = [r for r in results if r.get('success')]
+    total_rows = sum(r.get('rows', 0) for r in success_results)
+    files_json = json.dumps([
+        {'name': r['table'] + '.csv', 'url': r['url'], 'size': 0, 'rows': r.get('rows', 0)}
+        for r in success_results
+    ])
+    cur = conn.cursor()
+    cur.execute(f'''
+        INSERT INTO "{SCHEMA}".backup_records (folder, full_backup, tables_count, total_rows, files)
+        VALUES (%s, %s, %s, %s, %s)
+    ''', (folder, full, len(success_results), total_rows, files_json))
+    conn.commit()
+    cur.close()
+
+
 def handler(event: dict, context) -> dict:
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': CORS_HEADERS, 'body': ''}
@@ -156,45 +172,13 @@ def handler(event: dict, context) -> dict:
                 print(f'[backup error] table={table} error={e}')
                 results.append({'table': table, 'error': str(e), 'success': False})
 
+        save_backup_record(conn, folder, full, results)
         conn.close()
 
         return {
             'statusCode': 200,
             'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
             'body': json.dumps({'success': True, 'folder': folder, 'results': results, 'datetime': dt_str}),
-        }
-
-    if method == 'GET' and action == 'list':
-        s3 = get_s3()
-        response = s3.list_objects_v2(Bucket='files', Prefix='backups/', Delimiter='/')
-        folders = []
-        for prefix in response.get('CommonPrefixes', []):
-            folder_key = prefix['Prefix']
-            folder_name = folder_key.rstrip('/').replace('backups/', '')
-            files_resp = s3.list_objects_v2(Bucket='files', Prefix=folder_key)
-            files = []
-            total_size = 0
-            for obj in files_resp.get('Contents', []):
-                file_name = obj['Key'].replace(folder_key, '')
-                if not file_name:
-                    continue
-                files.append({
-                    'name': file_name,
-                    'size': obj['Size'],
-                    'url': f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{obj['Key']}",
-                })
-                total_size += obj['Size']
-            folders.append({
-                'folder': folder_name,
-                'files': files,
-                'total_size': total_size,
-                'full': folder_name.startswith('полный_архив_'),
-            })
-        folders.sort(key=lambda x: x['folder'], reverse=True)
-        return {
-            'statusCode': 200,
-            'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
-            'body': json.dumps({'success': True, 'folders': folders}),
         }
 
     if method == 'POST' and action == 'scheduled':
@@ -215,9 +199,7 @@ def handler(event: dict, context) -> dict:
         start = time(*map(int, settings['start_time'].split(':')))
         end = time(*map(int, settings['end_time'].split(':')))
 
-        in_window = start <= current_time <= end
-
-        if not in_window:
+        if not (start <= current_time <= end):
             conn.close()
             return {
                 'statusCode': 200,
@@ -236,12 +218,12 @@ def handler(event: dict, context) -> dict:
                 csv_content, row_count = table_to_csv(conn, table)
                 key = f'{folder}/{table}.csv'
                 url = upload_csv(s3, key, csv_content)
-                print(f'[scheduled] uploaded {key}, rows={row_count}')
                 results.append({'table': table, 'rows': row_count, 'url': url, 'success': True})
             except Exception as e:
                 print(f'[scheduled error] table={table} error={e}')
                 results.append({'table': table, 'error': str(e), 'success': False})
 
+        save_backup_record(conn, folder, False, results)
         conn.close()
 
         return {
@@ -251,35 +233,41 @@ def handler(event: dict, context) -> dict:
         }
 
     if method == 'GET' and action == 'list':
-        s3 = get_s3()
-        paginator = s3.get_paginator('list_objects_v2')
-        pages = paginator.paginate(Bucket='files', Prefix='backups/', Delimiter='/')
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(f'''
+            SELECT folder, full_backup, tables_count, total_rows, files, created_at
+            FROM "{SCHEMA}".backup_records
+            ORDER BY created_at DESC
+            LIMIT 100
+        ''')
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
 
         folders = []
-        for page in pages:
-            for prefix in page.get('CommonPrefixes', []):
-                folder_key = prefix['Prefix']
-                folder_name = folder_key.rstrip('/').replace('backups/', '')
-
-                files_page = s3.list_objects_v2(Bucket='files', Prefix=folder_key)
-                files = []
-                total_size = 0
-                for obj in files_page.get('Contents', []):
-                    fname = obj['Key'].replace(folder_key, '')
-                    if fname:
-                        cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{obj['Key']}"
-                        files.append({'name': fname, 'size': obj['Size'], 'last_modified': obj['LastModified'].isoformat(), 'url': cdn_url})
-                        total_size += obj['Size']
-
-                folders.append({
-                    'folder': folder_name,
-                    'full': folder_name.startswith('полный_архив_'),
-                    'files': files,
-                    'total_size': total_size,
-                    'file_count': len(files),
-                })
-
-        folders.sort(key=lambda x: x['folder'], reverse=True)
+        for row in rows:
+            folder_name = row[0].replace('backups/', '', 1)
+            files_data = json.loads(row[4]) if row[4] else []
+            files = [
+                {
+                    'name': f['name'],
+                    'size': f.get('size', 0),
+                    'rows': f.get('rows', 0),
+                    'url': f['url'],
+                    'last_modified': row[5].isoformat(),
+                }
+                for f in files_data
+            ]
+            folders.append({
+                'folder': folder_name,
+                'full': row[1],
+                'file_count': row[2],
+                'total_rows': row[3],
+                'total_size': 0,
+                'files': files,
+                'created_at': row[5].isoformat(),
+            })
 
         return {
             'statusCode': 200,
