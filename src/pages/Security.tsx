@@ -734,7 +734,7 @@ const Security = () => {
               ) : backupFolders.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">Архивов пока нет</p>
               ) : (
-                <div className="space-y-1.5 max-h-96 overflow-y-auto pr-1">
+                <div className="space-y-1.5">
                   {backupFolders.slice(0, backupListLimit).map((folder) => (
                     <div key={folder.folder} className="border rounded-lg overflow-hidden">
                       <button
@@ -786,15 +786,15 @@ const Security = () => {
                       )}
                     </div>
                   ))}
-                  {backupFolders.length > backupListLimit && (
-                    <button
-                      className="w-full text-xs text-primary hover:underline py-2"
-                      onClick={() => setBackupListLimit(l => l + 20)}
-                    >
-                      Показать ещё ({backupFolders.length - backupListLimit} архивов)
-                    </button>
-                  )}
                 </div>
+              )}
+              {backupFolders.length > backupListLimit && (
+                <button
+                  className="w-full text-xs text-primary hover:underline py-2 border-t pt-3"
+                  onClick={() => setBackupListLimit(l => l + 20)}
+                >
+                  Показать ещё ({backupFolders.length - backupListLimit} архивов)
+                </button>
               )}
             </div>
 
