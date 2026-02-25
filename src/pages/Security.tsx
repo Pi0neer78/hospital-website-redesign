@@ -66,7 +66,8 @@ const Security = () => {
   const [logLoading, setLogLoading] = useState(false);
   const [logFilterAdmin, setLogFilterAdmin] = useState<string>('');
 
-  const [backupSettings, setBackupSettings] = useState({ enabled: false, start_time: '02:00', end_time: '04:00', repeat_minutes: 0 });
+  const [backupSettings, setBackupSettings] = useState({ enabled: false, start_time: '02:00', end_time: '04:00', repeat_minutes: 0, retention_days: 0 });
+  const [cleanupRunning, setCleanupRunning] = useState(false);
   const [backupSettingsLoading, setBackupSettingsLoading] = useState(false);
   const [backupRunning, setBackupRunning] = useState(false);
   const [fullBackupRunning, setFullBackupRunning] = useState(false);
@@ -150,6 +151,32 @@ const Security = () => {
       toast({ title: 'Ошибка', description: 'Не удалось сохранить настройки', variant: 'destructive' });
     } finally {
       setBackupSettingsLoading(false);
+    }
+  };
+
+  const runCleanup = async () => {
+    if (backupSettings.retention_days <= 0) {
+      toast({ title: 'Удаление отключено', description: 'Количество хранимых дней = 0', variant: 'destructive' });
+      return;
+    }
+    setCleanupRunning(true);
+    try {
+      const res = await fetch(`${DB_BACKUP_URL}?action=cleanup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ retention_days: backupSettings.retention_days }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast({ title: 'Старые архивы удалены', description: `Удалено записей: ${data.deleted}` });
+        loadBackupList();
+      } else {
+        toast({ title: 'Ошибка', description: data.error, variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось выполнить очистку', variant: 'destructive' });
+    } finally {
+      setCleanupRunning(false);
     }
   };
 
@@ -596,6 +623,43 @@ const Security = () => {
                   </Button>
                 </div>
               )}
+
+              <div className="border-t pt-4 space-y-3">
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Хранение архивов</h4>
+                <div className="flex items-end gap-3">
+                  <div className="w-48">
+                    <label className="text-xs font-medium text-muted-foreground block mb-1">Количество хранимых дней</label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={backupSettings.retention_days}
+                      onChange={(e) => setBackupSettings({ ...backupSettings, retention_days: parseInt(e.target.value) || 0 })}
+                      className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      placeholder="0 — хранить всегда"
+                    />
+                  </div>
+                  <Button size="sm" variant="outline" onClick={saveBackupSettings} disabled={backupSettingsLoading}>
+                    <Icon name="Save" size={14} className="mr-1.5" />
+                    Сохранить
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={runCleanup}
+                    disabled={cleanupRunning || backupSettings.retention_days <= 0}
+                    title={backupSettings.retention_days <= 0 ? 'Укажите количество дней больше 0' : ''}
+                  >
+                    <Icon name={cleanupRunning ? 'Loader2' : 'Trash2'} size={14} className={`mr-1.5 ${cleanupRunning ? 'animate-spin' : ''}`} />
+                    {cleanupRunning ? 'Удаление...' : 'Удалить старые архивы'}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {backupSettings.retention_days <= 0
+                    ? 'Архивы хранятся бессрочно. Укажите количество дней, чтобы включить автоочистку.'
+                    : `Архивы старше ${backupSettings.retention_days} дн. будут удалены при нажатии кнопки или автоматически через CRON.`
+                  }
+                </p>
+              </div>
             </div>
 
             <div className="bg-white rounded-xl border p-6 space-y-4">

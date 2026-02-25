@@ -1,6 +1,6 @@
 """
 Сервис архивирования баз данных в S3-хранилище.
-Поддерживает резервное копирование таблиц по расписанию, разовый полный архив и просмотр списка архивов.
+Поддерживает резервное копирование таблиц по расписанию, разовый полный архив, просмотр и очистку старых архивов.
 """
 import json
 import os
@@ -8,7 +8,7 @@ import csv
 import io
 import boto3
 import psycopg2
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 SCHEMA = os.environ.get('MAIN_DB_SCHEMA', 't_p30358746_hospital_website_red')
 BACKUP_TABLES = ['appointments_v2', 'daily_schedules', 'doctor_calendar', 'doctor_schedules']
@@ -59,19 +59,20 @@ def upload_csv(s3, key, content):
 def get_backup_settings(conn):
     cur = conn.cursor()
     cur.execute(f'''
-        SELECT enabled, start_time, end_time, repeat_minutes
+        SELECT enabled, start_time, end_time, repeat_minutes, retention_days
         FROM "{SCHEMA}".backup_settings
         WHERE id = 1
     ''')
     row = cur.fetchone()
     cur.close()
     if not row:
-        return {'enabled': False, 'start_time': '02:00', 'end_time': '04:00', 'repeat_minutes': 0}
+        return {'enabled': False, 'start_time': '02:00', 'end_time': '04:00', 'repeat_minutes': 0, 'retention_days': 0}
     return {
         'enabled': row[0],
         'start_time': str(row[1])[:5] if row[1] else '02:00',
         'end_time': str(row[2])[:5] if row[2] else '04:00',
         'repeat_minutes': row[3] or 0,
+        'retention_days': row[4] or 0,
     }
 
 
@@ -89,6 +90,22 @@ def save_backup_record(conn, folder, full, results):
     ''', (folder, full, len(success_results), total_rows, files_json))
     conn.commit()
     cur.close()
+
+
+def delete_old_records(conn, retention_days):
+    if retention_days <= 0:
+        return 0
+    cutoff = datetime.now() - timedelta(days=retention_days)
+    cur = conn.cursor()
+    cur.execute(f'''
+        DELETE FROM "{SCHEMA}".backup_records
+        WHERE created_at < %s
+        RETURNING folder
+    ''', (cutoff,))
+    deleted = cur.fetchall()
+    conn.commit()
+    cur.close()
+    return len(deleted)
 
 
 def handler(event: dict, context) -> dict:
@@ -114,19 +131,21 @@ def handler(event: dict, context) -> dict:
         conn = get_db()
         cur = conn.cursor()
         cur.execute(f'''
-            INSERT INTO "{SCHEMA}".backup_settings (id, enabled, start_time, end_time, repeat_minutes)
-            VALUES (1, %s, %s, %s, %s)
+            INSERT INTO "{SCHEMA}".backup_settings (id, enabled, start_time, end_time, repeat_minutes, retention_days)
+            VALUES (1, %s, %s, %s, %s, %s)
             ON CONFLICT (id) DO UPDATE SET
                 enabled = EXCLUDED.enabled,
                 start_time = EXCLUDED.start_time,
                 end_time = EXCLUDED.end_time,
                 repeat_minutes = EXCLUDED.repeat_minutes,
+                retention_days = EXCLUDED.retention_days,
                 updated_at = NOW()
         ''', (
             body.get('enabled', False),
             body.get('start_time', '02:00'),
             body.get('end_time', '04:00'),
             body.get('repeat_minutes', 0),
+            body.get('retention_days', 0),
         ))
         conn.commit()
         cur.close()
@@ -135,6 +154,24 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
             'body': json.dumps({'success': True}),
+        }
+
+    if method == 'POST' and action == 'cleanup':
+        body = json.loads(event.get('body') or '{}')
+        retention_days = body.get('retention_days', 0)
+        if retention_days <= 0:
+            return {
+                'statusCode': 400,
+                'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': 'retention_days должен быть больше 0'}),
+            }
+        conn = get_db()
+        deleted = delete_old_records(conn, retention_days)
+        conn.close()
+        return {
+            'statusCode': 200,
+            'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+            'body': json.dumps({'success': True, 'deleted': deleted}),
         }
 
     if method == 'POST' and action == 'backup':
@@ -195,7 +232,6 @@ def handler(event: dict, context) -> dict:
 
         now = datetime.now()
         current_time = now.time()
-
         start = time(*map(int, settings['start_time'].split(':')))
         end = time(*map(int, settings['end_time'].split(':')))
 
@@ -209,7 +245,6 @@ def handler(event: dict, context) -> dict:
 
         dt_str = now.strftime('%Y-%m-%d_%H-%M-%S')
         folder = f'backups/{dt_str}'
-
         s3 = get_s3()
         results = []
 
