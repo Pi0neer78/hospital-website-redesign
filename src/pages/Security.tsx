@@ -74,6 +74,7 @@ const Security = () => {
   const [backupFolders, setBackupFolders] = useState<any[]>([]);
   const [backupListLoading, setBackupListLoading] = useState(false);
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
+  const [backupListLimit, setBackupListLimit] = useState(20);
 
   useEffect(() => {
     const token = localStorage.getItem('security_token');
@@ -670,7 +671,7 @@ const Security = () => {
                 <p className="text-sm text-muted-foreground text-center py-4">Архивов пока нет</p>
               ) : (
                 <div className="space-y-1.5 max-h-96 overflow-y-auto pr-1">
-                  {backupFolders.map((folder) => (
+                  {backupFolders.slice(0, backupListLimit).map((folder) => (
                     <div key={folder.folder} className="border rounded-lg overflow-hidden">
                       <button
                         className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-muted/50 transition-colors text-left"
@@ -721,82 +722,19 @@ const Security = () => {
                       )}
                     </div>
                   ))}
+                  {backupFolders.length > backupListLimit && (
+                    <button
+                      className="w-full text-xs text-primary hover:underline py-2"
+                      onClick={() => setBackupListLimit(l => l + 20)}
+                    >
+                      Показать ещё ({backupFolders.length - backupListLimit} архивов)
+                    </button>
+                  )}
                 </div>
               )}
             </div>
 
-            <div className="bg-white rounded-xl border p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold flex items-center gap-2">
-                  <Icon name="FolderOpen" size={16} className="text-primary" />
-                  Созданные архивы
-                </h3>
-                <Button variant="outline" size="sm" onClick={loadBackupList} disabled={backupListLoading}>
-                  <Icon name={backupListLoading ? 'Loader2' : 'RefreshCw'} size={13} className={`mr-1.5 ${backupListLoading ? 'animate-spin' : ''}`} />
-                  Обновить
-                </Button>
-              </div>
 
-              {backupListLoading ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">Загрузка...</p>
-              ) : backupFolders.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">Архивов пока нет</p>
-              ) : (
-                <div className="space-y-2">
-                  {backupFolders.map((folder) => {
-                    const isExpanded = expandedFolder === folder.folder;
-                    const sizeKb = (folder.total_size / 1024).toFixed(1);
-                    const dateLabel = (() => {
-                      const raw = folder.folder.replace('полный_архив_', '');
-                      const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})$/);
-                      return m ? `${m[3]}.${m[2]}.${m[1]} ${m[4]}:${m[5]}:${m[6]}` : folder.folder;
-                    })();
-                    return (
-                      <div key={folder.folder} className="border rounded-lg overflow-hidden">
-                        <button
-                          className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors text-left"
-                          onClick={() => setExpandedFolder(isExpanded ? null : folder.folder)}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Icon name={folder.full ? 'DatabaseBackup' : 'Archive'} size={14} className={folder.full ? 'text-amber-600' : 'text-primary'} />
-                            <span className="text-sm font-medium">{dateLabel}</span>
-                            {folder.full && (
-                              <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">Полный</span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <span>{folder.files.length} файлов · {sizeKb} КБ</span>
-                            <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={14} />
-                          </div>
-                        </button>
-
-                        {isExpanded && (
-                          <div className="border-t bg-muted/20 px-4 py-3 space-y-1.5">
-                            {folder.files.map((file: any) => (
-                              <div key={file.name} className="flex items-center justify-between text-xs">
-                                <div className="flex items-center gap-2">
-                                  <Icon name="FileText" size={12} className="text-muted-foreground" />
-                                  <span className="font-medium">{file.name}</span>
-                                  <span className="text-muted-foreground">({(file.size / 1024).toFixed(1)} КБ)</span>
-                                </div>
-                                <a
-                                  href={file.url}
-                                  download
-                                  className="flex items-center gap-1 text-primary hover:underline"
-                                >
-                                  <Icon name="Download" size={12} />
-                                  Скачать
-                                </a>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
           </div>
         )}
 

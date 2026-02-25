@@ -239,7 +239,7 @@ def handler(event: dict, context) -> dict:
             SELECT folder, full_backup, tables_count, total_rows, files, created_at
             FROM "{SCHEMA}".backup_records
             ORDER BY created_at DESC
-            LIMIT 100
+            LIMIT 500
         ''')
         rows = cur.fetchall()
         cur.close()
