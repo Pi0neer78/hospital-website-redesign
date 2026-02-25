@@ -14,6 +14,7 @@ const RATE_LIMITER_URL = 'https://functions.poehali.dev/dd760420-6c65-41e9-bd95-
 const AUTH_URL = 'https://functions.poehali.dev/c5b009b8-4d0d-4b09-91f5-1ab8bdf740bb';
 const ADMIN_MANAGEMENT_URL = 'https://functions.poehali.dev/41b28850-cf23-4959-9bd7-7f728c1ad124';
 const REGISTRY_URL = 'https://functions.poehali.dev/e644fdea-011f-4d16-b984-98838c4e6c69';
+const DB_BACKUP_URL = 'https://functions.poehali.dev/44a9271b-91c3-434f-a4ed-a10b64718f46';
 
 interface EndpointStat {
   endpoint: string;
@@ -55,7 +56,7 @@ const Security = () => {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [adminToken, setAdminToken] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'stats' | 'admins'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'admins' | 'databases'>('stats');
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [showAddAdmin, setShowAddAdmin] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<Admin | null>(null);
@@ -65,6 +66,12 @@ const Security = () => {
   const [logLoading, setLogLoading] = useState(false);
   const [logFilterAdmin, setLogFilterAdmin] = useState<string>('');
 
+  const [backupSettings, setBackupSettings] = useState({ enabled: false, start_time: '02:00', end_time: '04:00', repeat_minutes: 0 });
+  const [backupSettingsLoading, setBackupSettingsLoading] = useState(false);
+  const [backupRunning, setBackupRunning] = useState(false);
+  const [fullBackupRunning, setFullBackupRunning] = useState(false);
+  const [lastBackupResult, setLastBackupResult] = useState<any>(null);
+
   useEffect(() => {
     const token = localStorage.getItem('security_token');
     if (token) {
@@ -72,6 +79,7 @@ const Security = () => {
       setIsAuthenticated(true);
       loadStatistics(token);
       loadAdmins(token);
+      loadBackupSettings();
     }
   }, []);
 
@@ -84,6 +92,58 @@ const Security = () => {
 
     return () => clearInterval(interval);
   }, [autoRefresh, isAuthenticated]);
+
+  const loadBackupSettings = async () => {
+    setBackupSettingsLoading(true);
+    try {
+      const res = await fetch(`${DB_BACKUP_URL}?action=settings`);
+      const data = await res.json();
+      if (data.success) setBackupSettings(data.settings);
+    } catch {
+      // ignore
+    } finally {
+      setBackupSettingsLoading(false);
+    }
+  };
+
+  const saveBackupSettings = async () => {
+    setBackupSettingsLoading(true);
+    try {
+      await fetch(`${DB_BACKUP_URL}?action=settings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(backupSettings),
+      });
+      toast({ title: 'Настройки сохранены' });
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось сохранить настройки', variant: 'destructive' });
+    } finally {
+      setBackupSettingsLoading(false);
+    }
+  };
+
+  const runBackup = async (full: boolean) => {
+    if (full) setFullBackupRunning(true);
+    else setBackupRunning(true);
+    setLastBackupResult(null);
+    try {
+      const res = await fetch(`${DB_BACKUP_URL}?action=backup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full }),
+      });
+      const data = await res.json();
+      setLastBackupResult(data);
+      const ok = data.results?.filter((r: any) => r.success).length || 0;
+      const total = data.results?.length || 0;
+      toast({ title: full ? 'Полный архив создан' : 'Архив создан', description: `Архивировано таблиц: ${ok}/${total}` });
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось выполнить архивирование', variant: 'destructive' });
+    } finally {
+      if (full) setFullBackupRunning(false);
+      else setBackupRunning(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -404,6 +464,17 @@ const Security = () => {
             <Icon name="Users" size={16} className="inline mr-2" />
             Администраторы
           </button>
+          <button
+            onClick={() => setActiveTab('databases')}
+            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+              activeTab === 'databases'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Icon name="Database" size={16} className="inline mr-2" />
+            Базы данных
+          </button>
         </div>
 
         {activeTab === 'stats' && (
@@ -413,6 +484,139 @@ const Security = () => {
             searchIP={searchIP}
             onSearchIPChange={setSearchIP}
           />
+        )}
+
+        {activeTab === 'databases' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl border p-6 space-y-5">
+              <h2 className="text-base font-semibold flex items-center gap-2">
+                <Icon name="Database" size={18} className="text-primary" />
+                Базы данных
+              </h2>
+
+              <div className="flex items-center gap-3 pb-4 border-b">
+                <input
+                  type="checkbox"
+                  id="backup-enabled"
+                  checked={backupSettings.enabled}
+                  onChange={(e) => setBackupSettings({ ...backupSettings, enabled: e.target.checked })}
+                  className="w-4 h-4 accent-primary cursor-pointer"
+                />
+                <label htmlFor="backup-enabled" className="text-sm font-medium cursor-pointer">
+                  Выполнять архивирование баз данных
+                </label>
+              </div>
+
+              {backupSettings.enabled && (
+                <div className="space-y-4">
+                  <p className="text-xs text-muted-foreground">
+                    Архивируемые таблицы: <span className="font-medium text-foreground">appointments_v2, daily_schedules, doctor_calendar, doctor_schedules</span>
+                  </p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground block mb-1">Время начала</label>
+                      <input
+                        type="time"
+                        value={backupSettings.start_time}
+                        onChange={(e) => setBackupSettings({ ...backupSettings, start_time: e.target.value })}
+                        className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground block mb-1">Время конца</label>
+                      <input
+                        type="time"
+                        value={backupSettings.end_time}
+                        onChange={(e) => setBackupSettings({ ...backupSettings, end_time: e.target.value })}
+                        className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground block mb-1">Повторять через (мин)</label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={backupSettings.repeat_minutes}
+                        onChange={(e) => setBackupSettings({ ...backupSettings, repeat_minutes: parseInt(e.target.value) || 0 })}
+                        className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {backupSettings.repeat_minutes === 0
+                      ? `Архивирование будет выполняться 1 раз в день в ${backupSettings.start_time}`
+                      : `Архивирование будет выполняться каждые ${backupSettings.repeat_minutes} мин. в период с ${backupSettings.start_time} до ${backupSettings.end_time}`
+                    }
+                  </p>
+                  <Button size="sm" onClick={saveBackupSettings} disabled={backupSettingsLoading}>
+                    <Icon name="Save" size={14} className="mr-1.5" />
+                    {backupSettingsLoading ? 'Сохранение...' : 'Сохранить расписание'}
+                  </Button>
+                </div>
+              )}
+
+              {!backupSettings.enabled && (
+                <div className="flex justify-end">
+                  <Button size="sm" variant="outline" onClick={saveBackupSettings} disabled={backupSettingsLoading}>
+                    <Icon name="Save" size={14} className="mr-1.5" />
+                    Сохранить
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-xl border p-6 space-y-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2">
+                <Icon name="HardDriveDownload" size={16} className="text-primary" />
+                Ручное архивирование
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => runBackup(false)}
+                  disabled={backupRunning || fullBackupRunning}
+                >
+                  <Icon name={backupRunning ? 'Loader2' : 'Archive'} size={14} className={`mr-1.5 ${backupRunning ? 'animate-spin' : ''}`} />
+                  {backupRunning ? 'Архивирование...' : 'Архивировать базы'}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => runBackup(true)}
+                  disabled={backupRunning || fullBackupRunning}
+                  className="bg-amber-600 hover:bg-amber-700 text-white"
+                >
+                  <Icon name={fullBackupRunning ? 'Loader2' : 'DatabaseBackup'} size={14} className={`mr-1.5 ${fullBackupRunning ? 'animate-spin' : ''}`} />
+                  {fullBackupRunning ? 'Создание архива...' : 'Сделать полный архив баз данных'}
+                </Button>
+              </div>
+
+              {lastBackupResult && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Результат: папка <span className="font-mono bg-muted px-1 rounded text-[11px]">{lastBackupResult.folder}</span>
+                  </p>
+                  <div className="space-y-1">
+                    {lastBackupResult.results?.map((r: any) => (
+                      <div key={r.table} className="flex items-center gap-2 text-xs">
+                        <Icon
+                          name={r.success ? 'CheckCircle2' : 'XCircle'}
+                          size={13}
+                          className={r.success ? 'text-green-600' : 'text-red-500'}
+                        />
+                        <span className="font-medium w-44">{r.table}</span>
+                        {r.success
+                          ? <span className="text-muted-foreground">{r.rows} строк</span>
+                          : <span className="text-red-500">{r.error}</span>
+                        }
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
         {activeTab === 'admins' && (
