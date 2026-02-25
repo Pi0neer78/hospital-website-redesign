@@ -74,9 +74,6 @@ const Security = () => {
   const [backupFolders, setBackupFolders] = useState<any[]>([]);
   const [backupListLoading, setBackupListLoading] = useState(false);
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
-  const [backupFolders, setBackupFolders] = useState<any[]>([]);
-  const [backupListLoading, setBackupListLoading] = useState(false);
-  const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('security_token');
