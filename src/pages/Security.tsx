@@ -75,7 +75,8 @@ const Security = () => {
   const [backupFolders, setBackupFolders] = useState<any[]>([]);
   const [backupListLoading, setBackupListLoading] = useState(false);
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
-  const [backupListLimit, setBackupListLimit] = useState(20);
+  const [backupPage, setBackupPage] = useState(1);
+  const BACKUP_PAGE_SIZE = 10;
 
   useEffect(() => {
     const token = localStorage.getItem('security_token');
@@ -734,67 +735,104 @@ const Security = () => {
               ) : backupFolders.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">Архивов пока нет</p>
               ) : (
-                <div className="space-y-1.5">
-                  {backupFolders.slice(0, backupListLimit).map((folder) => (
-                    <div key={folder.folder} className="border rounded-lg overflow-hidden">
-                      <button
-                        className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-muted/50 transition-colors text-left"
-                        onClick={() => setExpandedFolder(expandedFolder === folder.folder ? null : folder.folder)}
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <Icon
-                            name={folder.full ? 'DatabaseBackup' : 'Archive'}
-                            size={15}
-                            className={folder.full ? 'text-amber-600 shrink-0' : 'text-primary shrink-0'}
-                          />
-                          <span className="text-sm font-medium truncate">{formatFolderDate(folder.folder)}</span>
-                          {folder.full && (
-                            <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded shrink-0">полный</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3 shrink-0 ml-2">
-                          <span className="text-xs text-muted-foreground">{folder.file_count} файл{folder.file_count === 1 ? '' : folder.file_count < 5 ? 'а' : 'ов'}</span>
-                          <span className="text-xs text-muted-foreground">{formatSize(folder.total_size)}</span>
-                          <Icon name={expandedFolder === folder.folder ? 'ChevronUp' : 'ChevronDown'} size={14} className="text-muted-foreground" />
-                        </div>
-                      </button>
+                <>
+                  <div className="space-y-1.5">
+                    {backupFolders.slice((backupPage - 1) * BACKUP_PAGE_SIZE, backupPage * BACKUP_PAGE_SIZE).map((folder) => (
+                      <div key={folder.folder} className="border rounded-lg overflow-hidden">
+                        <button
+                          className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-muted/50 transition-colors text-left"
+                          onClick={() => setExpandedFolder(expandedFolder === folder.folder ? null : folder.folder)}
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Icon
+                              name={folder.full ? 'DatabaseBackup' : 'Archive'}
+                              size={15}
+                              className={folder.full ? 'text-amber-600 shrink-0' : 'text-primary shrink-0'}
+                            />
+                            <span className="text-sm font-medium truncate">{formatFolderDate(folder.folder)}</span>
+                            {folder.full && (
+                              <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded shrink-0">полный</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0 ml-2">
+                            <span className="text-xs text-muted-foreground">{folder.file_count} файл{folder.file_count === 1 ? '' : folder.file_count < 5 ? 'а' : 'ов'}</span>
+                            <span className="text-xs text-muted-foreground">{formatSize(folder.total_size)}</span>
+                            <Icon name={expandedFolder === folder.folder ? 'ChevronUp' : 'ChevronDown'} size={14} className="text-muted-foreground" />
+                          </div>
+                        </button>
 
-                      {expandedFolder === folder.folder && (
-                        <div className="border-t bg-muted/30 px-3 py-2 space-y-1">
-                          {folder.files.map((file: any) => (
-                            <div key={file.name} className="flex items-center justify-between text-xs py-0.5">
-                              <div className="flex items-center gap-1.5">
-                                <Icon name="FileText" size={12} className="text-muted-foreground" />
-                                <span className="font-medium">{file.name}</span>
+                        {expandedFolder === folder.folder && (
+                          <div className="border-t bg-muted/30 px-3 py-2 space-y-1">
+                            {folder.files.map((file: any) => (
+                              <div key={file.name} className="flex items-center justify-between text-xs py-0.5">
+                                <div className="flex items-center gap-1.5">
+                                  <Icon name="FileText" size={12} className="text-muted-foreground" />
+                                  <span className="font-medium">{file.name}</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-muted-foreground">
+                                  <span>{formatSize(file.size)}</span>
+                                  <a
+                                    href={file.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary hover:underline flex items-center gap-0.5"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <Icon name="Download" size={11} />
+                                    скачать
+                                  </a>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-3 text-muted-foreground">
-                                <span>{formatSize(file.size)}</span>
-                                <a
-                                  href={file.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-primary hover:underline flex items-center gap-0.5"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <Icon name="Download" size={11} />
-                                  скачать
-                                </a>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {Math.ceil(backupFolders.length / BACKUP_PAGE_SIZE) > 1 && (
+                    <div className="flex items-center justify-between pt-3 border-t">
+                      <span className="text-xs text-muted-foreground">
+                        {(backupPage - 1) * BACKUP_PAGE_SIZE + 1}–{Math.min(backupPage * BACKUP_PAGE_SIZE, backupFolders.length)} из {backupFolders.length}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          className="px-2 py-1 text-xs border rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
+                          onClick={() => { setBackupPage(p => p - 1); setExpandedFolder(null); }}
+                          disabled={backupPage === 1}
+                        >
+                          <Icon name="ChevronLeft" size={13} />
+                        </button>
+                        {Array.from({ length: Math.ceil(backupFolders.length / BACKUP_PAGE_SIZE) }, (_, i) => i + 1)
+                          .filter(p => p === 1 || p === Math.ceil(backupFolders.length / BACKUP_PAGE_SIZE) || Math.abs(p - backupPage) <= 1)
+                          .reduce<(number | '...')[]>((acc, p, i, arr) => {
+                            if (i > 0 && (p as number) - (arr[i - 1] as number) > 1) acc.push('...');
+                            acc.push(p);
+                            return acc;
+                          }, [])
+                          .map((p, i) => p === '...' ? (
+                            <span key={`dots-${i}`} className="px-1 text-xs text-muted-foreground">…</span>
+                          ) : (
+                            <button
+                              key={p}
+                              className={`px-2.5 py-1 text-xs border rounded ${backupPage === p ? 'bg-primary text-white border-primary' : 'hover:bg-muted'}`}
+                              onClick={() => { setBackupPage(p as number); setExpandedFolder(null); }}
+                            >
+                              {p}
+                            </button>
+                          ))
+                        }
+                        <button
+                          className="px-2 py-1 text-xs border rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
+                          onClick={() => { setBackupPage(p => p + 1); setExpandedFolder(null); }}
+                          disabled={backupPage === Math.ceil(backupFolders.length / BACKUP_PAGE_SIZE)}
+                        >
+                          <Icon name="ChevronRight" size={13} />
+                        </button>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
-              {backupFolders.length > backupListLimit && (
-                <button
-                  className="w-full text-xs text-primary hover:underline py-2 border-t pt-3"
-                  onClick={() => setBackupListLimit(l => l + 20)}
-                >
-                  Показать ещё ({backupFolders.length - backupListLimit} архивов)
-                </button>
+                  )}
+                </>
               )}
             </div>
 
