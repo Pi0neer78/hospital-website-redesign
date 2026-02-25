@@ -1549,7 +1549,7 @@ const Registrar = () => {
         setCloneSelectedSlot('');
         setCloneSelectedDoctor(null);
       }}>
-        <DialogContent className="max-w-4xl" onPointerDownOutside={(e) => {
+        <DialogContent className="max-w-xl" onPointerDownOutside={(e) => {
           // Блокируем закрытие диалога при клике на overlay, если открыто окно ошибки
           const slotErrorDialog = document.getElementById('slot-error-overlay');
           if (slotErrorDialog) {
@@ -1557,22 +1557,18 @@ const Registrar = () => {
           }
         }}>
           <DialogHeader>
-            <DialogTitle>Клонировать запись</DialogTitle>
-            <DialogDescription>
-              Создайте копию записи с новой датой и временем
-            </DialogDescription>
+            <DialogTitle className="text-base">Клонировать запись</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2 p-4 bg-muted/30 rounded-lg">
-              <p className="text-sm"><strong>Пациент:</strong> {cloneDialog?.patient_name}</p>
-              <p className="text-sm"><strong>Телефон:</strong> {cloneDialog?.patient_phone}</p>
-              <p className="text-sm"><strong>СНИЛС:</strong> {cloneDialog?.patient_snils || '—'}</p>
-              <p className="text-sm"><strong>Оригинальная дата:</strong> {new Date(cloneDialog?.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')} в {cloneDialog?.appointment_time.slice(0, 5)}</p>
-              <p className="text-sm"><strong>Описание:</strong> {cloneDialog?.description || '—'}</p>
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 p-3 bg-muted/30 rounded-lg text-xs">
+              <span><strong>Пациент:</strong> {cloneDialog?.patient_name}</span>
+              <span><strong>Телефон:</strong> {cloneDialog?.patient_phone}</span>
+              {cloneDialog?.patient_snils && <span><strong>СНИЛС:</strong> {cloneDialog?.patient_snils}</span>}
+              <span><strong>Дата:</strong> {cloneDialog?.appointment_date && new Date(cloneDialog.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')} в {cloneDialog?.appointment_time?.slice(0, 5)}</span>
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Врач для новой записи</label>
+              <label className="text-xs font-medium mb-1 block">Врач для новой записи</label>
               <select
                 className="w-full border rounded-md px-3 py-2 text-sm bg-background"
                 value={cloneSelectedDoctor?.id ?? ''}
@@ -1587,21 +1583,21 @@ const Registrar = () => {
                 }}
               >
                 {doctors.map((d: any) => (
-                  <option key={d.id} value={d.id}>{d.full_name} — {d.specialty}</option>
+                  <option key={d.id} value={d.id}>{d.full_name} - {d.specialty}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Выберите новую дату</label>
-              <div className="grid grid-cols-7 gap-2">
+              <label className="text-xs font-medium mb-1 block">Новая дата</label>
+              <div className="grid grid-cols-7 gap-1">
                 {cloneAvailableDates.map((dateInfo) => (
                   <button
                     key={dateInfo.date}
                     type="button"
                     onClick={() => dateInfo.isWorking && setCloneSelectedDate(dateInfo.date)}
                     disabled={!dateInfo.isWorking}
-                    className={`p-2 rounded-lg border text-xs transition-all ${
+                    className={`p-1.5 rounded border text-[10px] leading-tight transition-all ${
                       cloneSelectedDate === dateInfo.date
                         ? 'bg-primary text-primary-foreground border-primary'
                         : dateInfo.isWorking
@@ -1609,28 +1605,29 @@ const Registrar = () => {
                         : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
                     }`}
                   >
-                    <div className="font-medium">{dateInfo.label}</div>
+                    {dateInfo.label}
                   </button>
                 ))}
               </div>
             </div>
 
             {cloneSelectedDate && (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    Выберите время на {new Date(cloneSelectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}
+                  <label className="text-xs font-medium mb-1 block">
+                    Время на {new Date(cloneSelectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}
                   </label>
                   {cloneAvailableSlots.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Нет свободных слотов на эту дату</p>
+                    <p className="text-xs text-muted-foreground">Нет свободных слотов</p>
                   ) : (
-                    <div className="grid grid-cols-6 gap-2">
+                    <div className="grid grid-cols-8 gap-1">
                       {cloneAvailableSlots.map((time) => (
                         <Button
                           key={time}
                           type="button"
                           variant={cloneSelectedSlot === time ? "default" : "outline"}
                           size="sm"
+                          className="text-xs h-7 px-1"
                           onClick={() => setCloneSelectedSlot(time)}
                         >
                           {time}
@@ -1641,13 +1638,13 @@ const Registrar = () => {
                 </div>
                 <div>
                   <label className="text-xs font-medium mb-1 block text-muted-foreground">
-                    Или введите своё время:
+                    Или введите время вручную:
                   </label>
                   <Input
                     type="time"
                     value={cloneSelectedSlot}
                     onChange={(e) => setCloneSelectedSlot(e.target.value)}
-                    className="h-9 text-sm"
+                    className="h-8 text-sm"
                   />
                 </div>
               </div>
