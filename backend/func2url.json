@@ -1,4 +1,5 @@
 {
+  "backup-cron": "https://functions.poehali.dev/482ed41a-1fba-4667-8786-fbff82ebaeca",
   "db-backup": "https://functions.poehali.dev/44a9271b-91c3-434f-a4ed-a10b64718f46",
   "queue-rating-voters": "https://functions.poehali.dev/8a7de09a-52aa-4279-8b4e-2ebe90c6cbdd",
   "queue-rating-stats": "https://functions.poehali.dev/3b25f41d-7581-4cd1-b467-47d00b68f03c",

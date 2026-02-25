@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Run scheduled backup",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
