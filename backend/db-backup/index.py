@@ -248,7 +248,8 @@ def handler(event: dict, context) -> dict:
         folders = []
         for row in rows:
             folder_name = row[0].replace('backups/', '', 1)
-            files_data = json.loads(row[4]) if row[4] else []
+            raw = row[4]
+            files_data = raw if isinstance(raw, list) else (json.loads(raw) if raw else [])
             files = [
                 {
                     'name': f['name'],
