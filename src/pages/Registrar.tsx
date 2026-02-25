@@ -63,6 +63,7 @@ const Registrar = () => {
   const [cloneSelectedDoctor, setCloneSelectedDoctor] = useState<any>(null);
   const [cloneDoctorSchedules, setCloneDoctorSchedules] = useState<any[]>([]);
   const [cloneDoctorCalendar, setCloneDoctorCalendar] = useState<{[key: string]: {is_working: boolean}}>({});
+  const [cloneDateSlotCounts, setCloneDateSlotCounts] = useState<{[date: string]: number}>({});
   const [calendarData, setCalendarData] = useState<{[key: string]: {is_working: boolean}}>({});
   const [schedules, setSchedules] = useState<any[]>([]);
   const [rescheduleConfirmDialog, setRescheduleConfirmDialog] = useState<{open: boolean, data: any}>({open: false, data: null});
@@ -498,7 +499,8 @@ const Registrar = () => {
       });
       setCloneDoctorSchedules(loadedSchedules);
       setCloneDoctorCalendar(calendarMap);
-      generateCloneDates(loadedSchedules, calendarMap);
+      const dates = generateCloneDates(loadedSchedules, calendarMap);
+      if (dates) loadCloneDateSlotCounts(doctorId, dates);
     } catch (error) {
       generateCloneDates(schedules, calendarData);
     }
@@ -527,6 +529,24 @@ const Registrar = () => {
       });
     }
     setCloneAvailableDates(dates);
+    return dates;
+  };
+
+  const loadCloneDateSlotCounts = async (doctorId: number, dates: {date: string; isWorking: boolean}[]) => {
+    const workingDates = dates.filter(d => d.isWorking).map(d => d.date);
+    const counts: {[date: string]: number} = {};
+    await Promise.all(
+      workingDates.map(async (date) => {
+        try {
+          const res = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorId}&date=${date}`);
+          const data = await res.json();
+          counts[date] = (data.available_slots || []).length;
+        } catch {
+          counts[date] = 0;
+        }
+      })
+    );
+    setCloneDateSlotCounts(counts);
   };
 
   const loadCloneSlots = async (date: string, doctorId?: number) => {
@@ -1591,23 +1611,37 @@ const Registrar = () => {
             <div>
               <label className="text-xs font-medium mb-1 block">Новая дата</label>
               <div className="grid grid-cols-7 gap-1">
-                {cloneAvailableDates.map((dateInfo) => (
-                  <button
-                    key={dateInfo.date}
-                    type="button"
-                    onClick={() => dateInfo.isWorking && setCloneSelectedDate(dateInfo.date)}
-                    disabled={!dateInfo.isWorking}
-                    className={`p-1.5 rounded border text-[10px] leading-tight transition-all ${
-                      cloneSelectedDate === dateInfo.date
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : dateInfo.isWorking
-                        ? 'bg-white hover:bg-gray-50 border-gray-200'
-                        : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                    }`}
-                  >
-                    {dateInfo.label}
-                  </button>
-                ))}
+                {cloneAvailableDates.map((dateInfo) => {
+                  const count = cloneDateSlotCounts[dateInfo.date];
+                  const isSelected = cloneSelectedDate === dateInfo.date;
+                  return (
+                    <button
+                      key={dateInfo.date}
+                      type="button"
+                      onClick={() => dateInfo.isWorking && setCloneSelectedDate(dateInfo.date)}
+                      disabled={!dateInfo.isWorking}
+                      className={`p-1.5 rounded border text-[10px] leading-tight transition-all flex flex-col items-center gap-0.5 ${
+                        isSelected
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : dateInfo.isWorking
+                          ? count === 0
+                            ? 'bg-red-50 hover:bg-red-100 border-red-200 text-red-600'
+                            : 'bg-white hover:bg-gray-50 border-gray-200'
+                          : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                      }`}
+                    >
+                      <span>{dateInfo.label}</span>
+                      {dateInfo.isWorking && count !== undefined && (
+                        <span className={`font-semibold text-[9px] ${isSelected ? 'text-primary-foreground' : count === 0 ? 'text-red-500' : 'text-green-600'}`}>
+                          {count === 0 ? 'занято' : `${count} св.`}
+                        </span>
+                      )}
+                      {dateInfo.isWorking && count === undefined && (
+                        <span className="text-[9px] text-gray-400">…</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
