@@ -98,19 +98,6 @@ const Security = () => {
     return () => clearInterval(interval);
   }, [autoRefresh, isAuthenticated]);
 
-  const loadBackupList = async () => {
-    setBackupListLoading(true);
-    try {
-      const res = await fetch(`${DB_BACKUP_URL}?action=list`);
-      const data = await res.json();
-      if (data.success) setBackupFolders(data.folders);
-    } catch {
-      // ignore
-    } finally {
-      setBackupListLoading(false);
-    }
-  };
-
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} Б`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`;
