@@ -76,7 +76,7 @@ const Security = () => {
   const [backupListLoading, setBackupListLoading] = useState(false);
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
   const [backupPage, setBackupPage] = useState(1);
-  const BACKUP_PAGE_SIZE = 10;
+  const [backupPageSize, setBackupPageSize] = useState(10);
 
   useEffect(() => {
     const token = localStorage.getItem('security_token');
@@ -737,7 +737,7 @@ const Security = () => {
               ) : (
                 <>
                   <div className="space-y-1.5">
-                    {backupFolders.slice((backupPage - 1) * BACKUP_PAGE_SIZE, backupPage * BACKUP_PAGE_SIZE).map((folder) => (
+                    {backupFolders.slice((backupPage - 1) * backupPageSize, backupPage * backupPageSize).map((folder) => (
                       <div key={folder.folder} className="border rounded-lg overflow-hidden">
                         <button
                           className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-muted/50 transition-colors text-left"
@@ -790,11 +790,20 @@ const Security = () => {
                     ))}
                   </div>
 
-                  {Math.ceil(backupFolders.length / BACKUP_PAGE_SIZE) > 1 && (
-                    <div className="flex items-center justify-between pt-3 border-t">
+                  <div className="flex items-center justify-between pt-3 border-t">
+                    <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground">
-                        {(backupPage - 1) * BACKUP_PAGE_SIZE + 1}–{Math.min(backupPage * BACKUP_PAGE_SIZE, backupFolders.length)} из {backupFolders.length}
+                        {backupFolders.length > 0 ? `${(backupPage - 1) * backupPageSize + 1}–${Math.min(backupPage * backupPageSize, backupFolders.length)} из ${backupFolders.length}` : ''}
                       </span>
+                      <select
+                        value={backupPageSize}
+                        onChange={(e) => { setBackupPageSize(Number(e.target.value)); setBackupPage(1); setExpandedFolder(null); }}
+                        className="text-xs border rounded px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                      >
+                        {[10, 20, 50, 100].map(n => <option key={n} value={n}>{n} на стр.</option>)}
+                      </select>
+                    </div>
+                    {Math.ceil(backupFolders.length / backupPageSize) > 1 && (
                       <div className="flex items-center gap-1">
                         <button
                           className="px-2 py-1 text-xs border rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
@@ -803,8 +812,8 @@ const Security = () => {
                         >
                           <Icon name="ChevronLeft" size={13} />
                         </button>
-                        {Array.from({ length: Math.ceil(backupFolders.length / BACKUP_PAGE_SIZE) }, (_, i) => i + 1)
-                          .filter(p => p === 1 || p === Math.ceil(backupFolders.length / BACKUP_PAGE_SIZE) || Math.abs(p - backupPage) <= 1)
+                        {Array.from({ length: Math.ceil(backupFolders.length / backupPageSize) }, (_, i) => i + 1)
+                          .filter(p => p === 1 || p === Math.ceil(backupFolders.length / backupPageSize) || Math.abs(p - backupPage) <= 1)
                           .reduce<(number | '...')[]>((acc, p, i, arr) => {
                             if (i > 0 && (p as number) - (arr[i - 1] as number) > 1) acc.push('...');
                             acc.push(p);
@@ -825,13 +834,13 @@ const Security = () => {
                         <button
                           className="px-2 py-1 text-xs border rounded hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
                           onClick={() => { setBackupPage(p => p + 1); setExpandedFolder(null); }}
-                          disabled={backupPage === Math.ceil(backupFolders.length / BACKUP_PAGE_SIZE)}
+                          disabled={backupPage === Math.ceil(backupFolders.length / backupPageSize)}
                         >
                           <Icon name="ChevronRight" size={13} />
                         </button>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </>
               )}
             </div>
