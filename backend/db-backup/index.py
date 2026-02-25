@@ -153,6 +153,7 @@ def handler(event: dict, context) -> dict:
                 url = upload_csv(s3, key, csv_content)
                 results.append({'table': table, 'rows': row_count, 'url': url, 'success': True})
             except Exception as e:
+                print(f'[backup error] table={table} error={e}')
                 results.append({'table': table, 'error': str(e), 'success': False})
 
         conn.close()
@@ -235,8 +236,10 @@ def handler(event: dict, context) -> dict:
                 csv_content, row_count = table_to_csv(conn, table)
                 key = f'{folder}/{table}.csv'
                 url = upload_csv(s3, key, csv_content)
+                print(f'[scheduled] uploaded {key}, rows={row_count}')
                 results.append({'table': table, 'rows': row_count, 'url': url, 'success': True})
             except Exception as e:
+                print(f'[scheduled error] table={table} error={e}')
                 results.append({'table': table, 'error': str(e), 'success': False})
 
         conn.close()
