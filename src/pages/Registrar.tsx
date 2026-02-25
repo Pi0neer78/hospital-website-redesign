@@ -1603,7 +1603,7 @@ const Registrar = () => {
                 }}
               >
                 {doctors.map((d: any) => (
-                  <option key={d.id} value={d.id}>{d.full_name} - {d.specialty}</option>
+                  <option key={d.id} value={d.id}>{d.full_name} - {d.position}</option>
                 ))}
               </select>
             </div>
@@ -1678,7 +1678,7 @@ const Registrar = () => {
                     type="time"
                     value={cloneSelectedSlot}
                     onChange={(e) => setCloneSelectedSlot(e.target.value)}
-                    className="h-8 text-sm"
+                    className="h-8 text-sm w-32"
                   />
                 </div>
               </div>
