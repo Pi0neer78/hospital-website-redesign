@@ -60,6 +60,9 @@ const Registrar = () => {
   const [debouncedCloneDate, setDebouncedCloneDate] = useState<string>('');
   const [cloneAvailableSlots, setCloneAvailableSlots] = useState<string[]>([]);
   const [cloneSelectedSlot, setCloneSelectedSlot] = useState<string>('');
+  const [cloneSelectedDoctor, setCloneSelectedDoctor] = useState<any>(null);
+  const [cloneDoctorSchedules, setCloneDoctorSchedules] = useState<any[]>([]);
+  const [cloneDoctorCalendar, setCloneDoctorCalendar] = useState<{[key: string]: {is_working: boolean}}>({});
   const [calendarData, setCalendarData] = useState<{[key: string]: {is_working: boolean}}>({});
   const [schedules, setSchedules] = useState<any[]>([]);
   const [rescheduleConfirmDialog, setRescheduleConfirmDialog] = useState<{open: boolean, data: any}>({open: false, data: null});
@@ -120,9 +123,9 @@ const Registrar = () => {
 
   useEffect(() => {
     if (debouncedCloneDate && cloneDialog) {
-      loadCloneSlots(debouncedCloneDate);
+      loadCloneSlots(debouncedCloneDate, cloneSelectedDoctor?.id);
     }
-  }, [debouncedCloneDate, cloneDialog]);
+  }, [debouncedCloneDate, cloneDialog, cloneSelectedDoctor]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -472,10 +475,36 @@ const Registrar = () => {
     setCloneDialog(appointment);
     setCloneSelectedDate('');
     setCloneSelectedSlot('');
-    generateCloneDates();
+    const doctor = doctors.find((d: any) => d.id === appointment.doctor_id) || selectedDoctor;
+    setCloneSelectedDoctor(doctor);
+    loadCloneDoctorSchedules(doctor.id);
   };
 
-  const generateCloneDates = () => {
+  const loadCloneDoctorSchedules = async (doctorId: number) => {
+    try {
+      const year = new Date().getFullYear();
+      const [schedulesRes, calendarRes] = await Promise.all([
+        fetch(`${API_URLS.schedules}?doctor_id=${doctorId}`),
+        fetch(`${API_URLS.schedules}?action=calendar&doctor_id=${doctorId}&year=${year}`)
+      ]);
+      const [schedulesData, calendarData] = await Promise.all([
+        schedulesRes.json(),
+        calendarRes.json()
+      ]);
+      const loadedSchedules = schedulesData.schedules || [];
+      const calendarMap: {[key: string]: {is_working: boolean}} = {};
+      (calendarData.calendar || []).forEach((day: any) => {
+        calendarMap[day.calendar_date] = { is_working: day.is_working };
+      });
+      setCloneDoctorSchedules(loadedSchedules);
+      setCloneDoctorCalendar(calendarMap);
+      generateCloneDates(loadedSchedules, calendarMap);
+    } catch (error) {
+      generateCloneDates(schedules, calendarData);
+    }
+  };
+
+  const generateCloneDates = (loadedSchedules = cloneDoctorSchedules, loadedCalendar = cloneDoctorCalendar) => {
     const dates = [];
     for (let i = 0; i <= 20; i++) {
       const date = new Date();
@@ -483,8 +512,8 @@ const Registrar = () => {
       const dateStr = date.toISOString().split('T')[0];
       const dayOfWeek = (date.getDay() + 6) % 7;
       
-      const hasSchedule = schedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
-      const calendarOverride = calendarData[dateStr];
+      const hasSchedule = loadedSchedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
+      const calendarOverride = loadedCalendar[dateStr];
       const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
       
       dates.push({
@@ -500,10 +529,11 @@ const Registrar = () => {
     setCloneAvailableDates(dates);
   };
 
-  const loadCloneSlots = async (date: string) => {
-    if (!cloneDialog) return;
+  const loadCloneSlots = async (date: string, doctorId?: number) => {
+    const id = doctorId ?? cloneSelectedDoctor?.id ?? cloneDialog?.doctor_id;
+    if (!id) return;
     try {
-      const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${cloneDialog.doctor_id}&date=${date}`);
+      const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${id}&date=${date}`);
       const data = await response.json();
       setCloneAvailableSlots(data.available_slots || []);
     } catch (error) {
@@ -631,9 +661,11 @@ const Registrar = () => {
 
     if (!cloneDialog) return;
 
+    const targetDoctorId = cloneSelectedDoctor?.id ?? cloneDialog.doctor_id;
+
     const slotCheck = await checkSlotAvailability(
       API_URLS.appointments,
-      cloneDialog.doctor_id,
+      targetDoctorId,
       cloneSelectedDate,
       cloneSelectedSlot
     );
@@ -648,7 +680,7 @@ const Registrar = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          doctor_id: cloneDialog.doctor_id,
+          doctor_id: targetDoctorId,
           patient_name: cloneDialog.patient_name,
           patient_phone: cloneDialog.patient_phone,
           patient_snils: cloneDialog.patient_snils,
@@ -1515,6 +1547,7 @@ const Registrar = () => {
         setCloneDialog(null);
         setCloneSelectedDate('');
         setCloneSelectedSlot('');
+        setCloneSelectedDoctor(null);
       }}>
         <DialogContent className="max-w-4xl" onPointerDownOutside={(e) => {
           // Блокируем закрытие диалога при клике на overlay, если открыто окно ошибки
@@ -1536,6 +1569,27 @@ const Registrar = () => {
               <p className="text-sm"><strong>СНИЛС:</strong> {cloneDialog?.patient_snils || '—'}</p>
               <p className="text-sm"><strong>Оригинальная дата:</strong> {new Date(cloneDialog?.appointment_date + 'T00:00:00').toLocaleDateString('ru-RU')} в {cloneDialog?.appointment_time.slice(0, 5)}</p>
               <p className="text-sm"><strong>Описание:</strong> {cloneDialog?.description || '—'}</p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Врач для новой записи</label>
+              <select
+                className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+                value={cloneSelectedDoctor?.id ?? ''}
+                onChange={(e) => {
+                  const doc = doctors.find((d: any) => d.id === Number(e.target.value));
+                  if (doc) {
+                    setCloneSelectedDoctor(doc);
+                    setCloneSelectedDate('');
+                    setCloneSelectedSlot('');
+                    loadCloneDoctorSchedules(doc.id);
+                  }
+                }}
+              >
+                {doctors.map((d: any) => (
+                  <option key={d.id} value={d.id}>{d.full_name} — {d.specialty}</option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -1607,6 +1661,7 @@ const Registrar = () => {
                   setCloneDialog(null);
                   setCloneSelectedDate('');
                   setCloneSelectedSlot('');
+                  setCloneSelectedDoctor(null);
                 }}
               >
                 Отмена
