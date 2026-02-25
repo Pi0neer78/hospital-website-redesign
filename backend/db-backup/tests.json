@@ -7,6 +7,22 @@
       "expectedStatus": 200,
       "expectedBody": {"success": true},
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "List backups",
+      "method": "GET",
+      "path": "/?action=list",
+      "expectedStatus": 200,
+      "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "List backup folders",
+      "method": "GET",
+      "path": "/?action=list",
+      "expectedStatus": 200,
+      "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
     }
   ]
 }

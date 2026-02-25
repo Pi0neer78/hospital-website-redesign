@@ -1,6 +1,6 @@
 """
 Сервис архивирования баз данных в S3-хранилище.
-Поддерживает резервное копирование таблиц по расписанию и разовый полный архив.
+Поддерживает резервное копирование таблиц по расписанию, разовый полный архив и просмотр списка архивов.
 """
 import json
 import os
@@ -163,6 +163,39 @@ def handler(event: dict, context) -> dict:
             'body': json.dumps({'success': True, 'folder': folder, 'results': results, 'datetime': dt_str}),
         }
 
+    if method == 'GET' and action == 'list':
+        s3 = get_s3()
+        response = s3.list_objects_v2(Bucket='files', Prefix='backups/', Delimiter='/')
+        folders = []
+        for prefix in response.get('CommonPrefixes', []):
+            folder_key = prefix['Prefix']
+            folder_name = folder_key.rstrip('/').replace('backups/', '')
+            files_resp = s3.list_objects_v2(Bucket='files', Prefix=folder_key)
+            files = []
+            total_size = 0
+            for obj in files_resp.get('Contents', []):
+                file_name = obj['Key'].replace(folder_key, '')
+                if not file_name:
+                    continue
+                files.append({
+                    'name': file_name,
+                    'size': obj['Size'],
+                    'url': f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{obj['Key']}",
+                })
+                total_size += obj['Size']
+            folders.append({
+                'folder': folder_name,
+                'files': files,
+                'total_size': total_size,
+                'full': folder_name.startswith('полный_архив_'),
+            })
+        folders.sort(key=lambda x: x['folder'], reverse=True)
+        return {
+            'statusCode': 200,
+            'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+            'body': json.dumps({'success': True, 'folders': folders}),
+        }
+
     if method == 'POST' and action == 'scheduled':
         conn = get_db()
         settings = get_backup_settings(conn)
@@ -212,6 +245,43 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
             'body': json.dumps({'success': True, 'folder': folder, 'results': results}),
+        }
+
+    if method == 'GET' and action == 'list':
+        s3 = get_s3()
+        paginator = s3.get_paginator('list_objects_v2')
+        pages = paginator.paginate(Bucket='files', Prefix='backups/', Delimiter='/')
+
+        folders = []
+        for page in pages:
+            for prefix in page.get('CommonPrefixes', []):
+                folder_key = prefix['Prefix']
+                folder_name = folder_key.rstrip('/').replace('backups/', '')
+
+                files_page = s3.list_objects_v2(Bucket='files', Prefix=folder_key)
+                files = []
+                total_size = 0
+                for obj in files_page.get('Contents', []):
+                    fname = obj['Key'].replace(folder_key, '')
+                    if fname:
+                        cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{obj['Key']}"
+                        files.append({'name': fname, 'size': obj['Size'], 'last_modified': obj['LastModified'].isoformat(), 'url': cdn_url})
+                        total_size += obj['Size']
+
+                folders.append({
+                    'folder': folder_name,
+                    'full': folder_name.startswith('полный_архив_'),
+                    'files': files,
+                    'total_size': total_size,
+                    'file_count': len(files),
+                })
+
+        folders.sort(key=lambda x: x['folder'], reverse=True)
+
+        return {
+            'statusCode': 200,
+            'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+            'body': json.dumps({'success': True, 'folders': folders}, default=str),
         }
 
     return {

@@ -71,6 +71,12 @@ const Security = () => {
   const [backupRunning, setBackupRunning] = useState(false);
   const [fullBackupRunning, setFullBackupRunning] = useState(false);
   const [lastBackupResult, setLastBackupResult] = useState<any>(null);
+  const [backupFolders, setBackupFolders] = useState<any[]>([]);
+  const [backupListLoading, setBackupListLoading] = useState(false);
+  const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
+  const [backupFolders, setBackupFolders] = useState<any[]>([]);
+  const [backupListLoading, setBackupListLoading] = useState(false);
+  const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('security_token');
@@ -80,6 +86,8 @@ const Security = () => {
       loadStatistics(token);
       loadAdmins(token);
       loadBackupSettings();
+      loadBackupList();
+      loadBackupList();
     }
   }, []);
 
@@ -92,6 +100,45 @@ const Security = () => {
 
     return () => clearInterval(interval);
   }, [autoRefresh, isAuthenticated]);
+
+  const loadBackupList = async () => {
+    setBackupListLoading(true);
+    try {
+      const res = await fetch(`${DB_BACKUP_URL}?action=list`);
+      const data = await res.json();
+      if (data.success) setBackupFolders(data.folders);
+    } catch {
+      // ignore
+    } finally {
+      setBackupListLoading(false);
+    }
+  };
+
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} Б`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`;
+    return `${(bytes / 1024 / 1024).toFixed(2)} МБ`;
+  };
+
+  const formatFolderDate = (folder: string) => {
+    const clean = folder.replace('полный_архив_', '');
+    const match = clean.match(/^(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})$/);
+    if (!match) return folder;
+    return `${match[3]}.${match[2]}.${match[1]} ${match[4]}:${match[5]}:${match[6]}`;
+  };
+
+  const loadBackupList = async () => {
+    setBackupListLoading(true);
+    try {
+      const res = await fetch(`${DB_BACKUP_URL}?action=list`);
+      const data = await res.json();
+      if (data.success) setBackupFolders(data.folders);
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось загрузить список архивов', variant: 'destructive' });
+    } finally {
+      setBackupListLoading(false);
+    }
+  };
 
   const loadBackupSettings = async () => {
     setBackupSettingsLoading(true);
@@ -137,6 +184,7 @@ const Security = () => {
       const ok = data.results?.filter((r: any) => r.success).length || 0;
       const total = data.results?.length || 0;
       toast({ title: full ? 'Полный архив создан' : 'Архив создан', description: `Архивировано таблиц: ${ok}/${total}` });
+      loadBackupList();
     } catch {
       toast({ title: 'Ошибка', description: 'Не удалось выполнить архивирование', variant: 'destructive' });
     } finally {
@@ -613,6 +661,156 @@ const Security = () => {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-xl border p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  <Icon name="FolderArchive" size={16} className="text-primary" />
+                  Список архивов
+                  {backupFolders.length > 0 && (
+                    <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                      {backupFolders.length}
+                    </span>
+                  )}
+                </h3>
+                <Button variant="ghost" size="sm" onClick={loadBackupList} disabled={backupListLoading}>
+                  <Icon name={backupListLoading ? 'Loader2' : 'RefreshCw'} size={14} className={backupListLoading ? 'animate-spin' : ''} />
+                </Button>
+              </div>
+
+              {backupListLoading && backupFolders.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Загрузка...</p>
+              ) : backupFolders.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Архивов пока нет</p>
+              ) : (
+                <div className="space-y-1.5 max-h-96 overflow-y-auto pr-1">
+                  {backupFolders.map((folder) => (
+                    <div key={folder.folder} className="border rounded-lg overflow-hidden">
+                      <button
+                        className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-muted/50 transition-colors text-left"
+                        onClick={() => setExpandedFolder(expandedFolder === folder.folder ? null : folder.folder)}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Icon
+                            name={folder.full ? 'DatabaseBackup' : 'Archive'}
+                            size={15}
+                            className={folder.full ? 'text-amber-600 shrink-0' : 'text-primary shrink-0'}
+                          />
+                          <span className="text-sm font-medium truncate">{formatFolderDate(folder.folder)}</span>
+                          {folder.full && (
+                            <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded shrink-0">полный</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0 ml-2">
+                          <span className="text-xs text-muted-foreground">{folder.file_count} файл{folder.file_count === 1 ? '' : folder.file_count < 5 ? 'а' : 'ов'}</span>
+                          <span className="text-xs text-muted-foreground">{formatSize(folder.total_size)}</span>
+                          <Icon name={expandedFolder === folder.folder ? 'ChevronUp' : 'ChevronDown'} size={14} className="text-muted-foreground" />
+                        </div>
+                      </button>
+
+                      {expandedFolder === folder.folder && (
+                        <div className="border-t bg-muted/30 px-3 py-2 space-y-1">
+                          {folder.files.map((file: any) => (
+                            <div key={file.name} className="flex items-center justify-between text-xs py-0.5">
+                              <div className="flex items-center gap-1.5">
+                                <Icon name="FileText" size={12} className="text-muted-foreground" />
+                                <span className="font-medium">{file.name}</span>
+                              </div>
+                              <div className="flex items-center gap-3 text-muted-foreground">
+                                <span>{formatSize(file.size)}</span>
+                                <a
+                                  href={file.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline flex items-center gap-0.5"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Icon name="Download" size={11} />
+                                  скачать
+                                </a>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-xl border p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  <Icon name="FolderOpen" size={16} className="text-primary" />
+                  Созданные архивы
+                </h3>
+                <Button variant="outline" size="sm" onClick={loadBackupList} disabled={backupListLoading}>
+                  <Icon name={backupListLoading ? 'Loader2' : 'RefreshCw'} size={13} className={`mr-1.5 ${backupListLoading ? 'animate-spin' : ''}`} />
+                  Обновить
+                </Button>
+              </div>
+
+              {backupListLoading ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">Загрузка...</p>
+              ) : backupFolders.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">Архивов пока нет</p>
+              ) : (
+                <div className="space-y-2">
+                  {backupFolders.map((folder) => {
+                    const isExpanded = expandedFolder === folder.folder;
+                    const sizeKb = (folder.total_size / 1024).toFixed(1);
+                    const dateLabel = (() => {
+                      const raw = folder.folder.replace('полный_архив_', '');
+                      const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})$/);
+                      return m ? `${m[3]}.${m[2]}.${m[1]} ${m[4]}:${m[5]}:${m[6]}` : folder.folder;
+                    })();
+                    return (
+                      <div key={folder.folder} className="border rounded-lg overflow-hidden">
+                        <button
+                          className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors text-left"
+                          onClick={() => setExpandedFolder(isExpanded ? null : folder.folder)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Icon name={folder.full ? 'DatabaseBackup' : 'Archive'} size={14} className={folder.full ? 'text-amber-600' : 'text-primary'} />
+                            <span className="text-sm font-medium">{dateLabel}</span>
+                            {folder.full && (
+                              <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">Полный</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span>{folder.files.length} файлов · {sizeKb} КБ</span>
+                            <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={14} />
+                          </div>
+                        </button>
+
+                        {isExpanded && (
+                          <div className="border-t bg-muted/20 px-4 py-3 space-y-1.5">
+                            {folder.files.map((file: any) => (
+                              <div key={file.name} className="flex items-center justify-between text-xs">
+                                <div className="flex items-center gap-2">
+                                  <Icon name="FileText" size={12} className="text-muted-foreground" />
+                                  <span className="font-medium">{file.name}</span>
+                                  <span className="text-muted-foreground">({(file.size / 1024).toFixed(1)} КБ)</span>
+                                </div>
+                                <a
+                                  href={file.url}
+                                  download
+                                  className="flex items-center gap-1 text-primary hover:underline"
+                                >
+                                  <Icon name="Download" size={12} />
+                                  Скачать
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
