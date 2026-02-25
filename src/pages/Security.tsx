@@ -84,7 +84,6 @@ const Security = () => {
       loadAdmins(token);
       loadBackupSettings();
       loadBackupList();
-      loadBackupList();
     }
   }, []);
 
