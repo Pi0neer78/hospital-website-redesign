@@ -273,7 +273,14 @@ const Structure = () => {
                       <div className="text-sm space-y-1">
                         <p>Врачи: врач ультразвуковой диагностики – <span className="font-semibold text-[13px] text-foreground">КАЛЬСКОВА Ирина Сергеевна</span></p>
                         <p>врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">КОХНО Людмила Васильевна</span></p>
-                        <p>врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">ЗУЕВА Любовь Александровна</span></p>
+                        <div className="overflow-hidden mt-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/af3d116c-a52f-4cc3-8b08-6a5afa8db990.jpg"
+                            alt="Зуева Любовь Александровна"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">ЗУЕВА Любовь Александровна</span></p>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
