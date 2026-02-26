@@ -127,7 +127,7 @@ const Structure = () => {
                       <img
                         src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/140f81c8-6e1b-4c16-a536-e2ad38d89a32.jpg"
                         alt="Комарова Елена Геннадьевна"
-                        className="float-left mr-4 mb-2 w-40 h-40 rounded-full object-cover object-top border-2 border-primary shadow-md"
+                        className="float-left mr-3 mb-2 w-20 h-20 rounded-full object-cover object-top border-2 border-primary shadow-md"
                       />
                       <p className="font-medium text-muted-foreground">
                         <DoctorName title="Заведующий детской поликлиникой" name="Комарова Елена Геннадьевна" />
