@@ -195,20 +195,20 @@ const Structure = () => {
                       Инфекционное – боксированное отделение
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-инфекционист" name="Шурупова Анжела Владимировна" />
+                      <div className="overflow-hidden mt-1">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/33e4d317-6b06-4ade-9518-002cf4ffc66c.jpg"
+                          alt="Шурупова Анжела Владимировна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <DoctorName title="Заведующий, врач-инфекционист" name="Шурупова Анжела Владимировна" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
-                    <div className="overflow-hidden">
-                      <img
-                        src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/33e4d317-6b06-4ade-9518-002cf4ffc66c.jpg"
-                        alt="Шурупова Анжела Владимировна"
-                        className="float-left mr-3 mb-2 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
-                      />
-                      <div className="flex items-start gap-2">
-                        <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
-                        <p>Врачи: врач-инфекционист, внештатный горрайонный специалист <span className="font-semibold text-[13px] text-foreground">КЛИМЕНКО Наталья Ивановна</span></p>
-                      </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
+                      <p>Врачи: врач-инфекционист, внештатный горрайонный специалист <span className="font-semibold text-[13px] text-foreground">КЛИМЕНКО Наталья Ивановна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={13} className="text-primary mt-0.5 shrink-0" />
@@ -228,17 +228,17 @@ const Structure = () => {
                       Кардиологическое отделение
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-кардиолог" name="Биляченко Сергей Митрофанович" />
+                      <div className="overflow-hidden mt-1">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/47090950-0856-435d-835e-3931e64a249a.jpg"
+                          alt="Биляченко Сергей Митрофанович"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <DoctorName title="Заведующий, врач-кардиолог" name="Биляченко Сергей Митрофанович" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
-                    <div className="overflow-hidden">
-                      <img
-                        src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/47090950-0856-435d-835e-3931e64a249a.jpg"
-                        alt="Биляченко Сергей Митрофанович"
-                        className="float-left mr-3 mb-2 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
-                      />
-                    </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={13} className="text-primary mt-0.5 shrink-0" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
