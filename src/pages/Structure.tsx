@@ -319,7 +319,14 @@ const Structure = () => {
                       Клинико-диагностическая лаборатория
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-лаборант" name="Серикова Наталья Анатольевна" />
+                      <div className="overflow-hidden mt-1">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/084e60a3-b503-4523-9e9e-59959b3f5741.jpg"
+                          alt="Серикова Наталья Анатольевна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <DoctorName title="Заведующий, врач-лаборант" name="Серикова Наталья Анатольевна" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
