@@ -12,11 +12,15 @@ const PhotoModal = ({ src, alt, onClose }: { src: string; alt: string; onClose: 
 const DoctorName = ({ title, name }: { title?: string; name: string }) => {
   const parts = name.trim().split(' ');
   const surname = parts[0].toUpperCase();
-  const rest = parts.slice(1).join(' ');
+  const firstName = parts[1] || '';
+  const patronymic = parts.slice(2).join(' ');
   return (
     <span className="block">
       {title && <span className="block font-normal text-[11px] leading-tight text-muted-foreground mb-0.5">{title}</span>}
-      <span className="block font-semibold text-[13px] leading-snug text-foreground">{surname} {rest}</span>
+      <span className="block font-bold text-[15px] leading-tight text-primary">{surname}</span>
+      {(firstName || patronymic) && (
+        <span className="block font-semibold text-[13px] leading-snug text-primary">{firstName}{patronymic ? ' ' + patronymic : ''}</span>
+      )}
     </span>
   );
 };
@@ -86,7 +90,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Building2" size={16} className="text-primary" />
                       Центральная городская поликлиника
                     </CardTitle>
@@ -134,7 +138,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Baby" size={16} className="text-primary" />
                       Детская поликлиника
                     </CardTitle>
@@ -182,7 +186,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="HeartPulse" size={16} className="text-primary" />
                       Гинекологическое отделение
                     </CardTitle>
@@ -193,7 +197,7 @@ const Structure = () => {
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
-                      <p>Врачи: врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">БОНДАРЕНКО</span> <span className="font-semibold text-[13px] text-foreground">Елена Александровна</span></p>
+                      <p>Врачи: врач-акушер-гинеколог <span className="font-bold text-[13px] text-primary">БОНДАРЕНКО</span> <span className="font-bold text-[13px] text-primary">Елена Александровна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={13} className="text-primary mt-0.5 shrink-0" />
@@ -208,7 +212,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Stethoscope" size={16} className="text-primary" />
                       Инфекционное – боксированное отделение
                     </CardTitle>
@@ -227,7 +231,7 @@ const Structure = () => {
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
-                      <p>Врачи: врач-инфекционист, внештатный горрайонный специалист <span className="font-semibold text-[13px] text-foreground">КЛИМЕНКО Наталья Ивановна</span></p>
+                      <p>Врачи: врач-инфекционист, внештатный горрайонный специалист <span className="font-bold text-[13px] text-primary">КЛИМЕНКО Наталья Ивановна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={13} className="text-primary mt-0.5 shrink-0" />
@@ -242,7 +246,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Heart" size={16} className="text-primary" />
                       Кардиологическое отделение
                     </CardTitle>
@@ -272,7 +276,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="HeartPulse" size={16} className="text-primary" />
                       Женская консультация
                     </CardTitle>
@@ -292,8 +296,8 @@ const Structure = () => {
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач ультразвуковой диагностики – <span className="font-semibold text-[13px] text-foreground">КАЛЬСКОВА Ирина Сергеевна</span></p>
-                        <p>врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">КОХНО Людмила Васильевна</span></p>
+                        <p>Врачи: врач ультразвуковой диагностики – <span className="font-bold text-[13px] text-primary">КАЛЬСКОВА Ирина Сергеевна</span></p>
+                        <p>врач-акушер-гинеколог <span className="font-bold text-[13px] text-primary">КОХНО Людмила Васильевна</span></p>
                         <div className="overflow-hidden mt-1">
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/af3d116c-a52f-4cc3-8b08-6a5afa8db990.jpg"
@@ -301,7 +305,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/af3d116c-a52f-4cc3-8b08-6a5afa8db990.jpg', alt: 'Зуева Любовь Александровна' })}
                           />
-                          <p>врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">ЗУЕВА Любовь Александровна</span></p>
+                          <p>врач-акушер-гинеколог <span className="font-bold text-[13px] text-primary">ЗУЕВА Любовь Александровна</span></p>
                         </div>
                       </div>
                     </div>
@@ -336,7 +340,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="FlaskConical" size={16} className="text-primary" />
                       Клинико-диагностическая лаборатория
                     </CardTitle>
@@ -363,9 +367,9 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/39ae25a0-366d-449b-85f5-858811ef645a.jpg', alt: 'Гнездилова Светлана Валентиновна' })}
                           />
-                          <p>Врачи: врач клинической лабораторной диагностики клинического отдела – <span className="font-semibold text-[13px] text-foreground">ГНЕЗДИЛОВА Светлана Валентиновна</span></p>
+                          <p>Врачи: врач клинической лабораторной диагностики клинического отдела – <span className="font-bold text-[13px] text-primary">ГНЕЗДИЛОВА Светлана Валентиновна</span></p>
                         </div>
-                        <p>врач клинической лабораторной диагностики клинического отдела – <span className="font-semibold text-[13px] text-foreground">КАРЕНЬКОВА Светлана Юрьевна</span></p>
+                        <p>врач клинической лабораторной диагностики клинического отдела – <span className="font-bold text-[13px] text-primary">КАРЕНЬКОВА Светлана Юрьевна</span></p>
                         <div className="overflow-hidden mt-1">
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/800133df-1b1a-4cd1-857d-9ccc51cc4957.jpg"
@@ -373,7 +377,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/800133df-1b1a-4cd1-857d-9ccc51cc4957.jpg', alt: 'Пчелинцева Вера Борисовна' })}
                           />
-                          <p>врач клинической лабораторной диагностики биохимического отдела – <span className="font-semibold text-[13px] text-foreground">ПЧЕЛИНЦЕВА Вера Борисовна</span></p>
+                          <p>врач клинической лабораторной диагностики биохимического отдела – <span className="font-bold text-[13px] text-primary">ПЧЕЛИНЦЕВА Вера Борисовна</span></p>
                         </div>
                       </div>
                     </div>
@@ -394,7 +398,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Brain" size={16} className="text-primary" />
                       Неврологическое отделение
                     </CardTitle>
@@ -420,7 +424,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/7bd616e0-8df1-4aca-86f3-005f0ab67112.jpg', alt: 'Поддубная Карина Сергеевна' })}
                         />
-                        <p>Врачи: врач-стажер <span className="font-semibold text-[13px] text-foreground">ПОДДУБНАЯ Карина Сергеевна</span></p>
+                        <p>Врачи: врач-стажер <span className="font-bold text-[13px] text-primary">ПОДДУБНАЯ Карина Сергеевна</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -436,7 +440,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Activity" size={16} className="text-primary" />
                       Отделение анестезиологии и с койками интенсивной терапии
                     </CardTitle>
@@ -455,7 +459,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/156396c9-9d8a-4317-8b43-2bcbdc8a8501.jpg', alt: 'Косимцев Сергей Евгеньевич' })}
                           />
-                          <p>Врачи: врач-анестезиолог-реаниматолог <span className="font-semibold text-[13px] text-foreground">КОСИМЦЕВ Сергей Евгеньевич</span></p>
+                          <p>Врачи: врач-анестезиолог-реаниматолог <span className="font-bold text-[13px] text-primary">КОСИМЦЕВ Сергей Евгеньевич</span></p>
                         </div>
                         <div className="overflow-hidden mb-1">
                           <img
@@ -464,7 +468,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/e152702c-06de-4b87-8517-4fe33259abc1.jpg', alt: 'Немятых Константин Дмитриевич' })}
                           />
-                          <p>врач-анестезиолог-реаниматолог <span className="font-semibold text-[13px] text-foreground">НЕМЯТЫХ Константин Дмитриевич</span></p>
+                          <p>врач-анестезиолог-реаниматолог <span className="font-bold text-[13px] text-primary">НЕМЯТЫХ Константин Дмитриевич</span></p>
                         </div>
                       </div>
                     </div>
@@ -481,7 +485,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Droplets" size={16} className="text-primary" />
                       Отделение заготовки и переработки крови
                     </CardTitle>
@@ -503,7 +507,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Baby" size={16} className="text-primary" />
                       Отделение новорожденных
                     </CardTitle>
@@ -522,7 +526,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/f20e1659-e3ef-483d-a122-8deb4c9063ab.jpg', alt: 'Перевозчикова Наталья Михайловна' })}
                           />
-                          <p>Врачи: врач-неонатолог <span className="font-semibold text-[13px] text-foreground">ПЕРЕВОЗЧИКОВА Наталья Михайловна</span></p>
+                          <p>Врачи: врач-неонатолог <span className="font-bold text-[13px] text-primary">ПЕРЕВОЗЧИКОВА Наталья Михайловна</span></p>
                         </div>
                         <div className="overflow-hidden mb-1">
                           <img
@@ -531,7 +535,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/3ce478c4-6637-4d6b-95f8-ada106a1c44c.jpg', alt: 'Бондарь Наталья Николаевна' })}
                           />
-                          <p>врач-неонатолог <span className="font-semibold text-[13px] text-foreground">БОНДАРЬ Наталья Николаевна</span></p>
+                          <p>врач-неонатолог <span className="font-bold text-[13px] text-primary">БОНДАРЬ Наталья Николаевна</span></p>
                         </div>
                       </div>
                     </div>
@@ -548,7 +552,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Eye" size={16} className="text-primary" />
                       Офтальмо-отоларингологическое отделение
                     </CardTitle>
@@ -574,7 +578,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/b2cad708-f3df-4f62-b9ae-72362e309845.jpg', alt: 'Колесникова Ольга Васильевна' })}
                         />
-                        <p>Врачи: врач-офтальмолог <span className="font-semibold text-[13px] text-foreground">КОЛЕСНИКОВА Ольга Васильевна</span></p>
+                        <p>Врачи: врач-офтальмолог <span className="font-bold text-[13px] text-primary">КОЛЕСНИКОВА Ольга Васильевна</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -590,7 +594,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Stethoscope" size={16} className="text-primary" />
                       Педиатрическое соматическое отделение
                     </CardTitle>
@@ -612,7 +616,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="DoorOpen" size={16} className="text-primary" />
                       Приемное отделение
                     </CardTitle>
@@ -642,7 +646,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Brain" size={16} className="text-primary" />
                       Психиатрическое отделение
                     </CardTitle>
@@ -672,7 +676,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="ScanLine" size={16} className="text-primary" />
                       Рентгенологическое отделение
                     </CardTitle>
@@ -690,7 +694,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/55bdce6a-d0cb-47f9-a148-b1e4eb66b469.jpg', alt: 'Лазаренко Татьяна Ивановна' })}
                         />
-                        <p>Врачи: врач-рентгенолог <span className="font-semibold text-[13px] text-foreground">ЛАЗАРЕНКО Татьяна Ивановна</span></p>
+                        <p>Врачи: врач-рентгенолог <span className="font-bold text-[13px] text-primary">ЛАЗАРЕНКО Татьяна Ивановна</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -706,7 +710,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="HeartPulse" size={16} className="text-primary" />
                       Родильное отделение
                     </CardTitle>
@@ -725,7 +729,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/d22db362-3dae-4c90-b442-8e7d58d90563.jpg', alt: 'Дорошенко Ирина Геннадьевна' })}
                           />
-                          <p>Врачи: врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">ДОРОШЕНКО Ирина Геннадьевна</span></p>
+                          <p>Врачи: врач-акушер-гинеколог <span className="font-bold text-[13px] text-primary">ДОРОШЕНКО Ирина Геннадьевна</span></p>
                         </div>
                         <div className="overflow-hidden mb-1">
                           <img
@@ -734,7 +738,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/1a815876-afd2-47a8-9aae-cd6f10b346d9.jpg', alt: 'Агишева Ольга Ильинична' })}
                           />
-                          <p>врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">АГИШЕВА Ольга Ильинична</span></p>
+                          <p>врач-акушер-гинеколог <span className="font-bold text-[13px] text-primary">АГИШЕВА Ольга Ильинична</span></p>
                         </div>
                       </div>
                     </div>
@@ -751,7 +755,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Stethoscope" size={16} className="text-primary" />
                       Терапевтическое отделение
                     </CardTitle>
@@ -777,7 +781,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/8f2074df-fa5e-4bb0-9282-1bf35bbe070c.jpg', alt: 'Тимофеенко Дарья Александровна' })}
                         />
-                        <p>Врачи: врач-терапевт <span className="font-semibold text-[13px] text-foreground">ТИМОФЕЕНКО Дарья Александровна</span></p>
+                        <p>Врачи: врач-терапевт <span className="font-bold text-[13px] text-primary">ТИМОФЕЕНКО Дарья Александровна</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -793,7 +797,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Bone" size={16} className="text-primary" />
                       Неотложный кабинет травматологии и ортопедии
                     </CardTitle>
@@ -815,7 +819,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Bone" size={16} className="text-primary" />
                       Отделение травматологии и ортопедии
                     </CardTitle>
@@ -835,8 +839,8 @@ const Structure = () => {
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач-травматолог-ортопед <span className="font-semibold text-[13px] text-foreground">БРОВКИН Евгений Владимирович</span></p>
-                        <p>врач-травматолог-ортопед <span className="font-semibold text-[13px] text-foreground">СУЯЛКИН Олег Павлович</span></p>
+                        <p>Врачи: врач-травматолог-ортопед <span className="font-bold text-[13px] text-primary">БРОВКИН Евгений Владимирович</span></p>
+                        <p>врач-травматолог-ортопед <span className="font-bold text-[13px] text-primary">СУЯЛКИН Олег Павлович</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -852,7 +856,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Zap" size={16} className="text-primary" />
                       Физиотерапевтическое отделение
                     </CardTitle>
@@ -874,7 +878,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Scissors" size={16} className="text-primary" />
                       Хирургическое отделение на 2 круглосуточных поста
                     </CardTitle>
@@ -901,7 +905,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/bae8ac64-18c3-4f53-b04b-671730f387dc.jpg', alt: 'Гиенко Максим Вячеславович' })}
                           />
-                          <p>Врачи: врач-хирург <span className="font-semibold text-[13px] text-foreground">ГИЕНКО Максим Вячеславович</span></p>
+                          <p>Врачи: врач-хирург <span className="font-bold text-[13px] text-primary">ГИЕНКО Максим Вячеславович</span></p>
                         </div>
                         <div className="overflow-hidden mb-1">
                           <img
@@ -910,7 +914,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/c30c6bc1-5069-4c90-955a-c272e6d77fdf.jpg', alt: 'Гончаров Андрей Борисович' })}
                           />
-                          <p>врач-хирург <span className="font-semibold text-[13px] text-foreground">ГОНЧАРОВ Андрей Борисович</span></p>
+                          <p>врач-хирург <span className="font-bold text-[13px] text-primary">ГОНЧАРОВ Андрей Борисович</span></p>
                         </div>
                         <div className="overflow-hidden mb-1">
                           <img
@@ -919,7 +923,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/6e7ac12c-d12d-49fb-9488-eb4daefa259f.jpg', alt: 'Нестеренко Игорь Владимирович' })}
                           />
-                          <p>врач-хирург <span className="font-semibold text-[13px] text-foreground">НЕСТЕРЕНКО Игорь Владимирович</span></p>
+                          <p>врач-хирург <span className="font-bold text-[13px] text-primary">НЕСТЕРЕНКО Игорь Владимирович</span></p>
                         </div>
                         <div className="overflow-hidden mb-1">
                           <img
@@ -928,7 +932,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/7b858c02-b3d5-4948-860b-78d024c4b90a.jpg', alt: 'Чернявский Игорь Родионович' })}
                           />
-                          <p>врач-стажер <span className="font-semibold text-[13px] text-foreground">ЧЕРНЯВСКИЙ Игорь Родионович</span></p>
+                          <p>врач-стажер <span className="font-bold text-[13px] text-primary">ЧЕРНЯВСКИЙ Игорь Родионович</span></p>
                         </div>
                       </div>
                     </div>
@@ -945,7 +949,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Microscope" size={16} className="text-primary" />
                       Патологоанатомическое отделение
                     </CardTitle>
@@ -974,7 +978,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория №1
                     </CardTitle>
@@ -996,7 +1000,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория №2
                     </CardTitle>
@@ -1018,7 +1022,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Крепенский
                     </CardTitle>
@@ -1040,7 +1044,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Щетово
                     </CardTitle>
@@ -1062,7 +1066,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Дубовский
                     </CardTitle>
@@ -1080,7 +1084,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Красный Кут
                     </CardTitle>
@@ -1098,7 +1102,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Фащевка
                     </CardTitle>
@@ -1116,7 +1120,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория с. Червоная Поляна
                     </CardTitle>
@@ -1134,7 +1138,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория с. Нижний Нагольчик
                     </CardTitle>
@@ -1152,7 +1156,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория с. Бобриково
                     </CardTitle>
@@ -1170,7 +1174,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория с. Есауловка
                     </CardTitle>
@@ -1188,7 +1192,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория п. Кошары
                     </CardTitle>
@@ -1206,7 +1210,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Ивановка
                     </CardTitle>
@@ -1224,7 +1228,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория с. Дьяково
                     </CardTitle>
@@ -1249,7 +1253,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП пгт. Малониколаевка
                     </CardTitle>
@@ -1267,7 +1271,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Рафайловка
                     </CardTitle>
@@ -1285,7 +1289,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Ребриково
                     </CardTitle>
@@ -1303,7 +1307,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Картушино
                     </CardTitle>
@@ -1321,7 +1325,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП п. Индустрия
                     </CardTitle>
@@ -1339,7 +1343,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП пгт. Верхний Нагольчик
                     </CardTitle>
@@ -1357,7 +1361,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП пгт. Каменный
                     </CardTitle>
@@ -1375,7 +1379,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП п. Христофоровка
                     </CardTitle>
@@ -1393,7 +1397,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП п. Краснолучский
                     </CardTitle>
@@ -1411,7 +1415,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП п. Колпаково
                     </CardTitle>
@@ -1429,7 +1433,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Мечетка
                     </CardTitle>
@@ -1447,7 +1451,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Никитовка
                     </CardTitle>
@@ -1465,7 +1469,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП п. Орловское
                     </CardTitle>
@@ -1483,7 +1487,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Лескино
                     </CardTitle>
@@ -1501,7 +1505,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Новокрасновка
                     </CardTitle>
@@ -1519,7 +1523,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Зеленодольское
                     </CardTitle>
@@ -1537,7 +1541,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Егоровка
                     </CardTitle>
@@ -1555,7 +1559,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП станция п. Колпаково
                     </CardTitle>
@@ -1573,7 +1577,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight text-primary">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Вишневое
                     </CardTitle>
