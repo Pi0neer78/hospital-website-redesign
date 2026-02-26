@@ -77,7 +77,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Building2" size={16} className="text-primary" />
                       Центральная городская поликлиника
                     </CardTitle>
@@ -117,7 +117,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Baby" size={16} className="text-primary" />
                       Детская поликлиника
                     </CardTitle>
@@ -164,7 +164,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="HeartPulse" size={16} className="text-primary" />
                       Гинекологическое отделение
                     </CardTitle>
@@ -190,7 +190,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Stethoscope" size={16} className="text-primary" />
                       Инфекционное – боксированное отделение
                     </CardTitle>
@@ -216,7 +216,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Heart" size={16} className="text-primary" />
                       Кардиологическое отделение
                     </CardTitle>
@@ -238,7 +238,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="HeartPulse" size={16} className="text-primary" />
                       Женская консультация
                     </CardTitle>
@@ -286,7 +286,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="FlaskConical" size={16} className="text-primary" />
                       Клинико-диагностическая лаборатория
                     </CardTitle>
@@ -320,7 +320,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Brain" size={16} className="text-primary" />
                       Неврологическое отделение
                     </CardTitle>
@@ -346,7 +346,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Activity" size={16} className="text-primary" />
                       Отделение анестезиологии и с койками интенсивной терапии
                     </CardTitle>
@@ -375,7 +375,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Droplets" size={16} className="text-primary" />
                       Отделение заготовки и переработки крови
                     </CardTitle>
@@ -397,7 +397,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Baby" size={16} className="text-primary" />
                       Отделение новорожденных
                     </CardTitle>
@@ -426,7 +426,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Eye" size={16} className="text-primary" />
                       Офтальмо-отоларингологическое отделение
                     </CardTitle>
@@ -452,7 +452,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Stethoscope" size={16} className="text-primary" />
                       Педиатрическое соматическое отделение
                     </CardTitle>
@@ -474,7 +474,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="DoorOpen" size={16} className="text-primary" />
                       Приемное отделение
                     </CardTitle>
@@ -496,7 +496,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Brain" size={16} className="text-primary" />
                       Психиатрическое отделение
                     </CardTitle>
@@ -518,7 +518,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="ScanLine" size={16} className="text-primary" />
                       Рентгенологическое отделение
                     </CardTitle>
@@ -544,7 +544,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="HeartPulse" size={16} className="text-primary" />
                       Родильное отделение
                     </CardTitle>
@@ -573,7 +573,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Stethoscope" size={16} className="text-primary" />
                       Терапевтическое отделение
                     </CardTitle>
@@ -599,7 +599,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Bone" size={16} className="text-primary" />
                       Неотложный кабинет травматологии и ортопедии
                     </CardTitle>
@@ -621,7 +621,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Bone" size={16} className="text-primary" />
                       Отделение травматологии и ортопедии
                     </CardTitle>
@@ -650,7 +650,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Zap" size={16} className="text-primary" />
                       Физиотерапевтическое отделение
                     </CardTitle>
@@ -672,7 +672,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Scissors" size={16} className="text-primary" />
                       Хирургическое отделение на 2 круглосуточных поста
                     </CardTitle>
@@ -703,7 +703,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Microscope" size={16} className="text-primary" />
                       Патологоанатомическое отделение
                     </CardTitle>
@@ -732,7 +732,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория №1
                     </CardTitle>
@@ -754,7 +754,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория №2
                     </CardTitle>
@@ -776,7 +776,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Крепенский
                     </CardTitle>
@@ -798,7 +798,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Щетово
                     </CardTitle>
@@ -820,7 +820,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Дубовский
                     </CardTitle>
@@ -838,7 +838,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Красный Кут
                     </CardTitle>
@@ -856,7 +856,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Фащевка
                     </CardTitle>
@@ -874,7 +874,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория с. Червоная Поляна
                     </CardTitle>
@@ -892,7 +892,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория с. Нижний Нагольчик
                     </CardTitle>
@@ -910,7 +910,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория с. Бобриково
                     </CardTitle>
@@ -928,7 +928,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория с. Есауловка
                     </CardTitle>
@@ -946,7 +946,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория п. Кошары
                     </CardTitle>
@@ -964,7 +964,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория пгт. Ивановка
                     </CardTitle>
@@ -982,7 +982,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Home" size={16} className="text-primary" />
                       Врачебная амбулатория с. Дьяково
                     </CardTitle>
@@ -1007,7 +1007,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП пгт. Малониколаевка
                     </CardTitle>
@@ -1025,7 +1025,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Рафайловка
                     </CardTitle>
@@ -1043,7 +1043,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Ребриково
                     </CardTitle>
@@ -1061,7 +1061,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Картушино
                     </CardTitle>
@@ -1079,7 +1079,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП п. Индустрия
                     </CardTitle>
@@ -1097,7 +1097,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП пгт. Верхний Нагольчик
                     </CardTitle>
@@ -1115,7 +1115,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП пгт. Каменный
                     </CardTitle>
@@ -1133,7 +1133,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП п. Христофоровка
                     </CardTitle>
@@ -1151,7 +1151,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП п. Краснолучский
                     </CardTitle>
@@ -1169,7 +1169,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП п. Колпаково
                     </CardTitle>
@@ -1187,7 +1187,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Мечетка
                     </CardTitle>
@@ -1205,7 +1205,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Никитовка
                     </CardTitle>
@@ -1223,7 +1223,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП п. Орловское
                     </CardTitle>
@@ -1241,7 +1241,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Лескино
                     </CardTitle>
@@ -1259,7 +1259,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Новокрасновка
                     </CardTitle>
@@ -1277,7 +1277,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Зеленодольское
                     </CardTitle>
@@ -1295,7 +1295,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Егоровка
                     </CardTitle>
@@ -1313,7 +1313,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП станция п. Колпаково
                     </CardTitle>
@@ -1331,7 +1331,7 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5 py-2 px-3">
-                    <CardTitle className="flex items-center gap-1.5 text-[13px] font-semibold leading-tight">
+                    <CardTitle className="flex items-center gap-1.5 text-base font-bold leading-tight">
                       <Icon name="Cross" size={16} className="text-primary" />
                       ФАП с. Вишневое
                     </CardTitle>
