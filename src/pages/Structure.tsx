@@ -374,7 +374,14 @@ const Structure = () => {
                       Неврологическое отделение
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-невролог, внештатный горрайонный специалист" name="Чернявская Марина Александровна" />
+                      <div className="overflow-hidden mt-1">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/9618a430-98df-48ad-8fef-1d03ca35977b.jpg"
+                          alt="Чернявская Марина Александровна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <DoctorName title="Заведующий, врач-невролог, внештатный горрайонный специалист" name="Чернявская Марина Александровна" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -480,7 +487,14 @@ const Structure = () => {
                       Офтальмо-отоларингологическое отделение
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-оториноларинголог, внештатный горрайонный специалист" name="Мазуров Николай Михайлович" />
+                      <div className="overflow-hidden mt-1">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/cca9f7d9-f15b-49ec-b417-9a1d009cfae1.jpg"
+                          alt="Мазуров Николай Михайлович"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <DoctorName title="Заведующий, врач-оториноларинголог, внештатный горрайонный специалист" name="Мазуров Николай Михайлович" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -528,7 +542,14 @@ const Structure = () => {
                       Приемное отделение
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Панкова Элла Александровна" />
+                      <div className="overflow-hidden mt-1">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/a4d44c2d-a1fa-410d-9ea4-b920088bcb40.jpg"
+                          alt="Панкова Элла Александровна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Панкова Элла Александровна" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -550,7 +571,14 @@ const Structure = () => {
                       Психиатрическое отделение
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-психиатр" name="Зайцева Людмила Владимировна" />
+                      <div className="overflow-hidden mt-1">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/ae456582-5eca-4759-b1a4-8bced30b9a60.jpg"
+                          alt="Зайцева Людмила Владимировна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <DoctorName title="Заведующий, врач-психиатр" name="Зайцева Людмила Владимировна" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -578,7 +606,14 @@ const Structure = () => {
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
-                      <p>Врачи: врач-рентгенолог <span className="font-semibold text-[13px] text-foreground">ЛАЗАРЕНКО Татьяна Ивановна</span></p>
+                      <div className="overflow-hidden">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/55bdce6a-d0cb-47f9-a148-b1e4eb66b469.jpg"
+                          alt="Лазаренко Татьяна Ивановна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <p>Врачи: врач-рентгенолог <span className="font-semibold text-[13px] text-foreground">ЛАЗАРЕНКО Татьяна Ивановна</span></p>
+                      </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={13} className="text-primary mt-0.5 shrink-0" />
