@@ -86,8 +86,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">г. Антрацит, ул. Толстоусова, д.1, 294613</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -133,8 +133,8 @@ const Structure = () => {
                         <DoctorName title="Заведующий детской поликлиникой" name="Комарова Елена Геннадьевна" />
                       </p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Петровского, 56</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -177,8 +177,8 @@ const Structure = () => {
                       <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">БОНДАРЕНКО</span> <span className="font-bold text-[1.1rem]">Елена Александровна</span></p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -203,8 +203,8 @@ const Structure = () => {
                       <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-инфекционист, внештатный горрайонный специалист <span className="font-bold text-[1.1rem]">КЛИМЕНКО Наталья Ивановна</span></p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -225,8 +225,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -255,8 +255,8 @@ const Structure = () => {
                         <p>врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">ЗУЕВА Любовь Александровна</span></p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -303,8 +303,8 @@ const Structure = () => {
                         <p>врач клинической лабораторной диагностики биохимического отдела – <span className="font-bold text-[1.1rem]">АЧЕЛИНЦЕВА Вера Борисовна</span></p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -333,8 +333,8 @@ const Structure = () => {
                       <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-стажер <span className="font-bold text-[1.1rem]">ПОДДУБНАЯ Карина Сергеевна</span></p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -362,8 +362,8 @@ const Structure = () => {
                         <p>врач-анестезиолог-реаниматолог <span className="font-bold text-[1.1rem]">НЕМЯТЫХ Константин Дмитриевич</span></p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -384,8 +384,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -413,8 +413,8 @@ const Structure = () => {
                         <p>врач-неонатолог <span className="font-bold text-[1.1rem]">БОНДАРЬ Наталья Николаевна</span></p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -439,8 +439,8 @@ const Structure = () => {
                       <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-офтальмолог <span className="font-bold text-[1.1rem]">КОЛЕСНИКОВА Ольга Васильевна</span></p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -461,8 +461,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -483,8 +483,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -505,8 +505,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, пер. Победы</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -531,8 +531,8 @@ const Structure = () => {
                       <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-рентгенолог <span className="font-bold text-[1.1rem]">ЛАЗАРЕНКО Татьяна Ивановна</span></p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -560,8 +560,8 @@ const Structure = () => {
                         <p>врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">АГИШЕВА Ольга Ильинична</span></p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -586,8 +586,8 @@ const Structure = () => {
                       <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-терапевт <span className="font-bold text-[1.1rem]">ТИМОФЕЕНКО Дарья Александровна</span></p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -608,8 +608,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -637,8 +637,8 @@ const Structure = () => {
                         <p>врач-травматолог-ортопед <span className="font-bold text-[1.1rem]">СУЯЛКИН Олег Павлович</span></p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -659,8 +659,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -690,8 +690,8 @@ const Structure = () => {
                         <p>врач-стажер <span className="font-bold text-[1.1rem]">ЧЕРНЯВСКИЙ Игорь Родионович</span></p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -712,8 +712,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -741,8 +741,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Говорова, 1</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -763,8 +763,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит-7, пер. Первомайский, 7</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -785,8 +785,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, пгт. Крепенский, ул. 40 лет Октября, 9</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -807,8 +807,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, пгт. Щетово, ул. Ленина, 4а</p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -829,8 +829,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, пгт. Дубовский, ул. Горького, 5</p>
                     </div>
                   </CardContent>
@@ -847,8 +847,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Красный Кут, ул. 11-я Советская, 47</p>
                     </div>
                   </CardContent>
@@ -865,8 +865,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Фащевка, ул. Советская, 9</p>
                     </div>
                   </CardContent>
@@ -883,8 +883,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Червоная Поляна, ул. Первомайская, 8</p>
                     </div>
                   </CardContent>
@@ -901,8 +901,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Нижний Нагольчик, ул. Ленина, 80</p>
                     </div>
                   </CardContent>
@@ -919,8 +919,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Бобриково, ул. Шевченко, 3</p>
                     </div>
                   </CardContent>
@@ -937,8 +937,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Есауловка, ул. Переверзева, 11</p>
                     </div>
                   </CardContent>
@@ -955,8 +955,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Кошары, ул. Пролетарская, 22</p>
                     </div>
                   </CardContent>
@@ -973,8 +973,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Ивановка, ул. Артема, 72а</p>
                     </div>
                   </CardContent>
@@ -991,8 +991,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Дьяково, ул. Мира, 116а</p>
                     </div>
                   </CardContent>
@@ -1016,8 +1016,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Малониколаевка, кв. Сиволапа, 6</p>
                     </div>
                   </CardContent>
@@ -1034,8 +1034,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Рафайловка, ул. Подлесная, 36</p>
                     </div>
                   </CardContent>
@@ -1052,8 +1052,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Ребриково, ул. Школьная, 1</p>
                     </div>
                   </CardContent>
@@ -1070,8 +1070,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Картушино, ул. Пионерская, 4</p>
                     </div>
                   </CardContent>
@@ -1088,8 +1088,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Индустрия, ул. Совхозная, 3</p>
                     </div>
                   </CardContent>
@@ -1106,8 +1106,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Верхний Нагольчик, пер. Ленина, 1</p>
                     </div>
                   </CardContent>
@@ -1124,8 +1124,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Каменный, ул. Шахтерская, 107</p>
                     </div>
                   </CardContent>
@@ -1142,8 +1142,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Христофоровка, ул. Беляева, 15</p>
                     </div>
                   </CardContent>
@@ -1160,8 +1160,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Краснолучский, ул. Советская, 20/1</p>
                     </div>
                   </CardContent>
@@ -1178,8 +1178,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Колпаково, ул. Пролетарская, 33</p>
                     </div>
                   </CardContent>
@@ -1196,8 +1196,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Мечетка, ул. Почтовая, 16а</p>
                     </div>
                   </CardContent>
@@ -1214,8 +1214,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Никитовка, ул. Центральная, 15</p>
                     </div>
                   </CardContent>
@@ -1232,8 +1232,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Орловское, ул. Космонавтов, 22</p>
                     </div>
                   </CardContent>
@@ -1250,8 +1250,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Лескино, ул. Октябрьская, 17</p>
                     </div>
                   </CardContent>
@@ -1268,8 +1268,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Новокрасновка, ул. Будановой, 4</p>
                     </div>
                   </CardContent>
@@ -1286,8 +1286,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Зеленодольское, ул. Центральная</p>
                     </div>
                   </CardContent>
@@ -1304,8 +1304,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Егоровка, ул. Буденного, 10</p>
                     </div>
                   </CardContent>
@@ -1322,8 +1322,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Колпаково, ул. Садовая, 1Б</p>
                     </div>
                   </CardContent>
@@ -1340,8 +1340,8 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-2 px-3 space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <Icon name="MapPin" size={13} className="text-primary shrink-0" />
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Вишневое, ул. Давыденко, 1</p>
                     </div>
                   </CardContent>
