@@ -2,6 +2,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 
+const DoctorName = ({ title, name }: { title?: string; name: string }) => {
+  const parts = name.trim().split(' ');
+  const surname = parts[0].toUpperCase();
+  const rest = parts.slice(1).join(' ');
+  return (
+    <span>
+      {title && <span className="font-normal text-base">{title}<br /></span>}
+      <span className="font-bold text-[1.1rem]">{surname} {rest}</span>
+    </span>
+  );
+};
+
 const Structure = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/f3cad472-e990-4101-9d1b-163dee97656f.jpg)' }}>
@@ -70,7 +82,7 @@ const Structure = () => {
                       Центральная городская поликлиника
                     </CardTitle>
                     <CardDescription className="text-base">
-                      И.О. заведующего поликлиникой, врач-терапевт – Сулима Вера Николаевна
+                      <DoctorName title="И.О. заведующего поликлиникой, врач-терапевт" name="Сулима Вера Николаевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -117,7 +129,9 @@ const Structure = () => {
                         alt="Комарова Елена Геннадьевна"
                         className="float-left mr-4 mb-2 w-40 h-40 rounded-full object-cover object-top border-2 border-primary shadow-md"
                       />
-                      <p className="font-medium text-muted-foreground">Заведующий детской поликлиникой – Комарова Елена Геннадьевна</p>
+                      <p className="font-medium text-muted-foreground">
+                        <DoctorName title="Заведующий детской поликлиникой" name="Комарова Елена Геннадьевна" />
+                      </p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={18} className="text-primary mt-1" />
@@ -155,13 +169,13 @@ const Structure = () => {
                       Гинекологическое отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – врач-акушер-гинеколог Репникова Елена Александровна
+                      <DoctorName title="Заведующий – врач-акушер-гинеколог" name="Репникова Елена Александровна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
-                      <p className="text-sm">Врачи: врач-акушер-гинеколог Бондаренко Елена Александровна</p>
+                      <p className="text-sm">Врачи: врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">БОНДАРЕНКО</span> <span className="font-bold text-[1.1rem]">Елена Александровна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={18} className="text-primary mt-1" />
@@ -181,13 +195,13 @@ const Structure = () => {
                       Инфекционное – боксированное отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-инфекционист – Шурупова Анжела Владимировна
+                      <DoctorName title="Заведующий, врач-инфекционист" name="Шурупова Анжела Владимировна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
-                      <p className="text-sm">Врачи: врач-инфекционист, внештатный горрайонный специалист Клименко Наталья Ивановна</p>
+                      <p className="text-sm">Врачи: врач-инфекционист, внештатный горрайонный специалист <span className="font-bold text-[1.1rem]">КЛИМЕНКО Наталья Ивановна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={18} className="text-primary mt-1" />
@@ -207,7 +221,7 @@ const Structure = () => {
                       Кардиологическое отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-кардиолог – Биляченко Сергей Митрофанович
+                      <DoctorName title="Заведующий, врач-кардиолог" name="Биляченко Сергей Митрофанович" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -229,16 +243,16 @@ const Structure = () => {
                       Женская консультация
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-акушер-гинеколог – Гасанова Ирина Николаевна
+                      <DoctorName title="Заведующий, врач-акушер-гинеколог" name="Гасанова Ирина Николаевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач ультразвуковой диагностики – Кальскова Ирина Сергеевна</p>
-                        <p>врач-акушер-гинеколог Кохно Людмила Васильевна</p>
-                        <p>врач-акушер-гинеколог Зуева Любовь Александровна</p>
+                        <p>Врачи: врач ультразвуковой диагностики – <span className="font-bold text-[1.1rem]">КАЛЬСКОВА Ирина Сергеевна</span></p>
+                        <p>врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">КОХНО Людмила Васильевна</span></p>
+                        <p>врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">ЗУЕВА Любовь Александровна</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -277,16 +291,16 @@ const Structure = () => {
                       Клинико-диагностическая лаборатория
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-лаборант – Серикова Наталья Анатольевна
+                      <DoctorName title="Заведующий, врач-лаборант" name="Серикова Наталья Анатольевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач клинической лабораторной диагностики клинического отдела – Гнездилова Светлана Валентиновна</p>
-                        <p>врач клинической лабораторной диагностики клинического отдела – Каренькова Светлана Юрьевна</p>
-                        <p>врач клинической лабораторной диагностики биохимического отдела – Ачелинцева Вера Борисовна</p>
+                        <p>Врачи: врач клинической лабораторной диагностики клинического отдела – <span className="font-bold text-[1.1rem]">ГНЕЗДИЛОВА Светлана Валентиновна</span></p>
+                        <p>врач клинической лабораторной диагностики клинического отдела – <span className="font-bold text-[1.1rem]">КАРЕНЬКОВА Светлана Юрьевна</span></p>
+                        <p>врач клинической лабораторной диагностики биохимического отдела – <span className="font-bold text-[1.1rem]">АЧЕЛИНЦЕВА Вера Борисовна</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -311,13 +325,13 @@ const Structure = () => {
                       Неврологическое отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-невролог, внештатный горрайонный специалист – Чернявская Марина Александровна
+                      <DoctorName title="Заведующий, врач-невролог, внештатный горрайонный специалист" name="Чернявская Марина Александровна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
-                      <p className="text-sm">Врачи: врач-стажер Поддубная Карина Сергеевна</p>
+                      <p className="text-sm">Врачи: врач-стажер <span className="font-bold text-[1.1rem]">ПОДДУБНАЯ Карина Сергеевна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={18} className="text-primary mt-1" />
@@ -337,15 +351,15 @@ const Structure = () => {
                       Отделение анестезиологии и с койками интенсивной терапии
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-анестезиолог-реаниматолог, внештатный горрайонный специалист – Чернявский Родион Игоревич
+                      <DoctorName title="Заведующий, врач-анестезиолог-реаниматолог, внештатный горрайонный специалист" name="Чернявский Родион Игоревич" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач-анестезиолог-реаниматолог Косимцев Сергей Евгеньевич</p>
-                        <p>врач-анестезиолог-реаниматолог Немятых Константин Дмитриевич</p>
+                        <p>Врачи: врач-анестезиолог-реаниматолог <span className="font-bold text-[1.1rem]">КОСИМЦЕВ Сергей Евгеньевич</span></p>
+                        <p>врач-анестезиолог-реаниматолог <span className="font-bold text-[1.1rem]">НЕМЯТЫХ Константин Дмитриевич</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -366,7 +380,7 @@ const Structure = () => {
                       Отделение заготовки и переработки крови
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-трансфузиолог – Ульянова Тамара Ивановна
+                      <DoctorName title="Заведующий, врач-трансфузиолог" name="Ульянова Тамара Ивановна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -388,15 +402,15 @@ const Structure = () => {
                       Отделение новорожденных
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-неонатолог – Суялкина Виктория Викторовна
+                      <DoctorName title="Заведующий, врач-неонатолог" name="Суялкина Виктория Викторовна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач-неонатолог Перевозчикова Наталья Михайловна</p>
-                        <p>врач-неонатолог Бондарь Наталья Николаевна</p>
+                        <p>Врачи: врач-неонатолог <span className="font-bold text-[1.1rem]">ПЕРЕВОЗЧИКОВА Наталья Михайловна</span></p>
+                        <p>врач-неонатолог <span className="font-bold text-[1.1rem]">БОНДАРЬ Наталья Николаевна</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -417,13 +431,13 @@ const Structure = () => {
                       Офтальмо-отоларингологическое отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-оториноларинголог, внештатный горрайонный специалист – Мазуров Николай Михайлович
+                      <DoctorName title="Заведующий, врач-оториноларинголог, внештатный горрайонный специалист" name="Мазуров Николай Михайлович" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
-                      <p className="text-sm">Врачи: врач-офтальмолог Колесникова Ольга Васильевна</p>
+                      <p className="text-sm">Врачи: врач-офтальмолог <span className="font-bold text-[1.1rem]">КОЛЕСНИКОВА Ольга Васильевна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={18} className="text-primary mt-1" />
@@ -465,7 +479,7 @@ const Structure = () => {
                       Приемное отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач общей практики (семейный врач) – Панкова Элла Александровна
+                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Панкова Элла Александровна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -487,7 +501,7 @@ const Structure = () => {
                       Психиатрическое отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-психиатр – Зайцева Людмила Владимировна
+                      <DoctorName title="Заведующий, врач-психиатр" name="Зайцева Людмила Владимировна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -515,7 +529,7 @@ const Structure = () => {
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
-                      <p className="text-sm">Врачи: врач-рентгенолог Лазаренко Татьяна Ивановна</p>
+                      <p className="text-sm">Врачи: врач-рентгенолог <span className="font-bold text-[1.1rem]">ЛАЗАРЕНКО Татьяна Ивановна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={18} className="text-primary mt-1" />
@@ -535,15 +549,15 @@ const Structure = () => {
                       Родильное отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-акушер-гинеколог – Царенко Людмила Васильевна
+                      <DoctorName title="Заведующий, врач-акушер-гинеколог" name="Царенко Людмила Васильевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач-акушер-гинеколог Дорошенко Ирина Геннадьевна</p>
-                        <p>врач-акушер-гинеколог Агишева Ольга Ильинична</p>
+                        <p>Врачи: врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">ДОРОШЕНКО Ирина Геннадьевна</span></p>
+                        <p>врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">АГИШЕВА Ольга Ильинична</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -564,13 +578,13 @@ const Structure = () => {
                       Терапевтическое отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-терапевт – Балаба Людмила Викторовна
+                      <DoctorName title="Заведующий, врач-терапевт" name="Балаба Людмила Викторовна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
-                      <p className="text-sm">Врачи: врач-терапевт Тимофеенко Дарья Александровна</p>
+                      <p className="text-sm">Врачи: врач-терапевт <span className="font-bold text-[1.1rem]">ТИМОФЕЕНКО Дарья Александровна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={18} className="text-primary mt-1" />
@@ -612,15 +626,15 @@ const Structure = () => {
                       Отделение травматологии и ортопедии
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-травматолог-ортопед, внештатный горрайонный специалист – Комаров Роман Иванович
+                      <DoctorName title="Заведующий, врач-травматолог-ортопед, внештатный горрайонный специалист" name="Комаров Роман Иванович" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач-травматолог-ортопед Бровкин Евгений Владимирович</p>
-                        <p>врач-травматолог-ортопед Суялкин Олег Павлович</p>
+                        <p>Врачи: врач-травматолог-ортопед <span className="font-bold text-[1.1rem]">БРОВКИН Евгений Владимирович</span></p>
+                        <p>врач-травматолог-ортопед <span className="font-bold text-[1.1rem]">СУЯЛКИН Олег Павлович</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -663,17 +677,17 @@ const Structure = () => {
                       Хирургическое отделение на 2 круглосуточных поста
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-хирург – Чумак Игорь Анатольевич
+                      <DoctorName title="Заведующий, врач-хирург" name="Чумак Игорь Анатольевич" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={18} className="text-primary mt-1" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач-хирург Гиенко Максим Вячеславович</p>
-                        <p>врач-хирург Гончаров Андрей Борисович</p>
-                        <p>врач-хирург Нестеренко Игорь Владимирович</p>
-                        <p>врач-стажер Чернявский Игорь Родионович</p>
+                        <p>Врачи: врач-хирург <span className="font-bold text-[1.1rem]">ГИЕНКО Максим Вячеславович</span></p>
+                        <p>врач-хирург <span className="font-bold text-[1.1rem]">ГОНЧАРОВ Андрей Борисович</span></p>
+                        <p>врач-хирург <span className="font-bold text-[1.1rem]">НЕСТЕРЕНКО Игорь Владимирович</span></p>
+                        <p>врач-стажер <span className="font-bold text-[1.1rem]">ЧЕРНЯВСКИЙ Игорь Родионович</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -723,7 +737,7 @@ const Structure = () => {
                       Врачебная амбулатория №1
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач общей практики (семейный врач) – Гончарова Ольга Викторовна
+                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Гончарова Ольга Викторовна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -745,7 +759,7 @@ const Structure = () => {
                       Врачебная амбулатория №2
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-дерматовенеролог – Гненная Виктория Михайловна
+                      <DoctorName title="Заведующий, врач-дерматовенеролог" name="Гненная Виктория Михайловна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -767,7 +781,7 @@ const Structure = () => {
                       Врачебная амбулатория пгт. Крепенский
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач общей практики (семейный врач) – Лукьяненко Олеся Владимировна
+                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Лукьяненко Олеся Владимировна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -789,7 +803,7 @@ const Structure = () => {
                       Врачебная амбулатория пгт. Щетово
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-терапевт – Михайленко Лариса Сергеевна
+                      <DoctorName title="Заведующий, врач-терапевт" name="Михайленко Лариса Сергеевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -811,7 +825,7 @@ const Structure = () => {
                       Врачебная амбулатория пгт. Дубовский
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач-педиатр – Панасюк Наталья Васильевна
+                      <DoctorName title="Заведующий, врач-педиатр" name="Панасюк Наталья Васильевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -829,7 +843,7 @@ const Structure = () => {
                       Врачебная амбулатория пгт. Красный Кут
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач общей практики (семейный врач) – Селиверстова Анна Александровна
+                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Селиверстова Анна Александровна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -955,7 +969,7 @@ const Structure = () => {
                       Врачебная амбулатория пгт. Ивановка
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий, врач общей практики (семейный врач) – Красникова Ирина Геннадьевна
+                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Красникова Ирина Геннадьевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -973,7 +987,7 @@ const Structure = () => {
                       Врачебная амбулатория с. Дьяково
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Ступак Инна Борисовна
+                      <DoctorName title="Заведующий" name="Ступак Инна Борисовна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -998,7 +1012,7 @@ const Structure = () => {
                       ФАП пгт. Малониколаевка
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Демченко Ирина Васильевна
+                      <DoctorName title="Заведующий" name="Демченко Ирина Васильевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -1034,7 +1048,7 @@ const Structure = () => {
                       ФАП с. Ребриково
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Понаморенко Оксана Евгеньевна
+                      <DoctorName title="Заведующий" name="Понаморенко Оксана Евгеньевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -1088,7 +1102,7 @@ const Structure = () => {
                       ФАП пгт. Верхний Нагольчик
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Бойко Виктория Викторовна
+                      <DoctorName title="Заведующий" name="Бойко Виктория Викторовна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -1106,7 +1120,7 @@ const Structure = () => {
                       ФАП пгт. Каменный
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Пуличева Марина Александровна
+                      <DoctorName title="Заведующий" name="Пуличева Марина Александровна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -1142,7 +1156,7 @@ const Structure = () => {
                       ФАП п. Краснолучский
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Меркулова Наталья Ивановна
+                      <DoctorName title="Заведующий" name="Меркулова Наталья Ивановна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -1160,7 +1174,7 @@ const Structure = () => {
                       ФАП п. Колпаково
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Скоробогатова Ольга Геннадьевна
+                      <DoctorName title="Заведующий" name="Скоробогатова Ольга Геннадьевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -1232,7 +1246,7 @@ const Structure = () => {
                       ФАП с. Лескино
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Кучеренко Кристина Анатольевна
+                      <DoctorName title="Заведующий" name="Кучеренко Кристина Анатольевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -1268,7 +1282,7 @@ const Structure = () => {
                       ФАП с. Зеленодольское
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Аникеева Ирина Юрьевна
+                      <DoctorName title="Заведующий" name="Аникеева Ирина Юрьевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -1286,7 +1300,7 @@ const Structure = () => {
                       ФАП с. Егоровка
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Кравцова Людмила Павловна
+                      <DoctorName title="Заведующий" name="Кравцова Людмила Павловна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -1304,7 +1318,7 @@ const Structure = () => {
                       ФАП станция п. Колпаково
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Демченко Ирина Васильевна
+                      <DoctorName title="Заведующий" name="Демченко Ирина Васильевна" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
