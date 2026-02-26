@@ -1,7 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
-import { Button } from '@/components/ui/button';
 
 const Structure = () => {
   return (
@@ -9,9 +8,9 @@ const Structure = () => {
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img 
-              src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adf474e3-ca46-4949-958c-72bcaef3e542.jpg" 
-              alt="Логотип АЦГМБ ЛНР" 
+            <img
+              src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adf474e3-ca46-4949-958c-72bcaef3e542.jpg"
+              alt="Логотип АЦГМБ ЛНР"
               className="w-12 h-12 object-contain mix-blend-multiply rounded-full"
             />
             <div>
@@ -39,7 +38,7 @@ const Structure = () => {
           </div>
 
           <Tabs defaultValue="clinics" className="max-w-7xl mx-auto">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-2 h-auto bg-transparent p-0">
+            <TabsList className="grid w-full grid-cols-3 gap-2 h-auto bg-transparent p-0">
               <TabsTrigger value="clinics" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3 px-4 rounded-lg shadow-sm border border-border bg-white">
                 <div className="flex items-center gap-2">
                   <Icon name="Building2" size={18} />
@@ -49,25 +48,21 @@ const Structure = () => {
               <TabsTrigger value="ambulatory" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3 px-4 rounded-lg shadow-sm border border-border bg-white">
                 <div className="flex items-center gap-2">
                   <Icon name="Home" size={18} />
-                  <span className="text-sm font-medium">Амбулатории</span>
+                  <span className="text-sm font-medium">Врачебные амбулатории</span>
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="departments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3 px-4 rounded-lg shadow-sm border border-border bg-white">
+              <TabsTrigger value="fap" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3 px-4 rounded-lg shadow-sm border border-border bg-white">
                 <div className="flex items-center gap-2">
-                  <Icon name="Hospital" size={18} />
-                  <span className="text-sm font-medium">Отделения</span>
-                </div>
-              </TabsTrigger>
-              <TabsTrigger value="services" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-3 px-4 rounded-lg shadow-sm border border-border bg-white">
-                <div className="flex items-center gap-2">
-                  <Icon name="Users" size={18} />
-                  <span className="text-sm font-medium">Службы</span>
+                  <Icon name="Cross" size={18} />
+                  <span className="text-sm font-medium">ФАПы</span>
                 </div>
               </TabsTrigger>
             </TabsList>
 
+            {/* ПОЛИКЛИНИКИ */}
             <TabsContent value="clinics" className="mt-6">
               <div className="grid gap-6">
+
                 <Card>
                   <CardHeader className="bg-primary/5">
                     <CardTitle className="flex items-center gap-2">
@@ -75,7 +70,7 @@ const Structure = () => {
                       Центральная городская поликлиника
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Сулима Вера Николаевна
+                      И.О. заведующего поликлиникой, врач-терапевт – Сулима Вера Николаевна
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -99,7 +94,7 @@ const Structure = () => {
                       <div className="flex items-start gap-2">
                         <Icon name="Clock" size={18} className="text-primary mt-1" />
                         <div>
-                          <p className="font-semibold text-sm">Поликлиника</p>
+                          <p className="font-semibold text-sm">Центральная городская поликлиника</p>
                           <p className="text-sm">пн-пт 08:00 – 17:00</p>
                           <p className="text-sm">сб, вс 08:00 – 14:00</p>
                         </div>
@@ -112,10 +107,10 @@ const Structure = () => {
                   <CardHeader className="bg-primary/5">
                     <CardTitle className="flex items-center gap-2">
                       <Icon name="Baby" size={24} className="text-primary" />
-                      Детская городская поликлиника
+                      Детская поликлиника
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Комарова Елена Геннадьевна
+                      Заведующий детской поликлиникой – Комарова Елена Геннадьевна
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
@@ -151,39 +146,25 @@ const Structure = () => {
                 <Card>
                   <CardHeader className="bg-primary/5">
                     <CardTitle className="flex items-center gap-2">
-                      <Icon name="Building" size={24} className="text-primary" />
-                      Поликлиника №1
+                      <Icon name="HeartPulse" size={24} className="text-primary" />
+                      Гинекологическое отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Гончарова Ольга Викторовна
+                      Заведующий – врач-акушер-гинеколог Репникова Елена Александровна
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <p className="text-sm">Врачи: врач-акушер-гинеколог Бондаренко Елена Александровна</p>
+                    </div>
+                    <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={18} className="text-primary mt-1" />
-                      <p>г. Антрацит, ул. Говорова, 1</p>
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="Phone" size={18} className="text-primary mt-1" />
-                      <p>+7 857-312-63-30 (регистратура)</p>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-3 mt-4">
-                      <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
-                        <div>
-                          <p className="font-semibold text-sm">Регистратура</p>
-                          <p className="text-sm">пн-пт 07:30 – 17:00</p>
-                          <p className="text-sm">сб, вс 08:00 – 14:00</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
-                        <div>
-                          <p className="font-semibold text-sm">Поликлиника</p>
-                          <p className="text-sm">пн-пт 08:00 – 17:00</p>
-                          <p className="text-sm">сб, вс 08:00 – 14:00</p>
-                        </div>
-                      </div>
+                      <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -191,155 +172,25 @@ const Structure = () => {
                 <Card>
                   <CardHeader className="bg-primary/5">
                     <CardTitle className="flex items-center gap-2">
-                      <Icon name="Building" size={24} className="text-primary" />
-                      Поликлиника №2
+                      <Icon name="Stethoscope" size={24} className="text-primary" />
+                      Инфекционное – боксированное отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Уколова Юлия Михайловна
+                      Заведующий, врач-инфекционист – Шурупова Анжела Владимировна
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <p className="text-sm">Врачи: врач-инфекционист, внештатный горрайонный специалист Клименко Наталья Ивановна</p>
+                    </div>
+                    <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={18} className="text-primary mt-1" />
-                      <p>г. Антрацит-7, пер. Первомайский, 4</p>
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="Phone" size={18} className="text-primary mt-1" />
-                      <p>+7 857-312-41-00 (регистратура)</p>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-3 mt-4">
-                      <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
-                        <div>
-                          <p className="font-semibold text-sm">Регистратура</p>
-                          <p className="text-sm">пн-пт 07:30 – 17:00</p>
-                          <p className="text-sm">сб, вс 08:00 – 14:00</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
-                        <div>
-                          <p className="font-semibold text-sm">Поликлиника</p>
-                          <p className="text-sm">пн-пт 08:00 – 17:00</p>
-                          <p className="text-sm">сб, вс 08:00 – 14:00</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="bg-primary/5">
-                    <CardTitle className="flex items-center gap-2">
-                      <Icon name="Building" size={24} className="text-primary" />
-                      Поликлиника №3
-                    </CardTitle>
-                    <CardDescription className="text-base">
-                      Заведующий – Лукьяненко Олеся Владимировна
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
-                    <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
-                      <p>г. Антрацит, пгт. Крепенский, ул. 40 лет Октября, 9</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
-                      <p>+7 857-319-82-70 (регистратура)</p>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-3 mt-4">
-                      <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
-                        <div>
-                          <p className="font-semibold text-sm">Регистратура</p>
-                          <p className="text-sm">пн-пт 07:30 – 17:00</p>
-                          <p className="text-sm">сб, вс 08:00 – 14:00</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
-                        <div>
-                          <p className="font-semibold text-sm">Поликлиника</p>
-                          <p className="text-sm">пн-пт 08:00 – 17:00</p>
-                          <p className="text-sm">сб, вс 08:00 – 14:00</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="bg-primary/5">
-                    <CardTitle className="flex items-center gap-2">
-                      <Icon name="Building" size={24} className="text-primary" />
-                      Поликлиника №4
-                    </CardTitle>
-                    <CardDescription className="text-base">
-                      Заведующий – Михайличенко Лариса Сергеевна
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
-                    <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
-                      <p>г. Антрацит, пгт. Щетово, ул. Ленина, 4а</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
-                      <p>+7 857-319-43-63 (регистратура)</p>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-3 mt-4">
-                      <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
-                        <div>
-                          <p className="font-semibold text-sm">Регистратура</p>
-                          <p className="text-sm">пн-пт 07:30 – 17:00</p>
-                          <p className="text-sm">сб, вс 08:00 – 14:00</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
-                        <div>
-                          <p className="font-semibold text-sm">Поликлиника</p>
-                          <p className="text-sm">пн-пт 08:00 – 17:00</p>
-                          <p className="text-sm">сб, вс 08:00 – 14:00</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="bg-primary/5">
-                    <CardTitle className="flex items-center gap-2">
-                      <Icon name="Home" size={24} className="text-primary" />
-                      Амбулатория п. Дубовский
-                    </CardTitle>
-                    <CardDescription className="text-base">
-                      Заведующий - Панасюк Наталья Владимировна
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
-                    <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
-                      <p>г. Антрацит, пгт. Дубовский, ул. Горького, 5</p>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-3 mt-4">
-                      <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
-                        <div>
-                          <p className="font-semibold text-sm">Регистратура</p>
-                          <p className="text-sm">пн-пт 07:30 – 17:00</p>
-                          <p className="text-sm">сб, вс 08:00 – 14:00</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
-                        <div>
-                          <p className="font-semibold text-sm">Поликлиника</p>
-                          <p className="text-sm">пн-пт 08:00 – 17:00</p>
-                          <p className="text-sm">сб, вс 08:00 – 14:00</p>
-                        </div>
-                      </div>
+                      <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -348,13 +199,43 @@ const Structure = () => {
                   <CardHeader className="bg-primary/5">
                     <CardTitle className="flex items-center gap-2">
                       <Icon name="Heart" size={24} className="text-primary" />
-                      Женская консультация
+                      Кардиологическое отделение
                     </CardTitle>
                     <CardDescription className="text-base">
-                      Заведующий – Кохно Людмила Васильевна
+                      Заведующий, врач-кардиолог – Биляченко Сергей Митрофанович
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="HeartPulse" size={24} className="text-primary" />
+                      Женская консультация
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-акушер-гинеколог – Гасанова Ирина Николаевна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <div className="text-sm space-y-1">
+                        <p>Врачи: врач ультразвуковой диагностики – Кальскова Ирина Сергеевна</p>
+                        <p>врач-акушер-гинеколог Кохно Людмила Васильевна</p>
+                        <p>врач-акушер-гинеколог Зуева Любовь Александровна</p>
+                      </div>
+                    </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={18} className="text-primary mt-1" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
@@ -383,791 +264,1076 @@ const Structure = () => {
                     </div>
                   </CardContent>
                 </Card>
-              </div>
-            </TabsContent>
 
-            <TabsContent value="ambulatory" className="mt-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФАП п. Боково-Платово
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="FlaskConical" size={24} className="text-primary" />
+                      Клинико-диагностическая лаборатория
                     </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-лаборант – Серикова Наталья Анатольевна
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">г. Антрацит, п. Боково-Платово, ул. Октябрьская 31</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <div className="text-sm space-y-1">
+                        <p>Врачи: врач клинической лабораторной диагностики клинического отдела – Гнездилова Светлана Валентиновна</p>
+                        <p>врач клинической лабораторной диагностики клинического отдела – Каренькова Светлана Юрьевна</p>
+                        <p>врач клинической лабораторной диагностики биохимического отдела – Ачелинцева Вера Борисовна</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Clock" size={18} className="text-primary mt-1" />
+                      <p className="text-sm">пн-сб 07:30 – 15:30</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФАП шахты 7-7 бис
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">г. Антрацит, ш.7-7бис, ул. Школьная, 10/26</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФАП шахты 15
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">г. Антрацит, шахта 15, ул. Садовая 56</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      АОПСМ пгт. Ивановка
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, пгт. Ивановка, ул. Артема, 72а</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      АОПСМ с. Дьяково
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Дьяково, ул. Мира, 116а</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      АОПСМ пгт. Красный Кут
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, пгт. Красный Кут, ул. ІІ-я Советская, 47</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      АОПСМ пгт. Фащевка
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, пгт. Фащевка, ул. Советская, 9</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      АОПСМ с. Червоная Поляна
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Червоная Поляна, ул. Первомайская, 8</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      АОПСМ пгт. Нижний Нагольчик
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, пгт. Нижний Нагольчик, ул. Ленина, 80</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      АОПСМ с. Бобриково
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Бобриково, ул. Шевченко, 3</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      АОПСМ пгт. Есауловка
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, пгт. Есауловка, ул. Переверзева, 11</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      АОПСМ пос. Кошары
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, п. Кошары, ул. Пролетарская, 22</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФАП пгт. Малониколаевка
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, пгт. Малониколаевка, кв. Сиволапа, 6</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФАП с. Рафаиловка
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Рафаиловка, ул. Подлесная, 36</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФАП с. Ребриково
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Ребриково, ул. Школьная, 1</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФАП с. Картушино
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Картушино, ул. Пионерская, 4</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФАП с. Индустрия
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Индустрия, ул. Совхозная, 3</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФАП пгт. Верхний Нагольчик
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">г. Антрацит, пгт. Верхний Нагольчик, пер. Ленина 1</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФАП пгт. Каменный
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">г. Антрацит, пгт. Каменный, ул. Шахтерская, 107</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП п. Лесной
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">г. Антрацит, п. Лесное, ул. Ленина, 2/1</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП п. Христофоровка
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">г. Антрацит, п. Христофоровка, ул. Беляева, 15</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Краснолучский
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Краснолучский, ул. Советская, 20/1</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Колпаково
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Колпаково, ул. Пролетарская, 33</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Мечетка
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Мечетка, ул. Почтовая, 16а</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Никитовка
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Никитовка, ул. Центральная, 15</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Орловское
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Орловское, ул. Космонавтов, 22</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Лескино
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Лескино, ул. Октябрьская, 17</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Новокрасновка
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Новокрасновка, ул. Будановой, 4</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Зеленодольское
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Зеленодольское, ул. Центральная</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Егоровка
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Егоровка, ул. Будённого, 10</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП п. Колпаково
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, п. Колпаково, ул. Садовая, 1Б</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Западное
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Западное, ул. Степная, 5а</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Курган
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Курган, ул. Вишнёвая, 26</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Вишнёвое
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Вишнёвое, ул. Давыденко, 1</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Степное
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Степное, ул. Дзержинского, 21</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Home" size={20} className="text-primary" />
-                      ФП с. Красный Октябрь
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">Антрацитовский р-н, с. Красный Октябрь, ул. Октябрьская, 20</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="departments" className="mt-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Heart" size={20} className="text-primary" />
-                      Гинекологическое отделение
-                    </CardTitle>
-                    <CardDescription>Заведующий – Репникова Елена Александровна</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Activity" size={20} className="text-primary" />
-                      Дневной стационар неврологического отделения
-                    </CardTitle>
-                    <CardDescription>Заведующий – Косяченко Наталья Ивановна</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="AlertCircle" size={20} className="text-primary" />
-                      Инфекционное – боксированное отделение
-                    </CardTitle>
-                    <CardDescription>Заведующий – Шурупова Анжела Владимировна</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="HeartPulse" size={20} className="text-primary" />
-                      Кардиологическое отделение
-                    </CardTitle>
-                    <CardDescription>И.о. заведующий – Биляченко Сергей Митрофанович</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="TestTube" size={20} className="text-primary" />
-                      Клинико – диагностическая лаборатория
-                    </CardTitle>
-                    <CardDescription>Заведующий – Серикова Наталья Анатольевна</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm mb-2">тел.: +7-857-312-60-57</p>
-                    <p className="text-sm text-muted-foreground">пн-сб 07:30– 15:30</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Brain" size={20} className="text-primary" />
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Brain" size={24} className="text-primary" />
                       Неврологическое отделение
                     </CardTitle>
-                    <CardDescription>Заведующий – Чернявская Марина Александровна</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-невролог, внештатный горрайонный специалист – Чернявская Марина Александровна
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <p className="text-sm">Врачи: врач-стажер Поддубная Карина Сергеевна</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Siren" size={20} className="text-primary" />
-                      Отделение анестезиологии и интенсивной терапии
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Activity" size={24} className="text-primary" />
+                      Отделение анестезиологии и с койками интенсивной терапии
                     </CardTitle>
-                    <CardDescription>Заведующий – Чернявский Родион Игоревич</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-анестезиолог-реаниматолог, внештатный горрайонный специалист – Чернявский Родион Игоревич
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <div className="text-sm space-y-1">
+                        <p>Врачи: врач-анестезиолог-реаниматолог Косимцев Сергей Евгеньевич</p>
+                        <p>врач-анестезиолог-реаниматолог Немятых Константин Дмитриевич</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Droplet" size={20} className="text-primary" />
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Droplets" size={24} className="text-primary" />
                       Отделение заготовки и переработки крови
                     </CardTitle>
-                    <CardDescription>Заведующий – Ульянова Тамара Ивановна</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-трансфузиолог – Ульянова Тамара Ивановна
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Baby" size={20} className="text-primary" />
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Baby" size={24} className="text-primary" />
                       Отделение новорожденных
                     </CardTitle>
-                    <CardDescription>Заведующий – Суялкина Виктория Викторовна</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-неонатолог – Суялкина Виктория Викторовна
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <div className="text-sm space-y-1">
+                        <p>Врачи: врач-неонатолог Перевозчикова Наталья Михайловна</p>
+                        <p>врач-неонатолог Бондарь Наталья Николаевна</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Eye" size={20} className="text-primary" />
-                      Офтальмо – отоларингологическое отделение
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Eye" size={24} className="text-primary" />
+                      Офтальмо-отоларингологическое отделение
                     </CardTitle>
-                    <CardDescription>И.о. заведующий – Мазуров Николай Михайлович</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-оториноларинголог, внештатный горрайонный специалист – Мазуров Николай Михайлович
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <p className="text-sm">Врачи: врач-офтальмолог Колесникова Ольга Васильевна</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Microscope" size={20} className="text-primary" />
-                      Патологоанатомическое отделение
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Stethoscope" size={24} className="text-primary" />
+                      Педиатрическое соматическое отделение
                     </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий врач-педиатр
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Baby" size={20} className="text-primary" />
-                      Педиатрическое отделение
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Ambulance" size={20} className="text-primary" />
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="DoorOpen" size={24} className="text-primary" />
                       Приемное отделение
                     </CardTitle>
-                    <CardDescription>Заведующий – Панкова Элла Александровна</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач общей практики (семейный врач) – Панкова Элла Александровна
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Brain" size={20} className="text-primary" />
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Brain" size={24} className="text-primary" />
                       Психиатрическое отделение
                     </CardTitle>
-                    <CardDescription>Заведующий – Зайцева Людмила Владимировна</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-психиатр – Зайцева Людмила Владимировна
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, пер. Победы</p>
-                    <p className="text-sm">тел.: +7-857-312-40-90</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, пер. Победы</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-40-90</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="ScanLine" size={20} className="text-primary" />
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="ScanLine" size={24} className="text-primary" />
                       Рентгенологическое отделение
                     </CardTitle>
-                    <CardDescription>Заведующий – Харламенко Людмила Александровна</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-рентгенолог
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <p className="text-sm">Врачи: врач-рентгенолог Лазаренко Татьяна Ивановна</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Heart" size={20} className="text-primary" />
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="HeartPulse" size={24} className="text-primary" />
                       Родильное отделение
                     </CardTitle>
-                    <CardDescription>Заведующий – Царенко Людмила Васильевна</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-акушер-гинеколог – Царенко Людмила Васильевна
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <div className="text-sm space-y-1">
+                        <p>Врачи: врач-акушер-гинеколог Дорошенко Ирина Геннадьевна</p>
+                        <p>врач-акушер-гинеколог Агишева Ольга Ильинична</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Activity" size={20} className="text-primary" />
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Stethoscope" size={24} className="text-primary" />
                       Терапевтическое отделение
                     </CardTitle>
-                    <CardDescription>Заведующий – Балаба Людмила Викторовна</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-терапевт – Балаба Людмила Викторовна
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <p className="text-sm">Врачи: врач-терапевт Тимофеенко Дарья Александровна</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Bone" size={20} className="text-primary" />
-                      Травматологический пункт
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Bone" size={24} className="text-primary" />
+                      Неотложный кабинет травматологии и ортопедии
                     </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-травматолог-ортопед
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Bone" size={20} className="text-primary" />
-                      Травматологическое отделение
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Bone" size={24} className="text-primary" />
+                      Отделение травматологии и ортопедии
                     </CardTitle>
-                    <CardDescription>Заведующий – Комаров Роман Иванович</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-травматолог-ортопед, внештатный горрайонный специалист – Комаров Роман Иванович
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <div className="text-sm space-y-1">
+                        <p>Врачи: врач-травматолог-ортопед Бровкин Евгений Владимирович</p>
+                        <p>врач-травматолог-ортопед Суялкин Олег Павлович</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Waves" size={20} className="text-primary" />
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Zap" size={24} className="text-primary" />
                       Физиотерапевтическое отделение
                     </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-физиотерапевт
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Scissors" size={20} className="text-primary" />
-                      Хирургическое отделение
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Scissors" size={24} className="text-primary" />
+                      Хирургическое отделение на 2 круглосуточных поста
                     </CardTitle>
-                    <CardDescription>Заведующий – Чумак Игорь Анатольевич</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-хирург – Чумак Игорь Анатольевич
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <div className="text-sm space-y-1">
+                        <p>Врачи: врач-хирург Гиенко Максим Вячеславович</p>
+                        <p>врач-хирург Гончаров Андрей Борисович</p>
+                        <p>врач-хирург Нестеренко Игорь Владимирович</p>
+                        <p>врач-стажер Чернявский Игорь Родионович</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
                   </CardContent>
                 </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Microscope" size={24} className="text-primary" />
+                      Патологоанатомическое отделение
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-патологоанатом
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Толстоусова, д.1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-60-57</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
               </div>
             </TabsContent>
 
-            <TabsContent value="services" className="mt-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="Shield" size={20} className="text-primary" />
-                      Центральная стерилизационная
+            {/* ВРАЧЕБНЫЕ АМБУЛАТОРИИ */}
+            <TabsContent value="ambulatory" className="mt-6">
+              <div className="grid gap-6 md:grid-cols-2">
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория №1
                     </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий, врач общей практики (семейный врач) – Гончарова Ольга Викторовна
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Толстоусова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, ул. Говорова, 1</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7-857-312-63-30 (регистратура)</p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Icon name="MessageCircle" size={20} className="text-primary" />
-                      Кабинет «Доверия»
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория №2
                     </CardTitle>
-                    <CardDescription>врач – эпидемиолог – Жолос Татьяна Александровна</CardDescription>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-дерматовенеролог – Гненная Виктория Михайловна
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-2">г. Антрацит, ул. Говорова, д.1</p>
-                    <p className="text-sm">тел.: +7-857-312-60-57</p>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит-7, пер. Первомайский, 7</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7 857-312-41-00 (регистратура)</p>
+                    </div>
                   </CardContent>
                 </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория пгт. Крепенский
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий, врач общей практики (семейный врач) – Лукьяненко Олеся Владимировна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, пгт. Крепенский, ул. 40 лет Октября, 9</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7 857-319-82-70 (регистратура)</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория пгт. Щетово
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-терапевт – Михайленко Лариса Сергеевна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, пгт. Щетово, ул. Ленина, 4а</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <p>+7 857-319-43-63 (регистратура)</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория пгт. Дубовский
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий, врач-педиатр – Панасюк Наталья Васильевна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>г. Антрацит, пгт. Дубовский, ул. Горького, 5</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория пгт. Красный Кут
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий, врач общей практики (семейный врач) – Селиверстова Анна Александровна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, пгт. Красный Кут, ул. 11-я Советская, 47</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория пгт. Фащевка
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий врачебной амбулаторией
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, пгт. Фащевка, ул. Советская, 9</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория с. Червоная Поляна
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий врачебной амбулаторией
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Червоная Поляна, ул. Первомайская, 8</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория с. Нижний Нагольчик
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий врачебной амбулаторией
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Нижний Нагольчик, ул. Ленина, 80</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория с. Бобриково
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий врачебной амбулаторией
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Бобриково, ул. Шевченко, 3</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория с. Есауловка
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий врачебной амбулаторией
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, пгт. Есауловка, ул. Переверзева, 11</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория п. Кошары
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий врачебной амбулаторией
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, п. Кошары, ул. Пролетарская, 22</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория пгт. Ивановка
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий, врач общей практики (семейный врач) – Красникова Ирина Геннадьевна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, пгт. Ивановка, ул. Артема, 72а</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Home" size={24} className="text-primary" />
+                      Врачебная амбулатория с. Дьяково
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий – Ступак Инна Борисовна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Дьяково, ул. Мира, 116а</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
               </div>
             </TabsContent>
+
+            {/* ФЕЛЬДШЕРСКО-АКУШЕРСКИЕ ПУНКТЫ */}
+            <TabsContent value="fap" className="mt-6">
+              <div className="grid gap-6 md:grid-cols-2">
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП пгт. Малониколаевка
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий – Демченко Ирина Васильевна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, пгт. Малониколаевка, кв. Сиволапа, 6</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП с. Рафайловка
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий фельдшерско-акушерским пунктом
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Рафайловка, ул. Подлесная, 36</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП с. Ребриково
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий – Понаморенко Оксана Евгеньевна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Ребриково, ул. Школьная, 1</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП с. Картушино
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий фельдшерско-акушерским пунктом
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Картушино, ул. Пионерская, 4</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП п. Индустрия
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий фельдшерско-акушерским пунктом
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, п. Индустрия, ул. Совхозная, 3</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП пгт. Верхний Нагольчик
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий – Бойко Виктория Викторовна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, пгт. Верхний Нагольчик, пер. Ленина, 1</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП пгт. Каменный
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий – Пуличева Марина Александровна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, пгт. Каменный, ул. Шахтерская, 107</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП п. Христофоровка
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий фельдшерско-акушерским пунктом
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, п. Христофоровка, ул. Беляева, 15</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП п. Краснолучский
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий – Меркулова Наталья Ивановна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, п. Краснолучский, ул. Советская, 20/1</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП п. Колпаково
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий – Скоробогатова Ольга Геннадьевна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, п. Колпаково, ул. Пролетарская, 33</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП с. Мечетка
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий фельдшерско-акушерским пунктом
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Мечетка, ул. Почтовая, 16а</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП с. Никитовка
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий фельдшерско-акушерским пунктом
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Никитовка, ул. Центральная, 15</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП п. Орловское
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий фельдшерско-акушерским пунктом
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, п. Орловское, ул. Космонавтов, 22</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП с. Лескино
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий – Кучеренко Кристина Анатольевна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Лескино, ул. Октябрьская, 17</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП с. Новокрасновка
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий фельдшерско-акушерским пунктом
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Новокрасновка, ул. Будановой, 4</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП с. Зеленодольское
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий – Аникеева Ирина Юрьевна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Зеленодольское, ул. Центральная</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП с. Егоровка
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий – Кравцова Людмила Павловна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Егоровка, ул. Буденного, 10</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП станция п. Колпаково
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий – Демченко Ирина Васильевна
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, п. Колпаково, ул. Садовая, 1Б</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="bg-primary/5">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Cross" size={24} className="text-primary" />
+                      ФАП с. Вишневое
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      Заведующий фельдшерско-акушерским пунктом
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <p>Антрацитовский р-н, с. Вишневое, ул. Давыденко, 1</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+              </div>
+            </TabsContent>
+
           </Tabs>
-
-          <div className="mt-8 text-center">
-            <Button asChild variant="outline" size="lg">
-              <a href="/">
-                <Icon name="ArrowLeft" size={20} className="mr-2" />
-                Вернуться на главную
-              </a>
-            </Button>
-          </div>
         </div>
       </section>
-
-      <footer className="bg-primary text-white py-8">
-        <div className="container mx-auto px-4">
-          <div className="text-center text-white/90">
-            <p className="text-sm">© 2024 ГБУЗ «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
-            <p className="text-xs mt-2 text-white/70">Все права защищены</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
