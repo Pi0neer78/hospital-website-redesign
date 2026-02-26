@@ -199,9 +199,16 @@ const Structure = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
-                    <div className="flex items-start gap-2">
-                      <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
-                      <p>Врачи: врач-инфекционист, внештатный горрайонный специалист <span className="font-semibold text-[13px] text-foreground">КЛИМЕНКО Наталья Ивановна</span></p>
+                    <div className="overflow-hidden">
+                      <img
+                        src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/33e4d317-6b06-4ade-9518-002cf4ffc66c.jpg"
+                        alt="Шурупова Анжела Владимировна"
+                        className="float-left mr-3 mb-2 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                      />
+                      <div className="flex items-start gap-2">
+                        <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
+                        <p>Врачи: врач-инфекционист, внештатный горрайонный специалист <span className="font-semibold text-[13px] text-foreground">КЛИМЕНКО Наталья Ивановна</span></p>
+                      </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={13} className="text-primary mt-0.5 shrink-0" />
