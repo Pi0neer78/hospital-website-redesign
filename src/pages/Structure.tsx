@@ -394,7 +394,14 @@ const Structure = () => {
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
-                      <p>Врачи: врач-стажер <span className="font-semibold text-[13px] text-foreground">ПОДДУБНАЯ Карина Сергеевна</span></p>
+                      <div className="overflow-hidden">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/7bd616e0-8df1-4aca-86f3-005f0ab67112.jpg"
+                          alt="Поддубная Карина Сергеевна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <p>Врачи: врач-стажер <span className="font-semibold text-[13px] text-foreground">ПОДДУБНАЯ Карина Сергеевна</span></p>
+                      </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={13} className="text-primary mt-0.5 shrink-0" />
@@ -731,7 +738,14 @@ const Structure = () => {
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
-                      <p>Врачи: врач-терапевт <span className="font-semibold text-[13px] text-foreground">ТИМОФЕЕНКО Дарья Александровна</span></p>
+                      <div className="overflow-hidden">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/8f2074df-fa5e-4bb0-9282-1bf35bbe070c.jpg"
+                          alt="Тимофеенко Дарья Александровна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <p>Врачи: врач-терапевт <span className="font-semibold text-[13px] text-foreground">ТИМОФЕЕНКО Дарья Александровна</span></p>
+                      </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={13} className="text-primary mt-0.5 shrink-0" />
