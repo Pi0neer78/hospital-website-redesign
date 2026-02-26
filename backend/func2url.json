@@ -1,4 +1,5 @@
 {
+  "s3-list-doctors": "https://functions.poehali.dev/ce48468b-d934-4e95-89c4-152362286f4e",
   "backup-cleanup": "https://functions.poehali.dev/69caec0e-b26b-4ac4-9c75-f8b2ad9397f5",
   "backup-cron": "https://functions.poehali.dev/482ed41a-1fba-4667-8786-fbff82ebaeca",
   "db-backup": "https://functions.poehali.dev/44a9271b-91c3-434f-a4ed-a10b64718f46",

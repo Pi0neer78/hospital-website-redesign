@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "List doctor photos from S3",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"files": []},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
