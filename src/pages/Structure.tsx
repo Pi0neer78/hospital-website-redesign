@@ -105,24 +105,20 @@ const Structure = () => {
 
                 <Card>
                   <CardHeader className="bg-primary/5">
-                    <div className="flex items-start gap-4">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="Baby" size={24} className="text-primary" />
+                      Детская поликлиника
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="overflow-hidden">
                       <img
                         src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/140f81c8-6e1b-4c16-a536-e2ad38d89a32.jpg"
                         alt="Комарова Елена Геннадьевна"
-                        className="w-40 h-40 rounded-full object-cover object-top border-2 border-primary shadow-md flex-shrink-0"
+                        className="float-left mr-4 mb-2 w-40 h-40 rounded-full object-cover object-top border-2 border-primary shadow-md"
                       />
-                      <div>
-                        <CardTitle className="flex items-center gap-2">
-                          <Icon name="Baby" size={24} className="text-primary" />
-                          Детская поликлиника
-                        </CardTitle>
-                        <CardDescription className="text-base mt-1">
-                          Заведующий детской поликлиникой – Комарова Елена Геннадьевна
-                        </CardDescription>
-                      </div>
+                      <p className="font-medium text-muted-foreground">Заведующий детской поликлиникой – Комарова Елена Геннадьевна</p>
                     </div>
-                  </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={18} className="text-primary mt-1" />
                       <p>г. Антрацит, ул. Петровского, 56</p>
