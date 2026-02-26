@@ -73,7 +73,7 @@ const Structure = () => {
 
             {/* ПОЛИКЛИНИКИ */}
             <TabsContent value="clinics" className="mt-6">
-              <div className="grid gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 <Card>
                   <CardHeader className="bg-primary/5">
@@ -85,18 +85,18 @@ const Structure = () => {
                       <DoctorName title="И.О. заведующего поликлиникой, врач-терапевт" name="Сулима Вера Николаевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
-                      <p>г. Антрацит, ул. Толстоусова, д.1, 294613</p>
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
+                      <p className="text-sm">г. Антрацит, ул. Толстоусова, д.1, 294613</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
-                      <p>+7 857-312-60-44 (регистратура)</p>
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
+                      <p className="text-sm">+7 857-312-60-44 (регистратура)</p>
                     </div>
-                    <div className="grid md:grid-cols-2 gap-3 mt-4">
+                    <div className="grid md:grid-cols-2 gap-2 mt-2">
                       <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
+                        <Icon name="Clock" size={16} className="text-primary mt-0.5" />
                         <div>
                           <p className="font-semibold text-sm">Регистратура</p>
                           <p className="text-sm">пн-пт 07:30 – 17:00</p>
@@ -104,7 +104,7 @@ const Structure = () => {
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
+                        <Icon name="Clock" size={16} className="text-primary mt-0.5" />
                         <div>
                           <p className="font-semibold text-sm">Центральная городская поликлиника</p>
                           <p className="text-sm">пн-пт 08:00 – 17:00</p>
@@ -122,7 +122,7 @@ const Structure = () => {
                       Детская поликлиника
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="overflow-hidden">
                       <img
                         src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/140f81c8-6e1b-4c16-a536-e2ad38d89a32.jpg"
@@ -134,16 +134,16 @@ const Structure = () => {
                       </p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Петровского, 56</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7 857-312-59-59 (регистратура)</p>
                     </div>
                     <div className="grid md:grid-cols-2 gap-3 mt-4">
                       <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
+                        <Icon name="Clock" size={16} className="text-primary mt-0.5" />
                         <div>
                           <p className="font-semibold text-sm">Регистратура</p>
                           <p className="text-sm">пн-пт 07:30 – 17:00</p>
@@ -151,7 +151,7 @@ const Structure = () => {
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
+                        <Icon name="Clock" size={16} className="text-primary mt-0.5" />
                         <div>
                           <p className="font-semibold text-sm">Поликлиника</p>
                           <p className="text-sm">пн-пт 08:00 – 17:00</p>
@@ -172,17 +172,17 @@ const Structure = () => {
                       <DoctorName title="Заведующий – врач-акушер-гинеколог" name="Репникова Елена Александровна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">БОНДАРЕНКО</span> <span className="font-bold text-[1.1rem]">Елена Александровна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -198,17 +198,17 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-инфекционист" name="Шурупова Анжела Владимировна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-инфекционист, внештатный горрайонный специалист <span className="font-bold text-[1.1rem]">КЛИМЕНКО Наталья Ивановна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -224,13 +224,13 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-кардиолог" name="Биляченко Сергей Митрофанович" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -246,9 +246,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-акушер-гинеколог" name="Гасанова Ирина Николаевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <div className="text-sm space-y-1">
                         <p>Врачи: врач ультразвуковой диагностики – <span className="font-bold text-[1.1rem]">КАЛЬСКОВА Ирина Сергеевна</span></p>
                         <p>врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">КОХНО Людмила Васильевна</span></p>
@@ -256,16 +256,16 @@ const Structure = () => {
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                     <div className="grid md:grid-cols-2 gap-3 mt-4">
                       <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
+                        <Icon name="Clock" size={16} className="text-primary mt-0.5" />
                         <div>
                           <p className="font-semibold text-sm">Регистратура</p>
                           <p className="text-sm">пн-пт 07:30 – 17:00</p>
@@ -273,7 +273,7 @@ const Structure = () => {
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Icon name="Clock" size={18} className="text-primary mt-1" />
+                        <Icon name="Clock" size={16} className="text-primary mt-0.5" />
                         <div>
                           <p className="font-semibold text-sm">Поликлиника</p>
                           <p className="text-sm">пн-пт 08:00 – 17:00</p>
@@ -294,9 +294,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-лаборант" name="Серикова Наталья Анатольевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <div className="text-sm space-y-1">
                         <p>Врачи: врач клинической лабораторной диагностики клинического отдела – <span className="font-bold text-[1.1rem]">ГНЕЗДИЛОВА Светлана Валентиновна</span></p>
                         <p>врач клинической лабораторной диагностики клинического отдела – <span className="font-bold text-[1.1rem]">КАРЕНЬКОВА Светлана Юрьевна</span></p>
@@ -304,15 +304,15 @@ const Structure = () => {
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Clock" size={18} className="text-primary mt-1" />
+                      <Icon name="Clock" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">пн-сб 07:30 – 15:30</p>
                     </div>
                   </CardContent>
@@ -328,17 +328,17 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-невролог, внештатный горрайонный специалист" name="Чернявская Марина Александровна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-стажер <span className="font-bold text-[1.1rem]">ПОДДУБНАЯ Карина Сергеевна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -354,20 +354,20 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-анестезиолог-реаниматолог, внештатный горрайонный специалист" name="Чернявский Родион Игоревич" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <div className="text-sm space-y-1">
                         <p>Врачи: врач-анестезиолог-реаниматолог <span className="font-bold text-[1.1rem]">КОСИМЦЕВ Сергей Евгеньевич</span></p>
                         <p>врач-анестезиолог-реаниматолог <span className="font-bold text-[1.1rem]">НЕМЯТЫХ Константин Дмитриевич</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -383,13 +383,13 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-трансфузиолог" name="Ульянова Тамара Ивановна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -405,20 +405,20 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-неонатолог" name="Суялкина Виктория Викторовна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <div className="text-sm space-y-1">
                         <p>Врачи: врач-неонатолог <span className="font-bold text-[1.1rem]">ПЕРЕВОЗЧИКОВА Наталья Михайловна</span></p>
                         <p>врач-неонатолог <span className="font-bold text-[1.1rem]">БОНДАРЬ Наталья Николаевна</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -434,17 +434,17 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-оториноларинголог, внештатный горрайонный специалист" name="Мазуров Николай Михайлович" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-офтальмолог <span className="font-bold text-[1.1rem]">КОЛЕСНИКОВА Ольга Васильевна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -460,13 +460,13 @@ const Structure = () => {
                       Заведующий врач-педиатр
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -482,13 +482,13 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Панкова Элла Александровна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -504,13 +504,13 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-психиатр" name="Зайцева Людмила Владимировна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, пер. Победы</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-40-90</p>
                     </div>
                   </CardContent>
@@ -526,17 +526,17 @@ const Structure = () => {
                       Заведующий, врач-рентгенолог
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-рентгенолог <span className="font-bold text-[1.1rem]">ЛАЗАРЕНКО Татьяна Ивановна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -552,20 +552,20 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-акушер-гинеколог" name="Царенко Людмила Васильевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <div className="text-sm space-y-1">
                         <p>Врачи: врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">ДОРОШЕНКО Ирина Геннадьевна</span></p>
                         <p>врач-акушер-гинеколог <span className="font-bold text-[1.1rem]">АГИШЕВА Ольга Ильинична</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -581,17 +581,17 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-терапевт" name="Балаба Людмила Викторовна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <p className="text-sm">Врачи: врач-терапевт <span className="font-bold text-[1.1rem]">ТИМОФЕЕНКО Дарья Александровна</span></p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -607,13 +607,13 @@ const Structure = () => {
                       Заведующий, врач-травматолог-ортопед
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -629,20 +629,20 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-травматолог-ортопед, внештатный горрайонный специалист" name="Комаров Роман Иванович" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <div className="text-sm space-y-1">
                         <p>Врачи: врач-травматолог-ортопед <span className="font-bold text-[1.1rem]">БРОВКИН Евгений Владимирович</span></p>
                         <p>врач-травматолог-ортопед <span className="font-bold text-[1.1rem]">СУЯЛКИН Олег Павлович</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -658,13 +658,13 @@ const Structure = () => {
                       Заведующий, врач-физиотерапевт
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -680,9 +680,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-хирург" name="Чумак Игорь Анатольевич" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="Users" size={18} className="text-primary mt-1" />
+                      <Icon name="Users" size={16} className="text-primary mt-0.5" />
                       <div className="text-sm space-y-1">
                         <p>Врачи: врач-хирург <span className="font-bold text-[1.1rem]">ГИЕНКО Максим Вячеславович</span></p>
                         <p>врач-хирург <span className="font-bold text-[1.1rem]">ГОНЧАРОВ Андрей Борисович</span></p>
@@ -691,11 +691,11 @@ const Structure = () => {
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -711,13 +711,13 @@ const Structure = () => {
                       Заведующий, врач-патологоанатом
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Толстоусова, д.1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-60-57</p>
                     </div>
                   </CardContent>
@@ -728,7 +728,7 @@ const Structure = () => {
 
             {/* ВРАЧЕБНЫЕ АМБУЛАТОРИИ */}
             <TabsContent value="ambulatory" className="mt-6">
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 <Card>
                   <CardHeader className="bg-primary/5">
@@ -740,13 +740,13 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Гончарова Ольга Викторовна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, ул. Говорова, 1</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7-857-312-63-30 (регистратура)</p>
                     </div>
                   </CardContent>
@@ -762,13 +762,13 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-дерматовенеролог" name="Гненная Виктория Михайловна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит-7, пер. Первомайский, 7</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7 857-312-41-00 (регистратура)</p>
                     </div>
                   </CardContent>
@@ -784,13 +784,13 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Лукьяненко Олеся Владимировна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, пгт. Крепенский, ул. 40 лет Октября, 9</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7 857-319-82-70 (регистратура)</p>
                     </div>
                   </CardContent>
@@ -806,13 +806,13 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-терапевт" name="Михайленко Лариса Сергеевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, пгт. Щетово, ул. Ленина, 4а</p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Icon name="Phone" size={18} className="text-primary mt-1" />
+                      <Icon name="Phone" size={16} className="text-primary mt-0.5" />
                       <p>+7 857-319-43-63 (регистратура)</p>
                     </div>
                   </CardContent>
@@ -828,9 +828,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач-педиатр" name="Панасюк Наталья Васильевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>г. Антрацит, пгт. Дубовский, ул. Горького, 5</p>
                     </div>
                   </CardContent>
@@ -846,9 +846,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Селиверстова Анна Александровна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Красный Кут, ул. 11-я Советская, 47</p>
                     </div>
                   </CardContent>
@@ -864,9 +864,9 @@ const Structure = () => {
                       Заведующий врачебной амбулаторией
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Фащевка, ул. Советская, 9</p>
                     </div>
                   </CardContent>
@@ -882,9 +882,9 @@ const Structure = () => {
                       Заведующий врачебной амбулаторией
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Червоная Поляна, ул. Первомайская, 8</p>
                     </div>
                   </CardContent>
@@ -900,9 +900,9 @@ const Structure = () => {
                       Заведующий врачебной амбулаторией
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Нижний Нагольчик, ул. Ленина, 80</p>
                     </div>
                   </CardContent>
@@ -918,9 +918,9 @@ const Structure = () => {
                       Заведующий врачебной амбулаторией
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Бобриково, ул. Шевченко, 3</p>
                     </div>
                   </CardContent>
@@ -936,9 +936,9 @@ const Structure = () => {
                       Заведующий врачебной амбулаторией
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Есауловка, ул. Переверзева, 11</p>
                     </div>
                   </CardContent>
@@ -954,9 +954,9 @@ const Structure = () => {
                       Заведующий врачебной амбулаторией
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Кошары, ул. Пролетарская, 22</p>
                     </div>
                   </CardContent>
@@ -972,9 +972,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Красникова Ирина Геннадьевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Ивановка, ул. Артема, 72а</p>
                     </div>
                   </CardContent>
@@ -990,9 +990,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий" name="Ступак Инна Борисовна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Дьяково, ул. Мира, 116а</p>
                     </div>
                   </CardContent>
@@ -1003,7 +1003,7 @@ const Structure = () => {
 
             {/* ФЕЛЬДШЕРСКО-АКУШЕРСКИЕ ПУНКТЫ */}
             <TabsContent value="fap" className="mt-6">
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 <Card>
                   <CardHeader className="bg-primary/5">
@@ -1015,9 +1015,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий" name="Демченко Ирина Васильевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Малониколаевка, кв. Сиволапа, 6</p>
                     </div>
                   </CardContent>
@@ -1033,9 +1033,9 @@ const Structure = () => {
                       Заведующий фельдшерско-акушерским пунктом
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Рафайловка, ул. Подлесная, 36</p>
                     </div>
                   </CardContent>
@@ -1051,9 +1051,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий" name="Понаморенко Оксана Евгеньевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Ребриково, ул. Школьная, 1</p>
                     </div>
                   </CardContent>
@@ -1069,9 +1069,9 @@ const Structure = () => {
                       Заведующий фельдшерско-акушерским пунктом
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Картушино, ул. Пионерская, 4</p>
                     </div>
                   </CardContent>
@@ -1087,9 +1087,9 @@ const Structure = () => {
                       Заведующий фельдшерско-акушерским пунктом
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Индустрия, ул. Совхозная, 3</p>
                     </div>
                   </CardContent>
@@ -1105,9 +1105,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий" name="Бойко Виктория Викторовна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Верхний Нагольчик, пер. Ленина, 1</p>
                     </div>
                   </CardContent>
@@ -1123,9 +1123,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий" name="Пуличева Марина Александровна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, пгт. Каменный, ул. Шахтерская, 107</p>
                     </div>
                   </CardContent>
@@ -1141,9 +1141,9 @@ const Structure = () => {
                       Заведующий фельдшерско-акушерским пунктом
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Христофоровка, ул. Беляева, 15</p>
                     </div>
                   </CardContent>
@@ -1159,9 +1159,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий" name="Меркулова Наталья Ивановна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Краснолучский, ул. Советская, 20/1</p>
                     </div>
                   </CardContent>
@@ -1177,9 +1177,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий" name="Скоробогатова Ольга Геннадьевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Колпаково, ул. Пролетарская, 33</p>
                     </div>
                   </CardContent>
@@ -1195,9 +1195,9 @@ const Structure = () => {
                       Заведующий фельдшерско-акушерским пунктом
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Мечетка, ул. Почтовая, 16а</p>
                     </div>
                   </CardContent>
@@ -1213,9 +1213,9 @@ const Structure = () => {
                       Заведующий фельдшерско-акушерским пунктом
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Никитовка, ул. Центральная, 15</p>
                     </div>
                   </CardContent>
@@ -1231,9 +1231,9 @@ const Structure = () => {
                       Заведующий фельдшерско-акушерским пунктом
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Орловское, ул. Космонавтов, 22</p>
                     </div>
                   </CardContent>
@@ -1249,9 +1249,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий" name="Кучеренко Кристина Анатольевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Лескино, ул. Октябрьская, 17</p>
                     </div>
                   </CardContent>
@@ -1267,9 +1267,9 @@ const Structure = () => {
                       Заведующий фельдшерско-акушерским пунктом
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Новокрасновка, ул. Будановой, 4</p>
                     </div>
                   </CardContent>
@@ -1285,9 +1285,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий" name="Аникеева Ирина Юрьевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Зеленодольское, ул. Центральная</p>
                     </div>
                   </CardContent>
@@ -1303,9 +1303,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий" name="Кравцова Людмила Павловна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Егоровка, ул. Буденного, 10</p>
                     </div>
                   </CardContent>
@@ -1321,9 +1321,9 @@ const Structure = () => {
                       <DoctorName title="Заведующий" name="Демченко Ирина Васильевна" />
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, п. Колпаково, ул. Садовая, 1Б</p>
                     </div>
                   </CardContent>
@@ -1339,9 +1339,9 @@ const Structure = () => {
                       Заведующий фельдшерско-акушерским пунктом
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
+                  <CardContent className="pt-3 space-y-2">
                     <div className="flex items-start gap-2">
-                      <Icon name="MapPin" size={18} className="text-primary mt-1" />
+                      <Icon name="MapPin" size={16} className="text-primary mt-0.5" />
                       <p>Антрацитовский р-н, с. Вишневое, ул. Давыденко, 1</p>
                     </div>
                   </CardContent>
