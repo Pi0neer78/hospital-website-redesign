@@ -662,7 +662,14 @@ const Structure = () => {
                       Терапевтическое отделение
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-терапевт" name="Балаба Людмила Викторовна" />
+                      <div className="overflow-hidden mt-1">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/d78ac2bc-6045-4f60-864e-5afc164035ab.jpg"
+                          alt="Балаба Людмила Викторовна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <DoctorName title="Заведующий, врач-терапевт" name="Балаба Людмила Викторовна" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -710,7 +717,14 @@ const Structure = () => {
                       Отделение травматологии и ортопедии
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-травматолог-ортопед, внештатный горрайонный специалист" name="Комаров Роман Иванович" />
+                      <div className="overflow-hidden mt-1">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/a15818f7-785e-4c86-b762-d33bcac6f728.jpg"
+                          alt="Комаров Роман Иванович"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <DoctorName title="Заведующий, врач-травматолог-ортопед, внештатный горрайонный специалист" name="Комаров Роман Иванович" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -761,15 +775,36 @@ const Structure = () => {
                       Хирургическое отделение на 2 круглосуточных поста
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-хирург" name="Чумак Игорь Анатольевич" />
+                      <div className="overflow-hidden mt-1">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/4a796b05-78cd-41a9-85ba-d9909c131bfd.jpg"
+                          alt="Чумак Игорь Анатольевич"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <DoctorName title="Заведующий, врач-хирург" name="Чумак Игорь Анатольевич" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач-хирург <span className="font-semibold text-[13px] text-foreground">ГИЕНКО Максим Вячеславович</span></p>
-                        <p>врач-хирург <span className="font-semibold text-[13px] text-foreground">ГОНЧАРОВ Андрей Борисович</span></p>
+                        <div className="overflow-hidden mb-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/bae8ac64-18c3-4f53-b04b-671730f387dc.jpg"
+                            alt="Гиенко Максим Вячеславович"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>Врачи: врач-хирург <span className="font-semibold text-[13px] text-foreground">ГИЕНКО Максим Вячеславович</span></p>
+                        </div>
+                        <div className="overflow-hidden mb-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/c30c6bc1-5069-4c90-955a-c272e6d77fdf.jpg"
+                            alt="Гончаров Андрей Борисович"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>врач-хирург <span className="font-semibold text-[13px] text-foreground">ГОНЧАРОВ Андрей Борисович</span></p>
+                        </div>
                         <p>врач-хирург <span className="font-semibold text-[13px] text-foreground">НЕСТЕРЕНКО Игорь Владимирович</span></p>
                         <p>врач-стажер <span className="font-semibold text-[13px] text-foreground">ЧЕРНЯВСКИЙ Игорь Родионович</span></p>
                       </div>
