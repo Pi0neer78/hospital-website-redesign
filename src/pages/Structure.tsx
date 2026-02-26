@@ -54,32 +54,32 @@ const Structure = () => {
 
       <section className="py-12 bg-white/90">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">Структура ГБУЗ "АЦГМБ" ЛНР</h1>
-            <p className="text-muted-foreground max-w-3xl mx-auto">
+          <div className="text-center mb-6">
+            <h1 className="text-xl sm:text-4xl font-bold mb-2 sm:mb-4">Структура ГБУЗ "АЦГМБ" ЛНР</h1>
+            <p className="text-xs sm:text-base text-muted-foreground max-w-3xl mx-auto">
               ГБУЗ Антрацитовская центральная городская многопрофильная больница Луганской Народной Республики
             </p>
-            <p className="text-sm text-muted-foreground mt-2">г. Антрацит, ул. Толстоусова, д.1, 294613</p>
+            <p className="text-xs text-muted-foreground mt-1">г. Антрацит, ул. Толстоусова, д.1, 294613</p>
           </div>
 
           <Tabs defaultValue="clinics" className="max-w-7xl mx-auto">
-            <TabsList className="grid w-full grid-cols-3 gap-1.5 h-auto bg-transparent p-0">
-              <TabsTrigger value="clinics" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-2 px-2 rounded-lg shadow-sm border border-border bg-white">
-                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+            <TabsList className="flex flex-col sm:grid sm:grid-cols-3 gap-1.5 h-auto bg-transparent p-0">
+              <TabsTrigger value="clinics" className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-2 px-3 rounded-lg shadow-sm border border-border bg-white">
+                <div className="flex items-center gap-2">
                   <Icon name="Building2" size={18} className="shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium leading-tight text-center">Поликлиники</span>
+                  <span className="text-sm font-medium">Поликлиники</span>
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="ambulatory" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-2 px-2 rounded-lg shadow-sm border border-border bg-white">
-                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+              <TabsTrigger value="ambulatory" className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-2 px-3 rounded-lg shadow-sm border border-border bg-white">
+                <div className="flex items-center gap-2">
                   <Icon name="Home" size={18} className="shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium leading-tight text-center">Врачебные амбулатории</span>
+                  <span className="text-sm font-medium">Врачебные амбулатории</span>
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="fap" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-2 px-2 rounded-lg shadow-sm border border-border bg-white">
-                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+              <TabsTrigger value="fap" className="w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-2 px-3 rounded-lg shadow-sm border border-border bg-white">
+                <div className="flex items-center gap-2">
                   <Icon name="Cross" size={18} className="shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium leading-tight text-center">ФАПы</span>
+                  <span className="text-sm font-medium">ФАПы</span>
                 </div>
               </TabsTrigger>
             </TabsList>
