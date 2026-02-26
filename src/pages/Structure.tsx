@@ -421,8 +421,22 @@ const Structure = () => {
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач-анестезиолог-реаниматолог <span className="font-semibold text-[13px] text-foreground">КОСИМЦЕВ Сергей Евгеньевич</span></p>
-                        <p>врач-анестезиолог-реаниматолог <span className="font-semibold text-[13px] text-foreground">НЕМЯТЫХ Константин Дмитриевич</span></p>
+                        <div className="overflow-hidden mb-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/156396c9-9d8a-4317-8b43-2bcbdc8a8501.jpg"
+                            alt="Косимцев Сергей Евгеньевич"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>Врачи: врач-анестезиолог-реаниматолог <span className="font-semibold text-[13px] text-foreground">КОСИМЦЕВ Сергей Евгеньевич</span></p>
+                        </div>
+                        <div className="overflow-hidden mb-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/e152702c-06de-4b87-8517-4fe33259abc1.jpg"
+                            alt="Немятых Константин Дмитриевич"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>врач-анестезиолог-реаниматолог <span className="font-semibold text-[13px] text-foreground">НЕМЯТЫХ Константин Дмитриевич</span></p>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -472,8 +486,22 @@ const Structure = () => {
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач-неонатолог <span className="font-semibold text-[13px] text-foreground">ПЕРЕВОЗЧИКОВА Наталья Михайловна</span></p>
-                        <p>врач-неонатолог <span className="font-semibold text-[13px] text-foreground">БОНДАРЬ Наталья Николаевна</span></p>
+                        <div className="overflow-hidden mb-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/f20e1659-e3ef-483d-a122-8deb4c9063ab.jpg"
+                            alt="Перевозчикова Наталья Михайловна"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>Врачи: врач-неонатолог <span className="font-semibold text-[13px] text-foreground">ПЕРЕВОЗЧИКОВА Наталья Михайловна</span></p>
+                        </div>
+                        <div className="overflow-hidden mb-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/3ce478c4-6637-4d6b-95f8-ada106a1c44c.jpg"
+                            alt="Бондарь Наталья Николаевна"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>врач-неонатолог <span className="font-semibold text-[13px] text-foreground">БОНДАРЬ Наталья Николаевна</span></p>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -507,7 +535,14 @@ const Structure = () => {
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
-                      <p>Врачи: врач-офтальмолог <span className="font-semibold text-[13px] text-foreground">КОЛЕСНИКОВА Ольга Васильевна</span></p>
+                      <div className="overflow-hidden">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/b2cad708-f3df-4f62-b9ae-72362e309845.jpg"
+                          alt="Колесникова Ольга Васильевна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <p>Врачи: врач-офтальмолог <span className="font-semibold text-[13px] text-foreground">КОЛЕСНИКОВА Ольга Васильевна</span></p>
+                      </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <Icon name="MapPin" size={13} className="text-primary mt-0.5 shrink-0" />
