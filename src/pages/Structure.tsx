@@ -333,9 +333,23 @@ const Structure = () => {
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач клинической лабораторной диагностики клинического отдела – <span className="font-semibold text-[13px] text-foreground">ГНЕЗДИЛОВА Светлана Валентиновна</span></p>
+                        <div className="overflow-hidden mb-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/39ae25a0-366d-449b-85f5-858811ef645a.jpg"
+                            alt="Гнездилова Светлана Валентиновна"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>Врачи: врач клинической лабораторной диагностики клинического отдела – <span className="font-semibold text-[13px] text-foreground">ГНЕЗДИЛОВА Светлана Валентиновна</span></p>
+                        </div>
                         <p>врач клинической лабораторной диагностики клинического отдела – <span className="font-semibold text-[13px] text-foreground">КАРЕНЬКОВА Светлана Юрьевна</span></p>
-                        <p>врач клинической лабораторной диагностики биохимического отдела – <span className="font-semibold text-[13px] text-foreground">ПЧЕЛИНЦЕВА Вера Борисовна</span></p>
+                        <div className="overflow-hidden mt-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/800133df-1b1a-4cd1-857d-9ccc51cc4957.jpg"
+                            alt="Пчелинцева Вера Борисовна"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>врач клинической лабораторной диагностики биохимического отдела – <span className="font-semibold text-[13px] text-foreground">ПЧЕЛИНЦЕВА Вера Борисовна</span></p>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
