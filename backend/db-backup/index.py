@@ -230,7 +230,7 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'success': True, 'skipped': True, 'reason': 'backup disabled'}),
             }
 
-        now = datetime.now()
+        now = datetime.now(timezone.utc) + timedelta(hours=3)
         current_time = now.time()
         start = time(*map(int, settings['start_time'].split(':')))
         end = time(*map(int, settings['end_time'].split(':')))
