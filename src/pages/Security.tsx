@@ -110,7 +110,15 @@ const Security = () => {
     const clean = folder.replace('полный_архив_', '');
     const match = clean.match(/^(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})$/);
     if (!match) return folder;
-    return `${match[3]}.${match[2]}.${match[1]} ${match[4]}:${match[5]}:${match[6]}`;
+    const utcDate = new Date(`${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}:${match[6]}Z`);
+    const msk = new Date(utcDate.getTime() + 3 * 60 * 60 * 1000);
+    const dd = String(msk.getUTCDate()).padStart(2, '0');
+    const mm = String(msk.getUTCMonth() + 1).padStart(2, '0');
+    const yyyy = msk.getUTCFullYear();
+    const hh = String(msk.getUTCHours()).padStart(2, '0');
+    const min = String(msk.getUTCMinutes()).padStart(2, '0');
+    const ss = String(msk.getUTCSeconds()).padStart(2, '0');
+    return `${dd}.${mm}.${yyyy} ${hh}:${min}:${ss}`;
   };
 
   const loadBackupList = async () => {

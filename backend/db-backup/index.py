@@ -8,7 +8,7 @@ import csv
 import io
 import boto3
 import psycopg2
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, timezone
 
 SCHEMA = os.environ.get('MAIN_DB_SCHEMA', 't_p30358746_hospital_website_red')
 BACKUP_TABLES = ['appointments_v2', 'daily_schedules', 'doctor_calendar', 'doctor_schedules']
@@ -178,7 +178,7 @@ def handler(event: dict, context) -> dict:
         body = json.loads(event.get('body') or '{}')
         full = body.get('full', False)
 
-        now = datetime.now()
+        now = datetime.now(timezone.utc) + timedelta(hours=3)
         dt_str = now.strftime('%Y-%m-%d_%H-%M-%S')
 
         if full:
