@@ -1,6 +1,13 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
+
+const PhotoModal = ({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) => (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
+    <img src={src} alt={alt} className="w-80 h-80 rounded-xl object-cover object-top shadow-2xl border-4 border-white" onClick={e => e.stopPropagation()} />
+  </div>
+);
 
 const DoctorName = ({ title, name }: { title?: string; name: string }) => {
   const parts = name.trim().split(' ');
@@ -15,8 +22,10 @@ const DoctorName = ({ title, name }: { title?: string; name: string }) => {
 };
 
 const Structure = () => {
+  const [photo, setPhoto] = useState<{ src: string; alt: string } | null>(null);
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/f3cad472-e990-4101-9d1b-163dee97656f.jpg)' }}>
+      {photo && <PhotoModal src={photo.src} alt={photo.alt} onClose={() => setPhoto(null)} />}
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -86,7 +95,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/caa8ab80-81aa-4431-9f1b-dcaa6fddfa20.jpg"
                           alt="Сулима Вера Николаевна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/caa8ab80-81aa-4431-9f1b-dcaa6fddfa20.jpg', alt: 'Сулима Вера Николаевна' })}
                         />
                         <DoctorName title="И.О. заведующего поликлиникой, врач-терапевт" name="Сулима Вера Николаевна" />
                       </div>
@@ -134,7 +144,8 @@ const Structure = () => {
                       <img
                         src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/140f81c8-6e1b-4c16-a536-e2ad38d89a32.jpg"
                         alt="Комарова Елена Геннадьевна"
-                        className="float-left mr-3 mb-2 w-20 h-20 rounded-full object-cover object-top border-2 border-primary shadow-md"
+                        className="float-left mr-3 mb-2 w-20 h-20 rounded-full object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/140f81c8-6e1b-4c16-a536-e2ad38d89a32.jpg', alt: 'Комарова Елена Геннадьевна' })}
                       />
                       <p className="font-medium text-muted-foreground">
                         <DoctorName title="Заведующий детской поликлиникой" name="Комарова Елена Геннадьевна" />
@@ -206,7 +217,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/33e4d317-6b06-4ade-9518-002cf4ffc66c.jpg"
                           alt="Шурупова Анжела Владимировна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/33e4d317-6b06-4ade-9518-002cf4ffc66c.jpg', alt: 'Шурупова Анжела Владимировна' })}
                         />
                         <DoctorName title="Заведующий, врач-инфекционист" name="Шурупова Анжела Владимировна" />
                       </div>
@@ -239,7 +251,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/47090950-0856-435d-835e-3931e64a249a.jpg"
                           alt="Биляченко Сергей Митрофанович"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/47090950-0856-435d-835e-3931e64a249a.jpg', alt: 'Биляченко Сергей Митрофанович' })}
                         />
                         <DoctorName title="Заведующий, врач-кардиолог" name="Биляченко Сергей Митрофанович" />
                       </div>
@@ -268,7 +281,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/bea73a54-0846-4976-90a6-115626bbbd01.jpg"
                           alt="Гасанова Ирина Николаевна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/bea73a54-0846-4976-90a6-115626bbbd01.jpg', alt: 'Гасанова Ирина Николаевна' })}
                         />
                         <DoctorName title="Заведующий, врач-акушер-гинеколог" name="Гасанова Ирина Николаевна" />
                       </div>
@@ -284,7 +298,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/af3d116c-a52f-4cc3-8b08-6a5afa8db990.jpg"
                             alt="Зуева Любовь Александровна"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/af3d116c-a52f-4cc3-8b08-6a5afa8db990.jpg', alt: 'Зуева Любовь Александровна' })}
                           />
                           <p>врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">ЗУЕВА Любовь Александровна</span></p>
                         </div>
@@ -330,7 +345,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/084e60a3-b503-4523-9e9e-59959b3f5741.jpg"
                           alt="Серикова Наталья Анатольевна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/084e60a3-b503-4523-9e9e-59959b3f5741.jpg', alt: 'Серикова Наталья Анатольевна' })}
                         />
                         <DoctorName title="Заведующий, врач-лаборант" name="Серикова Наталья Анатольевна" />
                       </div>
@@ -344,7 +360,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/39ae25a0-366d-449b-85f5-858811ef645a.jpg"
                             alt="Гнездилова Светлана Валентиновна"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/39ae25a0-366d-449b-85f5-858811ef645a.jpg', alt: 'Гнездилова Светлана Валентиновна' })}
                           />
                           <p>Врачи: врач клинической лабораторной диагностики клинического отдела – <span className="font-semibold text-[13px] text-foreground">ГНЕЗДИЛОВА Светлана Валентиновна</span></p>
                         </div>
@@ -353,7 +370,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/800133df-1b1a-4cd1-857d-9ccc51cc4957.jpg"
                             alt="Пчелинцева Вера Борисовна"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/800133df-1b1a-4cd1-857d-9ccc51cc4957.jpg', alt: 'Пчелинцева Вера Борисовна' })}
                           />
                           <p>врач клинической лабораторной диагностики биохимического отдела – <span className="font-semibold text-[13px] text-foreground">ПЧЕЛИНЦЕВА Вера Борисовна</span></p>
                         </div>
@@ -385,7 +403,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/9618a430-98df-48ad-8fef-1d03ca35977b.jpg"
                           alt="Чернявская Марина Александровна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/9618a430-98df-48ad-8fef-1d03ca35977b.jpg', alt: 'Чернявская Марина Александровна' })}
                         />
                         <DoctorName title="Заведующий, врач-невролог, внештатный горрайонный специалист" name="Чернявская Марина Александровна" />
                       </div>
@@ -398,7 +417,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/7bd616e0-8df1-4aca-86f3-005f0ab67112.jpg"
                           alt="Поддубная Карина Сергеевна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/7bd616e0-8df1-4aca-86f3-005f0ab67112.jpg', alt: 'Поддубная Карина Сергеевна' })}
                         />
                         <p>Врачи: врач-стажер <span className="font-semibold text-[13px] text-foreground">ПОДДУБНАЯ Карина Сергеевна</span></p>
                       </div>
@@ -432,7 +452,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/156396c9-9d8a-4317-8b43-2bcbdc8a8501.jpg"
                             alt="Косимцев Сергей Евгеньевич"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/156396c9-9d8a-4317-8b43-2bcbdc8a8501.jpg', alt: 'Косимцев Сергей Евгеньевич' })}
                           />
                           <p>Врачи: врач-анестезиолог-реаниматолог <span className="font-semibold text-[13px] text-foreground">КОСИМЦЕВ Сергей Евгеньевич</span></p>
                         </div>
@@ -440,7 +461,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/e152702c-06de-4b87-8517-4fe33259abc1.jpg"
                             alt="Немятых Константин Дмитриевич"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/e152702c-06de-4b87-8517-4fe33259abc1.jpg', alt: 'Немятых Константин Дмитриевич' })}
                           />
                           <p>врач-анестезиолог-реаниматолог <span className="font-semibold text-[13px] text-foreground">НЕМЯТЫХ Константин Дмитриевич</span></p>
                         </div>
@@ -497,7 +519,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/f20e1659-e3ef-483d-a122-8deb4c9063ab.jpg"
                             alt="Перевозчикова Наталья Михайловна"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/f20e1659-e3ef-483d-a122-8deb4c9063ab.jpg', alt: 'Перевозчикова Наталья Михайловна' })}
                           />
                           <p>Врачи: врач-неонатолог <span className="font-semibold text-[13px] text-foreground">ПЕРЕВОЗЧИКОВА Наталья Михайловна</span></p>
                         </div>
@@ -505,7 +528,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/3ce478c4-6637-4d6b-95f8-ada106a1c44c.jpg"
                             alt="Бондарь Наталья Николаевна"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/3ce478c4-6637-4d6b-95f8-ada106a1c44c.jpg', alt: 'Бондарь Наталья Николаевна' })}
                           />
                           <p>врач-неонатолог <span className="font-semibold text-[13px] text-foreground">БОНДАРЬ Наталья Николаевна</span></p>
                         </div>
@@ -533,7 +557,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/cca9f7d9-f15b-49ec-b417-9a1d009cfae1.jpg"
                           alt="Мазуров Николай Михайлович"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/cca9f7d9-f15b-49ec-b417-9a1d009cfae1.jpg', alt: 'Мазуров Николай Михайлович' })}
                         />
                         <DoctorName title="Заведующий, врач-оториноларинголог, внештатный горрайонный специалист" name="Мазуров Николай Михайлович" />
                       </div>
@@ -546,7 +571,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/b2cad708-f3df-4f62-b9ae-72362e309845.jpg"
                           alt="Колесникова Ольга Васильевна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/b2cad708-f3df-4f62-b9ae-72362e309845.jpg', alt: 'Колесникова Ольга Васильевна' })}
                         />
                         <p>Врачи: врач-офтальмолог <span className="font-semibold text-[13px] text-foreground">КОЛЕСНИКОВА Ольга Васильевна</span></p>
                       </div>
@@ -595,7 +621,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/a4d44c2d-a1fa-410d-9ea4-b920088bcb40.jpg"
                           alt="Панкова Элла Александровна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/a4d44c2d-a1fa-410d-9ea4-b920088bcb40.jpg', alt: 'Панкова Элла Александровна' })}
                         />
                         <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Панкова Элла Александровна" />
                       </div>
@@ -624,7 +651,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/ae456582-5eca-4759-b1a4-8bced30b9a60.jpg"
                           alt="Зайцева Людмила Владимировна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/ae456582-5eca-4759-b1a4-8bced30b9a60.jpg', alt: 'Зайцева Людмила Владимировна' })}
                         />
                         <DoctorName title="Заведующий, врач-психиатр" name="Зайцева Людмила Владимировна" />
                       </div>
@@ -659,7 +687,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/55bdce6a-d0cb-47f9-a148-b1e4eb66b469.jpg"
                           alt="Лазаренко Татьяна Ивановна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/55bdce6a-d0cb-47f9-a148-b1e4eb66b469.jpg', alt: 'Лазаренко Татьяна Ивановна' })}
                         />
                         <p>Врачи: врач-рентгенолог <span className="font-semibold text-[13px] text-foreground">ЛАЗАРЕНКО Татьяна Ивановна</span></p>
                       </div>
@@ -693,7 +722,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/d22db362-3dae-4c90-b442-8e7d58d90563.jpg"
                             alt="Дорошенко Ирина Геннадьевна"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/d22db362-3dae-4c90-b442-8e7d58d90563.jpg', alt: 'Дорошенко Ирина Геннадьевна' })}
                           />
                           <p>Врачи: врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">ДОРОШЕНКО Ирина Геннадьевна</span></p>
                         </div>
@@ -701,7 +731,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/1a815876-afd2-47a8-9aae-cd6f10b346d9.jpg"
                             alt="Агишева Ольга Ильинична"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/1a815876-afd2-47a8-9aae-cd6f10b346d9.jpg', alt: 'Агишева Ольга Ильинична' })}
                           />
                           <p>врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">АГИШЕВА Ольга Ильинична</span></p>
                         </div>
@@ -729,7 +760,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/d78ac2bc-6045-4f60-864e-5afc164035ab.jpg"
                           alt="Балаба Людмила Викторовна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/d78ac2bc-6045-4f60-864e-5afc164035ab.jpg', alt: 'Балаба Людмила Викторовна' })}
                         />
                         <DoctorName title="Заведующий, врач-терапевт" name="Балаба Людмила Викторовна" />
                       </div>
@@ -742,7 +774,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/8f2074df-fa5e-4bb0-9282-1bf35bbe070c.jpg"
                           alt="Тимофеенко Дарья Александровна"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/8f2074df-fa5e-4bb0-9282-1bf35bbe070c.jpg', alt: 'Тимофеенко Дарья Александровна' })}
                         />
                         <p>Врачи: врач-терапевт <span className="font-semibold text-[13px] text-foreground">ТИМОФЕЕНКО Дарья Александровна</span></p>
                       </div>
@@ -791,7 +824,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/a15818f7-785e-4c86-b762-d33bcac6f728.jpg"
                           alt="Комаров Роман Иванович"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/a15818f7-785e-4c86-b762-d33bcac6f728.jpg', alt: 'Комаров Роман Иванович' })}
                         />
                         <DoctorName title="Заведующий, врач-травматолог-ортопед, внештатный горрайонный специалист" name="Комаров Роман Иванович" />
                       </div>
@@ -849,7 +883,8 @@ const Structure = () => {
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/4a796b05-78cd-41a9-85ba-d9909c131bfd.jpg"
                           alt="Чумак Игорь Анатольевич"
-                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/4a796b05-78cd-41a9-85ba-d9909c131bfd.jpg', alt: 'Чумак Игорь Анатольевич' })}
                         />
                         <DoctorName title="Заведующий, врач-хирург" name="Чумак Игорь Анатольевич" />
                       </div>
@@ -863,7 +898,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/bae8ac64-18c3-4f53-b04b-671730f387dc.jpg"
                             alt="Гиенко Максим Вячеславович"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/bae8ac64-18c3-4f53-b04b-671730f387dc.jpg', alt: 'Гиенко Максим Вячеславович' })}
                           />
                           <p>Врачи: врач-хирург <span className="font-semibold text-[13px] text-foreground">ГИЕНКО Максим Вячеславович</span></p>
                         </div>
@@ -871,7 +907,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/c30c6bc1-5069-4c90-955a-c272e6d77fdf.jpg"
                             alt="Гончаров Андрей Борисович"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/c30c6bc1-5069-4c90-955a-c272e6d77fdf.jpg', alt: 'Гончаров Андрей Борисович' })}
                           />
                           <p>врач-хирург <span className="font-semibold text-[13px] text-foreground">ГОНЧАРОВ Андрей Борисович</span></p>
                         </div>
@@ -879,7 +916,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/6e7ac12c-d12d-49fb-9488-eb4daefa259f.jpg"
                             alt="Нестеренко Игорь Владимирович"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/6e7ac12c-d12d-49fb-9488-eb4daefa259f.jpg', alt: 'Нестеренко Игорь Владимирович' })}
                           />
                           <p>врач-хирург <span className="font-semibold text-[13px] text-foreground">НЕСТЕРЕНКО Игорь Владимирович</span></p>
                         </div>
@@ -887,7 +925,8 @@ const Structure = () => {
                           <img
                             src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/7b858c02-b3d5-4948-860b-78d024c4b90a.jpg"
                             alt="Чернявский Игорь Родионович"
-                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/7b858c02-b3d5-4948-860b-78d024c4b90a.jpg', alt: 'Чернявский Игорь Родионович' })}
                           />
                           <p>врач-стажер <span className="font-semibold text-[13px] text-foreground">ЧЕРНЯВСКИЙ Игорь Родионович</span></p>
                         </div>
