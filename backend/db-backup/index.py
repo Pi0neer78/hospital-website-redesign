@@ -47,13 +47,15 @@ def table_to_csv(conn, table_name):
 
 
 def upload_csv(s3, key, content):
+    encoded = content.encode('utf-8')
     s3.put_object(
         Bucket='files',
         Key=key,
-        Body=content.encode('utf-8'),
+        Body=encoded,
         ContentType='text/csv; charset=utf-8',
     )
-    return f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
+    url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
+    return url, len(encoded)
 
 
 def get_backup_settings(conn):
@@ -80,7 +82,7 @@ def save_backup_record(conn, folder, full, results):
     success_results = [r for r in results if r.get('success')]
     total_rows = sum(r.get('rows', 0) for r in success_results)
     files_json = json.dumps([
-        {'name': r['table'] + '.csv', 'url': r['url'], 'size': 0, 'rows': r.get('rows', 0)}
+        {'name': r['table'] + '.csv', 'url': r['url'], 'size': r.get('size', 0), 'rows': r.get('rows', 0)}
         for r in success_results
     ])
     cur = conn.cursor()
@@ -203,8 +205,8 @@ def handler(event: dict, context) -> dict:
             try:
                 csv_content, row_count = table_to_csv(conn, table)
                 key = f'{folder}/{table}.csv'
-                url = upload_csv(s3, key, csv_content)
-                results.append({'table': table, 'rows': row_count, 'url': url, 'success': True})
+                url, size = upload_csv(s3, key, csv_content)
+                results.append({'table': table, 'rows': row_count, 'url': url, 'size': size, 'success': True})
             except Exception as e:
                 print(f'[backup error] table={table} error={e}')
                 results.append({'table': table, 'error': str(e), 'success': False})
@@ -252,8 +254,8 @@ def handler(event: dict, context) -> dict:
             try:
                 csv_content, row_count = table_to_csv(conn, table)
                 key = f'{folder}/{table}.csv'
-                url = upload_csv(s3, key, csv_content)
-                results.append({'table': table, 'rows': row_count, 'url': url, 'success': True})
+                url, size = upload_csv(s3, key, csv_content)
+                results.append({'table': table, 'rows': row_count, 'url': url, 'size': size, 'success': True})
             except Exception as e:
                 print(f'[scheduled error] table={table} error={e}')
                 results.append({'table': table, 'error': str(e), 'success': False})
@@ -300,7 +302,7 @@ def handler(event: dict, context) -> dict:
                 'full': row[1],
                 'file_count': row[2],
                 'total_rows': row[3],
-                'total_size': 0,
+                'total_size': sum(f['size'] for f in files),
                 'files': files,
                 'created_at': row[5].isoformat(),
             })
