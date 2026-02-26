@@ -109,7 +109,7 @@ const Structure = () => {
                       <img
                         src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/140f81c8-6e1b-4c16-a536-e2ad38d89a32.jpg"
                         alt="Комарова Елена Геннадьевна"
-                        className="w-20 h-20 rounded-full object-cover object-top border-2 border-primary shadow-md flex-shrink-0"
+                        className="w-40 h-40 rounded-full object-cover object-top border-2 border-primary shadow-md flex-shrink-0"
                       />
                       <div>
                         <CardTitle className="flex items-center gap-2">
