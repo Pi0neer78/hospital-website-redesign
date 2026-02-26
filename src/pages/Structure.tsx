@@ -335,7 +335,7 @@ const Structure = () => {
                       <div className="text-sm space-y-1">
                         <p>Врачи: врач клинической лабораторной диагностики клинического отдела – <span className="font-semibold text-[13px] text-foreground">ГНЕЗДИЛОВА Светлана Валентиновна</span></p>
                         <p>врач клинической лабораторной диагностики клинического отдела – <span className="font-semibold text-[13px] text-foreground">КАРЕНЬКОВА Светлана Юрьевна</span></p>
-                        <p>врач клинической лабораторной диагностики биохимического отдела – <span className="font-semibold text-[13px] text-foreground">АЧЕЛИНЦЕВА Вера Борисовна</span></p>
+                        <p>врач клинической лабораторной диагностики биохимического отдела – <span className="font-semibold text-[13px] text-foreground">ПЧЕЛИНЦЕВА Вера Борисовна</span></p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
