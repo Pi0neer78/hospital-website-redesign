@@ -82,7 +82,14 @@ const Structure = () => {
                       Центральная городская поликлиника
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="И.О. заведующего поликлиникой, врач-терапевт" name="Сулима Вера Николаевна" />
+                      <div className="overflow-hidden mt-1">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/caa8ab80-81aa-4431-9f1b-dcaa6fddfa20.jpg"
+                          alt="Сулима Вера Николаевна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                        />
+                        <DoctorName title="И.О. заведующего поликлиникой, врач-терапевт" name="Сулима Вера Николаевна" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -640,8 +647,22 @@ const Structure = () => {
                     <div className="flex items-start gap-2">
                       <Icon name="Users" size={13} className="text-primary mt-0.5 shrink-0" />
                       <div className="text-sm space-y-1">
-                        <p>Врачи: врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">ДОРОШЕНКО Ирина Геннадьевна</span></p>
-                        <p>врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">АГИШЕВА Ольга Ильинична</span></p>
+                        <div className="overflow-hidden mb-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/d22db362-3dae-4c90-b442-8e7d58d90563.jpg"
+                            alt="Дорошенко Ирина Геннадьевна"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>Врачи: врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">ДОРОШЕНКО Ирина Геннадьевна</span></p>
+                        </div>
+                        <div className="overflow-hidden mb-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/1a815876-afd2-47a8-9aae-cd6f10b346d9.jpg"
+                            alt="Агишева Ольга Ильинична"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>врач-акушер-гинеколог <span className="font-semibold text-[13px] text-foreground">АГИШЕВА Ольга Ильинична</span></p>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
@@ -805,8 +826,22 @@ const Structure = () => {
                           />
                           <p>врач-хирург <span className="font-semibold text-[13px] text-foreground">ГОНЧАРОВ Андрей Борисович</span></p>
                         </div>
-                        <p>врач-хирург <span className="font-semibold text-[13px] text-foreground">НЕСТЕРЕНКО Игорь Владимирович</span></p>
-                        <p>врач-стажер <span className="font-semibold text-[13px] text-foreground">ЧЕРНЯВСКИЙ Игорь Родионович</span></p>
+                        <div className="overflow-hidden mb-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/6e7ac12c-d12d-49fb-9488-eb4daefa259f.jpg"
+                            alt="Нестеренко Игорь Владимирович"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>врач-хирург <span className="font-semibold text-[13px] text-foreground">НЕСТЕРЕНКО Игорь Владимирович</span></p>
+                        </div>
+                        <div className="overflow-hidden mb-1">
+                          <img
+                            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/7b858c02-b3d5-4948-860b-78d024c4b90a.jpg"
+                            alt="Чернявский Игорь Родионович"
+                            className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md"
+                          />
+                          <p>врач-стажер <span className="font-semibold text-[13px] text-foreground">ЧЕРНЯВСКИЙ Игорь Родионович</span></p>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
