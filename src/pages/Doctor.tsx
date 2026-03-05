@@ -1734,7 +1734,7 @@ const Doctor = () => {
 
   const generateRescheduleDates = () => {
     const dates = [];
-    for (let i = 0; i <= 20; i++) {
+    for (let i = 0; i <= 13; i++) {
       const date = new Date();
       date.setDate(date.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
