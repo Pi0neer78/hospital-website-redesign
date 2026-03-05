@@ -654,11 +654,11 @@ const Structure = () => {
                       <div className="overflow-hidden mt-1">
                         <img
                           src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/ae456582-5eca-4759-b1a4-8bced30b9a60.jpg"
-                          alt="Зайцева Людмила Владимировна"
+                          alt="Зайцева Любовь Владимировна"
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
-                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/ae456582-5eca-4759-b1a4-8bced30b9a60.jpg', alt: 'Зайцева Людмила Владимировна' })}
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/ae456582-5eca-4759-b1a4-8bced30b9a60.jpg', alt: 'Зайцева Любовь Владимировна' })}
                         />
-                        <DoctorName title="Заведующий, врач-психиатр" name="Зайцева Людмила Владимировна" />
+                        <DoctorName title="Заведующий, врач-психиатр" name="Зайцева Любовь Владимировна" />
                       </div>
                     </CardDescription>
                   </CardHeader>
