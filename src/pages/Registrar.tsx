@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -77,6 +77,10 @@ const Registrar = () => {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [nameErrorModal, setNameErrorModal] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
   const [newAppointmentNameError, setNewAppointmentNameError] = useState<string | null>(null);
+  const dialogSlotsCacheRef = useRef<Record<string, string[]>>({});
+  const bulkSlotsCacheRef = useRef<Record<string, string[]>>({});
+  const [debouncedSelectedDate, setDebouncedSelectedDate] = useState('');
+  const doctorCacheRef = useRef<Record<number, { schedules: any[]; calendar: Record<string, {is_working: boolean}> }>>({});
 
   useEffect(() => {
     const auth = localStorage.getItem('registrar_auth');
@@ -90,15 +94,27 @@ const Registrar = () => {
 
   useEffect(() => {
     if (selectedDoctor) {
+      dialogSlotsCacheRef.current = {};
+      bulkSlotsCacheRef.current = {};
       loadSchedulesAndCalendar(selectedDoctor.id);
     }
   }, [selectedDoctor]);
 
   useEffect(() => {
-    if (selectedDate && selectedDoctor) {
-      loadAvailableSlots(selectedDoctor.id, selectedDate);
+    const timer = setTimeout(() => setDebouncedSelectedDate(selectedDate), 500);
+    return () => clearTimeout(timer);
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (debouncedSelectedDate && selectedDoctor) {
+      const cached = bulkSlotsCacheRef.current[debouncedSelectedDate];
+      if (cached) {
+        setAvailableSlots(cached);
+      } else {
+        loadAvailableSlots(selectedDoctor.id, debouncedSelectedDate);
+      }
     }
-  }, [selectedDate, selectedDoctor]);
+  }, [debouncedSelectedDate, selectedDoctor]);
 
   useEffect(() => {
     if (selectedDoctor) {
@@ -205,6 +221,13 @@ const Registrar = () => {
   };
 
   const loadSchedulesAndCalendar = async (doctorId: number) => {
+    if (doctorCacheRef.current[doctorId]) {
+      const cached = doctorCacheRef.current[doctorId];
+      setSchedules(cached.schedules);
+      setCalendarData(cached.calendar);
+      await generateAvailableDatesWith(doctorId, cached.schedules, cached.calendar);
+      return;
+    }
     setIsLoadingDates(true);
     try {
       const year = new Date().getFullYear();
@@ -223,6 +246,7 @@ const Registrar = () => {
         calendarMap[day.calendar_date] = { is_working: day.is_working };
       });
 
+      doctorCacheRef.current[doctorId] = { schedules: loadedSchedules, calendar: calendarMap };
       setSchedules(loadedSchedules);
       setCalendarData(calendarMap);
 
@@ -276,7 +300,9 @@ const Registrar = () => {
         dates.forEach(dateObj => {
           const dayData = slotsByDate[dateObj.date];
           if (dayData && dateObj.isWorking) {
-            dateObj.slotsCount = dayData.available_slots?.length || 0;
+            const slots = dayData.available_slots || [];
+            dateObj.slotsCount = slots.length;
+            bulkSlotsCacheRef.current[dateObj.date] = slots;
           }
         });
       } catch (error) {
@@ -463,10 +489,14 @@ const Registrar = () => {
 
   const loadRescheduleSlots = async (date: string) => {
     if (!rescheduleDialog) return;
+    const cached = dialogSlotsCacheRef.current[date] ?? bulkSlotsCacheRef.current[date];
+    if (cached) { setRescheduleAvailableSlots(cached); return; }
     try {
       const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${rescheduleDialog.doctor_id}&date=${date}`);
       const data = await response.json();
-      setRescheduleAvailableSlots(data.available_slots || []);
+      const slots = data.available_slots || [];
+      dialogSlotsCacheRef.current[date] = slots;
+      setRescheduleAvailableSlots(slots);
     } catch (error) {
       toast({ title: "Ошибка", description: "Не удалось загрузить слоты", variant: "destructive" });
     }
@@ -534,28 +564,35 @@ const Registrar = () => {
 
   const loadCloneDateSlotCounts = async (doctorId: number, dates: {date: string; isWorking: boolean}[]) => {
     const workingDates = dates.filter(d => d.isWorking).map(d => d.date);
+    if (workingDates.length === 0) return;
     const counts: {[date: string]: number} = {};
-    await Promise.all(
-      workingDates.map(async (date) => {
-        try {
-          const res = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorId}&date=${date}`);
-          const data = await res.json();
-          counts[date] = (data.available_slots || []).length;
-        } catch {
-          counts[date] = 0;
-        }
-      })
-    );
+    try {
+      const startDate = workingDates[0];
+      const endDate = workingDates[workingDates.length - 1];
+      const res = await fetch(`${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${doctorId}&start_date=${startDate}&end_date=${endDate}`);
+      const data = await res.json();
+      const slotsByDate = data.slots_by_date || {};
+      workingDates.forEach(date => {
+        counts[date] = (slotsByDate[date]?.available_slots || []).length;
+      });
+    } catch {
+      workingDates.forEach(date => { counts[date] = 0; });
+    }
     setCloneDateSlotCounts(counts);
   };
 
   const loadCloneSlots = async (date: string, doctorId?: number) => {
     const id = doctorId ?? cloneSelectedDoctor?.id ?? cloneDialog?.doctor_id;
     if (!id) return;
+    const cacheKey = `${id}:${date}`;
+    if (dialogSlotsCacheRef.current[cacheKey]) { setCloneAvailableSlots(dialogSlotsCacheRef.current[cacheKey]); return; }
+    if (!doctorId && bulkSlotsCacheRef.current[date]) { setCloneAvailableSlots(bulkSlotsCacheRef.current[date]); return; }
     try {
       const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${id}&date=${date}`);
       const data = await response.json();
-      setCloneAvailableSlots(data.available_slots || []);
+      const slots = data.available_slots || [];
+      dialogSlotsCacheRef.current[cacheKey] = slots;
+      setCloneAvailableSlots(slots);
     } catch (error) {
       toast({ title: "Ошибка", description: "Не удалось загрузить слоты", variant: "destructive" });
     }

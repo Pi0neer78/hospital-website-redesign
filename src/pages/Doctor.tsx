@@ -182,6 +182,8 @@ const Doctor = () => {
   const [nameErrorModal, setNameErrorModal] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
   const [dateSlotCounts, setDateSlotCounts] = useState<{[key: string]: number}>({});
   const [tipsContentOpen, setTipsContentOpen] = useState(false);
+  const dialogSlotsCacheRef = useRef<Record<string, string[]>>({});
+  const bulkSlotsCacheRef = useRef<Record<string, string[]>>({});
   const [showLoginPassword, setShowLoginPassword] = useState(false);
 
   const [dayOffWarning, setDayOffWarning] = useState<{open: boolean, date: string, appointmentCount: number}>({open: false, date: '', appointmentCount: 0});
@@ -1026,8 +1028,12 @@ const Doctor = () => {
             description: description || appointmentData.description
           });
         }
-        
-        loadAppointments(doctorInfo.id);
+
+        setAppointments(prev => prev.map(a =>
+          a.id === appointmentId
+            ? { ...a, status: newStatus, description: description ?? a.description, ...(newStatus === 'completed' ? { completed_at: new Date().toISOString() } : {}) }
+            : a
+        ));
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось обновить статус", variant: "destructive" });
       }
@@ -1267,11 +1273,19 @@ const Doctor = () => {
 
   const loadAvailableSlotsForClone = async (date: string) => {
     if (!doctorInfo) return;
+
+    const cached = dialogSlotsCacheRef.current[date] ?? bulkSlotsCacheRef.current[date];
+    if (cached) {
+      setCloneDialog(prev => ({ ...prev, availableSlots: cached }));
+      return;
+    }
     
     try {
       const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorInfo.id}&date=${date}`);
       const data = await response.json();
-      setCloneDialog(prev => ({ ...prev, availableSlots: data.available_slots || [] }));
+      const slots = data.available_slots || [];
+      dialogSlotsCacheRef.current[date] = slots;
+      setCloneDialog(prev => ({ ...prev, availableSlots: slots }));
     } catch (error) {
       console.error('Ошибка загрузки слотов:', error);
       toast({ title: "Ошибка", description: "Не удалось загрузить доступные слоты", variant: "destructive" });
@@ -1560,18 +1574,6 @@ const Doctor = () => {
       return;
     }
 
-    const slotCheck = await checkSlotAvailability(
-      API_URLS.appointments,
-      doctorInfo.id,
-      cloneDialog.newDate,
-      cloneDialog.newTime
-    );
-
-    if (!slotCheck.available) {
-      showSlotErrorDialog(slotCheck.error || 'Слот времени занят');
-      return;
-    }
-
     try {
       const response = await fetch(API_URLS.appointments, {
         method: 'POST',
@@ -1584,7 +1586,8 @@ const Doctor = () => {
           appointment_date: cloneDialog.newDate,
           appointment_time: cloneDialog.newTime,
           description: cloneDialog.newDescription,
-          created_by: 2
+          created_by: 2,
+          skip_slot_check: false
         }),
       });
 
@@ -1617,7 +1620,11 @@ const Doctor = () => {
           newDescription: '',
           availableSlots: []
         });
-        loadAppointments(doctorInfo.id);
+        if (data.appointment) {
+          setAppointments(prev => [...prev, data.appointment]);
+        } else {
+          loadAppointments(doctorInfo.id);
+        }
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось клонировать запись", variant: "destructive" });
       }
@@ -1628,11 +1635,22 @@ const Doctor = () => {
 
   const loadAvailableSlotsForNewAppointment = async (date: string) => {
     if (!doctorInfo) return;
+
+    if (bulkSlotsCacheRef.current[date]) {
+      setNewAppointmentDialog(prev => ({ ...prev, availableSlots: bulkSlotsCacheRef.current[date] }));
+      return;
+    }
+    if (dialogSlotsCacheRef.current[date]) {
+      setNewAppointmentDialog(prev => ({ ...prev, availableSlots: dialogSlotsCacheRef.current[date] }));
+      return;
+    }
     
     try {
       const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorInfo.id}&date=${date}`);
       const data = await response.json();
-      setNewAppointmentDialog(prev => ({ ...prev, availableSlots: data.available_slots || [] }));
+      const slots = data.available_slots || [];
+      dialogSlotsCacheRef.current[date] = slots;
+      setNewAppointmentDialog(prev => ({ ...prev, availableSlots: slots }));
     } catch (error) {
       console.error('Ошибка загрузки слотов:', error);
       toast({ title: "Ошибка", description: "Не удалось загрузить доступные слоты", variant: "destructive" });
@@ -1649,7 +1667,6 @@ const Doctor = () => {
     const endDate = days[days.length - 1].date;
     
     try {
-      // ОПТИМИЗАЦИЯ: Батчинг - один запрос вместо 14
       const response = await fetch(
         `${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${doctorInfo.id}&start_date=${startDate}&end_date=${endDate}`
       );
@@ -1660,7 +1677,9 @@ const Doctor = () => {
       days.forEach(day => {
         if (day.isWorking) {
           const dayData = slotsByDate[day.date];
-          counts[day.date] = dayData?.available_slots?.length || 0;
+          const slots = dayData?.available_slots || [];
+          counts[day.date] = slots.length;
+          bulkSlotsCacheRef.current[day.date] = slots;
         } else {
           counts[day.date] = 0;
         }
@@ -1759,11 +1778,19 @@ const Doctor = () => {
 
   const loadAvailableSlotsForReschedule = async (date: string) => {
     if (!doctorInfo) return;
+
+    const cached = dialogSlotsCacheRef.current[date] ?? bulkSlotsCacheRef.current[date];
+    if (cached) {
+      setRescheduleDialog(prev => ({ ...prev, availableSlots: cached }));
+      return;
+    }
     
     try {
       const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorInfo.id}&date=${date}`);
       const data = await response.json();
-      setRescheduleDialog(prev => ({ ...prev, availableSlots: data.available_slots || [] }));
+      const slots = data.available_slots || [];
+      dialogSlotsCacheRef.current[date] = slots;
+      setRescheduleDialog(prev => ({ ...prev, availableSlots: slots }));
     } catch (error) {
       console.error('Ошибка загрузки слотов:', error);
       toast({ title: "Ошибка", description: "Не удалось загрузить доступные слоты", variant: "destructive" });
@@ -1833,7 +1860,11 @@ const Doctor = () => {
           availableSlots: [],
           availableDates: []
         });
-        loadAppointments(doctorInfo.id);
+        setAppointments(prev => prev.map(a =>
+          a.id === rescheduleDialog.appointment.id
+            ? { ...a, appointment_date: newDate, appointment_time: newTime }
+            : a
+        ));
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось перенести запись", variant: "destructive" });
       }
@@ -1909,7 +1940,11 @@ const Doctor = () => {
           availableSlots: []
         });
         setNewAppointmentNameError(null);
-        loadAppointments(doctorInfo.id);
+        if (data.appointment) {
+          setAppointments(prev => [...prev, data.appointment]);
+        } else {
+          loadAppointments(doctorInfo.id);
+        }
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось создать запись", variant: "destructive" });
       }
