@@ -513,6 +513,14 @@ const Registrar = () => {
 
   const loadCloneDoctorSchedules = async (doctorId: number) => {
     try {
+      if (doctorCacheRef.current[doctorId]) {
+        const cached = doctorCacheRef.current[doctorId];
+        setCloneDoctorSchedules(cached.schedules);
+        setCloneDoctorCalendar(cached.calendar);
+        const dates = generateCloneDates(cached.schedules, cached.calendar);
+        if (dates) loadCloneDateSlotCounts(doctorId, dates);
+        return;
+      }
       const year = new Date().getFullYear();
       const [schedulesRes, calendarRes] = await Promise.all([
         fetch(`${API_URLS.schedules}?doctor_id=${doctorId}`),
@@ -524,9 +532,11 @@ const Registrar = () => {
       ]);
       const loadedSchedules = schedulesData.schedules || [];
       const calendarMap: {[key: string]: {is_working: boolean}} = {};
-      (calendarData.calendar || []).forEach((day: any) => {
-        calendarMap[day.calendar_date] = { is_working: day.is_working };
+      (calendarData.calendar || []).forEach((day: unknown) => {
+        const d = day as {calendar_date: string; is_working: boolean};
+        calendarMap[d.calendar_date] = { is_working: d.is_working };
       });
+      doctorCacheRef.current[doctorId] = { schedules: loadedSchedules, calendar: calendarMap };
       setCloneDoctorSchedules(loadedSchedules);
       setCloneDoctorCalendar(calendarMap);
       const dates = generateCloneDates(loadedSchedules, calendarMap);
