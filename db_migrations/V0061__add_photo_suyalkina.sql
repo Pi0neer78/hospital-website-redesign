@@ -1,0 +1,1 @@
+UPDATE t_p30358746_hospital_website_red.doctors SET photo_url = 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/10f36315-8977-47ac-ae34-71c559245c6c.jpg' WHERE full_name = 'Суялкина Виктория Викторовна';
