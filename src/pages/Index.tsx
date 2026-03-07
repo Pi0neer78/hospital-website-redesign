@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +30,7 @@ const Index = () => {
   const [availableSlots, setAvailableSlots] = useState<any[]>([]);
   const [allSlots, setAllSlots] = useState<any>({});
   const [allTimeSlotsForDate, setAllTimeSlotsForDate] = useState<any[]>([]);
+  const [slotsCache, setSlotsCache] = useState<Record<string, any[]>>({});
   const [selectedDate, setSelectedDate] = useState('');
   const [appointmentForm, setAppointmentForm] = useState({ 
     patient_name: '', 
@@ -101,15 +102,22 @@ const Index = () => {
 
   useEffect(() => {
     if (selectedDoctor) {
+      setSlotsCache({});
       loadDoctorSchedule();
       loadAllSlots();
     }
   }, [selectedDoctor]);
 
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (selectedDoctor && selectedDate) {
+    if (!selectedDoctor || !selectedDate) return;
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
       loadAvailableSlots();
-    }
+    }, 500);
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
   }, [selectedDoctor, selectedDate]);
 
   const loadDoctors = async () => {
@@ -181,33 +189,30 @@ const Index = () => {
 
   const loadAvailableSlots = async () => {
     if (!selectedDoctor || !selectedDate) return;
-    
+
+    // Берём availableSlots из bulk-кэша — без дополнительного запроса
+    const cachedAvailable = allSlots[selectedDate]?.available || [];
+    setAvailableSlots(cachedAvailable);
+
+    // allTimeSlotsForDate кэшируем по датам
+    if (slotsCache[selectedDate]) {
+      setAllTimeSlotsForDate(slotsCache[selectedDate]);
+      return;
+    }
+
     setIsLoadingSlots(true);
     try {
       const response = await fetch(
         `${BACKEND_URLS.appointments}?action=available-slots&doctor_id=${selectedDoctor.id}&date=${selectedDate}`
       );
       const data = await response.json();
-      setAvailableSlots(data.available_slots || []);
-      setAllTimeSlotsForDate(data.all_slots || []);
+      const allSlotsData = data.all_slots || [];
+      setAllTimeSlotsForDate(allSlotsData);
+      setSlotsCache(prev => ({ ...prev, [selectedDate]: allSlotsData }));
     } catch (error) {
       console.error('Failed to load slots:', error);
     } finally {
       setIsLoadingSlots(false);
-    }
-  };
-
-  const loadAllTimeSlotsForSelectedDate = async () => {
-    if (!selectedDoctor || !selectedDate) return;
-    
-    try {
-      const response = await fetch(
-        `${BACKEND_URLS.appointments}?action=available-slots&doctor_id=${selectedDoctor.id}&date=${selectedDate}`
-      );
-      const data = await response.json();
-      setAllTimeSlotsForDate(data.all_slots || []);
-    } catch (error) {
-      console.error('Failed to load slots:', error);
     }
   };
 
@@ -227,43 +232,6 @@ const Index = () => {
 
   const isDayAvailable = (date: string) => {
     return allSlots[date]?.hasSchedule || false;
-  };
-
-  const getAllSlotsForDate = async (date: string) => {
-    if (!selectedDoctor) return [];
-    
-    try {
-      const response = await fetch(
-        `${BACKEND_URLS.appointments}?action=available-slots&doctor_id=${selectedDoctor.id}&date=${date}`
-      );
-      const data = await response.json();
-      
-      const dateObj = new Date(date + 'T00:00:00');
-      const dayOfWeek = dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1;
-      
-      const schedule = doctorSchedule.find((s: any) => s.day_of_week === dayOfWeek && s.is_active);
-      
-      if (!schedule) return [];
-      
-      const allTimeSlots = [];
-      const startTime = new Date(`2000-01-01T${schedule.start_time}`);
-      const endTime = new Date(`2000-01-01T${schedule.end_time}`);
-      
-      const current = new Date(startTime);
-      while (current < endTime) {
-        const timeStr = current.toTimeString().slice(0, 5);
-        allTimeSlots.push({
-          time: timeStr,
-          available: data.available_slots?.includes(timeStr) || false
-        });
-        current.setMinutes(current.getMinutes() + 15);
-      }
-      
-      return allTimeSlots;
-    } catch (error) {
-      console.error('Failed to load all slots:', error);
-      return [];
-    }
   };
 
   const handleSendVerificationCode = async (e: React.FormEvent) => {
