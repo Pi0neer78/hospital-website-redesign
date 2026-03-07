@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "POST chat message",
+      "method": "POST",
+      "path": "/",
+      "body": {"message": "Привет!", "session_id": "test-123"},
+      "expectedStatus": 200,
+      "expectedBody": {"reply": "string"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

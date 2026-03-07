@@ -1,0 +1,1 @@
+ALTER TABLE t_p30358746_hospital_website_red.doctors ADD COLUMN qualification text NULL;
