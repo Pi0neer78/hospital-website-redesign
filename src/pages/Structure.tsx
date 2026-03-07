@@ -906,7 +906,7 @@ const Structure = () => {
                             className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/bae8ac64-18c3-4f53-b04b-671730f387dc.jpg', alt: 'Гиенко Максим Вячеславович' })}
                           />
-                          <p>Врачи: врач-хирург <span className="font-bold text-[13px] text-primary">ГИЕНКО Максим Вячеславович</span></p>
+                          <p>Врачи: врач-уролог <span className="font-bold text-[13px] text-primary">ГИЕНКО Максим Вячеславович</span></p>
                         </div>
                         <div className="overflow-hidden mb-1">
                           <img
