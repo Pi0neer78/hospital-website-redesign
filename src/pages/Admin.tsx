@@ -1537,6 +1537,15 @@ const Admin = () => {
                       </div>
                     </div>
                   </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Категория</label>
+                    <Textarea
+                      value={doctorForm.category || ''}
+                      onChange={(e) => setDoctorForm({ ...doctorForm, category: e.target.value })}
+                      rows={3}
+                      className="resize-none"
+                    />
+                  </div>
                   <div className="space-y-2">
                     <label className="text-xs font-medium text-muted-foreground">Фотография врача</label>
                     <div
