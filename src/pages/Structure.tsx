@@ -9,7 +9,7 @@ const PhotoModal = ({ src, alt, onClose }: { src: string; alt: string; onClose: 
   </div>
 );
 
-const DoctorName = ({ title, name }: { title?: string; name: string }) => {
+const DoctorName = ({ title, name, category }: { title?: string; name: string; category?: string }) => {
   const parts = name.trim().split(' ');
   const surname = parts[0].toUpperCase();
   const firstName = parts[1] || '';
@@ -21,6 +21,7 @@ const DoctorName = ({ title, name }: { title?: string; name: string }) => {
       {(firstName || patronymic) && (
         <span className="block font-semibold text-[13px] leading-snug text-primary">{firstName}{patronymic ? ' ' + patronymic : ''}</span>
       )}
+      {category && <span className="block font-normal text-[11px] leading-tight text-muted-foreground mt-0.5">Категория: {category}</span>}
     </span>
   );
 };
@@ -102,7 +103,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/caa8ab80-81aa-4431-9f1b-dcaa6fddfa20.jpg', alt: 'Сулима Вера Николаевна' })}
                         />
-                        <DoctorName title="И.О. заведующего поликлиникой, врач-терапевт" name="Сулима Вера Николаевна" />
+                        <DoctorName title="И.О. заведующего поликлиникой, врач-терапевт" name="Сулима Вера Николаевна" category="Высшая-терапия" />
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -152,7 +153,7 @@ const Structure = () => {
                         onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/140f81c8-6e1b-4c16-a536-e2ad38d89a32.jpg', alt: 'Комарова Елена Геннадьевна' })}
                       />
                       <p className="font-medium text-muted-foreground">
-                        <DoctorName title="Заведующий детской поликлиникой" name="Комарова Елена Геннадьевна" />
+                        <DoctorName title="Заведующий детской поликлиникой" name="Комарова Елена Геннадьевна" category="Высшая-педиатрия" />
                       </p>
                     </div>
                     <div className="flex items-start gap-2">
@@ -191,7 +192,7 @@ const Structure = () => {
                       Гинекологическое отделение
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий – врач-акушер-гинеколог" name="Репникова Елена Александровна" />
+                      <DoctorName title="Заведующий – врач-акушер-гинеколог" name="Репникова Елена Александровна" category="Высшая-акушерство и гинекология" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -224,7 +225,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/33e4d317-6b06-4ade-9518-002cf4ffc66c.jpg', alt: 'Шурупова Анжела Владимировна' })}
                         />
-                        <DoctorName title="Заведующий, врач-инфекционист" name="Шурупова Анжела Владимировна" />
+                        <DoctorName title="Заведующий, врач-инфекционист" name="Шурупова Анжела Владимировна" category="Высшая-инфекционные болезни" />
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -258,7 +259,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/47090950-0856-435d-835e-3931e64a249a.jpg', alt: 'Биляченко Сергей Митрофанович' })}
                         />
-                        <DoctorName title="Заведующий, врач-кардиолог" name="Биляченко Сергей Митрофанович" />
+                        <DoctorName title="Заведующий, врач-кардиолог" name="Биляченко Сергей Митрофанович" category="Высшая-кардиология" />
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -288,7 +289,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/bea73a54-0846-4976-90a6-115626bbbd01.jpg', alt: 'Гасанова Ирина Николаевна' })}
                         />
-                        <DoctorName title="Заведующий, врач-акушер-гинеколог" name="Гасанова Ирина Николаевна" />
+                        <DoctorName title="Заведующий, врач-акушер-гинеколог" name="Гасанова Ирина Николаевна" category="Первая-акушерство и гинекология" />
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -352,7 +353,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/084e60a3-b503-4523-9e9e-59959b3f5741.jpg', alt: 'Серикова Наталья Анатольевна' })}
                         />
-                        <DoctorName title="Заведующий, врач-лаборант" name="Серикова Наталья Анатольевна" />
+                        <DoctorName title="Заведующий, врач-лаборант" name="Серикова Наталья Анатольевна" category="Высшая-клиническая лабораторная диагностика" />
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -410,7 +411,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/9618a430-98df-48ad-8fef-1d03ca35977b.jpg', alt: 'Чернявская Марина Александровна' })}
                         />
-                        <DoctorName title="Заведующий, врач-невролог, внештатный горрайонный специалист" name="Чернявская Марина Александровна" />
+                        <DoctorName title="Заведующий, врач-невролог, внештатный горрайонный специалист" name="Чернявская Марина Александровна" category="Высшая-неврология" />
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -445,7 +446,7 @@ const Structure = () => {
                       Отделение анестезиологии и с койками интенсивной терапии
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-анестезиолог-реаниматолог, внештатный горрайонный специалист" name="Чернявский Родион Игоревич" />
+                      <DoctorName title="Заведующий, врач-анестезиолог-реаниматолог, внештатный горрайонный специалист" name="Чернявский Родион Игоревич" category="Высшая-анестезиология-реаниматология" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -512,7 +513,7 @@ const Structure = () => {
                       Отделение новорожденных
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-неонатолог" name="Суялкина Виктория Викторовна" />
+                      <DoctorName title="Заведующий, врач-неонатолог" name="Суялкина Виктория Викторовна" category="Первая-неонатология" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -564,7 +565,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/cca9f7d9-f15b-49ec-b417-9a1d009cfae1.jpg', alt: 'Мазуров Николай Михайлович' })}
                         />
-                        <DoctorName title="Заведующий, врач-оториноларинголог, внештатный горрайонный специалист" name="Мазуров Николай Михайлович" />
+                        <DoctorName title="Заведующий, врач-оториноларинголог, внештатный горрайонный специалист" name="Мазуров Николай Михайлович" category="Первая-отоларингология" />
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -628,7 +629,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/a4d44c2d-a1fa-410d-9ea4-b920088bcb40.jpg', alt: 'Панкова Элла Александровна' })}
                         />
-                        <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Панкова Элла Александровна" />
+                        <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Панкова Элла Александровна" category="Вторая-общая практика семейная медицина" />
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -658,7 +659,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/ae456582-5eca-4759-b1a4-8bced30b9a60.jpg', alt: 'Зайцева Любовь Владимировна' })}
                         />
-                        <DoctorName title="Заведующий, врач-психиатр" name="Зайцева Любовь Владимировна" />
+                        <DoctorName title="Заведующий, врач-психиатр" name="Зайцева Любовь Владимировна" category="Высшая-психиатрия" />
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -715,7 +716,7 @@ const Structure = () => {
                       Родильное отделение
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-акушер-гинеколог" name="Царенко Людмила Васильевна" />
+                      <DoctorName title="Заведующий, врач-акушер-гинеколог" name="Царенко Людмила Васильевна" category="Высшая-акушерство и гинекология" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -767,7 +768,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/d78ac2bc-6045-4f60-864e-5afc164035ab.jpg', alt: 'Балаба Людмила Викторовна' })}
                         />
-                        <DoctorName title="Заведующий, врач-терапевт" name="Балаба Людмила Викторовна" />
+                        <DoctorName title="Заведующий, врач-терапевт" name="Балаба Людмила Викторовна" category="Первая-терапия" />
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -831,7 +832,7 @@ const Structure = () => {
                           className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/a15818f7-785e-4c86-b762-d33bcac6f728.jpg', alt: 'Комаров Роман Иванович' })}
                         />
-                        <DoctorName title="Заведующий, врач-травматолог-ортопед, внештатный горрайонный специалист" name="Комаров Роман Иванович" />
+                        <DoctorName title="Заведующий, врач-травматолог-ортопед, внештатный горрайонный специалист" name="Комаров Роман Иванович" category="Высшая-травматология и ортопедия" />
                       </div>
                     </CardDescription>
                   </CardHeader>
@@ -1005,7 +1006,7 @@ const Structure = () => {
                       Врачебная амбулатория №2
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-дерматовенеролог" name="Гненная Виктория Михайловна" />
+                      <DoctorName title="Заведующий, врач-дерматовенеролог" name="Гненная Виктория Михайловна" category="Высшая-дерматовенерология" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -1027,7 +1028,7 @@ const Structure = () => {
                       Врачебная амбулатория пгт. Крепенский
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Лукьяненко Олеся Владимировна" />
+                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Лукьяненко Олеся Владимировна" category="Первая-общая практика семейная медицина" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -1049,7 +1050,7 @@ const Structure = () => {
                       Врачебная амбулатория пгт. Щетово
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-терапевт" name="Михайленко Лариса Сергеевна" />
+                      <DoctorName title="Заведующий, врач-терапевт" name="Михайленко Лариса Сергеевна" category="Высшая-терапия" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -1071,7 +1072,7 @@ const Structure = () => {
                       Врачебная амбулатория пгт. Дубовский
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-педиатр" name="Панасюк Наталья Васильевна" />
+                      <DoctorName title="Заведующий, врач-педиатр" name="Панасюк Наталья Васильевна" category="Высшая-педиатрия" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -1089,7 +1090,7 @@ const Structure = () => {
                       Врачебная амбулатория пгт. Красный Кут
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Селиверстова Анна Александровна" />
+                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Селиверстова Анна Александровна" category="Первая-общая практика семейная медицина" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
@@ -1215,7 +1216,7 @@ const Structure = () => {
                       Врачебная амбулатория пгт. Ивановка
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Красникова Ирина Геннадьевна" />
+                      <DoctorName title="Заведующий, врач общей практики (семейный врач)" name="Красникова Ирина Геннадьевна" category="Вторая-общая практика семейная медицина" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
