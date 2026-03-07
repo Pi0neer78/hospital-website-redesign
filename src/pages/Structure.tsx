@@ -513,7 +513,15 @@ const Structure = () => {
                       Отделение новорожденных
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-неонатолог" name="Суялкина Виктория Викторовна" category="Первая-неонатология" />
+                      <div className="overflow-hidden">
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/10f36315-8977-47ac-ae34-71c559245c6c.jpg"
+                          alt="Суялкина Виктория Викторовна"
+                          className="float-left mr-3 mb-1 w-20 h-20 rounded-lg object-cover object-top border-2 border-primary shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setPhoto({ src: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/10f36315-8977-47ac-ae34-71c559245c6c.jpg', alt: 'Суялкина Виктория Викторовна' })}
+                        />
+                        <DoctorName title="Заведующий, врач-неонатолог" name="Суялкина Виктория Викторовна" category="Первая-неонатология" />
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
