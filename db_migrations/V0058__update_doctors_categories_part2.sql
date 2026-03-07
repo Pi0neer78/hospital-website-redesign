@@ -1,0 +1,15 @@
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-акушерство и гинекология' WHERE full_name = 'Агишева Ольга Ильинична';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-акушерство и гинекология' WHERE full_name = 'Дорошенко Ирина Геннадьевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-неонатология' WHERE full_name = 'Суялкина Виктория Викторовна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Вторая-неонатология' WHERE full_name = 'Бондарь Наталья Николаевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Вторая-неонатология' WHERE full_name = 'Перевозчикова Наталья Михайловна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-психиатрия' WHERE full_name = 'Зайцева Любовь Владимировна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-рентгенология' WHERE full_name = 'Лазаренко Татьяна Ивановна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-клиническая лабораторная диагностика' WHERE full_name = 'Серикова Наталья Анатольевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-клиническая лабораторная диагностика' WHERE full_name = 'Гнездилова Светлана Валентиновна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-клиническая лабораторная диагностика' WHERE full_name = 'Каренькова Светлана Юрьевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-клиническая лабораторная диагностика' WHERE full_name = 'Пчелинцева Вера Борисовна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-акушерство и гинекология' WHERE full_name = 'Гасанова Ирина Николаевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-акушерство и гинекология' WHERE full_name = 'Кохно Людмила Васильевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-ультразвуковая диагностика' WHERE full_name = 'Кальскова Ирина Сергеевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-эпидемиология' WHERE full_name = 'Жолос Татьяна Александровна';

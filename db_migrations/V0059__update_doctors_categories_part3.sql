@@ -1,0 +1,15 @@
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-терапия' WHERE full_name = 'Герман Ольга Николаевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-фтизиатрия' WHERE full_name = 'Орлова Светлана Ивановна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-хирургия' WHERE full_name = 'Смирнов Андрей Анатольевич';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Вторая-ортопедия и травматология' WHERE full_name = 'Воликов Владимир Николаевич';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-ортопедия и травматология' WHERE full_name = 'Поперняк Ярослав Витальевич';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-офтальмология' WHERE full_name = 'Киберев Сергей Владимирович';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-офтальмология' WHERE full_name = 'Полетаева Елена Алексеевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-офтальмология' WHERE full_name = 'Остраница Ольга Васильевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-оториноларингология' WHERE full_name = 'Скляренко Анатолий Викторович';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-санология' WHERE full_name = 'Скляренко Елена Ивановна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-терапия' WHERE full_name = 'Сулима Вера Николаевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-неврология' WHERE full_name = 'Косяченко Наталья Ивановна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-педиатрия' WHERE full_name = 'Съедина Галина Ивановна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-педиатрия' WHERE full_name = 'Гайтерова Лина Николаевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-педиатрия' WHERE full_name = 'Маркина Нина Николаевна';

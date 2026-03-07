@@ -1,0 +1,15 @@
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Вторая-общая практика семейная медицина' WHERE full_name = 'Панкова Элла Александровна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-инфекционные болезни' WHERE full_name = 'Шурупова Анжела Владимировна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-инфекционные болезни' WHERE full_name = 'Клименко Наталья Ивановна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-кардиология' WHERE full_name = 'Биляченко Сергей Митрофанович';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-акушерство и гинекология' WHERE full_name = 'Репникова Елена Александровна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-акушерство и гинекология' WHERE full_name = 'Бондаренко Елена Александровна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-травматология и ортопедия' WHERE full_name = 'Комаров Роман Иванович';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-неврология' WHERE full_name = 'Чернявская Марина Александровна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-анестезиология-реаниматология' WHERE full_name = 'Чернявский Родион Игоревич';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-анестезиология-реаниматология' WHERE full_name = 'Косимцев Сергей Евгеньевич';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-анестезиология-реаниматология' WHERE full_name = 'Немятых Константин Дмитриевич';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-отоларингология' WHERE full_name = 'Мазуров Николай Михайлович';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Вторая-офтальмология' WHERE full_name = 'Колесникова Ольга Васильевна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Первая-терапия' WHERE full_name = 'Балаба Людмила Викторовна';
+UPDATE t_p30358746_hospital_website_red.doctors SET category = 'Высшая-акушерство и гинекология' WHERE full_name = 'Царенко Людмила Васильевна';
