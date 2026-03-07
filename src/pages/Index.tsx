@@ -109,7 +109,6 @@ const Index = () => {
   useEffect(() => {
     if (selectedDoctor && selectedDate) {
       loadAvailableSlots();
-      loadAllTimeSlotsForSelectedDate();
     }
   }, [selectedDoctor, selectedDate]);
 
