@@ -491,7 +491,7 @@ const Structure = () => {
                       Отделение заготовки и переработки крови
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      <DoctorName title="Заведующий, врач-трансфузиолог" name="Ульянова Тамара Ивановна" />
+                      <span className="block font-normal text-[11px] leading-tight text-muted-foreground mb-0.5">Заведующий, врач-трансфузиолог</span><span className="block text-[13px] leading-snug text-muted-foreground/50 italic">вакантно</span>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-2 pb-3 px-3 space-y-1 text-xs text-muted-foreground">
