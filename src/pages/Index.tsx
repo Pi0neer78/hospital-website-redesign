@@ -848,6 +848,12 @@ const Index = () => {
                                       <span className="truncate" title={doctor.education}>{doctor.education}</span>
                                     </p>
                                   )}
+                                  {doctor.category && (
+                                    <p className="text-xs flex items-center gap-1">
+                                      <Icon name="Award" size={12} className="text-primary" />
+                                      <span className="truncate" title={doctor.category}>{doctor.category}</span>
+                                    </p>
+                                  )}
                                 </div>
                               </div>
                             </div>

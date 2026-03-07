@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -101,6 +102,7 @@ const DoctorsTab = ({
               <Input placeholder="Образование" value={doctorForm.education} onChange={(e) => setDoctorForm({...doctorForm, education: e.target.value})} />
               <Input placeholder="Стаж работы (лет)" value={doctorForm.work_experience} onChange={(e) => setDoctorForm({...doctorForm, work_experience: e.target.value})} />
               <Input placeholder="Номер кабинета" value={doctorForm.office_number} onChange={(e) => setDoctorForm({...doctorForm, office_number: e.target.value})} />
+              <Textarea placeholder="Категория" value={doctorForm.category || ''} onChange={(e) => setDoctorForm({...doctorForm, category: e.target.value})} rows={3} />
               <Input placeholder="Логин" value={doctorForm.login} onChange={(e) => setDoctorForm({...doctorForm, login: e.target.value})} required />
               <div className="relative">
                 <Input type={showNewPassword ? "text" : "password"} placeholder="Пароль" value={doctorForm.password} onChange={(e) => setDoctorForm({...doctorForm, password: e.target.value})} required className="pr-10" />
@@ -190,6 +192,7 @@ const DoctorsTab = ({
               <Input placeholder="Образование" value={editingDoctor.education} onChange={(e) => setEditingDoctor({...editingDoctor, education: e.target.value})} />
               <Input placeholder="Стаж" value={editingDoctor.work_experience} onChange={(e) => setEditingDoctor({...editingDoctor, work_experience: e.target.value})} />
               <Input placeholder="Кабинет" value={editingDoctor.office_number} onChange={(e) => setEditingDoctor({...editingDoctor, office_number: e.target.value})} />
+              <Textarea placeholder="Категория" value={editingDoctor.category || ''} onChange={(e) => setEditingDoctor({...editingDoctor, category: e.target.value})} rows={3} />
               <div className="relative">
                 <Input 
                   type={showEditPassword ? "text" : "password"} 
