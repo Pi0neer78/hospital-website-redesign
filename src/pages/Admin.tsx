@@ -1692,6 +1692,16 @@ const Admin = () => {
                       className="h-9"
                     />
                   </div>
+
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Категория</label>
+                    <Textarea
+                      value={editingDoctor?.category || ''}
+                      onChange={(e) => setEditingDoctor({ ...editingDoctor, category: e.target.value })}
+                      rows={3}
+                      className="resize-none"
+                    />
+                  </div>
                   
                   <div className="space-y-2">
                     <label className="text-xs font-medium text-muted-foreground">Фотография врача</label>
