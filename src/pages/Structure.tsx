@@ -1608,6 +1608,21 @@ const Structure = () => {
           </Tabs>
         </div>
       </section>
+
+      <footer className="bg-primary text-white py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center text-white/90">
+            <p className="text-sm">© 2024 ГБУЗ «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
+            <p className="text-xs mt-2 text-white/70">Все права защищены</p>
+            <div className="flex justify-center mt-3">
+              <a href="/privacy-policy" className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1">
+                <Icon name="ShieldCheck" size={14} />
+                Политика персональных данных
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
