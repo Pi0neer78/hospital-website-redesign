@@ -9,7 +9,7 @@ import boto3
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Authorization',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Id',
 }
 
 def get_db():
@@ -29,16 +29,20 @@ def ok(data):
 def err(msg, code=400):
     return {'statusCode': code, 'headers': CORS_HEADERS, 'body': json.dumps({'error': msg}, ensure_ascii=False)}
 
-def verify_admin(headers):
-    token = headers.get('X-Authorization', '')
-    if not token.startswith('Bearer '):
-        return None
-    payload_str = token[7:]
-    try:
-        data = json.loads(base64.b64decode(payload_str + '==').decode())
-        return data.get('id')
-    except Exception:
-        return None
+def verify_admin(headers, params, body):
+    admin_id = (
+        headers.get('X-Admin-Id') or
+        params.get('admin_id') or
+        (body.get('admin_id') if isinstance(body, dict) else None)
+    )
+    if not admin_id:
+        return False
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM admins WHERE id = %s AND is_active = TRUE", (int(admin_id),))
+    row = cur.fetchone()
+    conn.close()
+    return row is not None
 
 def handler(event: dict, context) -> dict:
     if event.get('httpMethod') == 'OPTIONS':
@@ -48,8 +52,13 @@ def handler(event: dict, context) -> dict:
     params = event.get('queryStringParameters') or {}
     action = params.get('action', '')
     headers = event.get('headers') or {}
+    body_raw = event.get('body') or '{}'
+    try:
+        body = json.loads(body_raw)
+    except Exception:
+        body = {}
 
-    # GET /gallery?action=images&section=N — публичный, без авторизации
+    # GET /gallery?action=images&section=N — публичный
     if method == 'GET' and action == 'images':
         section = params.get('section')
         if not section:
@@ -69,9 +78,9 @@ def handler(event: dict, context) -> dict:
             'slide_delay': setting[0] if setting else 5,
         })
 
-    # GET /gallery?action=all_images — все разделы для админки
+    # GET /gallery?action=all_images&admin_id=N
     if method == 'GET' and action == 'all_images':
-        if not verify_admin(headers):
+        if not verify_admin(headers, params, body):
             return err('Unauthorized', 401)
         conn = get_db()
         cur = conn.cursor()
@@ -85,11 +94,10 @@ def handler(event: dict, context) -> dict:
             'settings': {str(s[0]): s[1] for s in settings},
         })
 
-    # POST /gallery?action=upload — загрузить картинку
+    # POST /gallery?action=upload
     if method == 'POST' and action == 'upload':
-        if not verify_admin(headers):
+        if not verify_admin(headers, params, body):
             return err('Unauthorized', 401)
-        body = json.loads(event.get('body') or '{}')
         section = body.get('section')
         image_data = body.get('image_data')
         content_type = body.get('content_type', 'image/jpeg')
@@ -112,9 +120,9 @@ def handler(event: dict, context) -> dict:
         conn.close()
         return ok({'id': new_id, 'url': cdn_url})
 
-    # DELETE /gallery?action=delete&id=N
+    # DELETE /gallery?action=delete&id=N&admin_id=N
     if method == 'DELETE' and action == 'delete':
-        if not verify_admin(headers):
+        if not verify_admin(headers, params, body):
             return err('Unauthorized', 401)
         img_id = params.get('id')
         if not img_id:
@@ -139,9 +147,8 @@ def handler(event: dict, context) -> dict:
 
     # POST /gallery?action=set_delay
     if method == 'POST' and action == 'set_delay':
-        if not verify_admin(headers):
+        if not verify_admin(headers, params, body):
             return err('Unauthorized', 401)
-        body = json.loads(event.get('body') or '{}')
         section = body.get('section')
         delay = body.get('delay')
         if not section or delay is None:

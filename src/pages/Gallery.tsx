@@ -16,11 +16,7 @@ interface GalleryImage {
   sort_order: number;
 }
 
-function makeToken(user: { id: number; full_name: string }) {
-  const json = JSON.stringify(user);
-  const encoded = btoa(unescape(encodeURIComponent(json)));
-  return "Bearer " + encoded;
-}
+
 
 // ── Слайдер (публичный режим) ────────────────────────────────────────────
 function Slideshow({ section }: { section: number }) {
@@ -188,12 +184,10 @@ function AdminPanel({ user }: { user: { id: number; full_name: string } }) {
   const [delayInput, setDelayInput] = useState<Record<number, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const token = makeToken(user);
+  const adminId = user.id;
 
   const loadAll = useCallback(async () => {
-    const res = await fetch(`${API_GALLERY}?action=all_images`, {
-      headers: { Authorization: token },
-    });
+    const res = await fetch(`${API_GALLERY}?action=all_images&admin_id=${adminId}`);
     const data = await res.json();
     const grouped: Record<number, GalleryImage[]> = {};
     for (let i = 1; i <= 9; i++) grouped[i] = [];
@@ -208,7 +202,7 @@ function AdminPanel({ user }: { user: { id: number; full_name: string } }) {
       delays[i] = String(data.settings?.[String(i)] ?? 5);
     }
     setDelayInput(delays);
-  }, [token]);
+  }, [adminId]);
 
   useEffect(() => { loadAll(); }, [loadAll]);
 
@@ -223,8 +217,8 @@ function AdminPanel({ user }: { user: { id: number; full_name: string } }) {
           const base64 = (reader.result as string).split(",")[1];
           const res = await fetch(`${API_GALLERY}?action=upload`, {
             method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: token },
-            body: JSON.stringify({ section: activeSection, image_data: base64, content_type: file.type }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ admin_id: adminId, section: activeSection, image_data: base64, content_type: file.type }),
           });
           if (res.ok) uploaded++;
           resolve();
@@ -238,9 +232,8 @@ function AdminPanel({ user }: { user: { id: number; full_name: string } }) {
   };
 
   const handleDelete = async (id: number) => {
-    const res = await fetch(`${API_GALLERY}?action=delete&id=${id}`, {
+    const res = await fetch(`${API_GALLERY}?action=delete&id=${id}&admin_id=${adminId}`, {
       method: "DELETE",
-      headers: { Authorization: token },
     });
     if (res.ok) {
       await loadAll();
@@ -252,8 +245,8 @@ function AdminPanel({ user }: { user: { id: number; full_name: string } }) {
     const val = Math.max(1, Math.min(30, parseInt(delayInput[section] || "5") || 5));
     const res = await fetch(`${API_GALLERY}?action=set_delay`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: token },
-      body: JSON.stringify({ section, delay: val }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ admin_id: adminId, section, delay: val }),
     });
     if (res.ok) {
       setSettings((s) => ({ ...s, [String(section)]: val }));
