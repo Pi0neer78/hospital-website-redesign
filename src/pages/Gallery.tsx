@@ -231,6 +231,19 @@ function AdminPanel({ user }: { user: { id: number; full_name: string } }) {
     toast({ title: `Загружено ${uploaded} из ${files.length} фото` });
   };
 
+  const handleReorder = async (fromIdx: number, toIdx: number) => {
+    const imgs = [...(images[activeSection] || [])];
+    if (toIdx < 0 || toIdx >= imgs.length) return;
+    const [item] = imgs.splice(fromIdx, 1);
+    imgs.splice(toIdx, 0, item);
+    setImages((prev) => ({ ...prev, [activeSection]: imgs }));
+    await fetch(`${API_GALLERY}?action=reorder`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ admin_id: adminId, ids: imgs.map((i) => i.id) }),
+    });
+  };
+
   const handleDelete = async (id: number) => {
     const res = await fetch(`${API_GALLERY}?action=delete&id=${id}&admin_id=${adminId}`, {
       method: "DELETE",
@@ -358,15 +371,57 @@ function AdminPanel({ user }: { user: { id: number; full_name: string } }) {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-              {sectionImages.map((img) => (
+              {sectionImages.map((img, idx) => (
                 <div key={img.id} className="group relative aspect-square rounded-lg overflow-hidden border bg-muted">
                   <img src={img.url} alt="" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors" />
+                  {/* Позиция */}
+                  <div className="absolute top-1.5 left-1.5 bg-black/50 text-white text-xs rounded px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {idx + 1} / {sectionImages.length}
+                  </div>
+                  {/* Кнопки перемещения */}
+                  <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handleReorder(idx, idx - 1)}
+                      disabled={idx === 0}
+                      className="bg-white/80 hover:bg-white disabled:opacity-30 rounded-full p-1 transition-colors"
+                      title="Назад"
+                    >
+                      <Icon name="ChevronLeft" size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleReorder(idx, idx + 1)}
+                      disabled={idx === sectionImages.length - 1}
+                      className="bg-white/80 hover:bg-white disabled:opacity-30 rounded-full p-1 transition-colors"
+                      title="Вперёд"
+                    >
+                      <Icon name="ChevronRight" size={16} />
+                    </button>
+                  </div>
+                  {/* Кнопки в начало/конец + удалить */}
+                  <div className="absolute inset-x-0 bottom-1.5 flex justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handleReorder(idx, 0)}
+                      disabled={idx === 0}
+                      className="bg-white/80 hover:bg-white disabled:opacity-30 rounded-full p-1 transition-colors"
+                      title="В начало"
+                    >
+                      <Icon name="ChevronsLeft" size={14} />
+                    </button>
+                    <button
+                      onClick={() => handleReorder(idx, sectionImages.length - 1)}
+                      disabled={idx === sectionImages.length - 1}
+                      className="bg-white/80 hover:bg-white disabled:opacity-30 rounded-full p-1 transition-colors"
+                      title="В конец"
+                    >
+                      <Icon name="ChevronsRight" size={14} />
+                    </button>
                     <button
                       onClick={() => handleDelete(img.id)}
-                      className="opacity-0 group-hover:opacity-100 bg-destructive text-white rounded-full p-2 transition-all scale-90 group-hover:scale-100"
+                      className="bg-destructive/90 hover:bg-destructive text-white rounded-full p-1 transition-colors"
+                      title="Удалить"
                     >
-                      <Icon name="Trash2" size={16} />
+                      <Icon name="Trash2" size={14} />
                     </button>
                   </div>
                 </div>

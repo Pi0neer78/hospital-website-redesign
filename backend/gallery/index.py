@@ -164,4 +164,20 @@ def handler(event: dict, context) -> dict:
         conn.close()
         return ok({'updated': True, 'delay': delay})
 
+    # POST /gallery?action=reorder
+    # body: { admin_id, ids: [id1, id2, ...] } — полный список в нужном порядке
+    if method == 'POST' and action == 'reorder':
+        if not verify_admin(headers, params, body):
+            return err('Unauthorized', 401)
+        ids = body.get('ids')
+        if not ids or not isinstance(ids, list):
+            return err('ids required')
+        conn = get_db()
+        cur = conn.cursor()
+        for i, img_id in enumerate(ids):
+            cur.execute("UPDATE gallery_images SET sort_order = %s WHERE id = %s", (i, int(img_id)))
+        conn.commit()
+        conn.close()
+        return ok({'updated': True})
+
     return err('Unknown action', 404)
