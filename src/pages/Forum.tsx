@@ -726,7 +726,7 @@ const Forum = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex flex-col">
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -1360,17 +1360,14 @@ const Forum = () => {
         </DialogContent>
       </Dialog>
 
-      <footer className="bg-primary text-white py-8">
+      <footer className="bg-primary text-white py-3 mt-auto">
         <div className="container mx-auto px-4">
-          <div className="text-center text-white/90">
-            <p className="text-sm">© 2024 ГБУЗ «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
-            <p className="text-xs mt-2 text-white/70">Все права защищены</p>
-            <div className="flex justify-center mt-3">
-              <a href="/privacy-policy" className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1">
-                <Icon name="ShieldCheck" size={14} />
-                Политика персональных данных
-              </a>
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-white/70">
+            <span className="text-xs">© 2024 ГБУЗ АЦГМБ ЛНР</span>
+            <a href="/privacy-policy" className="text-xs hover:text-white transition-colors inline-flex items-center gap-1">
+              <Icon name="ShieldCheck" size={12} />
+              Политика персональных данных
+            </a>
           </div>
         </div>
       </footer>
