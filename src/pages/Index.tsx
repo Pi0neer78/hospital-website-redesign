@@ -1678,6 +1678,12 @@ const Index = () => {
                     <Button type="submit" className="w-full" disabled={isSubmitting || !complaintGdprConsent}>
                       {isSubmitting ? 'Отправка кода...' : 'Получить код подтверждения'}
                     </Button>
+                    <div className="text-center">
+                      <a href="/privacy-policy" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
+                        <Icon name="ShieldCheck" size={12} />
+                        Политика персональных данных
+                      </a>
+                    </div>
                   </form>
                 )}
 
