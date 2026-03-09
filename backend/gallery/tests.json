@@ -1,0 +1,11 @@
+{
+  "tests": [
+    {
+      "name": "Get images for section 1",
+      "method": "GET",
+      "path": "/?action=images&section=1",
+      "expectedStatus": 200,
+      "bodyMatcher": "any"
+    }
+  ]
+}

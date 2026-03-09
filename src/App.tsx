@@ -17,6 +17,7 @@ import HowToBook from "./pages/HowToBook";
 import Security from "./pages/Security";
 import AboutUs from "./pages/AboutUs";
 import NotFound from "./pages/NotFound";
+import Gallery from "./pages/Gallery";
 import UpdateBanner from "@/components/UpdateBanner";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/how-to-book" element={<HowToBook />} />
           <Route path="/security" element={<Security />} />
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/gallery" element={<Gallery />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
