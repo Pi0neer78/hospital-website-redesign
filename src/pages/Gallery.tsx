@@ -17,7 +17,9 @@ interface GalleryImage {
 }
 
 function makeToken(user: { id: number; full_name: string }) {
-  return "Bearer " + btoa(JSON.stringify(user));
+  const json = JSON.stringify(user);
+  const encoded = btoa(unescape(encodeURIComponent(json)));
+  return "Bearer " + encoded;
 }
 
 // ── Слайдер (публичный режим) ────────────────────────────────────────────
