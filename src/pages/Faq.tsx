@@ -231,6 +231,12 @@ const Faq = () => {
           <div className="text-center text-white/90">
             <p className="text-sm">&copy; 2024 Государственное учреждение «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
             <p className="text-xs mt-2 text-white/70">Все права защищены</p>
+            <div className="flex justify-center mt-3">
+              <a href="/privacy-policy" className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1">
+                <Icon name="ShieldCheck" size={14} />
+                Политика персональных данных
+              </a>
+            </div>
           </div>
         </div>
       </footer>

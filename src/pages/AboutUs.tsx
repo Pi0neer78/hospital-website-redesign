@@ -367,7 +367,7 @@ const AboutUs = () => {
         <div className="container mx-auto px-4 text-center text-white/90">
           <p className="text-sm">© 2024 ГБУЗ «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
           <p className="text-xs mt-2 text-white/70">Все права защищены</p>
-          <div className="flex gap-4 justify-center mt-3">
+          <div className="flex flex-wrap gap-4 justify-center mt-3">
             <a href="/doctor" className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1">
               <Icon name="UserCog" size={14} />
               Вход для врача
@@ -375,6 +375,10 @@ const AboutUs = () => {
             <a href="/registrar" className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1">
               <Icon name="ClipboardList" size={14} />
               Вход для регистратора
+            </a>
+            <a href="/privacy-policy" className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1">
+              <Icon name="ShieldCheck" size={14} />
+              Политика персональных данных
             </a>
           </div>
         </div>

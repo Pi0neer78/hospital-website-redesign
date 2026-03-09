@@ -18,6 +18,7 @@ import Security from "./pages/Security";
 import AboutUs from "./pages/AboutUs";
 import NotFound from "./pages/NotFound";
 import Gallery from "./pages/Gallery";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import UpdateBanner from "@/components/UpdateBanner";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/security" element={<Security />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/gallery" element={<Gallery />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
