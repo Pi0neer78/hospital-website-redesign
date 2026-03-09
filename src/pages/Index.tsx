@@ -1319,6 +1319,13 @@ const Index = () => {
               </span>
               <Icon name="ArrowRight" size={16} className="text-black" />
             </a>
+            <a
+              href="/privacy-policy"
+              className="inline-flex items-center gap-1.5 text-xs text-black/50 hover:text-black/80 transition-colors mt-1"
+            >
+              <Icon name="ShieldCheck" size={13} />
+              Политика персональных данных
+            </a>
           </div>
         </div>
       </section>
