@@ -1667,10 +1667,13 @@ const MDoctor = () => {
                         if (!pw) return;
                         let tableHtml = '';
                         Object.entries(grouped).forEach(([clinic, rows]) => {
-                          tableHtml += `<tr><td colspan="8" style="background:#e8f0fe;font-weight:bold;padding:8px;">${clinic}</td></tr>`;
+                          tableHtml += `<tr><td colspan="9" style="background:#e8f0fe;font-weight:bold;padding:8px;">${clinic}</td></tr>`;
                           (rows as any[]).forEach((r: any) => {
                             const gray = r.scheduled === 0 ? ' style="color:#999"' : '';
-                            tableHtml += `<tr${gray}><td>${r.full_name}</td><td>${r.position}</td><td>${r.phone||'—'}</td><td style="text-align:center">${r.scheduled}</td><td style="text-align:center">${r.booked||0}</td><td style="text-align:center">${r.completed}</td><td style="text-align:center">${r.cancelled}</td><td style="text-align:center;${r.violations>0?'color:red;font-weight:bold':''}">${r.violations}</td></tr>`;
+                            const pct = r.scheduled > 0 ? Math.round(r.completed / r.scheduled * 100) : null;
+                            const pctStyle = pct === null ? 'color:#999' : pct <= 80 ? 'color:red;font-weight:bold' : pct >= 100 ? 'color:green;font-weight:bold' : '';
+                            const pctText = pct === null ? '—' : `${pct}%`;
+                            tableHtml += `<tr${gray}><td>${r.full_name}</td><td>${r.position}</td><td>${r.phone||'—'}</td><td style="text-align:center">${r.scheduled}</td><td style="text-align:center">${r.booked||0}</td><td style="text-align:center">${r.completed}</td><td style="text-align:center;${pctStyle}">${pctText}</td><td style="text-align:center">${r.cancelled}</td><td style="text-align:center;${r.violations>0?'color:red;font-weight:bold':''}">${r.violations}</td></tr>`;
                           });
                         });
                         const totS = filtered.reduce((s: number, r: any) => s + r.scheduled, 0);
@@ -1678,8 +1681,10 @@ const MDoctor = () => {
                         const totC = filtered.reduce((s: number, r: any) => s + r.completed, 0);
                         const totCa = filtered.reduce((s: number, r: any) => s + r.cancelled, 0);
                         const totV = filtered.reduce((s: number, r: any) => s + r.violations, 0);
-                        tableHtml += `<tr style="font-weight:bold;background:#f0f0f0"><td colspan="3">Итого</td><td style="text-align:center">${totS}</td><td style="text-align:center">${totB}</td><td style="text-align:center">${totC}</td><td style="text-align:center">${totCa}</td><td style="text-align:center">${totV}</td></tr>`;
-                        pw.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Отчёт по врачам</title><style>@page{size:landscape;margin:10mm}body{font-family:Arial,sans-serif;font-size:13px}.header{text-align:center;margin-bottom:15px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:6px;text-align:left}th{background:#f0f0f0;font-size:12px}</style></head><body><div class="header"><h2>Отчёт по врачам</h2><p>${periodText}</p></div><table><thead><tr><th>ФИО</th><th>Должность</th><th>Телефон</th><th style="text-align:center">Запланир.</th><th style="text-align:center">Записано</th><th style="text-align:center">Обслужено</th><th style="text-align:center">Отменено</th><th style="text-align:center">Нарушений</th></tr></thead><tbody>${tableHtml}</tbody></table></body></html>`);
+                        const printRowsWithPct = filtered.filter((r: any) => r.scheduled > 0);
+                        const printAvgPct = printRowsWithPct.length > 0 ? Math.round(printRowsWithPct.reduce((s: number, r: any) => s + (r.completed / r.scheduled * 100), 0) / printRowsWithPct.length) : 0;
+                        tableHtml += `<tr style="font-weight:bold;background:#f0f0f0"><td colspan="3">Итого</td><td style="text-align:center">${totS}</td><td style="text-align:center">${totB}</td><td style="text-align:center">${totC}</td><td style="text-align:center">${printAvgPct}%</td><td style="text-align:center">${totCa}</td><td style="text-align:center">${totV}</td></tr>`;
+                        pw.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Отчёт по врачам</title><style>@page{size:landscape;margin:10mm}body{font-family:Arial,sans-serif;font-size:13px}.header{text-align:center;margin-bottom:15px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:6px;text-align:left}th{background:#f0f0f0;font-size:12px}</style></head><body><div class="header"><h2>Отчёт по врачам</h2><p>${periodText}</p></div><table><thead><tr><th>ФИО</th><th>Должность</th><th>Телефон</th><th style="text-align:center">Запланир.</th><th style="text-align:center">Записано</th><th style="text-align:center">Обслужено</th><th style="text-align:center">% загрузки</th><th style="text-align:center">Отменено</th><th style="text-align:center">Нарушений</th></tr></thead><tbody>${tableHtml}</tbody></table></body></html>`);
                         pw.document.close();
                         pw.focus();
                         setTimeout(() => { pw.print(); pw.close(); }, 250);
@@ -1800,7 +1805,12 @@ const MDoctor = () => {
                                   <TableCell className="py-2 text-center">{row.booked || 0}</TableCell>
                                   <TableCell className="py-2 text-center">{row.completed}</TableCell>
                                   <TableCell className="py-2 text-center">
-                                    {row.scheduled > 0 ? `${Math.round(row.completed / row.scheduled * 100)}%` : '—'}
+                                    {(() => {
+                                      if (row.scheduled === 0) return <span className="text-gray-400">—</span>;
+                                      const pct = Math.round(row.completed / row.scheduled * 100);
+                                      const color = pct <= 80 ? 'text-red-600 font-semibold' : pct >= 100 ? 'text-green-600 font-semibold' : '';
+                                      return <span className={color}>{pct}%</span>;
+                                    })()}
                                   </TableCell>
                                   <TableCell className="py-2 text-center">{row.cancelled}</TableCell>
                                   <TableCell className="py-2 text-center">
