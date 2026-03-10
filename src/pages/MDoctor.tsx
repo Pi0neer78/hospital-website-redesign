@@ -1758,6 +1758,10 @@ const MDoctor = () => {
                   const totC = filtered.reduce((s: number, r: any) => s + r.completed, 0);
                   const totCa = filtered.reduce((s: number, r: any) => s + r.cancelled, 0);
                   const totV = filtered.reduce((s: number, r: any) => s + r.violations, 0);
+                  const rowsWithPct = filtered.filter((r: any) => r.scheduled > 0);
+                  const avgPct = rowsWithPct.length > 0
+                    ? rowsWithPct.reduce((s: number, r: any) => s + (r.completed / r.scheduled * 100), 0) / rowsWithPct.length
+                    : 0;
 
                   return (
                     <div className="overflow-x-auto border rounded-md" style={{ maxHeight: '500px', overflowY: 'auto' }}>
@@ -1770,6 +1774,7 @@ const MDoctor = () => {
                             <TableHead className="py-2 text-center">Запланировано</TableHead>
                             <TableHead className="py-2 text-center">Записано</TableHead>
                             <TableHead className="py-2 text-center">Обслужено</TableHead>
+                            <TableHead className="py-2 text-center">% загрузки</TableHead>
                             <TableHead className="py-2 text-center">Отменено</TableHead>
                             <TableHead className="py-2 text-center">Нарушений</TableHead>
                           </TableRow>
@@ -1778,7 +1783,7 @@ const MDoctor = () => {
                           {Object.entries(grouped).map(([clinic, rows]) => (
                             <>
                               <TableRow key={`clinic-${clinic}`} className="bg-blue-50">
-                                <TableCell colSpan={8} className="py-2 font-semibold text-sm">
+                                <TableCell colSpan={9} className="py-2 font-semibold text-sm">
                                   <div className="flex items-center gap-2">
                                     <Icon name="Building2" size={14} />
                                     {clinic}
@@ -1794,6 +1799,9 @@ const MDoctor = () => {
                                   <TableCell className="py-2 text-center">{row.scheduled}</TableCell>
                                   <TableCell className="py-2 text-center">{row.booked || 0}</TableCell>
                                   <TableCell className="py-2 text-center">{row.completed}</TableCell>
+                                  <TableCell className="py-2 text-center">
+                                    {row.scheduled > 0 ? `${Math.round(row.completed / row.scheduled * 100)}%` : '—'}
+                                  </TableCell>
                                   <TableCell className="py-2 text-center">{row.cancelled}</TableCell>
                                   <TableCell className="py-2 text-center">
                                     <span className={row.violations > 0 ? 'text-red-600 font-semibold' : ''}>{row.violations}</span>
@@ -1807,6 +1815,7 @@ const MDoctor = () => {
                             <TableCell className="py-2 text-center">{totS}</TableCell>
                             <TableCell className="py-2 text-center">{totB}</TableCell>
                             <TableCell className="py-2 text-center">{totC}</TableCell>
+                            <TableCell className="py-2 text-center">{Math.round(avgPct)}%</TableCell>
                             <TableCell className="py-2 text-center">{totCa}</TableCell>
                             <TableCell className="py-2 text-center">{totV}</TableCell>
                           </TableRow>
