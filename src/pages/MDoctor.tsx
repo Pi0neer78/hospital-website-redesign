@@ -1710,11 +1710,12 @@ const MDoctor = () => {
                           'Запланировано': r.scheduled,
                           'Записано': r.booked || 0,
                           'Обслужено': r.completed,
+                          '% загрузки': r.scheduled > 0 ? Math.round(r.completed / r.scheduled * 100) : '',
                           'Отменено': r.cancelled,
                           'Нарушений': r.violations
                         }));
                         const ws = XLSX.utils.json_to_sheet(rows);
-                        ws['!cols'] = [{ wch: 30 }, { wch: 30 }, { wch: 25 }, { wch: 18 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
+                        ws['!cols'] = [{ wch: 30 }, { wch: 30 }, { wch: 25 }, { wch: 18 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
                         const wb = XLSX.utils.book_new();
                         XLSX.utils.book_append_sheet(wb, ws, 'Отчёт');
                         XLSX.writeFile(wb, 'отчёт_врачи.xlsx');
