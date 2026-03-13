@@ -96,9 +96,10 @@ const AboutUs = () => {
             <nav className="hidden lg:flex gap-4 text-sm ml-auto">
               <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">Главная</Link>
               <Link to="/about" className="text-primary font-semibold border-b-2 border-primary pb-0.5">О нас</Link>
-              <a href="/#doctors" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">График приема</a>
+              <a href="/#doctors" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">График приема граждан</a>
               <Link to="/structure" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Структура</Link>
               <a href="/#contacts" className="text-foreground hover:text-primary transition-colors font-medium">Контакты</a>
+              <Link to="/docs" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Документы</Link>
             </nav>
           </div>
         </div>

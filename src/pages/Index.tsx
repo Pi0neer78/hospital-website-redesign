@@ -616,6 +616,7 @@ const Index = () => {
                 <a href="#doctors" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">График приема граждан</a>
                 <a href="/structure" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Структура</a>
                 <a href="#contacts" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Контакты</a>
+                <a href="/docs" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Документы</a>
               </nav>
               <Button 
                 variant="ghost" 
@@ -634,6 +635,7 @@ const Index = () => {
               <a href="#doctors" className="text-foreground hover:text-primary transition-colors font-medium" onClick={() => setIsMobileMenuOpen(false)}>График приема граждан</a>
               <a href="/structure" className="text-foreground hover:text-primary transition-colors font-medium" onClick={() => setIsMobileMenuOpen(false)}>Структура ГУ "АЦГМБ" ЛНР</a>
               <a href="#contacts" className="text-foreground hover:text-primary transition-colors font-medium" onClick={() => setIsMobileMenuOpen(false)}>Контакты</a>
+              <a href="/docs" className="text-foreground hover:text-primary transition-colors font-medium" onClick={() => setIsMobileMenuOpen(false)}>Документы</a>
             </nav>
           )}
 
