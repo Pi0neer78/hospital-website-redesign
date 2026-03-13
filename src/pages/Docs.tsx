@@ -31,12 +31,21 @@ const Docs = () => {
         </div>
       </header>
 
-      <section className="bg-gradient-to-br from-primary/10 via-background to-accent/10 py-12">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3">Документы</h1>
-          <p className="text-muted-foreground text-base max-w-xl mx-auto">
-            Официальные документы ГБУЗ «Антрацитовская центральная городская многопрофильная больница»
-          </p>
+      <section className="bg-gradient-to-br from-primary/10 via-background to-accent/10 overflow-hidden">
+        <div className="container mx-auto px-4 flex items-stretch min-h-[200px]">
+          <div className="flex-shrink-0 w-48 sm:w-64 relative -ml-4 sm:ml-0">
+            <img
+              src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/542dd71b-9199-4233-9db3-622da8e46a02.jpg"
+              alt="Документы"
+              className="h-full w-full object-cover object-center"
+            />
+          </div>
+          <div className="flex flex-col justify-center py-12 pl-8">
+            <h1 className="text-3xl sm:text-4xl font-bold mb-3">Документы</h1>
+            <p className="text-muted-foreground text-base max-w-xl">
+              Официальные документы ГБУЗ «Антрацитовская центральная городская многопрофильная больница»
+            </p>
+          </div>
         </div>
       </section>
 
