@@ -597,24 +597,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/a13c22eb-38b0-4a04-ad65-321b423b3692.jpg)' }}>
-      <div className="bg-gradient-to-r from-yellow-400 to-amber-500 text-white">
-        <div className="container mx-auto px-4">
-          <a href="/vote" className="flex items-center gap-3 py-2.5 hover:opacity-90 transition-opacity group max-w-xs">
-            <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="white" strokeWidth="1" /></svg>
-            </div>
-            <div>
-              <p className="font-bold text-sm leading-tight">Рейтинг врачей</p>
-              <p className="text-xs text-white/85">Оцени работу врача</p>
-            </div>
-            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-none stroke-white ml-auto opacity-70 group-hover:translate-x-1 transition-transform" strokeWidth="2"><polyline points="9,18 15,12 9,6"/></svg>
-          </a>
-        </div>
-      </div>
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              <a href="/vote" className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-xl flex flex-col items-center justify-center hover:from-yellow-500 hover:to-amber-600 transition-all shadow-sm hover:shadow-md group" title="Рейтинг врачей">
+                <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white mb-0.5"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="white" strokeWidth="1" /></svg>
+                <span className="text-white text-[8px] font-bold leading-none tracking-tight">РЕЙТИНГ</span>
+              </a>
               <img 
                 src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adf474e3-ca46-4949-958c-72bcaef3e542.jpg" 
                 alt="Логотип АЦГМБ ЛНР" 
