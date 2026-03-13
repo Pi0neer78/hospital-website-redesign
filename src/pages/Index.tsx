@@ -601,10 +601,6 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <a href="/vote" className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-xl flex flex-col items-center justify-center hover:from-yellow-500 hover:to-amber-600 transition-all shadow-sm hover:shadow-md group" title="Рейтинг врачей">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white mb-0.5"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="white" strokeWidth="1" /></svg>
-                <span className="text-white text-[8px] font-bold leading-none tracking-tight">РЕЙТИНГ</span>
-              </a>
               <img 
                 src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adf474e3-ca46-4949-958c-72bcaef3e542.jpg" 
                 alt="Логотип АЦГМБ ЛНР" 
@@ -681,6 +677,16 @@ const Index = () => {
           )}
         </div>
       </header>
+
+      <div className="container mx-auto px-4 pt-4">
+        <a href="/vote" className="inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 rounded-xl shadow-md hover:shadow-lg transition-all group">
+          <svg viewBox="0 0 24 24" className="w-7 h-7 fill-white flex-shrink-0 group-hover:scale-110 transition-transform"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="white" strokeWidth="1" /></svg>
+          <div className="text-left">
+            <p className="text-white font-bold text-sm leading-tight">Рейтинг врачей</p>
+            <p className="text-white/85 text-xs leading-tight">Оцени работу врача</p>
+          </div>
+        </a>
+      </div>
 
       <section className="pt-4 pb-20 text-center">
         <div className="container mx-auto px-4">
