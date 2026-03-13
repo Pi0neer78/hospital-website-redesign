@@ -165,10 +165,26 @@ const Vote = () => {
               <div className="flex justify-center mb-6">
                 <StarRating value={rating} onChange={setRating} />
               </div>
-              {error && <p className="text-sm text-red-500 text-center mb-4">{error}</p>}
-              <Button className="w-full" disabled={rating === 0 || submitting} onClick={handleSubmit}>
-                {submitting ? 'Отправляем...' : 'Отправить оценку'}
-              </Button>
+              {error && (
+                <div className="mt-2 p-4 bg-orange-50 border border-orange-200 rounded-xl text-center">
+                  <p className="text-sm text-orange-700 font-medium mb-4">{error}</p>
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <Button variant="outline" onClick={() => { setSelectedDoctor(null); setRating(0); setError(''); }}>
+                      <Icon name="ArrowLeft" size={14} className="mr-1" /> Проголосовать за другого врача
+                    </Button>
+                    <Link to="/">
+                      <Button variant="ghost" className="w-full sm:w-auto text-muted-foreground">
+                        <Icon name="Home" size={14} className="mr-1" /> На главную
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              )}
+              {!error && (
+                <Button className="w-full" disabled={rating === 0 || submitting} onClick={handleSubmit}>
+                  {submitting ? 'Отправляем...' : 'Отправить оценку'}
+                </Button>
+              )}
             </div>
           ) : (
             <>
