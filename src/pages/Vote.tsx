@@ -31,7 +31,7 @@ interface Doctor {
   photo_url?: string;
 }
 
-const StarRating = ({ value, onChange, disabled }: { value: number; onChange: (v: number) => void; disabled?: boolean }) => {
+const StarRating = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => {
   const [hovered, setHovered] = useState(0);
   return (
     <div className="flex gap-1">
@@ -39,13 +39,12 @@ const StarRating = ({ value, onChange, disabled }: { value: number; onChange: (v
         <button
           key={star}
           type="button"
-          disabled={disabled}
           onClick={() => onChange(star)}
-          onMouseEnter={() => !disabled && setHovered(star)}
+          onMouseEnter={() => setHovered(star)}
           onMouseLeave={() => setHovered(0)}
-          className={`transition-transform ${!disabled ? 'hover:scale-125 cursor-pointer' : 'cursor-default'}`}
+          className="transition-transform hover:scale-125 cursor-pointer"
         >
-          <svg viewBox="0 0 24 24" className={`w-9 h-9 transition-colors ${(hovered || value) >= star ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'}`}>
+          <svg viewBox="0 0 24 24" className={`w-10 h-10 transition-colors ${(hovered || value) >= star ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'}`}>
             <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="currentColor" strokeWidth="1" />
           </svg>
         </button>
@@ -54,6 +53,13 @@ const StarRating = ({ value, onChange, disabled }: { value: number; onChange: (v
   );
 };
 
+const rules = [
+  { icon: 'Star', text: 'Выберите врача из списка и поставьте оценку от 1 до 5 звёзд' },
+  { icon: 'Clock', text: 'За одного врача можно голосовать один раз в 7 дней' },
+  { icon: 'Shield', text: 'Голосование анонимное — ваши личные данные не сохраняются' },
+  { icon: 'BarChart2', text: 'Результаты рейтинга помогают улучшить качество медицинской помощи' },
+];
+
 const Vote = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +67,7 @@ const Vote = () => {
   const [rating, setRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
-  const [error, setError] = useState('');
+  const [alreadyVoted, setAlreadyVoted] = useState(false);
   const [search, setSearch] = useState('');
   const fingerprintRef = useRef(getFingerprint());
 
@@ -87,7 +93,6 @@ const Vote = () => {
   const handleSubmit = async () => {
     if (!selectedDoctor || rating === 0) return;
     setSubmitting(true);
-    setError('');
     try {
       const res = await fetch(SUBMIT_URL, {
         method: 'POST',
@@ -95,16 +100,21 @@ const Vote = () => {
         body: JSON.stringify({ doctor_id: selectedDoctor.id, rating, fingerprint: fingerprintRef.current }),
       });
       const data = await res.json();
-      if (res.status === 429 || !data.success) {
-        setError(data.error || 'Ошибка при отправке');
-      } else {
+      if (res.status === 429) {
+        setAlreadyVoted(true);
+      } else if (data.success) {
         setDone(true);
       }
-    } catch {
-      setError('Ошибка соединения');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const resetVote = () => {
+    setSelectedDoctor(null);
+    setRating(0);
+    setAlreadyVoted(false);
+    setDone(false);
   };
 
   return (
@@ -121,33 +131,87 @@ const Vote = () => {
         </div>
       </header>
 
+      {/* Hero */}
       <section className="bg-gradient-to-br from-yellow-50 via-background to-primary/5 py-10">
         <div className="container mx-auto px-4 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-4">
             <svg viewBox="0 0 24 24" className="w-9 h-9 fill-yellow-400 text-yellow-400"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="currentColor" strokeWidth="1" /></svg>
           </div>
           <h1 className="text-3xl font-bold mb-2">Рейтинг врачей</h1>
-          <p className="text-muted-foreground max-w-lg mx-auto">Выберите врача и поставьте оценку его работе. Голосовать можно один раз в неделю за каждого врача.</p>
+          <p className="text-muted-foreground max-w-lg mx-auto text-sm">Оцените работу врача — ваше мнение важно для улучшения качества медицинской помощи</p>
         </div>
       </section>
 
+      {/* Rules */}
+      {!selectedDoctor && !done && (
+        <section className="py-6 border-b border-border bg-white">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4 text-center">Правила голосования</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {rules.map((r, i) => (
+                <div key={i} className="flex flex-col items-center text-center gap-2 p-3 rounded-xl bg-yellow-50 border border-yellow-100">
+                  <div className="w-9 h-9 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                    <Icon name={r.icon} size={18} className="text-amber-500" />
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-snug">{r.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="py-10">
-        <div className="container mx-auto px-4 max-w-3xl">
-          {done ? (
-            <div className="text-center py-16">
+        <div className="container mx-auto px-4 max-w-5xl">
+
+          {/* Успешно проголосовал */}
+          {done && (
+            <div className="text-center py-16 max-w-md mx-auto">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6">
                 <Icon name="CheckCircle" size={40} className="text-green-500" />
               </div>
               <h2 className="text-2xl font-bold mb-2">Спасибо за оценку!</h2>
-              <p className="text-muted-foreground mb-6">Ваш голос учтён. Вы можете проголосовать снова через 7 дней.</p>
-              <Button onClick={() => { setDone(false); setSelectedDoctor(null); setRating(0); }}>Оценить другого врача</Button>
+              <p className="text-muted-foreground mb-8">Ваш голос учтён. Повторно проголосовать за этого врача можно через 7 дней.</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button onClick={resetVote}>
+                  <Icon name="ArrowLeft" size={14} className="mr-1" /> Оценить другого врача
+                </Button>
+                <Link to="/"><Button variant="outline"><Icon name="Home" size={14} className="mr-1" /> На главную</Button></Link>
+              </div>
             </div>
-          ) : selectedDoctor ? (
+          )}
+
+          {/* Уже голосовал */}
+          {alreadyVoted && selectedDoctor && (
+            <div className="max-w-md mx-auto">
+              <div className="bg-white rounded-2xl border border-border shadow-sm p-8 text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
+                  <Icon name="AlertCircle" size={32} className="text-orange-500" />
+                </div>
+                <h2 className="text-lg font-bold mb-2">Вы уже голосовали</h2>
+                <p className="text-sm text-muted-foreground mb-2">За врача <span className="font-semibold text-foreground">{selectedDoctor.full_name}</span></p>
+                <p className="text-sm text-muted-foreground mb-8">Повторное голосование за этого врача будет доступно через 7 дней.</p>
+                <div className="flex flex-col gap-3">
+                  <Button onClick={resetVote} className="w-full">
+                    <Icon name="ArrowLeft" size={14} className="mr-1" /> Проголосовать за другого врача
+                  </Button>
+                  <Link to="/" className="w-full">
+                    <Button variant="outline" className="w-full">
+                      <Icon name="Home" size={14} className="mr-1" /> На главную
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Карточка голосования */}
+          {selectedDoctor && !done && !alreadyVoted && (
             <div className="bg-white rounded-2xl border border-border shadow-sm p-8 max-w-md mx-auto">
-              <button onClick={() => { setSelectedDoctor(null); setRating(0); setError(''); }} className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 mb-6">
+              <button onClick={resetVote} className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 mb-6">
                 <Icon name="ArrowLeft" size={14} /> Назад к списку
               </button>
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-8">
                 {selectedDoctor.photo_url ? (
                   <img src={selectedDoctor.photo_url} alt={selectedDoctor.full_name} className="w-16 h-16 rounded-full object-cover" />
                 ) : (
@@ -161,35 +225,21 @@ const Vote = () => {
                   <p className="text-xs text-muted-foreground">{selectedDoctor.clinic}</p>
                 </div>
               </div>
-              <p className="text-sm font-medium mb-3 text-center">Ваша оценка</p>
-              <div className="flex justify-center mb-6">
+              <p className="text-sm font-medium mb-4 text-center text-muted-foreground">Ваша оценка</p>
+              <div className="flex justify-center mb-8">
                 <StarRating value={rating} onChange={setRating} />
               </div>
-              {error && (
-                <div className="mt-2 p-4 bg-orange-50 border border-orange-200 rounded-xl text-center">
-                  <p className="text-sm text-orange-700 font-medium mb-4">{error}</p>
-                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                    <Button variant="outline" onClick={() => { setSelectedDoctor(null); setRating(0); setError(''); }}>
-                      <Icon name="ArrowLeft" size={14} className="mr-1" /> Проголосовать за другого врача
-                    </Button>
-                    <Link to="/">
-                      <Button variant="ghost" className="w-full sm:w-auto text-muted-foreground">
-                        <Icon name="Home" size={14} className="mr-1" /> На главную
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              )}
-              {!error && (
-                <Button className="w-full" disabled={rating === 0 || submitting} onClick={handleSubmit}>
-                  {submitting ? 'Отправляем...' : 'Отправить оценку'}
-                </Button>
-              )}
+              <Button className="w-full" disabled={rating === 0 || submitting} onClick={handleSubmit}>
+                {submitting ? 'Отправляем...' : 'Отправить оценку'}
+              </Button>
             </div>
-          ) : (
+          )}
+
+          {/* Список врачей */}
+          {!selectedDoctor && !done && (
             <>
               <div className="mb-6">
-                <div className="relative">
+                <div className="relative max-w-sm">
                   <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type="text"
@@ -203,29 +253,34 @@ const Vote = () => {
               {loading ? (
                 <div className="text-center py-16 text-muted-foreground">Загружаем список врачей...</div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   {Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b, 'ru')).map(([clinic, docs]) => (
                     <div key={clinic}>
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 px-1">{clinic}</h2>
-                      <div className="space-y-2">
+                      <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                        <Icon name="Building2" size={13} className="text-primary" />{clinic}
+                      </h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {docs.map(doc => (
                           <button
                             key={doc.id}
                             onClick={() => setSelectedDoctor(doc)}
-                            className="w-full flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-primary/40 hover:shadow-sm transition-all text-left"
+                            className="flex flex-col items-center text-center gap-3 p-5 bg-white rounded-2xl border border-border hover:border-amber-300 hover:shadow-md transition-all group"
                           >
                             {doc.photo_url ? (
-                              <img src={doc.photo_url} alt={doc.full_name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+                              <img src={doc.photo_url} alt={doc.full_name} className="w-16 h-16 rounded-full object-cover group-hover:scale-105 transition-transform" />
                             ) : (
-                              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                <Icon name="User" size={22} className="text-primary" />
+                              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+                                <Icon name="User" size={28} className="text-primary" />
                               </div>
                             )}
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm leading-tight">{doc.full_name}</p>
-                              <p className="text-xs text-muted-foreground truncate">{doc.position}</p>
+                            <div className="flex-1">
+                              <p className="font-semibold text-sm leading-tight mb-1">{doc.full_name}</p>
+                              <p className="text-xs text-muted-foreground leading-snug">{doc.position}</p>
                             </div>
-                            <Icon name="ChevronRight" size={16} className="text-muted-foreground flex-shrink-0" />
+                            <span className="text-xs text-amber-500 font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                              Оценить
+                              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-yellow-400"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="currentColor" strokeWidth="1" /></svg>
+                            </span>
                           </button>
                         ))}
                       </div>
