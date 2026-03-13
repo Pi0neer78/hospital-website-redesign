@@ -58,7 +58,7 @@ const Docs = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-foreground group-hover:text-primary transition-colors text-base leading-snug">
-                Официальный документ
+                Устав учреждения 08.11.2023 233-ОД
               </p>
               <p className="text-sm text-muted-foreground mt-0.5">Формат: PDF · Открыть в новой вкладке</p>
             </div>
