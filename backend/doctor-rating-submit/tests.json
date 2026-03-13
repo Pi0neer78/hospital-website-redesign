@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "GET check vote status",
+      "method": "GET",
+      "path": "/?doctor_id=1&fingerprint=test123",
+      "expectedStatus": 200,
+      "expectedBody": {"already_voted": false},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
