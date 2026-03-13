@@ -37,7 +37,7 @@ const Docs = () => {
             <img
               src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/542dd71b-9199-4233-9db3-622da8e46a02.jpg"
               alt="Документы"
-              className="h-full w-full object-cover object-center"
+              className="h-full w-full object-cover object-center mix-blend-multiply"
             />
           </div>
           <div className="flex flex-col justify-center py-12 pl-8">
