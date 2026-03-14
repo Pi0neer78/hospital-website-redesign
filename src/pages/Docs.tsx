@@ -52,7 +52,7 @@ const Docs = () => {
       <section className="py-12">
         <div className="container mx-auto px-4 max-w-3xl">
           <a
-            href="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/b5c19775-4bbb-4dee-99c4-5e6297e82209.pdf"
+            href="https://xn--90ad1a1b.xn--p1ai/doc/ustav.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-5 p-5 rounded-2xl border border-border bg-white shadow-sm hover:shadow-md hover:border-red-300 transition-all duration-200"
