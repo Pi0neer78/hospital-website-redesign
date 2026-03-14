@@ -2017,6 +2017,7 @@ const Index = () => {
                 Политика персональных данных
               </a>
             </div>
+            <div className="flex justify-center mt-4" dangerouslySetInnerHTML={{__html: '<a href="https://metrika.yandex.ru/stat/?id=107701780&from=informer" target="_blank" rel="nofollow"><img src="https://informer.yandex.ru/informer/107701780/3_1_B9ECFFFF_99CCFFFF_0_pageviews" style="width:88px;height:31px;border:0;" alt="Яндекс.Метрика" title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)" class="ym-advanced-informer" data-cid="107701780" data-lang="ru"/></a>'}} />
           </div>
         </div>
       </footer>
