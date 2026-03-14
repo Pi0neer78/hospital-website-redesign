@@ -2002,7 +2002,7 @@ const Index = () => {
             <p className="text-xs mt-2 text-white/70">Все права защищены</p>
             <div className="flex justify-center mt-4 mb-1">
               <a href="https://metrika.yandex.ru/stat/?id=107701780" target="_blank" rel="noopener noreferrer">
-                <img src="https://mc.yandex.ru/watch/107701780?wmode=2" alt="Яндекс Метрика" style={{width: 88, height: 31, border: 0}} />
+                <img src="https://informer.yandex.ru/informer/107701780/3_1_FFFFFFFF_EFEFEFFF_0_pageviews" style={{width: 88, height: 31, border: 0}} alt="Яндекс.Метрика" title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)" />
               </a>
             </div>
             <div className="flex flex-wrap gap-4 justify-center mt-3">
