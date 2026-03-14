@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "GET visitor stats",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"total": "number", "today": "number"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST increment visit",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"total": "number", "today": "number"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
