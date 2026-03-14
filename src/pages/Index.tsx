@@ -679,8 +679,21 @@ const Index = () => {
       </header>
 
       <div className="container mx-auto px-4 pt-4">
-        <a href="/vote" className="inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 rounded-xl shadow-md hover:shadow-lg transition-all group">
-          <svg viewBox="0 0 24 24" className="w-7 h-7 fill-white flex-shrink-0 group-hover:scale-110 transition-transform"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="white" strokeWidth="1" /></svg>
+        <style>{`
+          @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.5), 0 4px 12px rgba(251,191,36,0.3); transform: scale(1); }
+            50% { box-shadow: 0 0 0 8px rgba(251,191,36,0), 0 4px 20px rgba(251,191,36,0.5); transform: scale(1.03); }
+          }
+          @keyframes star-spin {
+            0%, 80%, 100% { transform: rotate(0deg) scale(1); }
+            90% { transform: rotate(20deg) scale(1.2); }
+          }
+          .rating-btn { animation: pulse-glow 2.5s ease-in-out infinite; }
+          .rating-btn:hover { animation: none; transform: scale(1.05); box-shadow: 0 6px 24px rgba(251,191,36,0.5); }
+          .rating-star { animation: star-spin 2.5s ease-in-out infinite; }
+        `}</style>
+        <a href="/vote" className="rating-btn inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 rounded-xl transition-all group cursor-pointer">
+          <svg viewBox="0 0 24 24" className="rating-star w-7 h-7 fill-white flex-shrink-0"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="white" strokeWidth="1" /></svg>
           <div className="text-left">
             <p className="text-white font-bold text-sm leading-tight">Рейтинг врачей</p>
             <p className="text-white/85 text-xs leading-tight">Оцени работу врача</p>
