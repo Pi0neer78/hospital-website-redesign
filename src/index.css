@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Скрываем иконку Яндекс.Метрики */
+#ym-badge,
+.ym-badge {
+  display: none !important;
+}
+
 @layer base {
   :root {
     --background: 200 100% 97%;
