@@ -2000,6 +2000,11 @@ const Index = () => {
           <div className="text-center text-white/90">
             <p className="text-sm">© 2024 ГБУЗ «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
             <p className="text-xs mt-2 text-white/70">Все права защищены</p>
+            <div className="flex justify-center mt-4 mb-1">
+              <a href="https://metrika.yandex.ru/stat/?id=107701780" target="_blank" rel="noopener noreferrer">
+                <img src="https://mc.yandex.ru/watch/107701780" alt="Яндекс Метрика" style={{width: 88, height: 31, border: 0}} />
+              </a>
+            </div>
             <div className="flex flex-wrap gap-4 justify-center mt-3">
               <a href="/doctor" className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1">
                 <Icon name="UserCog" size={14} />
