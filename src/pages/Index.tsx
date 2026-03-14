@@ -2020,12 +2020,13 @@ const Index = () => {
             <div className="flex justify-center mt-4">
               <a href="https://metrika.yandex.ru/stat/?id=107701780&from=informer" target="_blank" rel="nofollow">
                 <img
-                  src={`https://informer.yandex.ru/informer/107701780/3_1_B9ECFFFF_99CCFFFF_0_pageviews?t=${Date.now()}`}
+                  src="https://informer.yandex.ru/informer/107701780/3_1_B9ECFFFF_99CCFFFF_0_pageviews"
                   width="88"
                   height="31"
-                  style={{border: 0, display: 'block'}}
+                  style={{border: 0, display: 'block', width: '88px', height: '31px'}}
                   alt="Яндекс.Метрика"
                   title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
+                  onError={(e) => console.log('Informer load error:', e)}
                 />
               </a>
             </div>
