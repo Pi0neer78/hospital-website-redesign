@@ -2438,12 +2438,6 @@ const Index = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Счётчик посещений */}
-      <div className="py-4 text-center border-t border-border bg-white/50">
-        <a href="https://metrika.yandex.ru/stat/?id=107701780" target="_blank" rel="noopener noreferrer" title="Статистика сайта">
-          <img src="https://informer.yandex.ru/informer/107701780/3_1_FFFFFFFF_EFEFEFFF_0_pageviews" style={{width: 88, height: 31}} alt="Яндекс.Метрика" className="inline-block" />
-        </a>
-      </div>
     </div>
   );
 };
