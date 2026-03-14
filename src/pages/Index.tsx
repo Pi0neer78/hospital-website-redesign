@@ -120,6 +120,12 @@ const Index = () => {
     };
   }, [selectedDoctor, selectedDate]);
 
+  useEffect(() => {
+    if ((window as any).ym) {
+      (window as any).ym(107701780, 'informer');
+    }
+  }, []);
+
   const loadDoctors = async () => {
     try {
       const response = await fetch(BACKEND_URLS.doctors);
