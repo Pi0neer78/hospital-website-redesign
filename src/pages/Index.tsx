@@ -2000,16 +2000,19 @@ const Index = () => {
           <div className="text-center text-white/90">
             <p className="text-sm">© 2024 ГБУЗ «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
             <p className="text-xs mt-2 text-white/70">Все права защищены</p>
-            <div className="flex justify-center mt-4 mb-1">
+            <div className="flex justify-center mt-4 mb-1" id="ym-informer-container">
               <a href="https://metrika.yandex.ru/stat/?id=107701780&from=informer" target="_blank" rel="nofollow">
                 <img
                   src="https://informer.yandex.ru/informer/107701780/3_1_B9ECFFFF_99CCFFFF_0_pageviews"
-                  style={{width: 88, height: 31, border: 0}}
+                  width={88}
+                  height={31}
                   alt="Яндекс.Метрика"
                   title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
                   className="ym-advanced-informer"
                   data-cid="107701780"
                   data-lang="ru"
+                  style={{display: 'block', border: 'none'}}
+                  referrerPolicy="no-referrer"
                 />
               </a>
             </div>
