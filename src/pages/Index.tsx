@@ -2001,8 +2001,8 @@ const Index = () => {
             <p className="text-sm">© 2024 ГБУЗ «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
             <p className="text-xs mt-2 text-white/70">Все права защищены</p>
             <div className="flex justify-center mt-4 mb-1">
-              <a href="https://metrika.yandex.ru/stat/?id=107701780" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors rounded px-2 py-1 text-xs text-white/80 hover:text-white">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+              <a href="https://metrika.yandex.ru/stat/?id=107701780" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-blue-700 font-semibold rounded px-3 py-1.5 text-xs hover:bg-white/90 transition-colors shadow">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
                 Яндекс.Метрика
               </a>
             </div>
