@@ -2026,7 +2026,7 @@ const Index = () => {
                   style={{border: 0, display: 'block', width: '88px', height: '31px'}}
                   alt="Яндекс.Метрика"
                   title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
-                  onError={(e) => console.log('Informer load error:', e)}
+
                 />
               </a>
             </div>
