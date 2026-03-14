@@ -2006,7 +2006,7 @@ const Index = () => {
           <div className="text-center text-white/90">
             <p className="text-sm">© 2024 ГБУЗ «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
             <p className="text-xs mt-2 text-white/70">Все права защищены</p>
-            <div className="flex justify-center mt-4 mb-1" id="ym-informer-container">
+            <div className="flex justify-center mt-4 mb-1">
               <a href="https://metrika.yandex.ru/stat/?id=107701780&from=informer" target="_blank" rel="nofollow">
                 <img
                   src="https://informer.yandex.ru/informer/107701780/3_1_B9ECFFFF_99CCFFFF_0_pageviews"
@@ -2017,8 +2017,15 @@ const Index = () => {
                   className="ym-advanced-informer"
                   data-cid="107701780"
                   data-lang="ru"
-                  style={{display: 'block', border: 'none'}}
-                  referrerPolicy="no-referrer"
+                  style={{display: 'block', border: 'none', minWidth: 88, minHeight: 31, backgroundColor: '#99CCFF'}}
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    el.style.display = 'none';
+                    const fallback = document.createElement('span');
+                    fallback.style.cssText = 'background:#fff;color:#1a56db;font-size:11px;padding:4px 8px;border-radius:4px;font-weight:600;';
+                    fallback.textContent = 'Яндекс.Метрика';
+                    el.parentNode?.appendChild(fallback);
+                  }}
                 />
               </a>
             </div>
