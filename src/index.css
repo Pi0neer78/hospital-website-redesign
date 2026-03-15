@@ -4,20 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Скрываем иконку Яндекс.Метрики */
-#ym-badge,
-.ym-badge,
-[id^="ym-"],
-[class^="ym-"],
-a[href*="metrika.yandex"],
-img[src*="mc.yandex.ru"],
-div[id*="metrika"] {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-
 @layer base {
   :root {
     --background: 200 100% 97%;
