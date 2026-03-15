@@ -1,28 +1,51 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import Icon from '@/components/ui/icon';
-import { useToast } from '@/hooks/use-toast';
-import { useRateLimiter } from '@/hooks/use-rate-limiter';
-
+import { useState, useEffect, useRef } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import Icon from "@/components/ui/icon";
+import { useToast } from "@/hooks/use-toast";
+import { useRateLimiter } from "@/hooks/use-rate-limiter";
 
 const BACKEND_URLS = {
-  appointments: 'https://functions.poehali.dev/b3b698ed-7035-4503-8c49-85be11de75e5',
-  doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
-  schedules: 'https://functions.poehali.dev/6f53f66d-3e47-4e57-93dd-52d63c16d38f',
-  consultations: 'https://functions.poehali.dev/d77bf8b2-a03f-4774-81ca-c6ae5f643a02',
-  complaints: 'https://functions.poehali.dev/a6c04c63-0223-4bcc-b146-24acdef33536',
-  smsVerify: 'https://functions.poehali.dev/7ea5c6f5-d200-4cc0-b34b-10144a995d69',
+  appointments:
+    "https://functions.poehali.dev/b3b698ed-7035-4503-8c49-85be11de75e5",
+  doctors: "https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688",
+  schedules:
+    "https://functions.poehali.dev/6f53f66d-3e47-4e57-93dd-52d63c16d38f",
+  consultations:
+    "https://functions.poehali.dev/d77bf8b2-a03f-4774-81ca-c6ae5f643a02",
+  complaints:
+    "https://functions.poehali.dev/a6c04c63-0223-4bcc-b146-24acdef33536",
+  smsVerify:
+    "https://functions.poehali.dev/7ea5c6f5-d200-4cc0-b34b-10144a995d69",
 };
 
 const Index = () => {
   const { toast } = useToast();
-  const { checkRateLimit: checkAppointmentLimit } = useRateLimiter({ endpoint: 'appointments', maxRequestsPerMinute: 5 });
-  const { checkRateLimit: checkComplaintLimit } = useRateLimiter({ endpoint: 'complaints', maxRequestsPerMinute: 3 });
+  const { checkRateLimit: checkAppointmentLimit } = useRateLimiter({
+    endpoint: "appointments",
+    maxRequestsPerMinute: 5,
+  });
+  const { checkRateLimit: checkComplaintLimit } = useRateLimiter({
+    endpoint: "complaints",
+    maxRequestsPerMinute: 3,
+  });
   const [doctors, setDoctors] = useState([]);
   const [selectedClinic, setSelectedClinic] = useState<string | null>(null);
   const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
@@ -31,27 +54,38 @@ const Index = () => {
   const [allSlots, setAllSlots] = useState<any>({});
   const [allTimeSlotsForDate, setAllTimeSlotsForDate] = useState<any[]>([]);
   const [slotsCache, setSlotsCache] = useState<Record<string, any[]>>({});
-  const [selectedDate, setSelectedDate] = useState('');
-  const [appointmentForm, setAppointmentForm] = useState({ 
-    patient_name: '', 
-    patient_phone: '',
-    patient_snils: '',
-    patient_oms: '', 
-    appointment_time: '',
-    description: '' 
+  const [selectedDate, setSelectedDate] = useState("");
+  const [appointmentForm, setAppointmentForm] = useState({
+    patient_name: "",
+    patient_phone: "",
+    patient_snils: "",
+    patient_oms: "",
+    appointment_time: "",
+    description: "",
   });
-  const [verificationStep, setVerificationStep] = useState<'form' | 'code' | 'verified'>('form');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [sentCode, setSentCode] = useState('');
-  const [complaintForm, setComplaintForm] = useState({ name: '', email: '', phone: '', message: '' });
-  const [complaintVerificationStep, setComplaintVerificationStep] = useState<'form' | 'code' | 'verified'>('form');
-  const [complaintVerificationCode, setComplaintVerificationCode] = useState('');
+  const [verificationStep, setVerificationStep] = useState<
+    "form" | "code" | "verified"
+  >("form");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [sentCode, setSentCode] = useState("");
+  const [complaintForm, setComplaintForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+  const [complaintVerificationStep, setComplaintVerificationStep] = useState<
+    "form" | "code" | "verified"
+  >("form");
+  const [complaintVerificationCode, setComplaintVerificationCode] =
+    useState("");
   const [complaintGdprConsent, setComplaintGdprConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [gdprConsent, setGdprConsent] = useState(false);
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [successAppointmentData, setSuccessAppointmentData] = useState<any>(null);
+  const [successAppointmentData, setSuccessAppointmentData] =
+    useState<any>(null);
   const [queueRating, setQueueRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [hasRated, setHasRated] = useState(false);
@@ -62,21 +96,21 @@ const Index = () => {
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
-  const [photoModalUrl, setPhotoModalUrl] = useState('');
+  const [photoModalUrl, setPhotoModalUrl] = useState("");
 
   const maxTexts = [
-    'Максимум возможностей для жизни',
-    'Быстрое и лёгкое приложение для общения и решения повседневных задач',
-    'Высокое качество звонков. Общайтесь в удовольствие благодаря высокому качеству связи и быстрому соединению даже в сетях со слабым сигналом',
-    'Общение на максимум. Анимированные стикеры, реакции в чатах, возможность отправки файлов до 4 ГБ – все необходимое для того, чтобы делиться настроением и важной информацией',
-    'Чат боты и мини приложения. Предоставляют прямой доступ к партнерским сервисам и позволяют быстро и легко решать множество ежедневных задач',
-    'Скачайте MAX на любое устройство',
+    "Максимум возможностей для жизни",
+    "Быстрое и лёгкое приложение для общения и решения повседневных задач",
+    "Высокое качество звонков. Общайтесь в удовольствие благодаря высокому качеству связи и быстрому соединению даже в сетях со слабым сигналом",
+    "Общение на максимум. Анимированные стикеры, реакции в чатах, возможность отправки файлов до 4 ГБ – все необходимое для того, чтобы делиться настроением и важной информацией",
+    "Чат боты и мини приложения. Предоставляют прямой доступ к партнерским сервисам и позволяют быстро и легко решать множество ежедневных задач",
+    "Скачайте MAX на любое устройство",
   ];
 
   useEffect(() => {
     loadDoctors();
-    
-    const bannerClosed = localStorage.getItem('maxBannerClosed');
+
+    const bannerClosed = localStorage.getItem("maxBannerClosed");
     if (!bannerClosed) {
       const timer = setTimeout(() => {
         setIsMaxBannerVisible(true);
@@ -94,9 +128,9 @@ const Index = () => {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('openAppointment') === 'true') {
+    if (urlParams.get("openAppointment") === "true") {
       setIsAppointmentOpen(true);
-      window.history.replaceState({}, '', '/');
+      window.history.replaceState({}, "", "/");
     }
   }, []);
 
@@ -120,67 +154,68 @@ const Index = () => {
     };
   }, [selectedDoctor, selectedDate]);
 
-
-
   const loadDoctors = async () => {
     try {
       const response = await fetch(BACKEND_URLS.doctors);
       const data = await response.json();
       setDoctors(data.doctors?.filter((d: any) => d.is_active) || []);
     } catch (error) {
-      console.error('Failed to load doctors:', error);
+      console.error("Failed to load doctors:", error);
     }
   };
 
   const loadDoctorSchedule = async () => {
     if (!selectedDoctor) return;
-    
+
     try {
-      const response = await fetch(`${BACKEND_URLS.schedules}?doctor_id=${selectedDoctor.id}`);
+      const response = await fetch(
+        `${BACKEND_URLS.schedules}?doctor_id=${selectedDoctor.id}`,
+      );
       const data = await response.json();
       setDoctorSchedule(data.schedules || []);
     } catch (error) {
-      console.error('Failed to load schedule:', error);
+      console.error("Failed to load schedule:", error);
     }
   };
 
   const loadAllSlots = async () => {
     if (!selectedDoctor) return;
-    
+
     setIsLoadingCalendar(true);
     const days = getNext7Days();
-    
+
     if (days.length === 0) {
       setIsLoadingCalendar(false);
       return;
     }
-    
+
     const startDate = days[0].date;
     const endDate = days[days.length - 1].date;
-    
+
     try {
       // Батчинг: один запрос вместо 14
       const response = await fetch(
-        `${BACKEND_URLS.appointments}?action=available-slots-bulk&doctor_id=${selectedDoctor.id}&start_date=${startDate}&end_date=${endDate}`
+        `${BACKEND_URLS.appointments}?action=available-slots-bulk&doctor_id=${selectedDoctor.id}&start_date=${startDate}&end_date=${endDate}`,
       );
       const data = await response.json();
       const slotsByDate = data.slots_by_date || {};
-      
+
       const slotsMap: any = {};
-      days.forEach(day => {
+      days.forEach((day) => {
         const dayData = slotsByDate[day.date];
         slotsMap[day.date] = {
           available: dayData?.available_slots || [],
-          hasSchedule: dayData?.available_slots && dayData.available_slots.length > 0
+          hasSchedule:
+            dayData?.available_slots && dayData.available_slots.length > 0,
         };
       });
-      
+
       setAllSlots(slotsMap);
     } catch (error) {
-      console.error('Failed to load slots:', error);
+      console.error("Failed to load slots:", error);
       // Фоллбэк на пустые слоты
       const slotsMap: any = {};
-      days.forEach(day => {
+      days.forEach((day) => {
         slotsMap[day.date] = { available: [], hasSchedule: false };
       });
       setAllSlots(slotsMap);
@@ -205,14 +240,14 @@ const Index = () => {
     setIsLoadingSlots(true);
     try {
       const response = await fetch(
-        `${BACKEND_URLS.appointments}?action=available-slots&doctor_id=${selectedDoctor.id}&date=${selectedDate}`
+        `${BACKEND_URLS.appointments}?action=available-slots&doctor_id=${selectedDoctor.id}&date=${selectedDate}`,
       );
       const data = await response.json();
       const allSlotsData = data.all_slots || [];
       setAllTimeSlotsForDate(allSlotsData);
-      setSlotsCache(prev => ({ ...prev, [selectedDate]: allSlotsData }));
+      setSlotsCache((prev) => ({ ...prev, [selectedDate]: allSlotsData }));
     } catch (error) {
-      console.error('Failed to load slots:', error);
+      console.error("Failed to load slots:", error);
     } finally {
       setIsLoadingSlots(false);
     }
@@ -224,9 +259,13 @@ const Index = () => {
       const date = new Date();
       date.setDate(date.getDate() + i);
       days.push({
-        date: date.toISOString().split('T')[0],
-        label: date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' }),
-        dayOfWeek: date.getDay()
+        date: date.toISOString().split("T")[0],
+        label: date.toLocaleDateString("ru-RU", {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+        }),
+        dayOfWeek: date.getDay(),
       });
     }
     return days;
@@ -238,29 +277,33 @@ const Index = () => {
 
   const handleSendVerificationCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const rateLimitCheck = await checkAppointmentLimit();
     if (!rateLimitCheck.allowed) {
       toast({
-        title: 'Ограничение запросов',
-        description: rateLimitCheck.reason || 'Слишком много попыток. Подождите немного.',
-        variant: 'destructive',
+        title: "Ограничение запросов",
+        description:
+          rateLimitCheck.reason || "Слишком много попыток. Подождите немного.",
+        variant: "destructive",
       });
       return;
     }
-    
+
     setIsSubmitting(true);
 
-    console.log('DEBUG: Отправляемый номер телефона:', appointmentForm.patient_phone);
-    console.log('DEBUG: Полная форма:', appointmentForm);
+    console.log(
+      "DEBUG: Отправляемый номер телефона:",
+      appointmentForm.patient_phone,
+    );
+    console.log("DEBUG: Полная форма:", appointmentForm);
 
     try {
       const response = await fetch(BACKEND_URLS.smsVerify, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          action: 'send',
-          phone_number: appointmentForm.patient_phone 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "send",
+          phone_number: appointmentForm.patient_phone,
         }),
       });
 
@@ -272,7 +315,7 @@ const Index = () => {
           description: `Проверьте сообщения в мессенджере MAX на номере ${appointmentForm.patient_phone}`,
           duration: 10000,
         });
-        setVerificationStep('code');
+        setVerificationStep("code");
       } else {
         toast({
           title: "Ошибка",
@@ -297,19 +340,19 @@ const Index = () => {
 
     try {
       const response = await fetch(BACKEND_URLS.smsVerify, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          action: 'verify',
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "verify",
           phone_number: appointmentForm.patient_phone,
-          code: verificationCode
+          code: verificationCode,
         }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setVerificationStep('verified');
+        setVerificationStep("verified");
         toast({
           title: "Номер подтвержден",
           description: "Теперь вы можете завершить запись",
@@ -317,7 +360,8 @@ const Index = () => {
       } else {
         toast({
           title: "Неверный код",
-          description: data.error || "Проверьте введенный код и попробуйте снова",
+          description:
+            data.error || "Проверьте введенный код и попробуйте снова",
           variant: "destructive",
         });
       }
@@ -335,7 +379,7 @@ const Index = () => {
   const handleAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (verificationStep !== 'verified') {
+    if (verificationStep !== "verified") {
       toast({
         title: "Требуется верификация",
         description: "Сначала подтвердите номер телефона",
@@ -343,13 +387,15 @@ const Index = () => {
       });
       return;
     }
-    
+
     const rateLimitCheck = await checkAppointmentLimit();
     if (!rateLimitCheck.allowed) {
       toast({
-        title: 'Ограничение запросов',
-        description: rateLimitCheck.reason || 'Слишком много попыток записи. Подождите немного.',
-        variant: 'destructive',
+        title: "Ограничение запросов",
+        description:
+          rateLimitCheck.reason ||
+          "Слишком много попыток записи. Подождите немного.",
+        variant: "destructive",
       });
       return;
     }
@@ -359,23 +405,25 @@ const Index = () => {
 
     try {
       const response = await fetch(BACKEND_URLS.appointments, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           doctor_id: selectedDoctor.id,
           appointment_date: selectedDate,
           ...appointmentForm,
           created_by: 1,
-          skip_slot_check: false
+          skip_slot_check: false,
         }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        const successAudio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUQ4NVqzn77FgHA==');
+        const successAudio = new Audio(
+          "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUQ4NVqzn77FgHA==",
+        );
         successAudio.play().catch(() => {});
-        
+
         setSuccessAppointmentData({
           doctor: selectedDoctor,
           date: selectedDate,
@@ -385,18 +433,25 @@ const Index = () => {
           patient_snils: appointmentForm.patient_snils,
           patient_oms: appointmentForm.patient_oms,
           description: appointmentForm.description,
-          appointment_id: data.appointment?.id
+          appointment_id: data.appointment?.id,
         });
         setShowSuccessModal(true);
         setQueueRating(0);
         setHasRated(false);
         setIsAppointmentOpen(false);
-        setAppointmentForm({ patient_name: '', patient_phone: '', patient_snils: '', patient_oms: '', appointment_time: '', description: '' });
-        setSelectedDate('');
+        setAppointmentForm({
+          patient_name: "",
+          patient_phone: "",
+          patient_snils: "",
+          patient_oms: "",
+          appointment_time: "",
+          description: "",
+        });
+        setSelectedDate("");
         setSelectedDoctor(null);
         setSelectedClinic(null);
-        setVerificationStep('form');
-        setVerificationCode('');
+        setVerificationStep("form");
+        setVerificationCode("");
         setGdprConsent(false);
       } else {
         toast({
@@ -418,20 +473,23 @@ const Index = () => {
 
   const handleRatingSubmit = async (rating: number) => {
     if (!successAppointmentData?.appointment_id) return;
-    
+
     try {
-      const response = await fetch('https://functions.poehali.dev/c79c1676-b7db-416a-9147-72fc369a5950', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          appointment_id: successAppointmentData.appointment_id,
-          patient_name: successAppointmentData.patient_name,
-          rating: rating
-        })
-      });
-      
+      const response = await fetch(
+        "https://functions.poehali.dev/c79c1676-b7db-416a-9147-72fc369a5950",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            appointment_id: successAppointmentData.appointment_id,
+            patient_name: successAppointmentData.patient_name,
+            rating: rating,
+          }),
+        },
+      );
+
       const data = await response.json();
-      
+
       if (data.success) {
         setHasRated(true);
         toast({
@@ -440,32 +498,33 @@ const Index = () => {
         });
       }
     } catch (error) {
-      console.error('Rating error:', error);
+      console.error("Rating error:", error);
     }
   };
 
   const handleComplaintSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const rateLimitCheck = await checkComplaintLimit();
     if (!rateLimitCheck.allowed) {
       toast({
-        title: 'Ограничение запросов',
-        description: rateLimitCheck.reason || 'Слишком много попыток. Подождите немного.',
-        variant: 'destructive',
+        title: "Ограничение запросов",
+        description:
+          rateLimitCheck.reason || "Слишком много попыток. Подождите немного.",
+        variant: "destructive",
       });
       return;
     }
-    
+
     setIsSubmitting(true);
 
     try {
       const response = await fetch(BACKEND_URLS.smsVerify, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          action: 'send',
-          phone_number: complaintForm.phone 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "send",
+          phone_number: complaintForm.phone,
         }),
       });
 
@@ -477,7 +536,7 @@ const Index = () => {
           description: `Проверьте сообщения в мессенджере MAX на номере ${complaintForm.phone}`,
           duration: 10000,
         });
-        setComplaintVerificationStep('code');
+        setComplaintVerificationStep("code");
       } else {
         toast({
           title: "Ошибка",
@@ -502,19 +561,19 @@ const Index = () => {
 
     try {
       const response = await fetch(BACKEND_URLS.smsVerify, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          action: 'verify',
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "verify",
           phone_number: complaintForm.phone,
-          code: complaintVerificationCode
+          code: complaintVerificationCode,
         }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setComplaintVerificationStep('verified');
+        setComplaintVerificationStep("verified");
         toast({
           title: "Номер подтвержден",
           description: "Теперь вы можете отправить обращение",
@@ -522,7 +581,8 @@ const Index = () => {
       } else {
         toast({
           title: "Неверный код",
-          description: data.error || "Проверьте введенный код и попробуйте снова",
+          description:
+            data.error || "Проверьте введенный код и попробуйте снова",
           variant: "destructive",
         });
       }
@@ -540,7 +600,7 @@ const Index = () => {
   const handleComplaint = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (complaintVerificationStep !== 'verified') {
+    if (complaintVerificationStep !== "verified") {
       toast({
         title: "Требуется верификация",
         description: "Сначала подтвердите номер телефона",
@@ -548,23 +608,25 @@ const Index = () => {
       });
       return;
     }
-    
+
     const rateLimitCheck = await checkComplaintLimit();
     if (!rateLimitCheck.allowed) {
       toast({
-        title: 'Ограничение запросов',
-        description: rateLimitCheck.reason || 'Слишком много попыток отправки жалобы. Подождите немного.',
-        variant: 'destructive',
+        title: "Ограничение запросов",
+        description:
+          rateLimitCheck.reason ||
+          "Слишком много попыток отправки жалобы. Подождите немного.",
+        variant: "destructive",
       });
       return;
     }
-    
+
     setIsSubmitting(true);
 
     try {
       const response = await fetch(BACKEND_URLS.complaints, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(complaintForm),
       });
 
@@ -575,9 +637,9 @@ const Index = () => {
           title: "Жалоба отправлена",
           description: "Мы рассмотрим ваше обращение в ближайшее время.",
         });
-        setComplaintForm({ name: '', email: '', phone: '', message: '' });
-        setComplaintVerificationStep('form');
-        setComplaintVerificationCode('');
+        setComplaintForm({ name: "", email: "", phone: "", message: "" });
+        setComplaintVerificationStep("form");
+        setComplaintVerificationCode("");
         setComplaintGdprConsent(false);
       } else {
         toast({
@@ -598,31 +660,66 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/a13c22eb-38b0-4a04-ad65-321b423b3692.jpg)' }}>
+    <div
+      className="min-h-screen bg-gradient-to-b from-background to-muted/30 bg-cover bg-center bg-fixed"
+      style={{
+        backgroundImage:
+          "url(https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/a13c22eb-38b0-4a04-ad65-321b423b3692.jpg)",
+      }}
+    >
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img 
-                src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adf474e3-ca46-4949-958c-72bcaef3e542.jpg" 
-                alt="Логотип АЦГМБ ЛНР" 
+              <img
+                src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adf474e3-ca46-4949-958c-72bcaef3e542.jpg"
+                alt="Логотип АЦГМБ ЛНР"
                 className="w-12 h-12 object-contain mix-blend-multiply rounded-full"
               />
               <div>
-                <h1 className="text-sm font-bold text-primary leading-tight">ГБУЗ Антрацитовская центральная<br />городская многопрофильная больница</h1>
+                <h1 className="text-sm font-bold text-primary leading-tight">
+                  ГБУЗ Антрацитовская центральная
+                  <br />
+                  городская многопрофильная больница
+                </h1>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <nav className="hidden lg:flex gap-4 text-sm">
-                <a href="/about" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">О нас</a>
-                <a href="#doctors" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">График приема граждан</a>
-                <a href="/structure" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Структура</a>
-                <a href="#contacts" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Контакты</a>
-                <a href="/docs" className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap">Документы</a>
+                <a
+                  href="/about"
+                  className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap"
+                >
+                  О нас
+                </a>
+                <a
+                  href="#doctors"
+                  className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap"
+                >
+                  График приема граждан
+                </a>
+                <a
+                  href="/structure"
+                  className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap"
+                >
+                  Структура
+                </a>
+                <a
+                  href="#contacts"
+                  className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap"
+                >
+                  Контакты
+                </a>
+                <a
+                  href="/docs"
+                  className="text-foreground hover:text-primary transition-colors font-medium whitespace-nowrap"
+                >
+                  Документы
+                </a>
               </nav>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="lg:hidden"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
@@ -630,34 +727,68 @@ const Index = () => {
               </Button>
             </div>
           </div>
-          
+
           {isMobileMenuOpen && (
             <nav className="lg:hidden flex flex-col gap-3 mt-4 pt-4 border-t border-border">
-              <a href="/about" className="text-foreground hover:text-primary transition-colors font-medium" onClick={() => setIsMobileMenuOpen(false)}>О нас</a>
-              <a href="#doctors" className="text-foreground hover:text-primary transition-colors font-medium" onClick={() => setIsMobileMenuOpen(false)}>График приема граждан</a>
-              <a href="/structure" className="text-foreground hover:text-primary transition-colors font-medium" onClick={() => setIsMobileMenuOpen(false)}>Структура ГУ "АЦГМБ" ЛНР</a>
-              <a href="#contacts" className="text-foreground hover:text-primary transition-colors font-medium" onClick={() => setIsMobileMenuOpen(false)}>Контакты</a>
-              <a href="/docs" className="text-foreground hover:text-primary transition-colors font-medium" onClick={() => setIsMobileMenuOpen(false)}>Документы</a>
+              <a
+                href="/about"
+                className="text-foreground hover:text-primary transition-colors font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                О нас
+              </a>
+              <a
+                href="#doctors"
+                className="text-foreground hover:text-primary transition-colors font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                График приема граждан
+              </a>
+              <a
+                href="/structure"
+                className="text-foreground hover:text-primary transition-colors font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Структура ГУ "АЦГМБ" ЛНР
+              </a>
+              <a
+                href="#contacts"
+                className="text-foreground hover:text-primary transition-colors font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Контакты
+              </a>
+              <a
+                href="/docs"
+                className="text-foreground hover:text-primary transition-colors font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Документы
+              </a>
             </nav>
           )}
 
           {isMaxBannerVisible && (
             <div className="relative mt-3 animate-in fade-in slide-in-from-top-4 duration-500">
-              <a 
-                href="https://max.ru/" 
-                target="_blank" 
+              <a
+                href="https://max.ru/"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-3 pr-12 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg border border-blue-200 transition-all duration-300 group"
               >
-                <img 
-                  src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/d6005286-66a2-4d52-91f2-27beec5e16cc.jpg" 
-                  alt="MAX" 
+                <img
+                  src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/d6005286-66a2-4d52-91f2-27beec5e16cc.jpg"
+                  alt="MAX"
                   className="w-10 h-10 rounded-lg shadow-sm group-hover:scale-105 transition-transform"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-bold text-blue-600 text-sm">MAX</span>
-                    <Icon name="ExternalLink" size={14} className="text-blue-500" />
+                    <Icon
+                      name="ExternalLink"
+                      size={14}
+                      className="text-blue-500"
+                    />
                   </div>
                   <p className="text-xs text-gray-700 leading-tight line-clamp-2 transition-all duration-500">
                     {maxTexts[maxTextIndex]}
@@ -668,7 +799,7 @@ const Index = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   setIsMaxBannerVisible(false);
-                  localStorage.setItem('maxBannerClosed', 'true');
+                  localStorage.setItem("maxBannerClosed", "true");
                 }}
                 className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200/80 transition-colors text-gray-500 hover:text-gray-700"
                 aria-label="Закрыть баннер"
@@ -694,194 +825,462 @@ const Index = () => {
           .rating-btn:hover { animation: none; transform: scale(1.05); box-shadow: 0 6px 24px rgba(251,191,36,0.5); }
           .rating-star { animation: star-spin 2.5s ease-in-out infinite; }
         `}</style>
-        <a href="/vote" className="rating-btn inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 rounded-xl transition-all group cursor-pointer">
-          <svg viewBox="0 0 24 24" className="rating-star w-7 h-7 fill-white flex-shrink-0"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="white" strokeWidth="1" /></svg>
+        <a
+          href="/vote"
+          className="rating-btn inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 rounded-xl transition-all group cursor-pointer"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="rating-star w-7 h-7 fill-white flex-shrink-0"
+          >
+            <polygon
+              points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+              stroke="white"
+              strokeWidth="1"
+            />
+          </svg>
           <div className="text-left">
-            <p className="text-white font-bold text-sm leading-tight">Рейтинг врачей</p>
-            <p className="text-white/85 text-xs leading-tight">Оцени работу врача</p>
+            <p className="text-white font-bold text-sm leading-tight">
+              Рейтинг врачей
+            </p>
+            <p className="text-white/85 text-xs leading-tight">
+              Оцени работу врача
+            </p>
           </div>
         </a>
       </div>
 
       <section className="pt-4 pb-20 text-center">
         <div className="container mx-auto px-4">
-          <img 
-            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adf474e3-ca46-4949-958c-72bcaef3e542.jpg" 
-            alt="Логотип АЦГМБ ЛНР" 
+          <img
+            src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adf474e3-ca46-4949-958c-72bcaef3e542.jpg"
+            alt="Логотип АЦГМБ ЛНР"
             className="w-[166px] h-[166px] md:w-[332px] md:h-[332px] mx-auto mb-4 md:mb-8 object-contain animate-fade-in mix-blend-multiply rounded-full"
           />
-          <h2 className="font-bold mb-2 text-foreground animate-fade-in text-base md:text-4xl">ГБУЗ "Антрацитовская центральная городская многопрофильная больница"</h2>
-          <p className="text-sm md:text-lg text-muted-foreground mb-8 animate-fade-in">Луганской Народной Республики</p>
+          <h2 className="font-bold mb-2 text-foreground animate-fade-in text-base md:text-4xl">
+            ГБУЗ "Антрацитовская центральная городская многопрофильная больница"
+          </h2>
+          <p className="text-sm md:text-lg text-muted-foreground mb-8 animate-fade-in">
+            Луганской Народной Республики
+          </p>
           <p className="text-base md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in">
-            Современная медицинская помощь с заботой о каждом пациенте. Квалифицированные специалисты и передовые технологии.
+            Современная медицинская помощь с заботой о каждом пациенте.
+            Квалифицированные специалисты и передовые технологии.
           </p>
           <div className="flex flex-col items-center gap-3 animate-scale-in">
             <div className="flex gap-4 justify-center flex-wrap">
-              <Dialog open={isAppointmentOpen} onOpenChange={(open) => {
-                // Проверяем, есть ли модальное окно ошибки слота
-                const slotErrorDialog = document.getElementById('slot-error-overlay');
-                if (!open && slotErrorDialog) {
-                  // Если пытаются закрыть диалог, но открыто окно ошибки - игнорируем
-                  return;
-                }
-                setIsAppointmentOpen(open);
-              }}>
+              <Dialog
+                open={isAppointmentOpen}
+                onOpenChange={(open) => {
+                  // Проверяем, есть ли модальное окно ошибки слота
+                  const slotErrorDialog =
+                    document.getElementById("slot-error-overlay");
+                  if (!open && slotErrorDialog) {
+                    // Если пытаются закрыть диалог, но открыто окно ошибки - игнорируем
+                    return;
+                  }
+                  setIsAppointmentOpen(open);
+                }}
+              >
                 <DialogTrigger asChild>
-                  <Button size="lg" className="gap-2 shadow-lg hover:shadow-xl transition-shadow w-full sm:w-auto sm:min-w-[200px] bg-blue-900 hover:bg-blue-800" data-appointment-trigger>
+                  <Button
+                    size="lg"
+                    className="gap-2 shadow-lg hover:shadow-xl transition-shadow w-full sm:w-auto sm:min-w-[200px] bg-blue-900 hover:bg-blue-800"
+                    data-appointment-trigger
+                  >
                     <Icon name="Calendar" size={20} />
                     Записаться на прием
                   </Button>
                 </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" onPointerDownOutside={(e) => {
-                // Блокируем закрытие диалога при клике на overlay, если открыто окно ошибки
-                const slotErrorDialog = document.getElementById('slot-error-overlay');
-                if (slotErrorDialog) {
-                  e.preventDefault();
-                }
-              }}>
-                <DialogHeader>
-                  <DialogTitle>Запись на прием</DialogTitle>
-                  <DialogDescription>Выберите врача, дату и время приема</DialogDescription>
-                </DialogHeader>
-                
-                {!selectedClinic ? (
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-lg">Выберите поликлинику:</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <Card 
-                        className="cursor-pointer hover:shadow-xl transition-all hover:border-primary"
-                        onClick={() => setSelectedClinic('Центральная городская поликлиника')}
-                      >
-                        <CardHeader className="text-center">
-                          <div className="w-20 h-20 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                            <Icon name="Building2" size={40} className="text-blue-600" />
-                          </div>
-                          <CardTitle className="text-xl">Центральная городская поликлиника</CardTitle>
-                          <CardDescription className="text-base">Взрослое отделение</CardDescription>
-                        </CardHeader>
-                      </Card>
-                      
-                      <Card 
-                        className="cursor-pointer hover:shadow-xl transition-all hover:border-primary"
-                        onClick={() => setSelectedClinic('Детская городская поликлиника')}
-                      >
-                        <CardHeader className="text-center">
-                          <div className="w-20 h-20 mx-auto bg-pink-100 rounded-full flex items-center justify-center mb-3">
-                            <Icon name="Baby" size={40} className="text-pink-600" />
-                          </div>
-                          <CardTitle className="text-xl">Детская городская поликлиника</CardTitle>
-                          <CardDescription className="text-base">Детское отделение</CardDescription>
-                        </CardHeader>
-                      </Card>
-                    </div>
-                  </div>
-                ) : !selectedDoctor ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                <DialogContent
+                  className="max-w-4xl max-h-[90vh] overflow-y-auto"
+                  onPointerDownOutside={(e) => {
+                    // Блокируем закрытие диалога при клике на overlay, если открыто окно ошибки
+                    const slotErrorDialog =
+                      document.getElementById("slot-error-overlay");
+                    if (slotErrorDialog) {
+                      e.preventDefault();
+                    }
+                  }}
+                >
+                  <DialogHeader>
+                    <DialogTitle>Запись на прием</DialogTitle>
+                    <DialogDescription>
+                      Выберите врача, дату и время приема
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  {!selectedClinic ? (
+                    <div className="space-y-4">
                       <h3 className="font-semibold text-lg">
-                        {selectedClinic}
+                        Выберите поликлинику:
                       </h3>
-                      <Button variant="outline" size="sm" onClick={() => setSelectedClinic(null)}>
-                        <Icon name="ArrowLeft" size={16} className="mr-1" />
-                        Назад
-                      </Button>
-                    </div>
-                    <h3 className="font-semibold">Выберите врача:</h3>
-                    <div className="grid md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-                      {doctors
-                        .filter((doctor: any) => doctor.clinic === selectedClinic)
-                        .map((doctor: any) => (
-                        <Card 
-                          key={doctor.id} 
-                          className="cursor-pointer hover:shadow-lg transition-shadow"
-                          onClick={() => setSelectedDoctor(doctor)}
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <Card
+                          className="cursor-pointer hover:shadow-xl transition-all hover:border-primary"
+                          onClick={() =>
+                            setSelectedClinic(
+                              "Центральная городская поликлиника",
+                            )
+                          }
                         >
-                          <CardContent className="p-3">
-                            <div className="flex items-center gap-4 w-full">
-                              {doctor.photo_url ? (
-                                <img 
-                                  src={doctor.photo_url} 
-                                  alt={doctor.full_name} 
-                                  className="w-24 h-24 rounded-lg object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setPhotoModalUrl(doctor.photo_url);
-                                    setPhotoModalOpen(true);
-                                  }}
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                  }}
+                          <CardHeader className="text-center">
+                            <div className="w-20 h-20 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                              <Icon
+                                name="Building2"
+                                size={40}
+                                className="text-blue-600"
+                              />
+                            </div>
+                            <CardTitle className="text-xl">
+                              Центральная городская поликлиника
+                            </CardTitle>
+                            <CardDescription className="text-base">
+                              Взрослое отделение
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
+
+                        <Card
+                          className="cursor-pointer hover:shadow-xl transition-all hover:border-primary"
+                          onClick={() =>
+                            setSelectedClinic("Детская городская поликлиника")
+                          }
+                        >
+                          <CardHeader className="text-center">
+                            <div className="w-20 h-20 mx-auto bg-pink-100 rounded-full flex items-center justify-center mb-3">
+                              <Icon
+                                name="Baby"
+                                size={40}
+                                className="text-pink-600"
+                              />
+                            </div>
+                            <CardTitle className="text-xl">
+                              Детская городская поликлиника
+                            </CardTitle>
+                            <CardDescription className="text-base">
+                              Детское отделение
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
+                      </div>
+                    </div>
+                  ) : !selectedDoctor ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-lg">
+                          {selectedClinic}
+                        </h3>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedClinic(null)}
+                        >
+                          <Icon name="ArrowLeft" size={16} className="mr-1" />
+                          Назад
+                        </Button>
+                      </div>
+                      <h3 className="font-semibold">Выберите врача:</h3>
+                      <div className="grid md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+                        {doctors
+                          .filter(
+                            (doctor: any) => doctor.clinic === selectedClinic,
+                          )
+                          .map((doctor: any) => (
+                            <Card
+                              key={doctor.id}
+                              className="cursor-pointer hover:shadow-lg transition-shadow"
+                              onClick={() => setSelectedDoctor(doctor)}
+                            >
+                              <CardContent className="p-3">
+                                <div className="flex items-center gap-4 w-full">
+                                  {doctor.photo_url ? (
+                                    <img
+                                      src={doctor.photo_url}
+                                      alt={doctor.full_name}
+                                      className="w-24 h-24 rounded-lg object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setPhotoModalUrl(doctor.photo_url);
+                                        setPhotoModalOpen(true);
+                                      }}
+                                      onError={(e) => {
+                                        (
+                                          e.target as HTMLImageElement
+                                        ).style.display = "none";
+                                      }}
+                                    />
+                                  ) : (
+                                    <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                      <Icon
+                                        name="User"
+                                        size={40}
+                                        className="text-primary"
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0 space-y-1">
+                                    <p className="font-semibold text-sm">
+                                      {doctor.full_name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {doctor.position}
+                                    </p>
+                                    {doctor.specialization && (
+                                      <p className="text-xs text-muted-foreground">
+                                        {doctor.specialization}
+                                      </p>
+                                    )}
+                                    <div className="pt-1 space-y-0.5">
+                                      {doctor.office_number && (
+                                        <p className="text-xs flex items-center gap-1">
+                                          <Icon
+                                            name="DoorOpen"
+                                            size={12}
+                                            className="text-primary"
+                                          />
+                                          <span className="font-medium">
+                                            Кабинет {doctor.office_number}
+                                          </span>
+                                        </p>
+                                      )}
+                                      {doctor.work_experience && (
+                                        <p className="text-xs flex items-center gap-1">
+                                          <Icon
+                                            name="Briefcase"
+                                            size={12}
+                                            className="text-primary"
+                                          />
+                                          <span>
+                                            Стаж {doctor.work_experience} лет
+                                          </span>
+                                        </p>
+                                      )}
+                                      {doctor.education && (
+                                        <p className="text-xs flex items-center gap-1">
+                                          <Icon
+                                            name="GraduationCap"
+                                            size={12}
+                                            className="text-primary"
+                                          />
+                                          <span
+                                            className="truncate"
+                                            title={doctor.education}
+                                          >
+                                            {doctor.education}
+                                          </span>
+                                        </p>
+                                      )}
+                                      {doctor.category && (
+                                        <p className="text-xs flex items-center gap-1">
+                                          <Icon
+                                            name="Award"
+                                            size={12}
+                                            className="text-primary"
+                                          />
+                                          <span
+                                            className="truncate"
+                                            title={doctor.category}
+                                          >
+                                            Категория: {doctor.category}
+                                          </span>
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                      </div>
+                    </div>
+                  ) : !selectedDate ? (
+                    isLoadingCalendar ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {selectedDoctor.photo_url ? (
+                              <img
+                                src={selectedDoctor.photo_url}
+                                alt={selectedDoctor.full_name}
+                                className="w-12 h-12 rounded-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display =
+                                    "none";
+                                }}
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                <Icon
+                                  name="User"
+                                  size={24}
+                                  className="text-primary"
                                 />
-                              ) : (
-                                <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                  <Icon name="User" size={40} className="text-primary" />
-                                </div>
-                              )}
-                              <div className="flex-1 min-w-0 space-y-1">
-                                <p className="font-semibold text-sm">{doctor.full_name}</p>
-                                <p className="text-xs text-muted-foreground">{doctor.position}</p>
-                                {doctor.specialization && (
-                                  <p className="text-xs text-muted-foreground">{doctor.specialization}</p>
-                                )}
-                                <div className="pt-1 space-y-0.5">
-                                  {doctor.office_number && (
-                                    <p className="text-xs flex items-center gap-1">
-                                      <Icon name="DoorOpen" size={12} className="text-primary" />
-                                      <span className="font-medium">Кабинет {doctor.office_number}</span>
-                                    </p>
-                                  )}
-                                  {doctor.work_experience && (
-                                    <p className="text-xs flex items-center gap-1">
-                                      <Icon name="Briefcase" size={12} className="text-primary" />
-                                      <span>Стаж {doctor.work_experience} лет</span>
-                                    </p>
-                                  )}
-                                  {doctor.education && (
-                                    <p className="text-xs flex items-center gap-1">
-                                      <Icon name="GraduationCap" size={12} className="text-primary" />
-                                      <span className="truncate" title={doctor.education}>{doctor.education}</span>
-                                    </p>
-                                  )}
-                                  {doctor.category && (
-                                    <p className="text-xs flex items-center gap-1">
-                                      <Icon name="Award" size={12} className="text-primary" />
-                                      <span className="truncate" title={doctor.category}>Категория: {doctor.category}</span>
-                                    </p>
-                                  )}
-                                </div>
+                              </div>
+                            )}
+                            <div>
+                              <h3 className="font-semibold">
+                                {selectedDoctor.full_name}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                {selectedDoctor.position}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedDoctor(null);
+                              setSelectedClinic(null);
+                              setIsLoadingCalendar(false);
+                            }}
+                          >
+                            Изменить
+                          </Button>
+                        </div>
+                        <Card className="bg-blue-50 border-blue-200">
+                          <CardContent className="py-12 text-center">
+                            <div className="flex flex-col items-center gap-4">
+                              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                              <div>
+                                <p className="text-lg font-semibold text-blue-900">
+                                  Идет получение данных
+                                </p>
+                                <p className="text-sm text-blue-700 mt-1">
+                                  Загружаем доступные даты...
+                                </p>
                               </div>
                             </div>
                           </CardContent>
                         </Card>
-                      ))}
-                    </div>
-                  </div>
-                ) : !selectedDate ? (
-                  isLoadingCalendar ? (
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {selectedDoctor.photo_url ? (
+                              <img
+                                src={selectedDoctor.photo_url}
+                                alt={selectedDoctor.full_name}
+                                className="w-12 h-12 rounded-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display =
+                                    "none";
+                                }}
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                <Icon
+                                  name="User"
+                                  size={24}
+                                  className="text-primary"
+                                />
+                              </div>
+                            )}
+                            <div>
+                              <h3 className="font-semibold">
+                                {selectedDoctor.full_name}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                {selectedDoctor.position}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedDoctor(null);
+                              setSelectedClinic(null);
+                            }}
+                          >
+                            Изменить
+                          </Button>
+                        </div>
+                        <h3 className="font-semibold">Выберите дату:</h3>
+                        <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+                          {getNext7Days().map((day) => {
+                            const isAvailable = isDayAvailable(day.date);
+                            const availableCount =
+                              allSlots[day.date]?.available?.length || 0;
+                            return (
+                              <Button
+                                key={day.date}
+                                variant="outline"
+                                className={`h-24 flex flex-col ${!isAvailable ? "opacity-40 cursor-not-allowed" : ""}`}
+                                onClick={() =>
+                                  isAvailable && setSelectedDate(day.date)
+                                }
+                                disabled={!isAvailable}
+                              >
+                                <span className="text-xs text-muted-foreground">
+                                  {day.label.split(",")[0]}
+                                </span>
+                                <span className="text-lg font-bold">
+                                  {day.label.split(",")[1]}
+                                </span>
+                                {!isAvailable ? (
+                                  <span className="text-[10px] text-red-500 mt-0.5">
+                                    Нет приема
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] text-green-600 mt-0.5 font-semibold">
+                                    {availableCount}{" "}
+                                    {availableCount === 1
+                                      ? "место"
+                                      : availableCount < 5
+                                        ? "места"
+                                        : "мест"}
+                                  </span>
+                                )}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )
+                  ) : isLoadingSlots ? (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           {selectedDoctor.photo_url ? (
-                            <img 
-                              src={selectedDoctor.photo_url} 
-                              alt={selectedDoctor.full_name} 
+                            <img
+                              src={selectedDoctor.photo_url}
+                              alt={selectedDoctor.full_name}
                               className="w-12 h-12 rounded-full object-cover"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
+                                (e.target as HTMLImageElement).style.display =
+                                  "none";
                               }}
                             />
                           ) : (
                             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Icon name="User" size={24} className="text-primary" />
+                              <Icon
+                                name="User"
+                                size={24}
+                                className="text-primary"
+                              />
                             </div>
                           )}
                           <div>
-                            <h3 className="font-semibold">{selectedDoctor.full_name}</h3>
-                            <p className="text-sm text-muted-foreground">{selectedDoctor.position}</p>
+                            <h3 className="font-semibold">
+                              {selectedDoctor.full_name}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              Дата:{" "}
+                              {new Date(
+                                selectedDate + "T00:00:00",
+                              ).toLocaleDateString("ru-RU")}
+                            </p>
                           </div>
                         </div>
-                        <Button variant="outline" size="sm" onClick={() => { setSelectedDoctor(null); setSelectedClinic(null); setIsLoadingCalendar(false); }}>
-                          Изменить
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedDate("")}
+                        >
+                          Изменить дату
                         </Button>
                       </div>
                       <Card className="bg-blue-50 border-blue-200">
@@ -889,10 +1288,73 @@ const Index = () => {
                           <div className="flex flex-col items-center gap-4">
                             <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                             <div>
-                              <p className="text-lg font-semibold text-blue-900">Идет получение данных</p>
-                              <p className="text-sm text-blue-700 mt-1">Загружаем доступные даты...</p>
+                              <p className="text-lg font-semibold text-blue-900">
+                                Идет получение данных
+                              </p>
+                              <p className="text-sm text-blue-700 mt-1">
+                                Загружаем доступные слоты...
+                              </p>
                             </div>
                           </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : availableSlots.length === 0 && !isSubmitting ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {selectedDoctor.photo_url ? (
+                            <img
+                              src={selectedDoctor.photo_url}
+                              alt={selectedDoctor.full_name}
+                              className="w-12 h-12 rounded-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display =
+                                  "none";
+                              }}
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Icon
+                                name="User"
+                                size={24}
+                                className="text-primary"
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <h3 className="font-semibold">
+                              {selectedDoctor.full_name}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              Дата:{" "}
+                              {new Date(
+                                selectedDate + "T00:00:00",
+                              ).toLocaleDateString("ru-RU")}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedDate("")}
+                        >
+                          Изменить дату
+                        </Button>
+                      </div>
+                      <Card className="bg-yellow-50 border-yellow-200">
+                        <CardContent className="py-6 text-center">
+                          <Icon
+                            name="AlertCircle"
+                            size={32}
+                            className="text-yellow-600 mx-auto mb-2"
+                          />
+                          <p className="text-yellow-800">
+                            На выбранную дату нет свободных слотов
+                          </p>
+                          <p className="text-sm text-yellow-600 mt-1">
+                            Выберите другую дату
+                          </p>
                         </CardContent>
                       </Card>
                     </div>
@@ -901,443 +1363,484 @@ const Index = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           {selectedDoctor.photo_url ? (
-                            <img 
-                              src={selectedDoctor.photo_url} 
-                              alt={selectedDoctor.full_name} 
-                              className="w-12 h-12 rounded-full object-cover"
+                            <img
+                              src={selectedDoctor.photo_url}
+                              alt={selectedDoctor.full_name}
+                              className="w-24 h-24 rounded-lg object-cover cursor-pointer hover:shadow-lg transition-shadow"
+                              onClick={() => {
+                                setPhotoModalUrl(selectedDoctor.photo_url);
+                                setPhotoModalOpen(true);
+                              }}
                               onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
+                                (e.target as HTMLImageElement).style.display =
+                                  "none";
                               }}
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Icon name="User" size={24} className="text-primary" />
+                            <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <Icon
+                                name="User"
+                                size={40}
+                                className="text-primary"
+                              />
                             </div>
                           )}
                           <div>
-                            <h3 className="font-semibold">{selectedDoctor.full_name}</h3>
-                            <p className="text-sm text-muted-foreground">{selectedDoctor.position}</p>
+                            <h3 className="font-semibold">
+                              {selectedDoctor.full_name}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              Дата:{" "}
+                              {new Date(
+                                selectedDate + "T00:00:00",
+                              ).toLocaleDateString("ru-RU")}
+                            </p>
                           </div>
                         </div>
-                        <Button variant="outline" size="sm" onClick={() => { setSelectedDoctor(null); setSelectedClinic(null); }}>
-                          Изменить
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedDate("");
+                            setAppointmentForm({
+                              ...appointmentForm,
+                              appointment_time: "",
+                            });
+                          }}
+                        >
+                          Изменить дату
                         </Button>
                       </div>
-                      <h3 className="font-semibold">Выберите дату:</h3>
-                      <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-                        {getNext7Days().map((day) => {
-                          const isAvailable = isDayAvailable(day.date);
-                          const availableCount = allSlots[day.date]?.available?.length || 0;
-                          return (
-                            <Button
-                              key={day.date}
-                              variant="outline"
-                              className={`h-24 flex flex-col ${!isAvailable ? 'opacity-40 cursor-not-allowed' : ''}`}
-                              onClick={() => isAvailable && setSelectedDate(day.date)}
-                              disabled={!isAvailable}
-                            >
-                              <span className="text-xs text-muted-foreground">{day.label.split(',')[0]}</span>
-                              <span className="text-lg font-bold">{day.label.split(',')[1]}</span>
-                              {!isAvailable ? (
-                                <span className="text-[10px] text-red-500 mt-0.5">Нет приема</span>
-                              ) : (
-                                <span className="text-[10px] text-green-600 mt-0.5 font-semibold">
-                                  {availableCount} {availableCount === 1 ? 'место' : availableCount < 5 ? 'места' : 'мест'}
-                                </span>
-                              )}
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )
-                ) : isLoadingSlots ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {selectedDoctor.photo_url ? (
-                          <img 
-                            src={selectedDoctor.photo_url} 
-                            alt={selectedDoctor.full_name} 
-                            className="w-12 h-12 rounded-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Icon name="User" size={24} className="text-primary" />
-                          </div>
-                        )}
-                        <div>
-                          <h3 className="font-semibold">{selectedDoctor.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">Дата: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => setSelectedDate('')}>
-                        Изменить дату
-                      </Button>
-                    </div>
-                    <Card className="bg-blue-50 border-blue-200">
-                      <CardContent className="py-12 text-center">
-                        <div className="flex flex-col items-center gap-4">
-                          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                          <div>
-                            <p className="text-lg font-semibold text-blue-900">Идет получение данных</p>
-                            <p className="text-sm text-blue-700 mt-1">Загружаем доступные слоты...</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ) : availableSlots.length === 0 && !isSubmitting ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {selectedDoctor.photo_url ? (
-                          <img 
-                            src={selectedDoctor.photo_url} 
-                            alt={selectedDoctor.full_name} 
-                            className="w-12 h-12 rounded-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Icon name="User" size={24} className="text-primary" />
-                          </div>
-                        )}
-                        <div>
-                          <h3 className="font-semibold">{selectedDoctor.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">Дата: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => setSelectedDate('')}>
-                        Изменить дату
-                      </Button>
-                    </div>
-                    <Card className="bg-yellow-50 border-yellow-200">
-                      <CardContent className="py-6 text-center">
-                        <Icon name="AlertCircle" size={32} className="text-yellow-600 mx-auto mb-2" />
-                        <p className="text-yellow-800">На выбранную дату нет свободных слотов</p>
-                        <p className="text-sm text-yellow-600 mt-1">Выберите другую дату</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {selectedDoctor.photo_url ? (
-                          <img 
-                            src={selectedDoctor.photo_url} 
-                            alt={selectedDoctor.full_name} 
-                            className="w-24 h-24 rounded-lg object-cover cursor-pointer hover:shadow-lg transition-shadow"
-                            onClick={() => {
-                              setPhotoModalUrl(selectedDoctor.photo_url);
-                              setPhotoModalOpen(true);
-                            }}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Icon name="User" size={40} className="text-primary" />
-                          </div>
-                        )}
-                        <div>
-                          <h3 className="font-semibold">{selectedDoctor.full_name}</h3>
-                          <p className="text-sm text-muted-foreground">Дата: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => { setSelectedDate(''); setAppointmentForm({ ...appointmentForm, appointment_time: '' }); }}>
-                        Изменить дату
-                      </Button>
-                    </div>
-                    
-                    {!appointmentForm.appointment_time ? (
-                      <div>
-                        <h3 className="font-semibold mb-3">Выберите время:</h3>
-                        <div className="flex flex-wrap gap-4 mb-3 text-xs">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-primary rounded"></div>
-                            <span className="font-medium">Свободно</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 bg-red-100 border-2 border-red-500 rounded"></div>
-                            <span className="font-medium">Занято</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 bg-orange-100 border-2 border-orange-500 rounded flex items-center justify-center">
-                              <Icon name="Coffee" size={10} className="text-orange-600" />
-                            </div>
-                            <span className="font-medium">Перерыв врача</span>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-4 md:grid-cols-6 gap-2 max-h-64 overflow-y-auto">
-                          {allTimeSlotsForDate.length > 0 ? (
-                            allTimeSlotsForDate.map((slot: any) => {
-                              const isBreak = slot.status === 'break';
-                              const isBooked = slot.status === 'booked';
-                              const isAvailable = slot.status === 'available';
-                              
-                              return (
-                                <Button
-                                  key={slot.time}
-                                  variant="outline"
-                                  className={`${
-                                    isBreak
-                                      ? 'bg-orange-100 border-orange-500 text-orange-700 hover:bg-orange-200 cursor-not-allowed'
-                                      : isBooked 
-                                      ? 'bg-red-100 border-red-500 text-red-700 hover:bg-red-200 cursor-not-allowed' 
-                                      : 'hover:bg-primary hover:text-white'
-                                  }`}
-                                  onClick={() => slot.available && setAppointmentForm({ ...appointmentForm, appointment_time: slot.time })}
-                                  disabled={!slot.available}
-                                  title={isBreak ? 'Перерыв' : isBooked ? 'Занято' : 'Доступно'}
-                                >
-                                  {slot.time}
-                                  {isBreak && <Icon name="Coffee" size={12} className="ml-1" />}
-                                </Button>
-                              );
-                            })
-                          ) : (
-                            availableSlots.map((slot: string) => (
-                              <Button
-                                key={slot}
-                                variant="outline"
-                                className="hover:bg-primary hover:text-white"
-                                onClick={() => setAppointmentForm({ ...appointmentForm, appointment_time: slot })}
-                              >
-                                {slot}
-                              </Button>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <Card className="bg-primary/5">
-                          <CardContent className="pt-4">
-                            <p className="text-sm"><strong>Врач:</strong> {selectedDoctor.full_name}</p>
-                            <p className="text-sm"><strong>Дата:</strong> {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}</p>
-                            <p className="text-sm"><strong>Время:</strong> {appointmentForm.appointment_time}</p>
-                            <Button 
-                              variant="link" 
-                              size="sm" 
-                              type="button"
-                              onClick={() => setAppointmentForm({ ...appointmentForm, appointment_time: '' })}
-                              className="mt-2 p-0 h-auto"
-                            >
-                              Изменить время
-                            </Button>
-                          </CardContent>
-                        </Card>
 
-                        {verificationStep === 'form' && (
-                          <form onSubmit={handleSendVerificationCode} className="space-y-4">
-                            <Input
-                              placeholder="Ваше ФИО"
-                              value={appointmentForm.patient_name}
-                              onChange={(e) => setAppointmentForm({ ...appointmentForm, patient_name: e.target.value })}
-                              required
-                            />
-                            <Input
-                              placeholder="Телефон (+79991234567)"
-                              type="tel"
-                              value={appointmentForm.patient_phone}
-                              onChange={(e) => setAppointmentForm({ ...appointmentForm, patient_phone: e.target.value })}
-                              required
-                            />
-                            <div className="grid grid-cols-2 gap-3">
-                              <Input
-                                placeholder="СНИЛС (123-456-789-01, необязательно)"
-                                type="text"
-                                value={appointmentForm.patient_snils}
-                                onChange={(e) => {
-                                  let value = e.target.value.replace(/\D/g, '');
-                                  if (value.length > 11) value = value.slice(0, 11);
-                                  if (value.length >= 3) value = value.slice(0, 3) + '-' + value.slice(3);
-                                  if (value.length >= 7) value = value.slice(0, 7) + '-' + value.slice(7);
-                                  if (value.length >= 11) value = value.slice(0, 11) + '-' + value.slice(11);
-                                  setAppointmentForm({ ...appointmentForm, patient_snils: value });
-                                }}
-                                maxLength={14}
-                              />
-                              <Input
-                                placeholder="ОМС (1234-5678-9012-3456, необязательно)"
-                                type="text"
-                                value={appointmentForm.patient_oms}
-                                onChange={(e) => {
-                                  let value = e.target.value.replace(/\D/g, '');
-                                  if (value.length > 16) value = value.slice(0, 16);
-                                  if (value.length >= 4) value = value.slice(0, 4) + '-' + value.slice(4);
-                                  if (value.length >= 9) value = value.slice(0, 9) + '-' + value.slice(9);
-                                  if (value.length >= 14) value = value.slice(0, 14) + '-' + value.slice(14);
-                                  setAppointmentForm({ ...appointmentForm, patient_oms: value });
-                                }}
-                                maxLength={19}
-                              />
+                      {!appointmentForm.appointment_time ? (
+                        <div>
+                          <h3 className="font-semibold mb-3">
+                            Выберите время:
+                          </h3>
+                          <div className="flex flex-wrap gap-4 mb-3 text-xs">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 border-2 border-primary rounded"></div>
+                              <span className="font-medium">Свободно</span>
                             </div>
-                            <Textarea
-                              placeholder="Краткое описание проблемы (необязательно)"
-                              value={appointmentForm.description}
-                              onChange={(e) => setAppointmentForm({ ...appointmentForm, description: e.target.value })}
-                              rows={3}
-                            />
-                            <div className="flex items-start gap-2 p-3 border rounded-lg bg-muted/30">
-                              <input
-                                type="checkbox"
-                                id="gdpr-consent"
-                                checked={gdprConsent}
-                                onChange={(e) => setGdprConsent(e.target.checked)}
-                                className="mt-1 w-4 h-4 cursor-pointer"
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 bg-red-100 border-2 border-red-500 rounded"></div>
+                              <span className="font-medium">Занято</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 bg-orange-100 border-2 border-orange-500 rounded flex items-center justify-center">
+                                <Icon
+                                  name="Coffee"
+                                  size={10}
+                                  className="text-orange-600"
+                                />
+                              </div>
+                              <span className="font-medium">Перерыв врача</span>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-4 md:grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+                            {allTimeSlotsForDate.length > 0
+                              ? allTimeSlotsForDate.map((slot: any) => {
+                                  const isBreak = slot.status === "break";
+                                  const isBooked = slot.status === "booked";
+                                  const isAvailable =
+                                    slot.status === "available";
+
+                                  return (
+                                    <Button
+                                      key={slot.time}
+                                      variant="outline"
+                                      className={`${
+                                        isBreak
+                                          ? "bg-orange-100 border-orange-500 text-orange-700 hover:bg-orange-200 cursor-not-allowed"
+                                          : isBooked
+                                            ? "bg-red-100 border-red-500 text-red-700 hover:bg-red-200 cursor-not-allowed"
+                                            : "hover:bg-primary hover:text-white"
+                                      }`}
+                                      onClick={() =>
+                                        slot.available &&
+                                        setAppointmentForm({
+                                          ...appointmentForm,
+                                          appointment_time: slot.time,
+                                        })
+                                      }
+                                      disabled={!slot.available}
+                                      title={
+                                        isBreak
+                                          ? "Перерыв"
+                                          : isBooked
+                                            ? "Занято"
+                                            : "Доступно"
+                                      }
+                                    >
+                                      {slot.time}
+                                      {isBreak && (
+                                        <Icon
+                                          name="Coffee"
+                                          size={12}
+                                          className="ml-1"
+                                        />
+                                      )}
+                                    </Button>
+                                  );
+                                })
+                              : availableSlots.map((slot: string) => (
+                                  <Button
+                                    key={slot}
+                                    variant="outline"
+                                    className="hover:bg-primary hover:text-white"
+                                    onClick={() =>
+                                      setAppointmentForm({
+                                        ...appointmentForm,
+                                        appointment_time: slot,
+                                      })
+                                    }
+                                  >
+                                    {slot}
+                                  </Button>
+                                ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <Card className="bg-primary/5">
+                            <CardContent className="pt-4">
+                              <p className="text-sm">
+                                <strong>Врач:</strong>{" "}
+                                {selectedDoctor.full_name}
+                              </p>
+                              <p className="text-sm">
+                                <strong>Дата:</strong>{" "}
+                                {new Date(
+                                  selectedDate + "T00:00:00",
+                                ).toLocaleDateString("ru-RU")}
+                              </p>
+                              <p className="text-sm">
+                                <strong>Время:</strong>{" "}
+                                {appointmentForm.appointment_time}
+                              </p>
+                              <Button
+                                variant="link"
+                                size="sm"
+                                type="button"
+                                onClick={() =>
+                                  setAppointmentForm({
+                                    ...appointmentForm,
+                                    appointment_time: "",
+                                  })
+                                }
+                                className="mt-2 p-0 h-auto"
+                              >
+                                Изменить время
+                              </Button>
+                            </CardContent>
+                          </Card>
+
+                          {verificationStep === "form" && (
+                            <form
+                              onSubmit={handleSendVerificationCode}
+                              className="space-y-4"
+                            >
+                              <Input
+                                placeholder="Ваше ФИО"
+                                value={appointmentForm.patient_name}
+                                onChange={(e) =>
+                                  setAppointmentForm({
+                                    ...appointmentForm,
+                                    patient_name: e.target.value,
+                                  })
+                                }
                                 required
                               />
-                              <label htmlFor="gdpr-consent" className="text-sm text-muted-foreground cursor-pointer">
-                                Я даю согласие на обработку персональных данных в соответствии с{' '}
-                                <a 
-                                  href="http://www.consultant.ru/document/cons_doc_LAW_61801/" 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-primary hover:underline font-medium"
+                              <Input
+                                placeholder="Телефон (+79991234567)"
+                                type="tel"
+                                value={appointmentForm.patient_phone}
+                                onChange={(e) =>
+                                  setAppointmentForm({
+                                    ...appointmentForm,
+                                    patient_phone: e.target.value,
+                                  })
+                                }
+                                required
+                              />
+                              <div className="grid grid-cols-2 gap-3">
+                                <Input
+                                  placeholder="СНИЛС (123-456-789-01, необязательно)"
+                                  type="text"
+                                  value={appointmentForm.patient_snils}
+                                  onChange={(e) => {
+                                    let value = e.target.value.replace(
+                                      /\D/g,
+                                      "",
+                                    );
+                                    if (value.length > 11)
+                                      value = value.slice(0, 11);
+                                    if (value.length >= 3)
+                                      value =
+                                        value.slice(0, 3) +
+                                        "-" +
+                                        value.slice(3);
+                                    if (value.length >= 7)
+                                      value =
+                                        value.slice(0, 7) +
+                                        "-" +
+                                        value.slice(7);
+                                    if (value.length >= 11)
+                                      value =
+                                        value.slice(0, 11) +
+                                        "-" +
+                                        value.slice(11);
+                                    setAppointmentForm({
+                                      ...appointmentForm,
+                                      patient_snils: value,
+                                    });
+                                  }}
+                                  maxLength={14}
+                                />
+                                <Input
+                                  placeholder="ОМС (1234-5678-9012-3456, необязательно)"
+                                  type="text"
+                                  value={appointmentForm.patient_oms}
+                                  onChange={(e) => {
+                                    let value = e.target.value.replace(
+                                      /\D/g,
+                                      "",
+                                    );
+                                    if (value.length > 16)
+                                      value = value.slice(0, 16);
+                                    if (value.length >= 4)
+                                      value =
+                                        value.slice(0, 4) +
+                                        "-" +
+                                        value.slice(4);
+                                    if (value.length >= 9)
+                                      value =
+                                        value.slice(0, 9) +
+                                        "-" +
+                                        value.slice(9);
+                                    if (value.length >= 14)
+                                      value =
+                                        value.slice(0, 14) +
+                                        "-" +
+                                        value.slice(14);
+                                    setAppointmentForm({
+                                      ...appointmentForm,
+                                      patient_oms: value,
+                                    });
+                                  }}
+                                  maxLength={19}
+                                />
+                              </div>
+                              <Textarea
+                                placeholder="Краткое описание проблемы (необязательно)"
+                                value={appointmentForm.description}
+                                onChange={(e) =>
+                                  setAppointmentForm({
+                                    ...appointmentForm,
+                                    description: e.target.value,
+                                  })
+                                }
+                                rows={3}
+                              />
+                              <div className="flex items-start gap-2 p-3 border rounded-lg bg-muted/30">
+                                <input
+                                  type="checkbox"
+                                  id="gdpr-consent"
+                                  checked={gdprConsent}
+                                  onChange={(e) =>
+                                    setGdprConsent(e.target.checked)
+                                  }
+                                  className="mt-1 w-4 h-4 cursor-pointer"
+                                  required
+                                />
+                                <label
+                                  htmlFor="gdpr-consent"
+                                  className="text-sm text-muted-foreground cursor-pointer"
                                 >
-                                  ФЗ-152 «О персональных данных»
-                                </a>
-                              </label>
-                            </div>
-                            <Button 
-                              type="submit" 
-                              className="w-full" 
-                              disabled={isSubmitting || !gdprConsent}
-                            >
-                              {isSubmitting ? 'Отправка кода...' : 'Отправить код в MAX'}
-                            </Button>
-                          </form>
-                        )}
+                                  Я даю согласие на обработку персональных
+                                  данных в соответствии с{" "}
+                                  <a
+                                    href="http://www.consultant.ru/document/cons_doc_LAW_61801/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary hover:underline font-medium"
+                                  >
+                                    ФЗ-152 «О персональных данных»
+                                  </a>
+                                </label>
+                              </div>
+                              <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={isSubmitting || !gdprConsent}
+                              >
+                                {isSubmitting
+                                  ? "Отправка кода..."
+                                  : "Отправить код в MAX"}
+                              </Button>
+                            </form>
+                          )}
 
-                        {verificationStep === 'code' && (
-                          <form onSubmit={handleVerifyCode} className="space-y-4">
-                            <Card className="bg-blue-50 border-blue-200">
-                              <CardContent className="pt-4">
-                                <div className="flex items-start gap-3">
-                                  <Icon name="Info" size={24} className="text-blue-600 mt-1" />
-                                  <div>
-                                    <p className="font-medium text-blue-900 mb-1">Проверьте MAX</p>
-                                    <p className="text-sm text-blue-700">
-                                      Код отправлен в мессенджер MAX на ваш номер. Введите полученный код.
+                          {verificationStep === "code" && (
+                            <form
+                              onSubmit={handleVerifyCode}
+                              className="space-y-4"
+                            >
+                              <Card className="bg-blue-50 border-blue-200">
+                                <CardContent className="pt-4">
+                                  <div className="flex items-start gap-3">
+                                    <Icon
+                                      name="Info"
+                                      size={24}
+                                      className="text-blue-600 mt-1"
+                                    />
+                                    <div>
+                                      <p className="font-medium text-blue-900 mb-1">
+                                        Проверьте MAX
+                                      </p>
+                                      <p className="text-sm text-blue-700">
+                                        Код отправлен в мессенджер MAX на ваш
+                                        номер. Введите полученный код.
+                                      </p>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                              <Input
+                                placeholder="Введите 6-значный код"
+                                value={verificationCode}
+                                onChange={(e) =>
+                                  setVerificationCode(e.target.value)
+                                }
+                                required
+                                maxLength={6}
+                                pattern="[0-9]{6}"
+                              />
+                              <div className="flex gap-2">
+                                <Button
+                                  type="submit"
+                                  className="flex-1"
+                                  disabled={isSubmitting}
+                                >
+                                  {isSubmitting ? "Проверка..." : "Подтвердить"}
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setVerificationStep("form");
+                                    setVerificationCode("");
+                                  }}
+                                >
+                                  Назад
+                                </Button>
+                              </div>
+                            </form>
+                          )}
+
+                          {verificationStep === "verified" && (
+                            <form
+                              onSubmit={handleAppointment}
+                              className="space-y-4"
+                            >
+                              <Card className="bg-green-50 border-green-200">
+                                <CardContent className="pt-4">
+                                  <div className="flex items-center gap-2">
+                                    <Icon
+                                      name="CheckCircle"
+                                      size={20}
+                                      className="text-green-600"
+                                    />
+                                    <p className="font-medium text-green-900">
+                                      Номер подтвержден
                                     </p>
                                   </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                            <Input
-                              placeholder="Введите 6-значный код"
-                              value={verificationCode}
-                              onChange={(e) => setVerificationCode(e.target.value)}
-                              required
-                              maxLength={6}
-                              pattern="[0-9]{6}"
-                            />
-                            <div className="flex gap-2">
-                              <Button 
-                                type="submit" 
-                                className="flex-1"
+                                </CardContent>
+                              </Card>
+                              <div className="space-y-2 text-sm">
+                                <p>
+                                  <strong>ФИО:</strong>{" "}
+                                  {appointmentForm.patient_name}
+                                </p>
+                                <p>
+                                  <strong>Телефон:</strong>{" "}
+                                  {appointmentForm.patient_phone}
+                                </p>
+                                {appointmentForm.patient_snils && (
+                                  <p>
+                                    <strong>СНИЛС:</strong>{" "}
+                                    {appointmentForm.patient_snils}
+                                  </p>
+                                )}
+                                {appointmentForm.description && (
+                                  <p>
+                                    <strong>Описание:</strong>{" "}
+                                    {appointmentForm.description}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex items-start gap-2 p-3 border rounded-lg bg-muted/30">
+                                <Icon
+                                  name="CheckCircle"
+                                  size={16}
+                                  className="text-green-600 mt-0.5 flex-shrink-0"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                  Согласие на обработку персональных данных
+                                  получено в соответствии с{" "}
+                                  <a
+                                    href="http://www.consultant.ru/document/cons_doc_LAW_61801/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary hover:underline font-medium"
+                                  >
+                                    ФЗ-152
+                                  </a>
+                                </p>
+                              </div>
+                              <Button
+                                type="submit"
+                                className="w-full"
                                 disabled={isSubmitting}
                               >
-                                {isSubmitting ? 'Проверка...' : 'Подтвердить'}
+                                {isSubmitting
+                                  ? "Отправка..."
+                                  : "Подтвердить запись"}
                               </Button>
-                              <Button 
-                                type="button"
-                                variant="outline"
-                                onClick={() => {
-                                  setVerificationStep('form');
-                                  setVerificationCode('');
-                                }}
-                              >
-                                Назад
-                              </Button>
-                            </div>
-                          </form>
-                        )}
+                            </form>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
 
-                        {verificationStep === 'verified' && (
-                          <form onSubmit={handleAppointment} className="space-y-4">
-                            <Card className="bg-green-50 border-green-200">
-                              <CardContent className="pt-4">
-                                <div className="flex items-center gap-2">
-                                  <Icon name="CheckCircle" size={20} className="text-green-600" />
-                                  <p className="font-medium text-green-900">Номер подтвержден</p>
-                                </div>
-                              </CardContent>
-                            </Card>
-                            <div className="space-y-2 text-sm">
-                              <p><strong>ФИО:</strong> {appointmentForm.patient_name}</p>
-                              <p><strong>Телефон:</strong> {appointmentForm.patient_phone}</p>
-                              {appointmentForm.patient_snils && (
-                                <p><strong>СНИЛС:</strong> {appointmentForm.patient_snils}</p>
-                              )}
-                              {appointmentForm.description && (
-                                <p><strong>Описание:</strong> {appointmentForm.description}</p>
-                              )}
-                            </div>
-                            <div className="flex items-start gap-2 p-3 border rounded-lg bg-muted/30">
-                              <Icon name="CheckCircle" size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
-                              <p className="text-xs text-muted-foreground">
-                                Согласие на обработку персональных данных получено в соответствии с{' '}
-                                <a 
-                                  href="http://www.consultant.ru/document/cons_doc_LAW_61801/" 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-primary hover:underline font-medium"
-                                >
-                                  ФЗ-152
-                                </a>
-                              </p>
-                            </div>
-                            <Button 
-                              type="submit" 
-                              className="w-full" 
-                              disabled={isSubmitting}
-                            >
-                              {isSubmitting ? 'Отправка...' : 'Подтвердить запись'}
-                            </Button>
-                          </form>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </DialogContent>
-            </Dialog>
+              <Button
+                size="lg"
+                className="gap-2 shadow-lg hover:shadow-xl transition-shadow bg-red-600 hover:bg-red-700 w-full sm:w-auto sm:min-w-[200px]"
+                asChild
+              >
+                <a href="#complaints">
+                  <Icon name="MessageSquare" size={20} />
+                  Книга жалоб
+                </a>
+              </Button>
 
-            <Button 
-              size="lg" 
-              className="gap-2 shadow-lg hover:shadow-xl transition-shadow bg-red-600 hover:bg-red-700 w-full sm:w-auto sm:min-w-[200px]"
-              asChild
-            >
-              <a href="#complaints">
-                <Icon name="MessageSquare" size={20} />
-                Книга жалоб
-              </a>
-            </Button>
-
-            <Button 
-              size="lg" 
-              className="gap-2 shadow-lg hover:shadow-xl transition-shadow bg-green-600 hover:bg-green-700 w-full sm:w-auto sm:min-w-[200px]"
-              asChild
-            >
-              <a href="/forum">
-                <Icon name="Users" size={20} />
-                Больничный форум
-              </a>
-            </Button>
+              <Button
+                size="lg"
+                className="gap-2 shadow-lg hover:shadow-xl transition-shadow bg-green-600 hover:bg-green-700 w-full sm:w-auto sm:min-w-[200px]"
+                asChild
+              >
+                <a href="/forum">
+                  <Icon name="Users" size={20} />
+                  Больничный форум
+                </a>
+              </Button>
             </div>
-            
-            <a 
-              href="/how-to-book" 
+
+            <a
+              href="/how-to-book"
               className="inline-flex items-center gap-2 group"
             >
               <Icon name="HelpCircle" size={18} className="text-black" />
@@ -1363,11 +1866,13 @@ const Index = () => {
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
               Узнайте больше о нашей больнице
             </h2>
-            <p className="text-lg text-muted-foreground mb-10">История, коллектив, современное оборудование и цифровые 
-технологии ГБУЗ "АЦГМБ" ЛНР</p>
+            <p className="text-lg text-muted-foreground mb-10">
+              История, коллектив, современное оборудование и цифровые технологии
+              ГБУЗ "АЦГМБ" ЛНР
+            </p>
             <a href="/about">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="text-lg px-12 py-7 h-auto shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
               >
                 <Icon name="Info" size={24} className="mr-3" />
@@ -1380,32 +1885,44 @@ const Index = () => {
 
       <section id="doctors" className="py-16 bg-muted/50">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-4">График приема граждан</h2>
+          <h2 className="text-4xl font-bold text-center mb-4">
+            График приема граждан
+          </h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Прием граждан по личным вопросам осуществляется руководством и специалистами больницы
+            Прием граждан по личным вопросам осуществляется руководством и
+            специалистами больницы
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
                 <div className="flex items-start gap-4">
-                  <img 
-                    src="https://cdn.poehali.dev/files/Бровкин ЕВ.jpg" 
+                  <img
+                    src="https://cdn.poehali.dev/files/Бровкин ЕВ.jpg"
                     alt="Бровкин Е.В."
                     className="w-24 h-24 rounded-full object-cover border-2 border-primary/20"
                   />
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg">БРОВКИН
-Евгений Владимирович</CardTitle>
-                    <CardDescription className="text-base font-medium">Главный врач ГБУЗ «АЦГМБ» ЛНР</CardDescription>
+                    <CardTitle className="text-lg">
+                      БРОВКИН Евгений Владимирович
+                    </CardTitle>
+                    <CardDescription className="text-base font-medium">
+                      Главный врач ГБУЗ «АЦГМБ» ЛНР
+                    </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <Icon
+                    name="Calendar"
+                    size={20}
+                    className="text-primary mt-1"
+                  />
                   <div>
                     <p className="font-semibold text-sm">Понедельник</p>
-                    <p className="text-sm text-muted-foreground">12:00 - 14:00</p>
+                    <p className="text-sm text-muted-foreground">
+                      12:00 - 14:00
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -1414,23 +1931,33 @@ const Index = () => {
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
                 <div className="flex items-start gap-4">
-                  <img 
-                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/fea71775-0c41-4242-9517-06d9695482a5.jpg" 
+                  <img
+                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/fea71775-0c41-4242-9517-06d9695482a5.jpg"
                     alt="Суялкин О.П."
                     className="w-24 h-24 rounded-full object-cover border-2 border-primary/20"
                   />
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg">СУЯЛКИН Олег Павлович</CardTitle>
-                    <CardDescription className="text-base font-medium">Заместитель главного врача по медицинской части</CardDescription>
+                    <CardTitle className="text-lg">
+                      СУЯЛКИН Олег Павлович
+                    </CardTitle>
+                    <CardDescription className="text-base font-medium">
+                      Заместитель главного врача по медицинской части
+                    </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <Icon
+                    name="Calendar"
+                    size={20}
+                    className="text-primary mt-1"
+                  />
                   <div>
                     <p className="font-semibold text-sm">Вторник</p>
-                    <p className="text-sm text-muted-foreground">10:00 - 12:00</p>
+                    <p className="text-sm text-muted-foreground">
+                      10:00 - 12:00
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -1439,23 +1966,33 @@ const Index = () => {
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
                 <div className="flex items-start gap-4">
-                  <img 
-                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/70adb75d-09a3-4187-a320-8cf3e5b2a4fc.jpg" 
+                  <img
+                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/70adb75d-09a3-4187-a320-8cf3e5b2a4fc.jpg"
                     alt="Комарова Е.Г."
                     className="w-24 h-24 rounded-full object-cover border-2 border-primary/20"
                   />
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg">КОМАРОВА Елена Геннадиевна</CardTitle>
-                    <CardDescription className="text-base font-medium">Заместитель главного врача по поликлинической работе</CardDescription>
+                    <CardTitle className="text-lg">
+                      КОМАРОВА Елена Геннадиевна
+                    </CardTitle>
+                    <CardDescription className="text-base font-medium">
+                      Заместитель главного врача по поликлинической работе
+                    </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <Icon
+                    name="Calendar"
+                    size={20}
+                    className="text-primary mt-1"
+                  />
                   <div>
                     <p className="font-semibold text-sm">Среда</p>
-                    <p className="text-sm text-muted-foreground">10:00 - 12:00</p>
+                    <p className="text-sm text-muted-foreground">
+                      10:00 - 12:00
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -1464,23 +2001,34 @@ const Index = () => {
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
                 <div className="flex items-start gap-4">
-                  <img 
-                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/76cfdf87-1510-4684-bf3b-a67c6d47bb64.jpg" 
+                  <img
+                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/76cfdf87-1510-4684-bf3b-a67c6d47bb64.jpg"
                     alt="Чумак А.А."
                     className="w-24 h-24 rounded-full object-cover border-2 border-primary/20"
                   />
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg">ЧУМАК Анна Анатольевна</CardTitle>
-                    <CardDescription className="text-base font-medium">Заместитель главного врача по организационно-методической работе</CardDescription>
+                    <CardTitle className="text-lg">
+                      ЧУМАК Анна Анатольевна
+                    </CardTitle>
+                    <CardDescription className="text-base font-medium">
+                      Заместитель главного врача по организационно-методической
+                      работе
+                    </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <Icon
+                    name="Calendar"
+                    size={20}
+                    className="text-primary mt-1"
+                  />
                   <div>
                     <p className="font-semibold text-sm">Четверг</p>
-                    <p className="text-sm text-muted-foreground">10:00 - 12:00</p>
+                    <p className="text-sm text-muted-foreground">
+                      10:00 - 12:00
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -1489,23 +2037,33 @@ const Index = () => {
             <Card className="hover:shadow-xl transition-shadow">
               <CardHeader>
                 <div className="flex items-start gap-4">
-                  <img 
-                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/1a3c881a-dfc9-4de4-9be8-aa29dfb7088d.jpg" 
+                  <img
+                    src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/1a3c881a-dfc9-4de4-9be8-aa29dfb7088d.jpg"
                     alt="Уколова Ю.М."
                     className="w-24 h-24 rounded-full object-cover border-2 border-primary/20"
                   />
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg">УКОЛОВА Юлия Михайловна</CardTitle>
-                    <CardDescription className="text-base font-medium">Заместитель главного врача по клинико-экспертной работе</CardDescription>
+                    <CardTitle className="text-lg">
+                      УКОЛОВА Юлия Михайловна
+                    </CardTitle>
+                    <CardDescription className="text-base font-medium">
+                      Заместитель главного врача по клинико-экспертной работе
+                    </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <Icon name="Calendar" size={20} className="text-primary mt-1" />
+                  <Icon
+                    name="Calendar"
+                    size={20}
+                    className="text-primary mt-1"
+                  />
                   <div>
                     <p className="font-semibold text-sm">Пятница</p>
-                    <p className="text-sm text-muted-foreground">10:00 - 12:00</p>
+                    <p className="text-sm text-muted-foreground">
+                      10:00 - 12:00
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -1514,14 +2072,23 @@ const Index = () => {
 
           <Card className="mt-8 max-w-4xl mx-auto bg-primary/5 border-2 border-primary/20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-3 text-xl">Как записаться на прием по личным вопросам к руководству больницы</CardTitle>
+              <CardTitle className="flex items-center gap-3 text-xl">
+                Как записаться на прием по личным вопросам к руководству
+                больницы
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                 <div className="flex items-start gap-3">
-                  <Icon name="AlertCircle" size={20} className="text-amber-600 mt-0.5 flex-shrink-0" />
+                  <Icon
+                    name="AlertCircle"
+                    size={20}
+                    className="text-amber-600 mt-0.5 flex-shrink-0"
+                  />
                   <p className="text-sm text-amber-900">
-                    В случае если на понедельник выпадает праздничный или нерабочий день, приём осуществляется в первый рабочий день, следующий за понедельником.
+                    В случае если на понедельник выпадает праздничный или
+                    нерабочий день, приём осуществляется в первый рабочий день,
+                    следующий за понедельником.
                   </p>
                 </div>
               </div>
@@ -1533,8 +2100,12 @@ const Index = () => {
                     </div>
                     <div>
                       <p className="font-semibold">Позвоните в приемную</p>
-                      <p className="text-sm text-muted-foreground">Телефон: +7959020696 или +78573126057</p>
-                      <p className="text-sm text-muted-foreground">Время работы: Пн-Пт 09:00-17:00</p>
+                      <p className="text-sm text-muted-foreground">
+                        Телефон: +7959020696 или +78573126057
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Время работы: Пн-Пт 09:00-17:00
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -1543,7 +2114,9 @@ const Index = () => {
                     </div>
                     <div>
                       <p className="font-semibold">Укажите данные</p>
-                      <p className="text-sm text-muted-foreground">ФИО, контактный телефон, суть вопроса</p>
+                      <p className="text-sm text-muted-foreground">
+                        ФИО, контактный телефон, суть вопроса
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1554,7 +2127,9 @@ const Index = () => {
                     </div>
                     <div>
                       <p className="font-semibold">Выберите должностное лицо</p>
-                      <p className="text-sm text-muted-foreground">Специалист запишет вас на удобное время приема</p>
+                      <p className="text-sm text-muted-foreground">
+                        Специалист запишет вас на удобное время приема
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -1563,21 +2138,34 @@ const Index = () => {
                     </div>
                     <div>
                       <p className="font-semibold">Получите подтверждение</p>
-                      <p className="text-sm text-muted-foreground">Вам сообщат дату, время и место приема</p>
+                      <p className="text-sm text-muted-foreground">
+                        Вам сообщат дату, время и место приема
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="mt-6 p-4 bg-white rounded-lg border border-primary/20">
                 <div className="flex items-start gap-3">
-                  <Icon name="AlertCircle" size={24} className="text-primary mt-1 flex-shrink-0" />
+                  <Icon
+                    name="AlertCircle"
+                    size={24}
+                    className="text-primary mt-1 flex-shrink-0"
+                  />
                   <div>
                     <p className="font-semibold mb-2">Важная информация:</p>
                     <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                      <li>Прием осуществляется строго по предварительной записи</li>
+                      <li>
+                        Прием осуществляется строго по предварительной записи
+                      </li>
                       <li>При себе иметь документ, удостоверяющий личность</li>
-                      <li>Просьба приходить за 5-10 минут до назначенного времени</li>
-                      <li>В случае невозможности прийти, просьба заранее предупредить по телефону</li>
+                      <li>
+                        Просьба приходить за 5-10 минут до назначенного времени
+                      </li>
+                      <li>
+                        В случае невозможности прийти, просьба заранее
+                        предупредить по телефону
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -1586,7 +2174,10 @@ const Index = () => {
           </Card>
 
           <div className="mt-4 max-w-4xl mx-auto text-center">
-            <a href="/privacy-policy" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors">
+            <a
+              href="/privacy-policy"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+            >
               <Icon name="ShieldCheck" size={13} />
               Политика обработки персональных данных
             </a>
@@ -1606,9 +2197,18 @@ const Index = () => {
                     <Icon name="Baby" size={24} className="text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold text-lg mb-1">Детская поликлиника</p>
-                    <a href="tel:+78573125959" className="text-accent hover:underline font-medium text-lg">+7-857-312-59-59</a>
-                    <p className="text-sm text-muted-foreground mt-1">Регистратура</p>
+                    <p className="font-semibold text-lg mb-1">
+                      Детская поликлиника
+                    </p>
+                    <a
+                      href="tel:+78573125959"
+                      className="text-accent hover:underline font-medium text-lg"
+                    >
+                      +7-857-312-59-59
+                    </a>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Регистратура
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4 p-4 bg-white rounded-lg border border-accent/20">
@@ -1616,9 +2216,18 @@ const Index = () => {
                     <Icon name="Users" size={24} className="text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold text-lg mb-1">Взрослая поликлиника</p>
-                    <a href="tel:+78573126044" className="text-accent hover:underline font-medium text-lg">+7-857-312-60-44</a>
-                    <p className="text-sm text-muted-foreground mt-1">Регистратура</p>
+                    <p className="font-semibold text-lg mb-1">
+                      Взрослая поликлиника
+                    </p>
+                    <a
+                      href="tel:+78573126044"
+                      className="text-accent hover:underline font-medium text-lg"
+                    >
+                      +7-857-312-60-44
+                    </a>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Регистратура
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1629,9 +2238,13 @@ const Index = () => {
 
       <section id="services" className="py-16 bg-white/90">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">Структура ГБУЗ "АЦГМБ" ЛНР</h2>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">Полная информация о поликлиниках, амбулаториях, 
-отделениях и службах больницы</p>
+          <h2 className="text-4xl font-bold mb-4">
+            Структура ГБУЗ "АЦГМБ" ЛНР
+          </h2>
+          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Полная информация о поликлиниках, амбулаториях, отделениях и службах
+            больницы
+          </p>
           <Button asChild size="lg" className="gap-2">
             <a href="/structure">
               <Icon name="Building2" size={20} />
@@ -1646,35 +2259,60 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">Официальная книга жалоб и предложений</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  Официальная книга жалоб и предложений
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                {complaintVerificationStep === 'form' && (
-                  <form onSubmit={handleComplaintSendCode} className="space-y-4">
+                {complaintVerificationStep === "form" && (
+                  <form
+                    onSubmit={handleComplaintSendCode}
+                    className="space-y-4"
+                  >
                     <Input
                       placeholder="Ваше имя"
                       value={complaintForm.name}
-                      onChange={(e) => setComplaintForm({ ...complaintForm, name: e.target.value })}
+                      onChange={(e) =>
+                        setComplaintForm({
+                          ...complaintForm,
+                          name: e.target.value,
+                        })
+                      }
                       required
                     />
                     <Input
                       placeholder="Email"
                       type="email"
                       value={complaintForm.email}
-                      onChange={(e) => setComplaintForm({ ...complaintForm, email: e.target.value })}
+                      onChange={(e) =>
+                        setComplaintForm({
+                          ...complaintForm,
+                          email: e.target.value,
+                        })
+                      }
                       required
                     />
                     <Input
                       placeholder="Телефон (+79991234567)"
                       type="tel"
                       value={complaintForm.phone}
-                      onChange={(e) => setComplaintForm({ ...complaintForm, phone: e.target.value })}
+                      onChange={(e) =>
+                        setComplaintForm({
+                          ...complaintForm,
+                          phone: e.target.value,
+                        })
+                      }
                       required
                     />
                     <Textarea
                       placeholder="Ваше сообщение"
                       value={complaintForm.message}
-                      onChange={(e) => setComplaintForm({ ...complaintForm, message: e.target.value })}
+                      onChange={(e) =>
+                        setComplaintForm({
+                          ...complaintForm,
+                          message: e.target.value,
+                        })
+                      }
                       required
                       rows={4}
                     />
@@ -1683,15 +2321,21 @@ const Index = () => {
                         type="checkbox"
                         id="complaint-gdpr-consent"
                         checked={complaintGdprConsent}
-                        onChange={(e) => setComplaintGdprConsent(e.target.checked)}
+                        onChange={(e) =>
+                          setComplaintGdprConsent(e.target.checked)
+                        }
                         className="mt-1 w-4 h-4 cursor-pointer"
                         required
                       />
-                      <label htmlFor="complaint-gdpr-consent" className="text-xs text-muted-foreground cursor-pointer">
-                        Я даю согласие на обработку моих персональных данных в соответствии с{' '}
-                        <a 
-                          href="http://www.consultant.ru/document/cons_doc_LAW_61801/" 
-                          target="_blank" 
+                      <label
+                        htmlFor="complaint-gdpr-consent"
+                        className="text-xs text-muted-foreground cursor-pointer"
+                      >
+                        Я даю согласие на обработку моих персональных данных в
+                        соответствии с{" "}
+                        <a
+                          href="http://www.consultant.ru/document/cons_doc_LAW_61801/"
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary hover:underline font-medium"
                         >
@@ -1700,13 +2344,23 @@ const Index = () => {
                       </label>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      На указанный номер будет отправлен код подтверждения через мессенджер MAX
+                      На указанный номер будет отправлен код подтверждения через
+                      мессенджер MAX
                     </p>
-                    <Button type="submit" className="w-full" disabled={isSubmitting || !complaintGdprConsent}>
-                      {isSubmitting ? 'Отправка кода...' : 'Получить код подтверждения'}
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isSubmitting || !complaintGdprConsent}
+                    >
+                      {isSubmitting
+                        ? "Отправка кода..."
+                        : "Получить код подтверждения"}
                     </Button>
                     <div className="text-center">
-                      <a href="/privacy-policy" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
+                      <a
+                        href="/privacy-policy"
+                        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                      >
                         <Icon name="ShieldCheck" size={12} />
                         Политика персональных данных
                       </a>
@@ -1714,33 +2368,48 @@ const Index = () => {
                   </form>
                 )}
 
-                {complaintVerificationStep === 'code' && (
-                  <form onSubmit={handleComplaintVerifyCode} className="space-y-4">
+                {complaintVerificationStep === "code" && (
+                  <form
+                    onSubmit={handleComplaintVerifyCode}
+                    className="space-y-4"
+                  >
                     <Card className="bg-blue-50 border-blue-200">
                       <CardContent className="pt-4">
                         <p className="text-sm text-blue-900">
-                          Код отправлен на номер <strong>{complaintForm.phone}</strong> через мессенджер MAX
+                          Код отправлен на номер{" "}
+                          <strong>{complaintForm.phone}</strong> через
+                          мессенджер MAX
                         </p>
                       </CardContent>
                     </Card>
                     <Input
                       placeholder="Введите 6-значный код"
                       value={complaintVerificationCode}
-                      onChange={(e) => setComplaintVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      onChange={(e) =>
+                        setComplaintVerificationCode(
+                          e.target.value.replace(/\D/g, "").slice(0, 6),
+                        )
+                      }
                       required
                       maxLength={6}
                       className="text-center text-2xl tracking-widest"
                     />
                     <div className="flex gap-2">
-                      <Button type="submit" className="flex-1" disabled={isSubmitting || complaintVerificationCode.length !== 6}>
-                        {isSubmitting ? 'Проверка...' : 'Подтвердить'}
+                      <Button
+                        type="submit"
+                        className="flex-1"
+                        disabled={
+                          isSubmitting || complaintVerificationCode.length !== 6
+                        }
+                      >
+                        {isSubmitting ? "Проверка..." : "Подтвердить"}
                       </Button>
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => {
-                          setComplaintVerificationStep('form');
-                          setComplaintVerificationCode('');
+                          setComplaintVerificationStep("form");
+                          setComplaintVerificationCode("");
                         }}
                       >
                         Назад
@@ -1749,29 +2418,48 @@ const Index = () => {
                   </form>
                 )}
 
-                {complaintVerificationStep === 'verified' && (
+                {complaintVerificationStep === "verified" && (
                   <form onSubmit={handleComplaint} className="space-y-4">
                     <Card className="bg-green-50 border-green-200">
                       <CardContent className="pt-4">
                         <div className="flex items-center gap-2">
-                          <Icon name="CheckCircle" size={20} className="text-green-600" />
-                          <p className="font-medium text-green-900">Номер подтвержден</p>
+                          <Icon
+                            name="CheckCircle"
+                            size={20}
+                            className="text-green-600"
+                          />
+                          <p className="font-medium text-green-900">
+                            Номер подтвержден
+                          </p>
                         </div>
                       </CardContent>
                     </Card>
                     <div className="space-y-2 text-sm">
-                      <p><strong>Имя:</strong> {complaintForm.name}</p>
-                      <p><strong>Email:</strong> {complaintForm.email}</p>
-                      <p><strong>Телефон:</strong> {complaintForm.phone}</p>
-                      <p><strong>Сообщение:</strong> {complaintForm.message}</p>
+                      <p>
+                        <strong>Имя:</strong> {complaintForm.name}
+                      </p>
+                      <p>
+                        <strong>Email:</strong> {complaintForm.email}
+                      </p>
+                      <p>
+                        <strong>Телефон:</strong> {complaintForm.phone}
+                      </p>
+                      <p>
+                        <strong>Сообщение:</strong> {complaintForm.message}
+                      </p>
                     </div>
                     <div className="flex items-start gap-2 p-3 border rounded-lg bg-muted/30">
-                      <Icon name="CheckCircle" size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                      <Icon
+                        name="CheckCircle"
+                        size={16}
+                        className="text-green-600 mt-0.5 flex-shrink-0"
+                      />
                       <p className="text-xs text-muted-foreground">
-                        Согласие на обработку персональных данных получено в соответствии с{' '}
-                        <a 
-                          href="http://www.consultant.ru/document/cons_doc_LAW_61801/" 
-                          target="_blank" 
+                        Согласие на обработку персональных данных получено в
+                        соответствии с{" "}
+                        <a
+                          href="http://www.consultant.ru/document/cons_doc_LAW_61801/"
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary hover:underline font-medium"
                         >
@@ -1779,8 +2467,12 @@ const Index = () => {
                         </a>
                       </p>
                     </div>
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                      {isSubmitting ? 'Отправка...' : 'Отправить обращение'}
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Отправка..." : "Отправить обращение"}
                     </Button>
                   </form>
                 )}
@@ -1790,19 +2482,30 @@ const Index = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Icon name="ExternalLink" size={24} className="text-primary" />
+                  <Icon
+                    name="ExternalLink"
+                    size={24}
+                    className="text-primary"
+                  />
                   Полезные ссылки
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-
-                <Button variant="outline" className="w-full justify-start gap-3" asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3"
+                  asChild
+                >
                   <a href="#contacts">
                     <Icon name="Phone" size={20} />
                     Контакты
                   </a>
                 </Button>
-                <Button variant="outline" className="w-full justify-start gap-3" asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3"
+                  asChild
+                >
                   <a href="/faq">
                     <Icon name="HelpCircle" size={20} />
                     Часто задаваемые вопросы
@@ -1816,8 +2519,12 @@ const Index = () => {
 
       <section id="contacts" className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-4">Контактные данные</h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">Связь с администрацией и специалистами ГБУЗ «АЦГМБ» ЛНР</p>
+          <h2 className="text-4xl font-bold text-center mb-4">
+            Контактные данные
+          </h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Связь с администрацией и специалистами ГБУЗ «АЦГМБ» ЛНР
+          </p>
 
           <div className="max-w-5xl mx-auto space-y-8">
             <Card className="border-2 border-primary/20">
@@ -1829,7 +2536,9 @@ const Index = () => {
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
                 <p className="text-lg">
-                  <span className="font-semibold">294613</span>, Российская Федерация, Луганская Народная Республика, город Антрацит, улица Толстоусова, дом 1
+                  <span className="font-semibold">294613</span>, Российская
+                  Федерация, Луганская Народная Республика, город Антрацит,
+                  улица Толстоусова, дом 1
                 </p>
                 <div className="w-full h-[400px] rounded-lg overflow-hidden border-2 border-primary/10">
                   <iframe
@@ -1838,7 +2547,7 @@ const Index = () => {
                     height="100%"
                     frameBorder="0"
                     allowFullScreen
-                    style={{ position: 'relative' }}
+                    style={{ position: "relative" }}
                   ></iframe>
                 </div>
               </CardContent>
@@ -1855,25 +2564,43 @@ const Index = () => {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
                     <div className="flex items-start gap-3">
-                      <Icon name="Phone" size={20} className="text-primary mt-1" />
+                      <Icon
+                        name="Phone"
+                        size={20}
+                        className="text-primary mt-1"
+                      />
                       <div>
-                        <p className="font-semibold text-sm text-muted-foreground">Приемная главного врача</p>
+                        <p className="font-semibold text-sm text-muted-foreground">
+                          Приемная главного врача
+                        </p>
                         <p className="text-base">+7-857-312-51-02</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <Icon name="Mail" size={20} className="text-primary mt-1" />
+                      <Icon
+                        name="Mail"
+                        size={20}
+                        className="text-primary mt-1"
+                      />
                       <div>
-                        <p className="text-base break-all">antrasit_1gorbolnica@mail.ru</p>
+                        <p className="text-base break-all">
+                          antrasit_1gorbolnica@mail.ru
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
                     <div className="flex items-start gap-3">
-                      <Icon name="Phone" size={20} className="text-primary mt-1" />
+                      <Icon
+                        name="Phone"
+                        size={20}
+                        className="text-primary mt-1"
+                      />
                       <div>
-                        <p className="font-semibold text-sm text-muted-foreground">Коммутатор ГУ «АЦГМБ» ЛНР</p>
+                        <p className="font-semibold text-sm text-muted-foreground">
+                          Коммутатор ГУ «АЦГМБ» ЛНР
+                        </p>
                         <p className="text-base">+7-857-312-60-57</p>
                       </div>
                     </div>
@@ -1884,14 +2611,16 @@ const Index = () => {
                   <Card className="border-primary/20">
                     <CardHeader className="pb-3">
                       <div className="flex items-center gap-3">
-                        <img 
-                          src="https://cdn.poehali.dev/files/Бровкин ЕВ.jpg" 
+                        <img
+                          src="https://cdn.poehali.dev/files/Бровкин ЕВ.jpg"
                           alt="Бровкин Евгений Владимирович"
                           className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
                         />
                         <div>
                           <p className="font-semibold">Главный врач</p>
-                          <p className="text-lg font-bold text-primary">Бровкин Евгений Владимирович</p>
+                          <p className="text-lg font-bold text-primary">
+                            Бровкин Евгений Владимирович
+                          </p>
                         </div>
                       </div>
                     </CardHeader>
@@ -1906,15 +2635,21 @@ const Index = () => {
                   <Card className="border-primary/20">
                     <CardHeader className="pb-3">
                       <div className="flex items-center gap-3">
-                        <img 
-                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/868ffdc2-7761-4c23-b94b-f064a1566964.jpg" 
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/868ffdc2-7761-4c23-b94b-f064a1566964.jpg"
                           alt="Суялкин О.П."
                           className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
                         />
                         <div>
-                          <p className="font-semibold text-sm">Заместитель главного врача</p>
-                          <p className="text-sm text-muted-foreground">по медицинской части</p>
-                          <p className="text-base font-bold text-primary">Суялкин Олег Павлович</p>
+                          <p className="font-semibold text-sm">
+                            Заместитель главного врача
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            по медицинской части
+                          </p>
+                          <p className="text-base font-bold text-primary">
+                            Суялкин Олег Павлович
+                          </p>
                         </div>
                       </div>
                     </CardHeader>
@@ -1929,22 +2664,30 @@ const Index = () => {
                   <Card className="border-primary/20">
                     <CardHeader className="pb-3">
                       <div className="flex items-center gap-3">
-                        <img 
-                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/10891634-c663-471a-b87f-36419f55eb2f.jpg" 
+                        <img
+                          src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/10891634-c663-471a-b87f-36419f55eb2f.jpg"
                           alt="Чумак А.А."
                           className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
                         />
                         <div>
-                          <p className="font-semibold text-sm">Заместитель главного врача</p>
-                          <p className="text-sm text-muted-foreground">по организационно-методической работе</p>
-                          <p className="text-base font-bold text-primary">Чумак Анна Анатольевна</p>
+                          <p className="font-semibold text-sm">
+                            Заместитель главного врача
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            по организационно-методической работе
+                          </p>
+                          <p className="text-base font-bold text-primary">
+                            Чумак Анна Анатольевна
+                          </p>
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Icon name="Phone" size={16} className="text-primary" />
-                        <span className="text-sm">+7-857-312-60-57 (коммутатор)</span>
+                        <span className="text-sm">
+                          +7-857-312-60-57 (коммутатор)
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
@@ -1953,7 +2696,11 @@ const Index = () => {
                     <CardHeader className="pb-3">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                          <Icon name="Shield" size={24} className="text-primary" />
+                          <Icon
+                            name="Shield"
+                            size={24}
+                            className="text-primary"
+                          />
                         </div>
                         <div>
                           <p className="font-semibold">Отдел кадров</p>
@@ -1973,10 +2720,16 @@ const Index = () => {
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <Icon name="Calculator" size={24} className="text-primary" />
+                        <Icon
+                          name="Calculator"
+                          size={24}
+                          className="text-primary"
+                        />
                       </div>
                       <div>
-                        <p className="font-semibold text-lg">Централизованная бухгалтерия</p>
+                        <p className="font-semibold text-lg">
+                          Централизованная бухгалтерия
+                        </p>
                       </div>
                     </div>
                   </CardHeader>
@@ -2000,46 +2753,38 @@ const Index = () => {
       <footer className="bg-primary text-white py-8">
         <div className="container mx-auto px-4">
           <div className="text-center text-white/90">
-            <p className="text-sm">© 2024 ГБУЗ «Антрацитовская центральная городская многопрофильная больница» ЛНР</p>
+            <p className="text-sm">
+              © 2024 ГБУЗ «Антрацитовская центральная городская многопрофильная
+              больница» ЛНР
+            </p>
             <p className="text-xs mt-2 text-white/70">Все права защищены</p>
 
             <div className="flex flex-wrap gap-4 justify-center mt-3">
-              <a href="/doctor" className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1">
+              <a
+                href="/doctor"
+                className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1"
+              >
                 <Icon name="UserCog" size={14} />
                 Вход для врача
               </a>
-              <a href="/registrar" className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1">
+              <a
+                href="/registrar"
+                className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1"
+              >
                 <Icon name="ClipboardList" size={14} />
                 Вход для регистратора
               </a>
-              <a href="/privacy-policy" className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1">
+              <a
+                href="/privacy-policy"
+                className="text-xs text-white/70 hover:text-white transition-colors inline-flex items-center gap-1"
+              >
                 <Icon name="ShieldCheck" size={14} />
                 Политика персональных данных
-              </a>
-            </div>
-            <div className="flex justify-center mt-4">
-              <a
-                href="https://metrika.yandex.ru/stat/?id=107701780&amp;from=informer"
-                target="_blank"
-                rel="nofollow"
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors border rounded px-2 py-1"
-                title="Яндекс.Метрика: данные за сегодня"
-              >
-                <img
-                  src="https://yastatic.net/s3/front-maps-static/maps-front-maps/1.0.1052/icons/favicon.ico"
-                  width="14"
-                  height="14"
-                  alt=""
-                  style={{border: 0}}
-                />
-                Яндекс.Метрика
               </a>
             </div>
           </div>
         </div>
       </footer>
-
-
 
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
         <DialogContent className="max-w-[95vw] sm:max-w-xl max-h-[85vh] overflow-hidden flex flex-col">
@@ -2047,90 +2792,146 @@ const Index = () => {
             <div className="text-center py-2 space-y-2">
               <div className="flex justify-center">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <Icon name="CheckCircle" size={28} className="text-green-600" />
+                  <Icon
+                    name="CheckCircle"
+                    size={28}
+                    className="text-green-600"
+                  />
                 </div>
               </div>
-              
+
               <div>
-                <h2 className="text-lg sm:text-xl font-bold text-green-600">Запись создана!</h2>
-                <p className="text-xs sm:text-sm text-muted-foreground">Вы успешно записаны на прием</p>
+                <h2 className="text-lg sm:text-xl font-bold text-green-600">
+                  Запись создана!
+                </h2>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Вы успешно записаны на прием
+                </p>
               </div>
 
-              <div id="print-content" className="bg-gradient-to-br from-green-50 to-blue-50 rounded-lg p-3 space-y-2 border border-green-200">
+              <div
+                id="print-content"
+                className="bg-gradient-to-br from-green-50 to-blue-50 rounded-lg p-3 space-y-2 border border-green-200"
+              >
                 {successAppointmentData && (
                   <>
                     <div className="flex items-center gap-3 pb-2 border-b border-green-200">
-                      <img 
-                        src={successAppointmentData.doctor.photo_url || 'https://via.placeholder.com/100'} 
+                      <img
+                        src={
+                          successAppointmentData.doctor.photo_url ||
+                          "https://via.placeholder.com/100"
+                        }
                         alt={successAppointmentData.doctor.full_name}
                         className="w-16 h-16 rounded-lg object-cover border-2 border-white shadow cursor-pointer"
                         onClick={() => {
-                          setPhotoModalUrl(successAppointmentData.doctor.photo_url);
+                          setPhotoModalUrl(
+                            successAppointmentData.doctor.photo_url,
+                          );
                           setPhotoModalOpen(true);
                         }}
                       />
                       <div className="text-left flex-1 min-w-0">
                         <p className="text-xs text-muted-foreground">Врач</p>
-                        <p className="text-sm font-bold text-primary truncate">{successAppointmentData.doctor.full_name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{successAppointmentData.doctor.specialization}</p>
+                        <p className="text-sm font-bold text-primary truncate">
+                          {successAppointmentData.doctor.full_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {successAppointmentData.doctor.specialization}
+                        </p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-left">
                       <div className="col-span-2 sm:col-span-1">
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Icon name="Calendar" size={12} className="text-primary" />
+                          <Icon
+                            name="Calendar"
+                            size={12}
+                            className="text-primary"
+                          />
                           Дата
                         </p>
                         <p className="text-sm font-semibold">
-                          {new Date(successAppointmentData.date + 'T00:00:00').toLocaleDateString('ru-RU', { 
-                            day: 'numeric', 
-                            month: 'long'
+                          {new Date(
+                            successAppointmentData.date + "T00:00:00",
+                          ).toLocaleDateString("ru-RU", {
+                            day: "numeric",
+                            month: "long",
                           })}
                         </p>
                       </div>
 
                       <div className="col-span-2 sm:col-span-1">
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Icon name="Clock" size={12} className="text-primary" />
+                          <Icon
+                            name="Clock"
+                            size={12}
+                            className="text-primary"
+                          />
                           Время
                         </p>
-                        <p className="text-sm font-semibold">{successAppointmentData.time}</p>
+                        <p className="text-sm font-semibold">
+                          {successAppointmentData.time}
+                        </p>
                       </div>
 
                       <div className="col-span-2 sm:col-span-1">
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Icon name="User" size={12} className="text-primary" />
+                          <Icon
+                            name="User"
+                            size={12}
+                            className="text-primary"
+                          />
                           Пациент
                         </p>
-                        <p className="text-xs font-medium break-words">{successAppointmentData.patient_name}</p>
+                        <p className="text-xs font-medium break-words">
+                          {successAppointmentData.patient_name}
+                        </p>
                       </div>
 
                       <div className="col-span-2 sm:col-span-1">
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Icon name="Phone" size={12} className="text-primary" />
+                          <Icon
+                            name="Phone"
+                            size={12}
+                            className="text-primary"
+                          />
                           Телефон
                         </p>
-                        <p className="text-xs font-medium">{successAppointmentData.patient_phone}</p>
+                        <p className="text-xs font-medium">
+                          {successAppointmentData.patient_phone}
+                        </p>
                       </div>
 
                       {successAppointmentData.doctor.office_number && (
                         <div>
                           <p className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Icon name="DoorOpen" size={12} className="text-primary" />
+                            <Icon
+                              name="DoorOpen"
+                              size={12}
+                              className="text-primary"
+                            />
                             Кабинет
                           </p>
-                          <p className="text-xs font-medium">{successAppointmentData.doctor.office_number}</p>
+                          <p className="text-xs font-medium">
+                            {successAppointmentData.doctor.office_number}
+                          </p>
                         </div>
                       )}
 
                       {successAppointmentData.patient_snils && (
                         <div>
                           <p className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Icon name="CreditCard" size={12} className="text-primary" />
+                            <Icon
+                              name="CreditCard"
+                              size={12}
+                              className="text-primary"
+                            />
                             СНИЛС
                           </p>
-                          <p className="text-xs font-medium">{successAppointmentData.patient_snils}</p>
+                          <p className="text-xs font-medium">
+                            {successAppointmentData.patient_snils}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -2138,10 +2939,16 @@ const Index = () => {
                     {successAppointmentData.description && (
                       <div className="text-left pt-2 border-t border-green-200">
                         <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
-                          <Icon name="FileText" size={12} className="text-primary" />
+                          <Icon
+                            name="FileText"
+                            size={12}
+                            className="text-primary"
+                          />
                           Описание
                         </p>
-                        <p className="text-xs break-words">{successAppointmentData.description}</p>
+                        <p className="text-xs break-words">
+                          {successAppointmentData.description}
+                        </p>
                       </div>
                     )}
                   </>
@@ -2150,7 +2957,9 @@ const Index = () => {
 
               {!hasRated && successAppointmentData?.appointment_id && (
                 <div className="mt-3 pt-3 border-t border-green-200 text-center">
-                  <p className="text-xs text-muted-foreground mb-2">Оцените работу электронной очереди</p>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Оцените работу электронной очереди
+                  </p>
                   <div className="flex justify-center gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -2163,13 +2972,13 @@ const Index = () => {
                         onMouseLeave={() => setHoveredStar(0)}
                         className="transition-transform hover:scale-110 focus:outline-none"
                       >
-                        <Icon 
-                          name="Star" 
-                          size={24} 
+                        <Icon
+                          name="Star"
+                          size={24}
                           className={`${
-                            star <= (hoveredStar || queueRating) 
-                              ? 'fill-yellow-400 text-yellow-400' 
-                              : 'text-gray-300'
+                            star <= (hoveredStar || queueRating)
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300"
                           } transition-colors`}
                         />
                       </button>
@@ -2188,7 +2997,7 @@ const Index = () => {
               )}
             </div>
           </div>
-          
+
           <div className="flex gap-2 justify-center pt-2 border-t mt-2">
             <Button
               size="sm"
@@ -2206,12 +3015,16 @@ const Index = () => {
             </Button>
             <Button
               size="sm"
-                onClick={() => {
-                  const printContent = document.getElementById('print-content');
-                  if (printContent) {
-                    const printWindow = window.open('', '', 'width=800,height=600');
-                    if (printWindow) {
-                      printWindow.document.write(`
+              onClick={() => {
+                const printContent = document.getElementById("print-content");
+                if (printContent) {
+                  const printWindow = window.open(
+                    "",
+                    "",
+                    "width=800,height=600",
+                  );
+                  if (printWindow) {
+                    printWindow.document.write(`
                         <html>
                           <head>
                             <title>Талон на прием</title>
@@ -2326,7 +3139,7 @@ const Index = () => {
                             </div>
                             <div class="content-wrapper">
                               <div class="doctor-photo">
-                                <img src="${successAppointmentData.doctor.photo_url || 'https://via.placeholder.com/113x151'}" alt="${successAppointmentData.doctor.full_name}" />
+                                <img src="${successAppointmentData.doctor.photo_url || "https://via.placeholder.com/113x151"}" alt="${successAppointmentData.doctor.full_name}" />
                               </div>
                               <div class="content-info">
                                 <p class="doctor-name">${successAppointmentData.doctor.full_name}</p>
@@ -2334,7 +3147,7 @@ const Index = () => {
                                 <div class="info-grid">
                                   <div class="info-item">
                                     <div class="info-label">Дата приема</div>
-                                    <div class="info-value">${new Date(successAppointmentData.date + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                                    <div class="info-value">${new Date(successAppointmentData.date + "T00:00:00").toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}</div>
                                   </div>
                                   <div class="info-item">
                                     <div class="info-label">Время приема</div>
@@ -2349,28 +3162,28 @@ const Index = () => {
                                     <div class="info-value">${successAppointmentData.patient_phone}</div>
                                   </div>
                                 </div>
-                                ${successAppointmentData.description ? `<div class="description"><strong>Описание:</strong> ${successAppointmentData.description}</div>` : ''}
+                                ${successAppointmentData.description ? `<div class="description"><strong>Описание:</strong> ${successAppointmentData.description}</div>` : ""}
                               </div>
                             </div>
                             <div class="footer">
                               <p style="margin: 0 0 2px 0;">Сохраните этот талон и предъявите его при визите к врачу</p>
-                              <p style="margin: 0;">Дата печати: ${new Date().toLocaleString('ru-RU')}</p>
+                              <p style="margin: 0;">Дата печати: ${new Date().toLocaleString("ru-RU")}</p>
                             </div>
                           </body>
                         </html>
                       `);
-                      printWindow.document.close();
-                      printWindow.focus();
-                      setTimeout(() => {
-                        printWindow.print();
-                        printWindow.close();
-                      }, 250);
-                    }
+                    printWindow.document.close();
+                    printWindow.focus();
+                    setTimeout(() => {
+                      printWindow.print();
+                      printWindow.close();
+                    }, 250);
                   }
-                }}
-                variant="outline"
-                className="gap-2 text-xs sm:text-sm"
-              >
+                }
+              }}
+              variant="outline"
+              className="gap-2 text-xs sm:text-sm"
+            >
               <Icon name="Printer" size={14} />
               Печать
             </Button>
@@ -2381,9 +3194,9 @@ const Index = () => {
       <Dialog open={photoModalOpen} onOpenChange={setPhotoModalOpen}>
         <DialogContent className="max-w-4xl p-0">
           <div className="relative">
-            <img 
-              src={photoModalUrl} 
-              alt="Фото врача" 
+            <img
+              src={photoModalUrl}
+              alt="Фото врача"
               className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
               onClick={() => setPhotoModalOpen(false)}
             />
@@ -2402,12 +3215,14 @@ const Index = () => {
       <Dialog open={showRatingModal} onOpenChange={setShowRatingModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center text-xl">Оцените электронную очередь</DialogTitle>
+            <DialogTitle className="text-center text-xl">
+              Оцените электронную очередь
+            </DialogTitle>
             <DialogDescription className="text-center">
               Ваше мнение поможет нам улучшить сервис
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-6">
             <p className="text-center text-sm text-muted-foreground mb-4">
               Насколько удобна электронная очередь?
@@ -2425,13 +3240,13 @@ const Index = () => {
                   onMouseLeave={() => setHoveredStar(0)}
                   className="transition-transform hover:scale-125 focus:outline-none"
                 >
-                  <Icon 
-                    name="Star" 
-                    size={36} 
+                  <Icon
+                    name="Star"
+                    size={36}
                     className={`${
-                      star <= (hoveredStar || queueRating) 
-                        ? 'fill-yellow-400 text-yellow-400' 
-                        : 'text-gray-300'
+                      star <= (hoveredStar || queueRating)
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-gray-300"
                     } transition-colors`}
                   />
                 </button>
@@ -2449,16 +3264,12 @@ const Index = () => {
             >
               Не хочу голосовать
             </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setShowRatingModal(false)}
-            >
+            <Button variant="ghost" onClick={() => setShowRatingModal(false)}>
               Закрыть
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-
     </div>
   );
 };
