@@ -2018,16 +2018,21 @@ const Index = () => {
               </a>
             </div>
             <div className="flex justify-center mt-4">
-              <a href="https://metrika.yandex.ru/stat/?id=107701780&amp;from=informer" target="_blank" rel="nofollow">
+              <a
+                href="https://metrika.yandex.ru/stat/?id=107701780&amp;from=informer"
+                target="_blank"
+                rel="nofollow"
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors border rounded px-2 py-1"
+                title="Яндекс.Метрика: данные за сегодня"
+              >
                 <img
-                  src="https://informer.yandex.ru/informer/107701780/3_1_B9ECFFFF_99CCFFFF_0_pageviews"
-                  style={{width: '88px', height: '31px', border: 0}}
-                  alt="Яндекс.Метрика"
-                  title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
-                  className="ym-advanced-informer"
-                  data-cid="107701780"
-                  data-lang="ru"
+                  src="https://yastatic.net/s3/front-maps-static/maps-front-maps/1.0.1052/icons/favicon.ico"
+                  width="14"
+                  height="14"
+                  alt=""
+                  style={{border: 0}}
                 />
+                Яндекс.Метрика
               </a>
             </div>
           </div>
