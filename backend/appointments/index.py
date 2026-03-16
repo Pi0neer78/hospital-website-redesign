@@ -56,6 +56,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 
+                cursor.execute("""
+                    SELECT is_working FROM t_p30358746_hospital_website_red.doctor_calendar 
+                    WHERE doctor_id = %s AND calendar_date = %s
+                """, (doctor_id, date))
+                calendar_entry = cursor.fetchone()
+                
+                if calendar_entry and not calendar_entry['is_working']:
+                    cursor.close()
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'available_slots': []}),
+                        'isBase64Encoded': False
+                    }
+                
                 day_of_week = datetime.strptime(date, '%Y-%m-%d').weekday()
                 day_of_week = (day_of_week + 1) % 7
                 
@@ -152,6 +167,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 daily_schedules = {str(ds['schedule_date']): ds for ds in cursor.fetchall()}
                 
                 cursor.execute("""
+                    SELECT calendar_date, is_working FROM t_p30358746_hospital_website_red.doctor_calendar 
+                    WHERE doctor_id = %s AND calendar_date BETWEEN %s AND %s
+                """, (doctor_id, start_date, end_date))
+                calendar_data = {str(cal['calendar_date']): cal['is_working'] for cal in cursor.fetchall()}
+                
+                cursor.execute("""
                     SELECT appointment_date, appointment_time FROM t_p30358746_hospital_website_red.appointments_v2 
                     WHERE doctor_id = %s AND appointment_date BETWEEN %s AND %s 
                     AND status IN ('scheduled', 'completed')
@@ -174,6 +195,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 while current_date <= end_date_obj:
                     date_str = current_date.strftime('%Y-%m-%d')
                     day_of_week = (current_date.weekday() + 1) % 7
+                    
+                    if date_str in calendar_data and not calendar_data[date_str]:
+                        slots_by_date[date_str] = {'available_slots': [], 'booked_slots': 0, 'hasSchedule': False}
+                        current_date += timedelta(days=1)
+                        continue
                     
                     schedule = daily_schedules.get(date_str) or schedules.get(day_of_week)
                     
