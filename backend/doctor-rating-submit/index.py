@@ -25,8 +25,8 @@ def handler(event, context):
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
         cur.execute(
-            "SELECT id FROM t_p30358746_hospital_website_red.doctor_ratings WHERE doctor_id = %s AND voted_at >= %s AND (ip_address = %s OR fingerprint = %s)",
-            (int(doctor_id), week_ago, ip_address, fingerprint)
+            "SELECT id FROM t_p30358746_hospital_website_red.doctor_ratings WHERE doctor_id = %s AND voted_at >= %s AND fingerprint = %s",
+            (int(doctor_id), week_ago, fingerprint)
         )
         row = cur.fetchone()
         cur.close()
@@ -54,8 +54,8 @@ def handler(event, context):
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT id FROM t_p30358746_hospital_website_red.doctor_ratings WHERE doctor_id = %s AND voted_at >= %s AND (ip_address = %s OR fingerprint = %s)",
-        (int(doctor_id), week_ago, ip_address, fingerprint)
+        "SELECT id FROM t_p30358746_hospital_website_red.doctor_ratings WHERE doctor_id = %s AND voted_at >= %s AND fingerprint = %s",
+        (int(doctor_id), week_ago, fingerprint)
     )
     if cur.fetchone():
         cur.close()
