@@ -39,6 +39,16 @@
         "logs": "array"
       },
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get my appointments by phone",
+      "method": "GET",
+      "path": "/?action=my-appointments&phone=79001234567",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "appointments": "array"
+      },
+      "bodyMatcher": "partial"
     }
   ]
 }

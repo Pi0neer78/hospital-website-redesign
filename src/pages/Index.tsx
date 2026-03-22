@@ -21,6 +21,7 @@ import {
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/hooks/use-toast";
 import { useRateLimiter } from "@/hooks/use-rate-limiter";
+import MyAppointmentsDialog from "@/components/index/MyAppointmentsDialog";
 
 const BACKEND_URLS = {
   appointments:
@@ -2511,6 +2512,7 @@ const Index = () => {
                     Часто задаваемые вопросы
                   </a>
                 </Button>
+                <MyAppointmentsDialog />
               </CardContent>
             </Card>
           </div>

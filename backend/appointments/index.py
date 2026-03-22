@@ -302,6 +302,79 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'my-appointments':
+                phone = params.get('phone', '').strip()
+                if not phone:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Не указан номер телефона'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                
+                # Нормализуем номер: убираем +, пробелы, скобки, дефисы
+                phone_clean = phone.replace('+', '').replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
+                
+                cursor.execute("""
+                    SELECT 
+                        a.id,
+                        a.patient_name,
+                        a.patient_phone,
+                        a.appointment_date,
+                        a.appointment_time,
+                        a.description,
+                        a.status,
+                        a.created_at,
+                        a.created_by,
+                        a.patient_snils,
+                        a.patient_oms,
+                        d.full_name as doctor_name,
+                        d.specialization as doctor_specialization
+                    FROM t_p30358746_hospital_website_red.appointments_v2 a
+                    LEFT JOIN t_p30358746_hospital_website_red.doctors d ON d.id = a.doctor_id
+                    WHERE REGEXP_REPLACE(a.patient_phone, '[^0-9]', '', 'g') LIKE '%' || RIGHT(REGEXP_REPLACE(%s, '[^0-9]', '', 'g'), 10) || '%'
+                    ORDER BY a.appointment_date DESC, a.appointment_time DESC
+                """, (phone_clean,))
+                
+                appointments = cursor.fetchall()
+                cursor.close()
+                
+                # Преобразуем created_by в читаемый текст
+                def get_created_by_label(val):
+                    if val == 1:
+                        return 'Самостоятельно'
+                    elif val == 2:
+                        return 'Регистратором'
+                    elif val == 3:
+                        return 'Врачом'
+                    else:
+                        return 'Самостоятельно'
+                
+                result = []
+                for a in appointments:
+                    result.append({
+                        'id': a['id'],
+                        'patient_name': a['patient_name'],
+                        'patient_phone': a['patient_phone'],
+                        'appointment_date': str(a['appointment_date']) if a['appointment_date'] else None,
+                        'appointment_time': str(a['appointment_time'])[:5] if a['appointment_time'] else None,
+                        'description': a['description'] or '',
+                        'status': a['status'] or 'scheduled',
+                        'created_at': str(a['created_at']) if a['created_at'] else None,
+                        'created_by': get_created_by_label(a['created_by']),
+                        'doctor_name': a['doctor_name'] or '',
+                        'doctor_specialization': a['doctor_specialization'] or '',
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'appointments': result}),
+                    'isBase64Encoded': False
+                }
+            
             elif action == 'logs':
                 doctor_id = params.get('doctor_id')
                 limit = int(params.get('limit', '500'))
