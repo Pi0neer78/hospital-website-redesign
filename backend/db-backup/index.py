@@ -94,7 +94,21 @@ def save_backup_record(conn, folder, full, results):
     cur.close()
 
 
-def delete_old_records(conn, retention_days):
+def delete_s3_folder(s3, folder):
+    try:
+        paginator = s3.get_paginator('list_objects_v2')
+        pages = paginator.paginate(Bucket='files', Prefix=folder + '/')
+        keys = []
+        for page in pages:
+            for obj in page.get('Contents', []):
+                keys.append({'Key': obj['Key']})
+        if keys:
+            s3.delete_objects(Bucket='files', Delete={'Objects': keys})
+    except Exception as e:
+        print(f'[s3 delete error] folder={folder} error={e}')
+
+
+def delete_old_records(conn, retention_days, s3=None):
     if retention_days <= 0:
         return 0
     cutoff = datetime.now() - timedelta(days=retention_days)
@@ -104,10 +118,13 @@ def delete_old_records(conn, retention_days):
         WHERE created_at < %s
         RETURNING folder
     ''', (cutoff,))
-    deleted = cur.fetchall()
+    deleted_folders = [r[0] for r in cur.fetchall()]
     conn.commit()
     cur.close()
-    return len(deleted)
+    if s3 and deleted_folders:
+        for folder in deleted_folders:
+            delete_s3_folder(s3, folder)
+    return len(deleted_folders)
 
 
 def handler(event: dict, context) -> dict:
@@ -168,7 +185,8 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'retention_days должен быть больше 0'}),
             }
         conn = get_db()
-        deleted = delete_old_records(conn, retention_days)
+        s3 = get_s3()
+        deleted = delete_old_records(conn, retention_days, s3)
         conn.close()
         return {
             'statusCode': 200,

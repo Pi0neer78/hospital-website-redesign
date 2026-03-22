@@ -1,6 +1,6 @@
 import json
 import os
-import urllib.request
+import boto3
 import psycopg2
 from datetime import datetime, timedelta
 
@@ -15,6 +15,29 @@ CORS_HEADERS = {
 
 def get_db():
     return psycopg2.connect(os.environ['DATABASE_URL'])
+
+
+def get_s3():
+    return boto3.client(
+        's3',
+        endpoint_url='https://bucket.poehali.dev',
+        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+    )
+
+
+def delete_s3_folder(s3, folder):
+    try:
+        paginator = s3.get_paginator('list_objects_v2')
+        pages = paginator.paginate(Bucket='files', Prefix=folder + '/')
+        keys = []
+        for page in pages:
+            for obj in page.get('Contents', []):
+                keys.append({'Key': obj['Key']})
+        if keys:
+            s3.delete_objects(Bucket='files', Delete={'Objects': keys})
+    except Exception as e:
+        print(f'[s3 delete error] folder={folder} error={e}')
 
 
 def handler(event: dict, context) -> dict:
@@ -54,6 +77,10 @@ def handler(event: dict, context) -> dict:
     conn.commit()
     cur.close()
     conn.close()
+
+    s3 = get_s3()
+    for folder in deleted_folders:
+        delete_s3_folder(s3, folder)
 
     print(f'[cleanup] retention_days={retention_days}, cutoff={cutoff}, deleted={len(deleted_folders)}')
 
