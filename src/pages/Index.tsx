@@ -201,11 +201,12 @@ const Index = () => {
       const data = await response.json();
       const slotsByDate = data.slots_by_date || {};
 
+
       const slotsMap: any = {};
       days.forEach((day) => {
         const dayData = slotsByDate[day.date];
         const availableSlotsList = dayData?.available_slots || [];
-        const bookedCount = dayData?.booked_slots || 0;
+        const bookedCount = typeof dayData?.booked_slots === 'number' ? dayData.booked_slots : 0;
         const totalCount = availableSlotsList.length + bookedCount;
         slotsMap[day.date] = {
           available: availableSlotsList,
@@ -263,8 +264,11 @@ const Index = () => {
     for (let i = 0; i <= 13; i++) {
       const date = new Date();
       date.setDate(date.getDate() + i);
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
       days.push({
-        date: date.toISOString().split("T")[0],
+        date: `${y}-${m}-${d}`,
         label: date.toLocaleDateString("ru-RU", {
           weekday: "short",
           day: "numeric",

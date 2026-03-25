@@ -204,7 +204,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     schedule = daily_schedules.get(date_str) or schedules.get(day_of_week)
                     
                     if schedule:
-                        booked_times = booked_by_date.get(date_str, [])
+                        booked_times = list(set(booked_by_date.get(date_str, [])))
                         
                         start_time_str = str(schedule['start_time']) if schedule['start_time'] else '09:00:00'
                         end_time_str = str(schedule['end_time']) if schedule['end_time'] else '18:00:00'
@@ -232,9 +232,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             
                             current_time += timedelta(minutes=slot_duration)
                         
+                        unique_booked = list(set(booked_times))
                         slots_by_date[date_str] = {
                             'available_slots': available_slots,
-                            'booked_slots': len(booked_times)
+                            'booked_slots': len(unique_booked)
                         }
                     else:
                         slots_by_date[date_str] = {
