@@ -321,25 +321,26 @@ const AppointmentDialog = ({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="space-y-3">
               <div className="flex items-center gap-3">
                 {selectedDoctor.photo_url ? (
                   <img
                     src={selectedDoctor.photo_url}
                     alt={selectedDoctor.full_name}
-                    className="w-24 h-24 rounded-lg object-cover cursor-pointer hover:shadow-lg transition-shadow"
+                    className="w-16 h-16 rounded-lg object-cover cursor-pointer hover:shadow-lg transition-shadow flex-shrink-0"
                     onClick={() => { setPhotoModalUrl(selectedDoctor.photo_url); setPhotoModalOpen(true); }}
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
                 ) : (
-                  <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center"><Icon name="User" size={40} className="text-primary" /></div>
+                  <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0"><Icon name="User" size={32} className="text-primary" /></div>
                 )}
-                <div>
-                  <h3 className="font-semibold">{selectedDoctor.full_name}</h3>
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-sm leading-tight">{selectedDoctor.full_name}</h3>
                   <p className="text-sm text-muted-foreground">Дата: {new Date(selectedDate + 'T00:00:00').toLocaleDateString('ru-RU')}</p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={() => { setSelectedDate(''); setAppointmentForm({ ...appointmentForm, appointment_time: '' }); }}>
+              <Button variant="outline" size="sm" className="w-full" onClick={() => { setSelectedDate(''); setAppointmentForm({ ...appointmentForm, appointment_time: '' }); }}>
+                <Icon name="ArrowLeft" size={14} className="mr-1" />
                 Изменить дату
               </Button>
             </div>
@@ -361,7 +362,7 @@ const AppointmentDialog = ({
                     <span>Перерыв</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-64 overflow-y-auto pr-1">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-1">
                   {allTimeSlotsForDate.length > 0 ? (
                     allTimeSlotsForDate.map((slot: any) => {
                       const isBreak = slot.status === 'break';
