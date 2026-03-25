@@ -902,7 +902,7 @@ const Index = () => {
                   </Button>
                 </DialogTrigger>
                 <DialogContent
-                  className="max-w-4xl max-h-[95vh] overflow-y-auto overflow-x-hidden w-full p-3 sm:p-6"
+                  className="w-[calc(100vw-16px)] max-w-4xl max-h-[95vh] overflow-y-auto overflow-x-hidden p-3 sm:p-6"
                   onPointerDownOutside={(e) => {
                     // Блокируем закрытие диалога при клике на overlay, если открыто окно ошибки
                     const slotErrorDialog =
@@ -1370,54 +1370,53 @@ const Index = () => {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 min-w-0">
-                          {selectedDoctor.photo_url ? (
-                            <img
-                              src={selectedDoctor.photo_url}
-                              alt={selectedDoctor.full_name}
-                              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0 cursor-pointer"
-                              onClick={() => {
-                                setPhotoModalUrl(selectedDoctor.photo_url);
-                                setPhotoModalOpen(true);
-                              }}
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display =
-                                  "none";
-                              }}
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                              <Icon name="User" size={20} className="text-primary" />
-                            </div>
-                          )}
-                          <div className="min-w-0">
-                            <h3 className="font-semibold text-sm truncate">
-                              {selectedDoctor.full_name}
-                            </h3>
-                            <p className="text-xs text-muted-foreground">
-                              Дата:{" "}
-                              {new Date(
-                                selectedDate + "T00:00:00",
-                              ).toLocaleDateString("ru-RU")}
-                            </p>
+                      <div className="flex items-center gap-2 min-w-0">
+                        {selectedDoctor.photo_url ? (
+                          <img
+                            src={selectedDoctor.photo_url}
+                            alt={selectedDoctor.full_name}
+                            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0 cursor-pointer"
+                            onClick={() => {
+                              setPhotoModalUrl(selectedDoctor.photo_url);
+                              setPhotoModalOpen(true);
+                            }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display =
+                                "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <Icon name="User" size={20} className="text-primary" />
                           </div>
+                        )}
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-sm truncate">
+                            {selectedDoctor.full_name}
+                          </h3>
+                          <p className="text-xs text-muted-foreground">
+                            Дата:{" "}
+                            {new Date(
+                              selectedDate + "T00:00:00",
+                            ).toLocaleDateString("ru-RU")}
+                          </p>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-shrink-0 text-xs"
-                          onClick={() => {
-                            setSelectedDate("");
-                            setAppointmentForm({
-                              ...appointmentForm,
-                              appointment_time: "",
-                            });
-                          }}
-                        >
-                          Изменить дату
-                        </Button>
                       </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          setSelectedDate("");
+                          setAppointmentForm({
+                            ...appointmentForm,
+                            appointment_time: "",
+                          });
+                        }}
+                      >
+                        <Icon name="ArrowLeft" size={14} className="mr-1" />
+                        Изменить дату
+                      </Button>
 
                       {!appointmentForm.appointment_time ? (
                         <div>
@@ -1440,66 +1439,40 @@ const Index = () => {
                               <span>Перерыв</span>
                             </div>
                           </div>
-                          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 max-h-56 overflow-y-auto">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-64 overflow-y-auto">
                             {allTimeSlotsForDate.length > 0
                               ? allTimeSlotsForDate.map((slot: any) => {
                                   const isBreak = slot.status === "break";
                                   const isBooked = slot.status === "booked";
-                                  const isAvailable =
-                                    slot.status === "available";
-
+                                  const isFree = slot.available && !isBreak && !isBooked;
                                   return (
-                                    <Button
+                                    <button
                                       key={slot.time}
-                                      variant="outline"
-                                      className={`text-xs sm:text-sm px-1 sm:px-3 h-8 sm:h-10 ${
+                                      type="button"
+                                      style={
                                         isBreak
-                                          ? "bg-orange-100 border-orange-500 text-orange-700 hover:bg-orange-200 cursor-not-allowed"
+                                          ? { backgroundColor: "#ffedd5", borderColor: "#f97316", color: "#c2410c", cursor: "not-allowed" }
                                           : isBooked
-                                            ? "bg-red-100 border-red-500 text-red-700 hover:bg-red-200 cursor-not-allowed"
-                                            : "hover:bg-primary hover:text-white"
-                                      }`}
-                                      onClick={() =>
-                                        slot.available &&
-                                        setAppointmentForm({
-                                          ...appointmentForm,
-                                          appointment_time: slot.time,
-                                        })
+                                          ? { backgroundColor: "#fee2e2", borderColor: "#ef4444", color: "#b91c1c", cursor: "not-allowed" }
+                                          : { backgroundColor: "#ffffff", borderColor: "#d1d5db", color: "#111827", cursor: "pointer" }
                                       }
-                                      disabled={!slot.available}
-                                      title={
-                                        isBreak
-                                          ? "Перерыв"
-                                          : isBooked
-                                            ? "Занято"
-                                            : "Доступно"
-                                      }
+                                      className={`text-sm h-10 px-2 rounded-md border font-medium flex items-center justify-center gap-1 transition-colors ${isFree ? "hover:bg-blue-600 hover:text-white hover:border-blue-600" : ""}`}
+                                      onClick={() => isFree && setAppointmentForm({ ...appointmentForm, appointment_time: slot.time })}
                                     >
                                       {slot.time}
-                                      {isBreak && (
-                                        <Icon
-                                          name="Coffee"
-                                          size={12}
-                                          className="ml-1"
-                                        />
-                                      )}
-                                    </Button>
+                                      {isBreak && <Icon name="Coffee" size={12} />}
+                                    </button>
                                   );
                                 })
                               : availableSlots.map((slot: string) => (
-                                  <Button
+                                  <button
                                     key={slot}
-                                    variant="outline"
-                                    className="hover:bg-primary hover:text-white"
-                                    onClick={() =>
-                                      setAppointmentForm({
-                                        ...appointmentForm,
-                                        appointment_time: slot,
-                                      })
-                                    }
+                                    type="button"
+                                    className="text-sm h-10 px-2 rounded-md border border-gray-300 font-medium flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors"
+                                    onClick={() => setAppointmentForm({ ...appointmentForm, appointment_time: slot })}
                                   >
                                     {slot}
-                                  </Button>
+                                  </button>
                                 ))}
                           </div>
                         </div>
