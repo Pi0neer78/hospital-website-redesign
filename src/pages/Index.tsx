@@ -1160,32 +1160,28 @@ const Index = () => {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        <div className="flex items-center justify-between gap-2">
+                        <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-2 min-w-0">
                             {selectedDoctor.photo_url ? (
                               <img
                                 src={selectedDoctor.photo_url}
                                 alt={selectedDoctor.full_name}
-                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0"
+                                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).style.display =
                                     "none";
                                 }}
                               />
                             ) : (
-                              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                <Icon
-                                  name="User"
-                                  size={24}
-                                  className="text-primary"
-                                />
+                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <Icon name="User" size={20} className="text-primary" />
                               </div>
                             )}
-                            <div className="min-w-0">
-                              <h3 className="font-semibold text-sm sm:text-base truncate">
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-semibold text-sm leading-tight">
                                 {selectedDoctor.full_name}
                               </h3>
-                              <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                              <p className="text-xs text-muted-foreground truncate">
                                 {selectedDoctor.position}
                               </p>
                             </div>
@@ -1193,17 +1189,18 @@ const Index = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="flex-shrink-0 text-xs sm:text-sm"
+                            className="w-full text-xs h-8"
                             onClick={() => {
                               setSelectedDoctor(null);
                               setSelectedClinic(null);
                             }}
                           >
-                            Изменить
+                            <Icon name="ArrowLeft" size={14} className="mr-1" />
+                            Изменить врача
                           </Button>
                         </div>
-                        <h3 className="font-semibold">Выберите дату:</h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                        <h3 className="font-semibold text-sm">Выберите дату:</h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5">
                           {getNext7Days().map((day) => {
                             const isAvailable = isDayAvailable(day.date);
                             const dayData = allSlots[day.date];
@@ -1215,7 +1212,7 @@ const Index = () => {
                               <Button
                                 key={day.date}
                                 variant="outline"
-                                className={`h-20 sm:h-24 flex flex-col ${(!isAvailable || isFullyBooked) ? "opacity-50 cursor-not-allowed" : ""}`}
+                                className={`h-16 sm:h-20 flex flex-col py-1 ${(!isAvailable || isFullyBooked) ? "opacity-50 cursor-not-allowed" : ""}`}
                                 onClick={() => {
                                   if (!isAvailable) return;
                                   if (isFullyBooked) {
@@ -1226,24 +1223,24 @@ const Index = () => {
                                 }}
                                 disabled={!isAvailable}
                               >
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-[10px] text-muted-foreground leading-none">
                                   {day.label.split(",")[0]}
                                 </span>
-                                <span className="text-lg font-bold">
+                                <span className="text-sm font-bold leading-tight">
                                   {day.label.split(",")[1]}
                                 </span>
                                 {!isAvailable ? (
-                                  <span className="text-[10px] text-red-500 mt-0.5">
+                                  <span className="text-[9px] text-red-500 leading-tight">
                                     Нет приема
                                   </span>
                                 ) : totalCount === 0 ? (
-                                  <span className="text-[10px] text-muted-foreground mt-0.5">...</span>
+                                  <span className="text-[9px] text-muted-foreground">...</span>
                                 ) : isFullyBooked ? (
-                                  <span className="text-[9px] text-red-600 mt-0.5 font-bold leading-tight text-center uppercase">
-                                    всего {totalCount}<br/>НЕТ СВОБОДНЫХ
+                                  <span className="text-[8px] text-red-600 font-bold leading-tight text-center uppercase">
+                                    всего {totalCount}<br/>НЕТ СВОБ.
                                   </span>
                                 ) : (
-                                  <span className="text-[10px] text-green-600 mt-0.5 font-semibold leading-tight text-center">
+                                  <span className="text-[9px] text-green-600 font-semibold leading-tight text-center">
                                     всего {totalCount}<br/>{availableCount} своб.
                                   </span>
                                 )}
