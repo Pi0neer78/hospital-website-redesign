@@ -1211,8 +1211,10 @@ const Index = () => {
                         <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                           {getNext7Days().map((day) => {
                             const isAvailable = isDayAvailable(day.date);
-                            const availableCount =
-                              allSlots[day.date]?.available?.length || 0;
+                            const dayData = allSlots[day.date];
+                            const availableCount = dayData?.available?.length || 0;
+                            const bookedCount = dayData?.booked || 0;
+                            const totalCount = availableCount + bookedCount;
                             return (
                               <Button
                                 key={day.date}
@@ -1233,14 +1235,15 @@ const Index = () => {
                                   <span className="text-[10px] text-red-500 mt-0.5">
                                     Нет приема
                                   </span>
+                                ) : totalCount === 0 ? (
+                                  <span className="text-[10px] text-muted-foreground mt-0.5">...</span>
+                                ) : availableCount === 0 ? (
+                                  <span className="text-[10px] text-orange-500 mt-0.5 font-semibold leading-tight text-center">
+                                    всего {totalCount}<br/>нет своб.
+                                  </span>
                                 ) : (
-                                  <span className="text-[10px] text-green-600 mt-0.5 font-semibold">
-                                    {availableCount}{" "}
-                                    {availableCount === 1
-                                      ? "место"
-                                      : availableCount < 5
-                                        ? "места"
-                                        : "мест"}
+                                  <span className="text-[10px] text-green-600 mt-0.5 font-semibold leading-tight text-center">
+                                    всего {totalCount}<br/>{availableCount} своб.
                                   </span>
                                 )}
                               </Button>
