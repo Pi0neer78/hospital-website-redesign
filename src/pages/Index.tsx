@@ -902,7 +902,7 @@ const Index = () => {
                   </Button>
                 </DialogTrigger>
                 <DialogContent
-                  className="max-w-4xl max-h-[95vh] overflow-y-auto w-[calc(100vw-16px)] sm:w-auto p-4 sm:p-6"
+                  className="max-w-4xl max-h-[95vh] overflow-y-auto w-full sm:w-[calc(100vw-48px)] p-3 sm:p-6"
                   onPointerDownOutside={(e) => {
                     // Блокируем закрытие диалога при клике на overlay, если открыто окно ошибки
                     const slotErrorDialog =
@@ -1001,13 +1001,13 @@ const Index = () => {
                               className="cursor-pointer hover:shadow-lg transition-shadow"
                               onClick={() => setSelectedDoctor(doctor)}
                             >
-                              <CardContent className="p-2 sm:p-3">
-                                <div className="flex items-center gap-2 sm:gap-4 w-full">
+                              <CardContent className="p-2">
+                                <div className="flex items-center gap-2 w-full overflow-hidden">
                                   {doctor.photo_url ? (
                                     <img
                                       src={doctor.photo_url}
                                       alt={doctor.full_name}
-                                      className="w-14 h-14 sm:w-24 sm:h-24 rounded-lg object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
+                                      className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setPhotoModalUrl(doctor.photo_url);
@@ -1020,78 +1020,72 @@ const Index = () => {
                                       }}
                                     />
                                   ) : (
-                                    <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                                       <Icon
                                         name="User"
-                                        size={40}
+                                        size={24}
                                         className="text-primary"
                                       />
                                     </div>
                                   )}
-                                  <div className="flex-1 min-w-0 space-y-1">
-                                    <p className="font-semibold text-sm">
+                                  <div className="flex-1 min-w-0 space-y-0.5">
+                                    <p className="font-semibold text-xs leading-tight line-clamp-2">
                                       {doctor.full_name}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-[11px] text-muted-foreground truncate">
                                       {doctor.position}
                                     </p>
                                     {doctor.specialization && (
-                                      <p className="text-xs text-muted-foreground">
+                                      <p className="text-[10px] text-muted-foreground truncate hidden sm:block">
                                         {doctor.specialization}
                                       </p>
                                     )}
-                                    <div className="pt-1 space-y-0.5">
+                                    <div className="flex flex-wrap gap-x-2 gap-y-0">
                                       {doctor.office_number && (
-                                        <p className="text-xs flex items-center gap-1">
+                                        <p className="text-[10px] flex items-center gap-0.5">
                                           <Icon
                                             name="DoorOpen"
-                                            size={12}
-                                            className="text-primary"
+                                            size={10}
+                                            className="text-primary flex-shrink-0"
                                           />
                                           <span className="font-medium">
-                                            Кабинет {doctor.office_number}
+                                            Каб. {doctor.office_number}
                                           </span>
                                         </p>
                                       )}
                                       {doctor.work_experience && (
-                                        <p className="text-xs flex items-center gap-1">
+                                        <p className="text-[10px] flex items-center gap-0.5">
                                           <Icon
                                             name="Briefcase"
-                                            size={12}
-                                            className="text-primary"
+                                            size={10}
+                                            className="text-primary flex-shrink-0"
                                           />
                                           <span>
-                                            Стаж {doctor.work_experience} лет
+                                            Стаж {doctor.work_experience} л.
                                           </span>
                                         </p>
                                       )}
                                       {doctor.education && (
-                                        <p className="text-xs flex items-center gap-1">
+                                        <p className="text-[10px] flex items-center gap-0.5 hidden sm:flex">
                                           <Icon
                                             name="GraduationCap"
-                                            size={12}
-                                            className="text-primary"
+                                            size={10}
+                                            className="text-primary flex-shrink-0"
                                           />
-                                          <span
-                                            className="truncate"
-                                            title={doctor.education}
-                                          >
+                                          <span className="truncate" title={doctor.education}>
                                             {doctor.education}
                                           </span>
                                         </p>
                                       )}
                                       {doctor.category && (
-                                        <p className="text-xs flex items-center gap-1">
+                                        <p className="text-[10px] flex items-center gap-0.5 hidden sm:flex">
                                           <Icon
                                             name="Award"
-                                            size={12}
-                                            className="text-primary"
+                                            size={10}
+                                            className="text-primary flex-shrink-0"
                                           />
-                                          <span
-                                            className="truncate"
-                                            title={doctor.category}
-                                          >
-                                            Категория: {doctor.category}
+                                          <span className="truncate" title={doctor.category}>
+                                            {doctor.category}
                                           </span>
                                         </p>
                                       )}
