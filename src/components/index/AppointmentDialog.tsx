@@ -85,7 +85,7 @@ const AppointmentDialog = ({
           Записаться на прием
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" onPointerDownOutside={(e) => {
+      <DialogContent className="w-[calc(100vw-16px)] max-w-4xl max-h-[90vh] overflow-y-auto" onPointerDownOutside={(e) => {
         const slotErrorDialog = document.getElementById('slot-error-overlay');
         if (slotErrorDialog) e.preventDefault();
       }}>
@@ -361,7 +361,7 @@ const AppointmentDialog = ({
                     <span>Перерыв</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-64 overflow-y-auto pr-1">
                   {allTimeSlotsForDate.length > 0 ? (
                     allTimeSlotsForDate.map((slot: any) => {
                       const isBreak = slot.status === 'break';
