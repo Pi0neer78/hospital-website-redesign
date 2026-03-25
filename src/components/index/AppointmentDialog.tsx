@@ -234,8 +234,10 @@ const AppointmentDialog = ({
               <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                 {getNext7Days().map((day) => {
                   const isAvailable = isDayAvailable(day.date);
-                  const availableCount = allSlots[day.date]?.available?.length || 0;
-                  const totalCount = allSlots[day.date]?.total || 0;
+                  const daySlotData = allSlots[day.date];
+                  const availableCount = daySlotData?.available?.length || 0;
+                  const bookedCount = daySlotData?.booked || 0;
+                  const totalCount = availableCount + bookedCount;
                   return (
                     <Button
                       key={day.date}
@@ -248,6 +250,8 @@ const AppointmentDialog = ({
                       <span className="text-lg font-bold">{day.label.split(',')[1]}</span>
                       {!isAvailable ? (
                         <span className="text-[10px] text-red-500 mt-0.5">Нет приема</span>
+                      ) : totalCount === 0 ? (
+                        <span className="text-[10px] text-muted-foreground mt-0.5">...</span>
                       ) : availableCount === 0 ? (
                         <span className="text-[10px] text-orange-500 mt-0.5 font-semibold leading-tight text-center">
                           всего {totalCount}<br/>нет свободных
