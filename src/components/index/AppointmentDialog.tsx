@@ -347,23 +347,21 @@ const AppointmentDialog = ({
             {!appointmentForm.appointment_time ? (
               <div>
                 <h3 className="font-semibold mb-3">Выберите время:</h3>
-                <div className="flex flex-wrap gap-4 mb-3 text-xs">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-primary rounded"></div>
-                    <span className="font-medium">Свободно</span>
+                <div className="flex flex-wrap gap-2 mb-3 text-[11px]">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 border-2 border-primary rounded"></div>
+                    <span>Свободно</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-red-100 border-2 border-red-500 rounded"></div>
-                    <span className="font-medium">Занято</span>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-red-100 border-2 border-red-500 rounded"></div>
+                    <span>Занято</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-orange-100 border-2 border-orange-500 rounded flex items-center justify-center">
-                      <Icon name="Coffee" size={10} className="text-orange-600" />
-                    </div>
-                    <span className="font-medium">Перерыв врача</span>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-orange-100 border-2 border-orange-500 rounded"></div>
+                    <span>Перерыв</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 md:grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 max-h-64 overflow-y-auto pr-1">
                   {allTimeSlotsForDate.length > 0 ? (
                     allTimeSlotsForDate.map((slot: any) => {
                       const isBreak = slot.status === 'break';
@@ -372,7 +370,8 @@ const AppointmentDialog = ({
                         <Button
                           key={slot.time}
                           variant="outline"
-                          className={`${
+                          size="sm"
+                          className={`text-xs px-1 h-8 ${
                             isBreak
                               ? 'bg-orange-100 border-orange-500 text-orange-700 hover:bg-orange-200 cursor-not-allowed'
                               : isBooked
@@ -383,7 +382,7 @@ const AppointmentDialog = ({
                           disabled={!slot.available}
                         >
                           {slot.time}
-                          {isBreak && <Icon name="Coffee" size={12} className="ml-1" />}
+                          {isBreak && <Icon name="Coffee" size={10} className="ml-0.5" />}
                         </Button>
                       );
                     })
@@ -392,7 +391,8 @@ const AppointmentDialog = ({
                       <Button
                         key={slot}
                         variant="outline"
-                        className="hover:bg-primary hover:text-white"
+                        size="sm"
+                        className="text-xs px-1 h-8 hover:bg-primary hover:text-white"
                         onClick={() => setAppointmentForm({ ...appointmentForm, appointment_time: slot })}
                       >
                         {slot}
