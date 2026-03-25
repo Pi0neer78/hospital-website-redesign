@@ -902,7 +902,7 @@ const Index = () => {
                   </Button>
                 </DialogTrigger>
                 <DialogContent
-                  className="max-w-4xl max-h-[95vh] overflow-y-auto w-full sm:w-[calc(100vw-48px)] p-3 sm:p-6"
+                  className="max-w-4xl max-h-[95vh] overflow-y-auto overflow-x-hidden w-full p-3 sm:p-6"
                   onPointerDownOutside={(e) => {
                     // Блокируем закрытие диалога при клике на overlay, если открыто окно ошибки
                     const slotErrorDialog =
@@ -1372,14 +1372,14 @@ const Index = () => {
                       </Card>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
                           {selectedDoctor.photo_url ? (
                             <img
                               src={selectedDoctor.photo_url}
                               alt={selectedDoctor.full_name}
-                              className="w-24 h-24 rounded-lg object-cover cursor-pointer hover:shadow-lg transition-shadow"
+                              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0 cursor-pointer"
                               onClick={() => {
                                 setPhotoModalUrl(selectedDoctor.photo_url);
                                 setPhotoModalOpen(true);
@@ -1390,19 +1390,15 @@ const Index = () => {
                               }}
                             />
                           ) : (
-                            <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center">
-                              <Icon
-                                name="User"
-                                size={40}
-                                className="text-primary"
-                              />
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <Icon name="User" size={20} className="text-primary" />
                             </div>
                           )}
-                          <div>
-                            <h3 className="font-semibold">
+                          <div className="min-w-0">
+                            <h3 className="font-semibold text-sm truncate">
                               {selectedDoctor.full_name}
                             </h3>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs text-muted-foreground">
                               Дата:{" "}
                               {new Date(
                                 selectedDate + "T00:00:00",
@@ -1413,6 +1409,7 @@ const Index = () => {
                         <Button
                           variant="outline"
                           size="sm"
+                          className="flex-shrink-0 text-xs"
                           onClick={() => {
                             setSelectedDate("");
                             setAppointmentForm({
@@ -1430,27 +1427,23 @@ const Index = () => {
                           <h3 className="font-semibold mb-3">
                             Выберите время:
                           </h3>
-                          <div className="flex flex-wrap gap-4 mb-3 text-xs">
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 border-2 border-primary rounded"></div>
-                              <span className="font-medium">Свободно</span>
+                          <div className="flex flex-wrap gap-2 sm:gap-4 mb-2 text-xs">
+                            <div className="flex items-center gap-1">
+                              <div className="w-3 h-3 border-2 border-primary rounded"></div>
+                              <span>Свободно</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 bg-red-100 border-2 border-red-500 rounded"></div>
-                              <span className="font-medium">Занято</span>
+                            <div className="flex items-center gap-1">
+                              <div className="w-3 h-3 bg-red-100 border-2 border-red-500 rounded"></div>
+                              <span>Занято</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-4 h-4 bg-orange-100 border-2 border-orange-500 rounded flex items-center justify-center">
-                                <Icon
-                                  name="Coffee"
-                                  size={10}
-                                  className="text-orange-600"
-                                />
+                            <div className="flex items-center gap-1">
+                              <div className="w-3 h-3 bg-orange-100 border-2 border-orange-500 rounded flex items-center justify-center">
+                                <Icon name="Coffee" size={8} className="text-orange-600" />
                               </div>
-                              <span className="font-medium">Перерыв врача</span>
+                              <span>Перерыв</span>
                             </div>
                           </div>
-                          <div className="grid grid-cols-4 md:grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+                          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 max-h-56 overflow-y-auto">
                             {allTimeSlotsForDate.length > 0
                               ? allTimeSlotsForDate.map((slot: any) => {
                                   const isBreak = slot.status === "break";
@@ -1462,7 +1455,7 @@ const Index = () => {
                                     <Button
                                       key={slot.time}
                                       variant="outline"
-                                      className={`${
+                                      className={`text-xs sm:text-sm px-1 sm:px-3 h-8 sm:h-10 ${
                                         isBreak
                                           ? "bg-orange-100 border-orange-500 text-orange-700 hover:bg-orange-200 cursor-not-allowed"
                                           : isBooked
