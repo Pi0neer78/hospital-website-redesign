@@ -1215,14 +1215,20 @@ const Index = () => {
                             const availableCount = dayData?.available?.length || 0;
                             const bookedCount = dayData?.booked || 0;
                             const totalCount = availableCount + bookedCount;
+                            const isFullyBooked = isAvailable && totalCount > 0 && availableCount === 0;
                             return (
                               <Button
                                 key={day.date}
                                 variant="outline"
-                                className={`h-24 flex flex-col ${!isAvailable ? "opacity-40 cursor-not-allowed" : ""}`}
-                                onClick={() =>
-                                  isAvailable && setSelectedDate(day.date)
-                                }
+                                className={`h-24 flex flex-col ${(!isAvailable || isFullyBooked) ? "opacity-50 cursor-not-allowed" : ""}`}
+                                onClick={() => {
+                                  if (!isAvailable) return;
+                                  if (isFullyBooked) {
+                                    toast({ title: "Все места заняты", description: `На ${day.label} нет свободных мест для записи`, variant: "destructive" });
+                                    return;
+                                  }
+                                  setSelectedDate(day.date);
+                                }}
                                 disabled={!isAvailable}
                               >
                                 <span className="text-xs text-muted-foreground">
@@ -1237,9 +1243,9 @@ const Index = () => {
                                   </span>
                                 ) : totalCount === 0 ? (
                                   <span className="text-[10px] text-muted-foreground mt-0.5">...</span>
-                                ) : availableCount === 0 ? (
-                                  <span className="text-[10px] text-orange-500 mt-0.5 font-semibold leading-tight text-center">
-                                    всего {totalCount}<br/>нет своб.
+                                ) : isFullyBooked ? (
+                                  <span className="text-[9px] text-red-600 mt-0.5 font-bold leading-tight text-center uppercase">
+                                    всего {totalCount}<br/>НЕТ СВОБОДНЫХ
                                   </span>
                                 ) : (
                                   <span className="text-[10px] text-green-600 mt-0.5 font-semibold leading-tight text-center">
