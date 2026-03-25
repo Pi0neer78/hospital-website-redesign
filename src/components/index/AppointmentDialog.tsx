@@ -361,7 +361,7 @@ const AppointmentDialog = ({
                     <span>Перерыв</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 max-h-64 overflow-y-auto pr-1">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
                   {allTimeSlotsForDate.length > 0 ? (
                     allTimeSlotsForDate.map((slot: any) => {
                       const isBreak = slot.status === 'break';
@@ -371,7 +371,7 @@ const AppointmentDialog = ({
                           key={slot.time}
                           variant="outline"
                           size="sm"
-                          className={`text-xs px-1 h-8 ${
+                          className={`text-sm h-9 ${
                             isBreak
                               ? 'bg-orange-100 border-orange-500 text-orange-700 hover:bg-orange-200 cursor-not-allowed'
                               : isBooked
@@ -392,7 +392,7 @@ const AppointmentDialog = ({
                         key={slot}
                         variant="outline"
                         size="sm"
-                        className="text-xs px-1 h-8 hover:bg-primary hover:text-white"
+                        className="text-sm h-9 hover:bg-primary hover:text-white"
                         onClick={() => setAppointmentForm({ ...appointmentForm, appointment_time: slot })}
                       >
                         {slot}
