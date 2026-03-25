@@ -1163,8 +1163,9 @@ const Doctor = () => {
     const startDate = new Date(currentYear, currentMonth, 1);
     const endDate = new Date(currentYear, currentMonth + 2, 0);
     
-    const startDateStr = startDate.toISOString().split('T')[0];
-    const endDateStr = endDate.toISOString().split('T')[0];
+    const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const startDateStr = fmt(startDate);
+    const endDateStr = fmt(endDate);
     
     const dates: string[] = [];
     const currentDate = new Date(startDate);
