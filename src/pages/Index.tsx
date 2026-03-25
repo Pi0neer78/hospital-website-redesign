@@ -1223,25 +1223,25 @@ const Index = () => {
                                 }}
                                 disabled={!isAvailable}
                               >
-                                <span className="text-[10px] text-muted-foreground leading-none">
+                                <span className="text-[9px] text-muted-foreground leading-none">
                                   {day.label.split(",")[0]}
                                 </span>
-                                <span className="text-sm font-bold leading-tight">
+                                <span className="text-xs font-bold leading-tight">
                                   {day.label.split(",")[1]}
                                 </span>
                                 {!isAvailable ? (
-                                  <span className="text-[9px] text-red-500 leading-tight">
+                                  <span className="text-[9px] text-red-500 leading-none">
                                     Нет приема
                                   </span>
                                 ) : totalCount === 0 ? (
                                   <span className="text-[9px] text-muted-foreground">...</span>
                                 ) : isFullyBooked ? (
-                                  <span className="text-[8px] text-red-600 font-bold leading-tight text-center uppercase">
-                                    всего {totalCount}<br/>НЕТ СВОБ.
+                                  <span className="text-[8px] text-red-600 font-bold leading-none text-center">
+                                    {totalCount} / НЕТ СВОБ.
                                   </span>
                                 ) : (
-                                  <span className="text-[9px] text-green-600 font-semibold leading-tight text-center">
-                                    всего {totalCount}<br/>{availableCount} своб.
+                                  <span className="text-[9px] text-green-600 font-semibold leading-none text-center">
+                                    {totalCount} / {availableCount} своб.
                                   </span>
                                 )}
                               </Button>
