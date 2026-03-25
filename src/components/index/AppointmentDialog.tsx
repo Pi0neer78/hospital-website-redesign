@@ -366,24 +366,26 @@ const AppointmentDialog = ({
                     allTimeSlotsForDate.map((slot: any) => {
                       const isBreak = slot.status === 'break';
                       const isBooked = slot.status === 'booked';
+                      const isFree = slot.available && !isBreak && !isBooked;
                       return (
-                        <Button
+                        <button
                           key={slot.time}
-                          variant="outline"
-                          size="sm"
-                          className={`text-sm h-9 ${
+                          type="button"
+                          style={
                             isBreak
-                              ? 'bg-orange-100 border-orange-500 text-orange-700 hover:bg-orange-200 cursor-not-allowed'
+                              ? { backgroundColor: '#ffedd5', borderColor: '#f97316', color: '#c2410c', cursor: 'not-allowed' }
                               : isBooked
-                              ? 'bg-red-100 border-red-500 text-red-700 hover:bg-red-200 cursor-not-allowed'
-                              : 'hover:bg-primary hover:text-white'
+                              ? { backgroundColor: '#fee2e2', borderColor: '#ef4444', color: '#b91c1c', cursor: 'not-allowed' }
+                              : { backgroundColor: '#ffffff', borderColor: '#d1d5db', color: '#111827', cursor: 'pointer' }
+                          }
+                          className={`text-sm h-9 px-2 rounded-md border font-medium flex items-center justify-center gap-1 transition-colors ${
+                            isFree ? 'hover:bg-blue-600 hover:text-white hover:border-blue-600' : ''
                           }`}
-                          onClick={() => slot.available && setAppointmentForm({ ...appointmentForm, appointment_time: slot.time })}
-                          disabled={!slot.available}
+                          onClick={() => isFree && setAppointmentForm({ ...appointmentForm, appointment_time: slot.time })}
                         >
                           {slot.time}
-                          {isBreak && <Icon name="Coffee" size={10} className="ml-0.5" />}
-                        </Button>
+                          {isBreak && <Icon name="Coffee" size={10} />}
+                        </button>
                       );
                     })
                   ) : (
