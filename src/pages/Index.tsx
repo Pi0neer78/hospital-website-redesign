@@ -902,7 +902,7 @@ const Index = () => {
                   </Button>
                 </DialogTrigger>
                 <DialogContent
-                  className="max-w-4xl max-h-[90vh] overflow-y-auto"
+                  className="max-w-4xl max-h-[95vh] overflow-y-auto w-[calc(100vw-16px)] sm:w-auto p-4 sm:p-6"
                   onPointerDownOutside={(e) => {
                     // Блокируем закрытие диалога при клике на overlay, если открыто окно ошибки
                     const slotErrorDialog =
@@ -990,7 +990,7 @@ const Index = () => {
                         </Button>
                       </div>
                       <h3 className="font-semibold">Выберите врача:</h3>
-                      <div className="grid md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+                      <div className="grid md:grid-cols-2 gap-2 max-h-[50vh] overflow-y-auto">
                         {doctors
                           .filter(
                             (doctor: any) => doctor.clinic === selectedClinic,
@@ -1001,13 +1001,13 @@ const Index = () => {
                               className="cursor-pointer hover:shadow-lg transition-shadow"
                               onClick={() => setSelectedDoctor(doctor)}
                             >
-                              <CardContent className="p-3">
-                                <div className="flex items-center gap-4 w-full">
+                              <CardContent className="p-2 sm:p-3">
+                                <div className="flex items-center gap-2 sm:gap-4 w-full">
                                   {doctor.photo_url ? (
                                     <img
                                       src={doctor.photo_url}
                                       alt={doctor.full_name}
-                                      className="w-24 h-24 rounded-lg object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
+                                      className="w-14 h-14 sm:w-24 sm:h-24 rounded-lg object-cover flex-shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setPhotoModalUrl(doctor.photo_url);
@@ -1165,14 +1165,14 @@ const Index = () => {
                         </Card>
                       </div>
                     ) : (
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
                             {selectedDoctor.photo_url ? (
                               <img
                                 src={selectedDoctor.photo_url}
                                 alt={selectedDoctor.full_name}
-                                className="w-12 h-12 rounded-full object-cover"
+                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).style.display =
                                     "none";
@@ -1187,11 +1187,11 @@ const Index = () => {
                                 />
                               </div>
                             )}
-                            <div>
-                              <h3 className="font-semibold">
+                            <div className="min-w-0">
+                              <h3 className="font-semibold text-sm sm:text-base truncate">
                                 {selectedDoctor.full_name}
                               </h3>
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-xs sm:text-sm text-muted-foreground truncate">
                                 {selectedDoctor.position}
                               </p>
                             </div>
@@ -1199,6 +1199,7 @@ const Index = () => {
                           <Button
                             variant="outline"
                             size="sm"
+                            className="flex-shrink-0 text-xs sm:text-sm"
                             onClick={() => {
                               setSelectedDoctor(null);
                               setSelectedClinic(null);
@@ -1208,7 +1209,7 @@ const Index = () => {
                           </Button>
                         </div>
                         <h3 className="font-semibold">Выберите дату:</h3>
-                        <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                           {getNext7Days().map((day) => {
                             const isAvailable = isDayAvailable(day.date);
                             const dayData = allSlots[day.date];
@@ -1220,7 +1221,7 @@ const Index = () => {
                               <Button
                                 key={day.date}
                                 variant="outline"
-                                className={`h-24 flex flex-col ${(!isAvailable || isFullyBooked) ? "opacity-50 cursor-not-allowed" : ""}`}
+                                className={`h-20 sm:h-24 flex flex-col ${(!isAvailable || isFullyBooked) ? "opacity-50 cursor-not-allowed" : ""}`}
                                 onClick={() => {
                                   if (!isAvailable) return;
                                   if (isFullyBooked) {
