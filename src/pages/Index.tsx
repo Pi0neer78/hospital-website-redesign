@@ -204,10 +204,14 @@ const Index = () => {
       const slotsMap: any = {};
       days.forEach((day) => {
         const dayData = slotsByDate[day.date];
+        const availableSlotsList = dayData?.available_slots || [];
+        const bookedCount = dayData?.booked_slots || 0;
+        const totalCount = availableSlotsList.length + bookedCount;
         slotsMap[day.date] = {
-          available: dayData?.available_slots || [],
-          hasSchedule:
-            dayData?.available_slots && dayData.available_slots.length > 0,
+          available: availableSlotsList,
+          hasSchedule: totalCount > 0,
+          total: totalCount,
+          booked: bookedCount,
         };
       });
 
