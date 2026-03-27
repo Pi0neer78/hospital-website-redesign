@@ -335,7 +335,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         d.specialization as doctor_specialization
                     FROM t_p30358746_hospital_website_red.appointments_v2 a
                     LEFT JOIN t_p30358746_hospital_website_red.doctors d ON d.id = a.doctor_id
-                    WHERE REGEXP_REPLACE(a.patient_phone, '[^0-9]', '', 'g') LIKE '%' || RIGHT(REGEXP_REPLACE(%s, '[^0-9]', '', 'g'), 10) || '%'
+                    WHERE REGEXP_REPLACE(a.patient_phone, '[^0-9]', '', 'g') LIKE '%%' || RIGHT(REGEXP_REPLACE(%s, '[^0-9]', '', 'g'), 10) || '%%'
                     ORDER BY a.appointment_date DESC, a.appointment_time DESC
                 """, (phone_clean,))
                 
