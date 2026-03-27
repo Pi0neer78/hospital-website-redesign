@@ -196,10 +196,10 @@ export default function MyAppointmentsDialog() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[calc(100vw-16px)] max-w-6xl max-h-[92vh] overflow-y-auto p-4">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Icon name="CalendarSearch" size={20} className="text-primary" />
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <Icon name="CalendarSearch" size={18} className="text-primary" />
             Мои записи на приём
           </DialogTitle>
         </DialogHeader>
@@ -261,47 +261,53 @@ export default function MyAppointmentsDialog() {
         )}
 
         {step === "results" && (
-          <div className="space-y-4 mt-2">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <p className="text-sm text-muted-foreground">
+          <div className="space-y-3 mt-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-xs text-muted-foreground flex-1 min-w-0">
                 Найдено записей: <strong>{appointments.length}</strong> для номера {phone}
               </p>
-              {appointments.length > 0 && (
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={handlePrint}>
-                    <Icon name="Printer" size={16} className="mr-2" />
-                    Печать
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleExcelExport}>
-                    <Icon name="FileSpreadsheet" size={16} className="mr-2" />
-                    Экспорт в Excel
-                  </Button>
-                </div>
-              )}
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <Button variant="outline" size="sm" className="h-7 text-xs px-2" onClick={resetDialog}>
+                  <Icon name="ArrowLeft" size={13} className="mr-1" />
+                  Другой номер
+                </Button>
+                {appointments.length > 0 && (
+                  <>
+                    <Button variant="outline" size="sm" className="h-7 text-xs px-2" onClick={handlePrint}>
+                      <Icon name="Printer" size={13} className="mr-1" />
+                      Печать
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-7 text-xs px-2" onClick={handleExcelExport}>
+                      <Icon name="FileSpreadsheet" size={13} className="mr-1" />
+                      Excel
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
 
             {appointments.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Icon name="CalendarX" size={48} className="mx-auto mb-3 opacity-40" />
-                <p>Записи не найдены для указанного номера</p>
+              <div className="text-center py-10 text-muted-foreground">
+                <Icon name="CalendarX" size={40} className="mx-auto mb-2 opacity-40" />
+                <p className="text-sm">Записи не найдены для указанного номера</p>
               </div>
             ) : (
               <div ref={printRef}>
-                <h2 className="text-base font-semibold mb-3 print:block hidden">
+                <h2 className="text-base font-semibold mb-2 print:block hidden">
                   Мои записи на приём — {phone}
                 </h2>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm border-collapse">
+                  <table className="w-full border-collapse" style={{ fontSize: "11px" }}>
                     <thead>
                       <tr className="bg-muted">
-                        <th className="border px-3 py-2 text-left font-medium whitespace-nowrap">ФИО</th>
-                        <th className="border px-3 py-2 text-left font-medium whitespace-nowrap">Дата создания</th>
-                        <th className="border px-3 py-2 text-left font-medium whitespace-nowrap">Кем записан</th>
-                        <th className="border px-3 py-2 text-left font-medium whitespace-nowrap">Дата приёма</th>
-                        <th className="border px-3 py-2 text-left font-medium whitespace-nowrap">Время</th>
-                        <th className="border px-3 py-2 text-left font-medium whitespace-nowrap">Врач</th>
-                        <th className="border px-3 py-2 text-left font-medium">Описание</th>
-                        <th className="border px-3 py-2 text-left font-medium whitespace-nowrap">Статус</th>
+                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">ФИО</th>
+                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Дата создания</th>
+                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Кем записан</th>
+                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Дата приёма</th>
+                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Время</th>
+                        <th className="border px-2 py-1.5 text-left font-semibold">Врач</th>
+                        <th className="border px-2 py-1.5 text-left font-semibold">Описание</th>
+                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Статус</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -309,22 +315,22 @@ export default function MyAppointmentsDialog() {
                         const statusInfo = getStatusLabel(a.status);
                         return (
                           <tr key={a.id} className="hover:bg-muted/40">
-                            <td className="border px-3 py-2 whitespace-nowrap">{a.patient_name}</td>
-                            <td className="border px-3 py-2 whitespace-nowrap text-xs text-muted-foreground">{formatDateTime(a.created_at)}</td>
-                            <td className="border px-3 py-2 whitespace-nowrap">{a.created_by}</td>
-                            <td className="border px-3 py-2 whitespace-nowrap">{formatDate(a.appointment_date)}</td>
-                            <td className="border px-3 py-2 whitespace-nowrap">{a.appointment_time || "—"}</td>
-                            <td className="border px-3 py-2">
-                              <div className="font-medium">{a.doctor_name}</div>
+                            <td className="border px-2 py-1 whitespace-nowrap">{a.patient_name || "—"}</td>
+                            <td className="border px-2 py-1 whitespace-nowrap text-muted-foreground">{formatDateTime(a.created_at)}</td>
+                            <td className="border px-2 py-1 whitespace-nowrap">{a.created_by || "—"}</td>
+                            <td className="border px-2 py-1 whitespace-nowrap">{formatDate(a.appointment_date)}</td>
+                            <td className="border px-2 py-1 whitespace-nowrap">{a.appointment_time || "—"}</td>
+                            <td className="border px-2 py-1" style={{ maxWidth: "160px" }}>
+                              <div className="font-medium leading-tight">{a.doctor_name || "—"}</div>
                               {a.doctor_specialization && (
-                                <div className="text-xs text-muted-foreground">{a.doctor_specialization}</div>
+                                <div className="text-muted-foreground leading-tight mt-0.5" style={{ fontSize: "10px" }}>{a.doctor_specialization}</div>
                               )}
                             </td>
-                            <td className="border px-3 py-2 max-w-[200px]">
-                              <span className="text-xs">{a.description || "—"}</span>
+                            <td className="border px-2 py-1" style={{ maxWidth: "120px" }}>
+                              <span className="text-muted-foreground">{a.description || "—"}</span>
                             </td>
-                            <td className="border px-3 py-2 whitespace-nowrap">
-                              <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+                            <td className="border px-2 py-1 whitespace-nowrap">
+                              <Badge variant={statusInfo.variant} className="text-[10px] px-1.5 py-0">{statusInfo.label}</Badge>
                             </td>
                           </tr>
                         );
@@ -334,11 +340,6 @@ export default function MyAppointmentsDialog() {
                 </div>
               </div>
             )}
-
-            <Button variant="outline" size="sm" onClick={resetDialog}>
-              <Icon name="ArrowLeft" size={16} className="mr-2" />
-              Другой номер
-            </Button>
           </div>
         )}
       </DialogContent>
