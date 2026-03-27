@@ -59,6 +59,8 @@ export default function MyAppointmentsDialog() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
   const printRef = useRef<HTMLDivElement>(null);
 
   function resetDialog() {
@@ -66,6 +68,7 @@ export default function MyAppointmentsDialog() {
     setPhone("");
     setCode("");
     setAppointments([]);
+    setPage(1);
   }
 
   async function handleSendCode(e: React.FormEvent) {
@@ -291,55 +294,114 @@ export default function MyAppointmentsDialog() {
                 <Icon name="CalendarX" size={40} className="mx-auto mb-2 opacity-40" />
                 <p className="text-sm">Записи не найдены для указанного номера</p>
               </div>
-            ) : (
-              <div ref={printRef}>
-                <h2 className="text-base font-semibold mb-2 print:block hidden">
-                  Мои записи на приём — {phone}
-                </h2>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse" style={{ fontSize: "11px" }}>
-                    <thead>
-                      <tr className="bg-muted">
-                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">ФИО</th>
-                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Дата создания</th>
-                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Кем записан</th>
-                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Дата приёма</th>
-                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Время</th>
-                        <th className="border px-2 py-1.5 text-left font-semibold">Врач</th>
-                        <th className="border px-2 py-1.5 text-left font-semibold">Описание</th>
-                        <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Статус</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {appointments.map((a) => {
-                        const statusInfo = getStatusLabel(a.status);
-                        return (
-                          <tr key={a.id} className="hover:bg-muted/40">
-                            <td className="border px-2 py-1 whitespace-nowrap">{a.patient_name || "—"}</td>
-                            <td className="border px-2 py-1 whitespace-nowrap text-muted-foreground">{formatDateTime(a.created_at)}</td>
-                            <td className="border px-2 py-1 whitespace-nowrap">{a.created_by || "—"}</td>
-                            <td className="border px-2 py-1 whitespace-nowrap">{formatDate(a.appointment_date)}</td>
-                            <td className="border px-2 py-1 whitespace-nowrap">{a.appointment_time || "—"}</td>
-                            <td className="border px-2 py-1" style={{ maxWidth: "160px" }}>
-                              <div className="font-medium leading-tight">{a.doctor_name || "—"}</div>
-                              {a.doctor_specialization && (
-                                <div className="text-muted-foreground leading-tight mt-0.5" style={{ fontSize: "10px" }}>{a.doctor_specialization}</div>
-                              )}
-                            </td>
-                            <td className="border px-2 py-1" style={{ maxWidth: "120px" }}>
-                              <span className="text-muted-foreground">{a.description || "—"}</span>
-                            </td>
-                            <td className="border px-2 py-1 whitespace-nowrap">
-                              <Badge variant={statusInfo.variant} className="text-[10px] px-1.5 py-0">{statusInfo.label}</Badge>
-                            </td>
+            ) : (() => {
+              const totalPages = Math.ceil(appointments.length / pageSize);
+              const paginated = appointments.slice((page - 1) * pageSize, page * pageSize);
+              return (
+                <>
+                  <div ref={printRef}>
+                    <h2 className="text-base font-semibold mb-2 print:block hidden">
+                      Мои записи на приём — {phone}
+                    </h2>
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse" style={{ fontSize: "11px" }}>
+                        <thead>
+                          <tr className="bg-muted">
+                            <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">ФИО</th>
+                            <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Дата создания</th>
+                            <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Кем записан</th>
+                            <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Дата приёма</th>
+                            <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Время</th>
+                            <th className="border px-2 py-1.5 text-left font-semibold">Врач</th>
+                            <th className="border px-2 py-1.5 text-left font-semibold">Описание</th>
+                            <th className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap">Статус</th>
                           </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+                        </thead>
+                        <tbody>
+                          {paginated.map((a) => {
+                            const statusInfo = getStatusLabel(a.status);
+                            return (
+                              <tr key={a.id} className="hover:bg-muted/40">
+                                <td className="border px-2 py-1 whitespace-nowrap">{a.patient_name || "—"}</td>
+                                <td className="border px-2 py-1 whitespace-nowrap text-muted-foreground">{formatDateTime(a.created_at)}</td>
+                                <td className="border px-2 py-1 whitespace-nowrap">{a.created_by || "—"}</td>
+                                <td className="border px-2 py-1 whitespace-nowrap">{formatDate(a.appointment_date)}</td>
+                                <td className="border px-2 py-1 whitespace-nowrap">{a.appointment_time || "—"}</td>
+                                <td className="border px-2 py-1" style={{ maxWidth: "160px" }}>
+                                  <div className="font-medium leading-tight">{a.doctor_name || "—"}</div>
+                                  {a.doctor_specialization && (
+                                    <div className="text-muted-foreground leading-tight mt-0.5" style={{ fontSize: "10px" }}>{a.doctor_specialization}</div>
+                                  )}
+                                </td>
+                                <td className="border px-2 py-1" style={{ maxWidth: "120px" }}>
+                                  <span className="text-muted-foreground">{a.description || "—"}</span>
+                                </td>
+                                <td className="border px-2 py-1 whitespace-nowrap">
+                                  <Badge variant={statusInfo.variant} className="text-[10px] px-1.5 py-0">{statusInfo.label}</Badge>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 flex-wrap pt-1 border-t">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span>Строк на странице:</span>
+                      {[10, 20, 50, 100].map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => { setPageSize(n); setPage(1); }}
+                          className={`px-2 py-0.5 rounded border text-xs transition-colors ${pageSize === n ? "bg-primary text-white border-primary" : "border-border hover:bg-muted"}`}
+                        >
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        disabled={page === 1}
+                        onClick={() => setPage(1)}
+                        className="h-7 w-7 flex items-center justify-center rounded border text-xs disabled:opacity-40 hover:bg-muted"
+                      >
+                        <Icon name="ChevronsLeft" size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={page === 1}
+                        onClick={() => setPage(p => p - 1)}
+                        className="h-7 w-7 flex items-center justify-center rounded border text-xs disabled:opacity-40 hover:bg-muted"
+                      >
+                        <Icon name="ChevronLeft" size={13} />
+                      </button>
+                      <span className="text-xs px-2 text-muted-foreground">
+                        {page} / {totalPages}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={page === totalPages}
+                        onClick={() => setPage(p => p + 1)}
+                        className="h-7 w-7 flex items-center justify-center rounded border text-xs disabled:opacity-40 hover:bg-muted"
+                      >
+                        <Icon name="ChevronRight" size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={page === totalPages}
+                        onClick={() => setPage(totalPages)}
+                        className="h-7 w-7 flex items-center justify-center rounded border text-xs disabled:opacity-40 hover:bg-muted"
+                      >
+                        <Icon name="ChevronsRight" size={13} />
+                      </button>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         )}
       </DialogContent>
