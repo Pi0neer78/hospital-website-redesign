@@ -62,7 +62,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body_data = json.loads(event.get('body', '{}'))
             action = body_data.get('action', '')
             
-            if action == 'check':
+            if action in ('check', 'check_and_record'):
                 ip_address = body_data.get('ip', '')
                 endpoint = body_data.get('endpoint', 'unknown')
                 fingerprint = body_data.get('fingerprint', '')
@@ -76,6 +76,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 is_blocked, reason = check_rate_limit(cursor, ip_address, endpoint, fingerprint)
+                
+                if not is_blocked and action == 'check_and_record':
+                    record_request(cursor, ip_address, endpoint, fingerprint)
                 
                 return {
                     'statusCode': 200,
