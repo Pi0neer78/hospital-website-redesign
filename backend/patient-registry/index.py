@@ -70,30 +70,55 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 def handle_get(conn, event):
     params = event.get('queryStringParameters') or {}
     search = params.get('search', '')
+    source = params.get('source', '')
+    date_from = params.get('date_from', '')
+    date_to = params.get('date_to', '')
     page = int(params.get('page', 1))
-    page_size = int(params.get('page_size', 100))
+    page_size = min(int(params.get('page_size', 50)), 200)
     offset = (page - 1) * page_size
 
     cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    where = ''
+    conditions = []
     query_params = []
 
     if search:
-        where = " WHERE full_name ILIKE %s OR phone ILIKE %s OR email ILIKE %s"
+        conditions.append("(full_name ILIKE %s OR phone ILIKE %s OR email ILIKE %s)")
         s = f'%{search}%'
-        query_params = [s, s, s]
+        query_params += [s, s, s]
+
+    if source and source != 'all':
+        conditions.append("source = %s")
+        query_params.append(source)
+
+    if date_from:
+        conditions.append("appointment_date >= %s")
+        query_params.append(date_from)
+
+    if date_to:
+        conditions.append("appointment_date <= %s")
+        query_params.append(date_to + ' 23:59:59')
+
+    where = (' WHERE ' + ' AND '.join(conditions)) if conditions else ''
 
     count_query = f"SELECT COUNT(*) FROM {SCHEMA}.reest_phone_max" + where
     cursor.execute(count_query, tuple(query_params))
     total = int(cursor.fetchone()['count'])
+
+    stats_query = f"""
+        SELECT source, COUNT(*) as cnt FROM {SCHEMA}.reest_phone_max
+        GROUP BY source
+    """
+    cursor.execute(stats_query)
+    stats_rows = cursor.fetchall()
+    stats = {r['source']: int(r['cnt']) for r in stats_rows if r['source']}
 
     query = f"SELECT * FROM {SCHEMA}.reest_phone_max" + where + " ORDER BY created_at DESC LIMIT %s OFFSET %s"
     cursor.execute(query, tuple(query_params) + (page_size, offset))
     rows = cursor.fetchall()
     cursor.close()
 
-    return resp(200, {'records': rows, 'total': total, 'page': page, 'page_size': page_size})
+    return resp(200, {'records': rows, 'total': total, 'page': page, 'page_size': page_size, 'stats': stats})
 
 
 def handle_send_email(conn, body):
