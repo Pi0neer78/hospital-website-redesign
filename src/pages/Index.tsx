@@ -1218,7 +1218,7 @@ const Index = () => {
                         </div>
                         <h3 className="font-semibold text-sm">Выберите дату:</h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5">
-                          {getNext7Days().map((day) => {
+                          {(serverToday ? getNext7Days(serverToday) : []).map((day) => {
                             const isAvailable = isDayAvailable(day.date);
                             const dayData = allSlots[day.date];
                             const availableCount = dayData?.available?.length || 0;
