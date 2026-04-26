@@ -77,12 +77,19 @@ const Registrar = () => {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [nameErrorModal, setNameErrorModal] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
   const [newAppointmentNameError, setNewAppointmentNameError] = useState<string | null>(null);
+  const [serverToday, setServerToday] = useState<string>('');
   const dialogSlotsCacheRef = useRef<Record<string, string[]>>({});
   const bulkSlotsCacheRef = useRef<Record<string, string[]>>({});
   const [debouncedSelectedDate, setDebouncedSelectedDate] = useState('');
   const doctorCacheRef = useRef<Record<number, { schedules: any[]; calendar: Record<string, {is_working: boolean}> }>>({});
 
   useEffect(() => {
+    // Загружаем текущую дату с сервера UTC+3
+    fetch(`${API_URLS.appointments}?action=server-time`)
+      .then(r => r.json())
+      .then(d => { if (d.today) setServerToday(d.today); })
+      .catch(() => setServerToday(new Date().toISOString().split('T')[0]));
+
     const auth = localStorage.getItem('registrar_auth');
     if (auth) {
       const registrar = JSON.parse(auth);
@@ -263,11 +270,12 @@ const Registrar = () => {
     loadedCalendarData: {[key: string]: {is_working: boolean}}
   ) => {
     const dates = [];
+    const todayStr = serverToday || new Date().toISOString().split('T')[0];
+    const [y0, m0, d0] = todayStr.split('-').map(Number);
     
     for (let i = 0; i <= 13; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
+      const date = new Date(y0, m0 - 1, d0 + i);
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
       const dayOfWeek = (date.getDay() + 6) % 7;
       
       const hasSchedule = loadedSchedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
@@ -336,10 +344,10 @@ const Registrar = () => {
   const loadAppointments = async (doctorId: number) => {
     try {
       // ОПТИМИЗАЦИЯ: всегда используем action=list с фильтрацией по датам
-      const today = new Date().toISOString().split('T')[0];
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + 30);
-      const endDateStr = endDate.toISOString().split('T')[0];
+      const today = serverToday || new Date().toISOString().split('T')[0];
+      const [ty, tm, td] = today.split('-').map(Number);
+      const endDateObj = new Date(ty, tm - 1, td + 30);
+      const endDateStr = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth()+1).padStart(2,'0')}-${String(endDateObj.getDate()).padStart(2,'0')}`;
       
       const response = await fetch(`${API_URLS.appointments}?action=list&doctor_id=${doctorId}&start_date=${today}&end_date=${endDateStr}`);
       const data = await response.json();
@@ -464,10 +472,11 @@ const Registrar = () => {
 
   const generateRescheduleDates = () => {
     const dates = [];
+    const todayStr = serverToday || new Date().toISOString().split('T')[0];
+    const [y0, m0, d0] = todayStr.split('-').map(Number);
     for (let i = 0; i <= 13; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
+      const date = new Date(y0, m0 - 1, d0 + i);
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
       const dayOfWeek = (date.getDay() + 6) % 7;
       
       const hasSchedule = schedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
@@ -548,10 +557,11 @@ const Registrar = () => {
 
   const generateCloneDates = (loadedSchedules = cloneDoctorSchedules, loadedCalendar = cloneDoctorCalendar) => {
     const dates = [];
+    const todayStr = serverToday || new Date().toISOString().split('T')[0];
+    const [y0, m0, d0] = todayStr.split('-').map(Number);
     for (let i = 0; i <= 13; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
+      const date = new Date(y0, m0 - 1, d0 + i);
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
       const dayOfWeek = (date.getDay() + 6) % 7;
       
       const hasSchedule = loadedSchedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
