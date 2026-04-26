@@ -257,6 +257,7 @@ const Doctor = () => {
   const [debouncedCloneDate, setDebouncedCloneDate] = useState('');
   const [debouncedRescheduleDate, setDebouncedRescheduleDate] = useState('');
   const [debouncedNewAppointmentDate, setDebouncedNewAppointmentDate] = useState('');
+  const [serverToday, setServerToday] = useState<string>('');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -288,6 +289,12 @@ const Doctor = () => {
   }, [newAppointmentDialog.date]);
 
   useEffect(() => {
+    // Загружаем текущую дату с сервера UTC+3
+    fetch(`${API_URLS.appointments}?action=server-time`)
+      .then(r => r.json())
+      .then(d => { if (d.today) setServerToday(d.today); })
+      .catch(() => setServerToday(new Date().toISOString().split('T')[0]));
+
     const urlParams = new URLSearchParams(window.location.search);
     const doctorIdFromUrl = urlParams.get('id');
     const sourceFromUrl = urlParams.get('source');
@@ -1305,29 +1312,24 @@ const Doctor = () => {
   };
 
   const setScheduleQuickFilter = (period: 'today' | 'week' | 'month') => {
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = serverToday || new Date().toISOString().split('T')[0];
+    const [ty, tm, td] = todayStr.split('-').map(Number);
     
     setScheduleFilterFrom(todayStr);
     
+    const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     if (period === 'today') {
       setScheduleFilterTo(todayStr);
     } else if (period === 'week') {
-      const weekLater = new Date(today);
-      weekLater.setDate(today.getDate() + 7);
-      setScheduleFilterTo(weekLater.toISOString().split('T')[0]);
+      setScheduleFilterTo(fmt(new Date(ty, tm - 1, td + 7)));
     } else if (period === 'month') {
-      const monthLater = new Date(today);
-      monthLater.setMonth(today.getMonth() + 1);
-      setScheduleFilterTo(monthLater.toISOString().split('T')[0]);
+      setScheduleFilterTo(fmt(new Date(ty, tm, td)));
     }
   };
 
   const validateScheduleDate = (dateStr: string): boolean => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const checkDate = new Date(dateStr + 'T00:00:00');
-    return checkDate >= today;
+    const todayStr = serverToday || new Date().toISOString().split('T')[0];
+    return dateStr >= todayStr;
   };
 
   const printSchedule = () => {
@@ -1699,10 +1701,11 @@ const Doctor = () => {
 
   const getNext14DaysForDoctor = () => {
     const days = [];
+    const todayStr = serverToday || new Date().toISOString().split('T')[0];
+    const [y0, m0, d0] = todayStr.split('-').map(Number);
     for (let i = 0; i <= 13; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
+      const date = new Date(y0, m0 - 1, d0 + i);
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
       const dayOfWeek = (date.getDay() + 6) % 7;
       
       const hasSchedule = schedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
@@ -1754,10 +1757,11 @@ const Doctor = () => {
 
   const generateRescheduleDates = () => {
     const dates = [];
+    const todayStr = serverToday || new Date().toISOString().split('T')[0];
+    const [y0, m0, d0] = todayStr.split('-').map(Number);
     for (let i = 0; i <= 13; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
+      const date = new Date(y0, m0 - 1, d0 + i);
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
       const dayOfWeek = (date.getDay() + 6) % 7;
       
       const hasSchedule = schedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
@@ -1971,8 +1975,10 @@ const Doctor = () => {
     if (!doctorId) return;
     setOtherDoctorDialog(prev => ({ ...prev, isLoadingDates: true, availableDates: [], date: '', time: '', availableSlots: [] }));
     try {
-      const startDate = new Date().toISOString().split('T')[0];
-      const endDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const startDate = serverToday || new Date().toISOString().split('T')[0];
+      const [sy, sm, sd] = startDate.split('-').map(Number);
+      const endDateObj = new Date(sy, sm - 1, sd + 14);
+      const endDate = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth()+1).padStart(2,'0')}-${String(endDateObj.getDate()).padStart(2,'0')}`;
       const response = await fetch(`${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${doctorId}&start_date=${startDate}&end_date=${endDate}`);
       const data = await response.json();
       if (data.slots_by_date) {
