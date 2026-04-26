@@ -98,6 +98,7 @@ const Index = () => {
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [photoModalUrl, setPhotoModalUrl] = useState("");
+  const [serverToday, setServerToday] = useState<string>("");
 
   const maxTexts = [
     "Максимум возможностей для жизни",
@@ -109,6 +110,20 @@ const Index = () => {
   ];
 
   useEffect(() => {
+    // Загружаем текущую дату с сервера (UTC+3), чтобы пациент не мог подменить дату на клиенте
+    const loadServerToday = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URLS.appointments}?action=server-time`);
+        const data = await res.json();
+        if (data.today) {
+          setServerToday(data.today);
+        }
+      } catch {
+        // Фоллбэк: берём дату браузера, если сервер недоступен
+        setServerToday(new Date().toISOString().split('T')[0]);
+      }
+    };
+    loadServerToday();
     loadDoctors();
 
     const bannerClosed = localStorage.getItem("maxBannerClosed");
@@ -136,12 +151,12 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedDoctor) {
+    if (selectedDoctor && serverToday) {
       setSlotsCache({});
       loadDoctorSchedule();
       loadAllSlots();
     }
-  }, [selectedDoctor]);
+  }, [selectedDoctor, serverToday]);
 
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -180,10 +195,10 @@ const Index = () => {
   };
 
   const loadAllSlots = async () => {
-    if (!selectedDoctor) return;
+    if (!selectedDoctor || !serverToday) return;
 
     setIsLoadingCalendar(true);
-    const days = getNext7Days();
+    const days = getNext7Days(serverToday);
 
     if (days.length === 0) {
       setIsLoadingCalendar(false);
@@ -259,11 +274,13 @@ const Index = () => {
     }
   };
 
-  const getNext7Days = () => {
+  // todayStr — дата сегодняшнего дня по серверному UTC+3 в формате YYYY-MM-DD
+  const getNext7Days = (todayStr: string) => {
     const days = [];
+    // Парсим серверную дату как локальную (без смещения), чтобы не зависеть от timezone браузера
+    const [y0, m0, d0] = todayStr.split('-').map(Number);
     for (let i = 0; i <= 13; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
+      const date = new Date(y0, m0 - 1, d0 + i);
       const y = date.getFullYear();
       const m = String(date.getMonth() + 1).padStart(2, '0');
       const d = String(date.getDate()).padStart(2, '0');

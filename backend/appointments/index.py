@@ -1,7 +1,7 @@
 import json
 import os
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
@@ -41,6 +41,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if method == 'GET':
             params = event.get('queryStringParameters') or {}
             action = params.get('action', 'list')
+            
+            if action == 'server-time':
+                tz_moscow = timezone(timedelta(hours=3))
+                now_moscow = datetime.now(tz=tz_moscow)
+                conn.close()
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'today': now_moscow.strftime('%Y-%m-%d')}),
+                    'isBase64Encoded': False
+                }
             
             if action == 'available-slots':
                 doctor_id = params.get('doctor_id')
@@ -504,6 +515,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({'error': 'Missing required fields'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Проверяем, что дата не в прошлом (сравниваем по серверному UTC+3)
+                tz_moscow = timezone(timedelta(hours=3))
+                today_moscow = datetime.now(tz=tz_moscow).date()
+                try:
+                    appt_date = datetime.strptime(appointment_date, '%Y-%m-%d').date()
+                except ValueError:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Неверный формат даты'}),
+                        'isBase64Encoded': False
+                    }
+                if appt_date < today_moscow:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Нельзя записаться на прошедшую дату'}),
                         'isBase64Encoded': False
                     }
                 
