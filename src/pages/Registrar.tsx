@@ -13,6 +13,7 @@ import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
 import { validateFullName } from '@/utils/validation';
 import NameErrorModal from '@/components/NameErrorModal';
+import FioAutocomplete from '@/components/registrar/FioAutocomplete';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -1101,7 +1102,7 @@ const Registrar = () => {
                         <Button
                           key={time}
                           variant="outline"
-                          onClick={() => setNewAppointmentDialog({ ...newAppointmentDialog, open: true, time })}
+                          onClick={() => setNewAppointmentDialog({ ...newAppointmentDialog, open: true, time, patientPhone: newAppointmentDialog.patientPhone || '+7959' })}
                         >
                           {time}
                         </Button>
@@ -1386,15 +1387,15 @@ const Registrar = () => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-medium text-muted-foreground">ФИО пациента *</label>
-                <Input
+                <FioAutocomplete
                   value={newAppointmentDialog.patientName}
-                  onChange={(e) => {
-                    setNewAppointmentDialog({ ...newAppointmentDialog, patientName: e.target.value });
-                    if (newAppointmentNameError) setNewAppointmentNameError(validateFullName(e.target.value));
+                  onChange={(val) => {
+                    setNewAppointmentDialog({ ...newAppointmentDialog, patientName: val });
+                    if (newAppointmentNameError) setNewAppointmentNameError(validateFullName(val));
                   }}
                   placeholder="Иванов Иван Иванович"
                   required
-                  className={`h-9${newAppointmentNameError ? ' border-red-500 focus-visible:ring-red-500' : ''}`}
+                  hasError={!!newAppointmentNameError}
                 />
                 {newAppointmentNameError && <p className="text-xs text-red-500 mt-1">{newAppointmentNameError}</p>}
               </div>
