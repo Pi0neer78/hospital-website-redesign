@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
+import CodeSentModal from "@/components/index/CodeSentModal";
 
 const SMS_VERIFY_URL = "https://functions.poehali.dev/7ea5c6f5-d200-4cc0-b34b-10144a995d69";
 const APPOINTMENTS_URL = "https://functions.poehali.dev/b3b698ed-7035-4503-8c49-85be11de75e5";
@@ -61,6 +62,7 @@ export default function MyAppointmentsDialog() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
+  const [codeSentModal, setCodeSentModal] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
   function resetDialog() {
@@ -83,8 +85,8 @@ export default function MyAppointmentsDialog() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        toast({ title: "Код отправлен в MAX", description: `Проверьте мессенджер MAX на номере ${phone}`, duration: 10000 });
         setStep("code");
+        setCodeSentModal(true);
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось отправить код", variant: "destructive" });
       }
@@ -191,6 +193,8 @@ export default function MyAppointmentsDialog() {
   }
 
   return (
+    <>
+    <CodeSentModal open={codeSentModal} phone={phone} onClose={() => setCodeSentModal(false)} />
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetDialog(); }}>
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full justify-start gap-3">
@@ -406,5 +410,6 @@ export default function MyAppointmentsDialog() {
         )}
       </DialogContent>
     </Dialog>
+    </>
   );
 }

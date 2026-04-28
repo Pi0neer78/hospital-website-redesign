@@ -22,6 +22,7 @@ import Icon from "@/components/ui/icon";
 import { useToast } from "@/hooks/use-toast";
 import { useRateLimiter } from "@/hooks/use-rate-limiter";
 import MyAppointmentsDialog from "@/components/index/MyAppointmentsDialog";
+import CodeSentModal from "@/components/index/CodeSentModal";
 
 const BACKEND_URLS = {
   appointments:
@@ -96,6 +97,8 @@ const Index = () => {
   const [isMaxBannerVisible, setIsMaxBannerVisible] = useState(false);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
+  const [codeSentModalOpen, setCodeSentModalOpen] = useState(false);
+  const [codeSentModalPhone, setCodeSentModalPhone] = useState("");
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [photoModalUrl, setPhotoModalUrl] = useState("");
   const [serverToday, setServerToday] = useState<string>("");
@@ -336,12 +339,9 @@ const Index = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        toast({
-          title: "Код отправлен в MAX",
-          description: `Проверьте сообщения в мессенджере MAX на номере ${appointmentForm.patient_phone}`,
-          duration: 10000,
-        });
         setVerificationStep("code");
+        setCodeSentModalPhone(appointmentForm.patient_phone);
+        setCodeSentModalOpen(true);
       } else {
         toast({
           title: "Ошибка",
@@ -557,12 +557,9 @@ const Index = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        toast({
-          title: "Код отправлен в MAX",
-          description: `Проверьте сообщения в мессенджере MAX на номере ${complaintForm.phone}`,
-          duration: 10000,
-        });
         setComplaintVerificationStep("code");
+        setCodeSentModalPhone(complaintForm.phone);
+        setCodeSentModalOpen(true);
       } else {
         toast({
           title: "Ошибка",
@@ -686,6 +683,8 @@ const Index = () => {
   };
 
   return (
+    <>
+    <CodeSentModal open={codeSentModalOpen} phone={codeSentModalPhone} onClose={() => setCodeSentModalOpen(false)} />
     <div
       className="min-h-screen bg-gradient-to-b from-background to-muted/30 bg-cover bg-center bg-fixed"
       style={{
@@ -3265,6 +3264,7 @@ const Index = () => {
         </DialogContent>
       </Dialog>
     </div>
+    </>
   );
 };
 
