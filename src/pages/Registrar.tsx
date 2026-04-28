@@ -14,6 +14,7 @@ import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker'
 import { validateFullName } from '@/utils/validation';
 import NameErrorModal from '@/components/NameErrorModal';
 import FioAutocomplete from '@/components/registrar/FioAutocomplete';
+import CloneSuccessModal from '@/components/registrar/CloneSuccessModal';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -83,6 +84,7 @@ const Registrar = () => {
   const bulkSlotsCacheRef = useRef<Record<string, string[]>>({});
   const [debouncedSelectedDate, setDebouncedSelectedDate] = useState('');
   const doctorCacheRef = useRef<Record<number, { schedules: any[]; calendar: Record<string, {is_working: boolean}> }>>({});
+  const [cloneSuccessModal, setCloneSuccessModal] = useState<{open: boolean; data: {newDate: string; newTime: string; doctorName: string; patientName: string; patientPhone: string; patientSnils: string; patientOms: string; description: string} | null}>({open: false, data: null});
 
   useEffect(() => {
     // Загружаем текущую дату с сервера UTC+3
@@ -786,7 +788,20 @@ const Registrar = () => {
           description: cloneDialog.description
         });
 
-        toast({ title: "Успешно", description: "Запись клонирована" });
+        const cloneDocName = cloneSelectedDoctor?.full_name ?? selectedDoctor?.full_name ?? '—';
+        setCloneSuccessModal({
+          open: true,
+          data: {
+            newDate: cloneSelectedDate,
+            newTime: cloneSelectedSlot,
+            doctorName: cloneDocName,
+            patientName: cloneDialog.patient_name || '',
+            patientPhone: cloneDialog.patient_phone || '',
+            patientSnils: cloneDialog.patient_snils || '',
+            patientOms: cloneDialog.patient_oms || '',
+            description: cloneDialog.description || '',
+          }
+        });
         setCloneDialog(null);
         setCloneSelectedDate('');
         setCloneSelectedSlot('');
@@ -2164,6 +2179,12 @@ const Registrar = () => {
         open={nameErrorModal.open}
         errorMessage={nameErrorModal.message}
         onClose={() => setNameErrorModal({ open: false, message: '' })}
+      />
+
+      <CloneSuccessModal
+        open={cloneSuccessModal.open}
+        data={cloneSuccessModal.data}
+        onClose={() => setCloneSuccessModal({ open: false, data: null })}
       />
     </div>
   );
