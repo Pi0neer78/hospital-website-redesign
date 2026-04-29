@@ -15,6 +15,7 @@ import { validateFullName } from '@/utils/validation';
 import NameErrorModal from '@/components/NameErrorModal';
 import FioAutocomplete from '@/components/registrar/FioAutocomplete';
 import CloneSuccessModal from '@/components/registrar/CloneSuccessModal';
+import AppointmentSuccessModal from '@/components/registrar/AppointmentSuccessModal';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -85,6 +86,7 @@ const Registrar = () => {
   const [debouncedSelectedDate, setDebouncedSelectedDate] = useState('');
   const doctorCacheRef = useRef<Record<number, { schedules: any[]; calendar: Record<string, {is_working: boolean}> }>>({});
   const [cloneSuccessModal, setCloneSuccessModal] = useState<{open: boolean; data: {newDate: string; newTime: string; doctorName: string; patientName: string; patientPhone: string; patientSnils: string; patientOms: string; description: string} | null}>({open: false, data: null});
+  const [appointmentSuccessModal, setAppointmentSuccessModal] = useState<{open: boolean; data: {date: string; time: string; doctorName: string; patientName: string; patientPhone: string; patientSnils: string; patientOms: string; description: string} | null}>({open: false, data: null});
 
   useEffect(() => {
     // Загружаем текущую дату с сервера UTC+3
@@ -410,9 +412,18 @@ const Registrar = () => {
           description: newAppointmentDialog.description
         });
 
-        toast({ 
-          title: "Успешно", 
-          description: `Пациент ${newAppointmentDialog.patientName} записан` 
+        setAppointmentSuccessModal({
+          open: true,
+          data: {
+            date: selectedDate,
+            time: newAppointmentDialog.time,
+            doctorName: selectedDoctor?.full_name || '—',
+            patientName: newAppointmentDialog.patientName,
+            patientPhone: newAppointmentDialog.patientPhone,
+            patientSnils: newAppointmentDialog.patientSnils,
+            patientOms: newAppointmentDialog.patientOms,
+            description: newAppointmentDialog.description,
+          }
         });
         setNewAppointmentDialog({
           open: false,
@@ -2185,6 +2196,12 @@ const Registrar = () => {
         open={cloneSuccessModal.open}
         data={cloneSuccessModal.data}
         onClose={() => setCloneSuccessModal({ open: false, data: null })}
+      />
+
+      <AppointmentSuccessModal
+        open={appointmentSuccessModal.open}
+        data={appointmentSuccessModal.data}
+        onClose={() => setAppointmentSuccessModal({ open: false, data: null })}
       />
     </div>
   );
