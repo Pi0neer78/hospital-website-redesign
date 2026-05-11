@@ -17,6 +17,11 @@ import FioAutocomplete from '@/components/registrar/FioAutocomplete';
 import CloneSuccessModal from '@/components/registrar/CloneSuccessModal';
 import AppointmentSuccessModal from '@/components/registrar/AppointmentSuccessModal';
 
+const isMaxPhone = (phone: string) => {
+  const digits = phone.replace(/\D/g, '');
+  return digits.length === 11 && digits.startsWith('79591');
+};
+
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
   doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
@@ -426,7 +431,7 @@ const Registrar = () => {
           }
         });
 
-        if (newAppointmentDialog.patientPhone) {
+        if (isMaxPhone(newAppointmentDialog.patientPhone)) {
           fetch("https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -748,7 +753,7 @@ const Registrar = () => {
           }
         });
 
-        if (rescheduleDialog.patient_phone) {
+        if (isMaxPhone(rescheduleDialog.patient_phone)) {
           fetch("https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -849,7 +854,7 @@ const Registrar = () => {
           }
         });
 
-        if (cloneDialog.patient_phone) {
+        if (isMaxPhone(cloneDialog.patient_phone)) {
           fetch("https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
