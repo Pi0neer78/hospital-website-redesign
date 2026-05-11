@@ -22,6 +22,7 @@ import Icon from "@/components/ui/icon";
 import { useToast } from "@/hooks/use-toast";
 import { useRateLimiter } from "@/hooks/use-rate-limiter";
 import MyAppointmentsDialog from "@/components/index/MyAppointmentsDialog";
+import CancelAppointmentDialog from "@/components/index/CancelAppointmentDialog";
 import CodeSentModal from "@/components/index/CodeSentModal";
 
 const BACKEND_URLS = {
@@ -2504,6 +2505,7 @@ const Index = () => {
                   </a>
                 </Button>
                 <MyAppointmentsDialog />
+                <CancelAppointmentDialog />
               </CardContent>
             </Card>
           </div>

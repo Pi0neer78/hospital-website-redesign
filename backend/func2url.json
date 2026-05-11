@@ -1,4 +1,5 @@
 {
+  "cancel-appointment": "https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26",
   "visitor-counter": "https://functions.poehali.dev/9b768bf9-bf89-42ac-9612-f6c2be37ee9a",
   "doctor-rating-results": "https://functions.poehali.dev/81491831-4f51-4dd8-9741-2f03a0c858db",
   "doctor-rating-submit": "https://functions.poehali.dev/3178f682-a308-42f5-b196-996aa7c9d7d0",
