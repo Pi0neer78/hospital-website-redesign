@@ -747,7 +747,24 @@ const Registrar = () => {
             patient: rescheduleDialog.patient_name
           }
         });
-        
+
+        if (rescheduleDialog.patient_phone) {
+          fetch("https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "notify",
+              phone: rescheduleDialog.patient_phone,
+              patient_name: rescheduleDialog.patient_name,
+              doctor_name: selectedDoctor?.full_name || "",
+              doctor_specialty: selectedDoctor?.specialization || "",
+              date: newDate,
+              time: newTime,
+              description: `Запись перенесена с ${oldDate} ${oldTime}`,
+            }),
+          }).catch(() => {});
+        }
+
         setRescheduleDialog(null);
         setRescheduleSelectedDate('');
         setRescheduleSelectedSlot('');
@@ -817,6 +834,7 @@ const Registrar = () => {
         });
 
         const cloneDocName = cloneSelectedDoctor?.full_name ?? selectedDoctor?.full_name ?? '—';
+        const cloneDocSpecialty = cloneSelectedDoctor?.specialization ?? selectedDoctor?.specialization ?? '';
         setCloneSuccessModal({
           open: true,
           data: {
@@ -830,6 +848,24 @@ const Registrar = () => {
             description: cloneDialog.description || '',
           }
         });
+
+        if (cloneDialog.patient_phone) {
+          fetch("https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "notify",
+              phone: cloneDialog.patient_phone,
+              patient_name: cloneDialog.patient_name,
+              doctor_name: cloneDocName,
+              doctor_specialty: cloneDocSpecialty,
+              date: cloneSelectedDate,
+              time: cloneSelectedSlot,
+              description: cloneDialog.description || "",
+            }),
+          }).catch(() => {});
+        }
+
         setCloneDialog(null);
         setCloneSelectedDate('');
         setCloneSelectedSlot('');
