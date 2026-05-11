@@ -123,8 +123,10 @@ const Index = () => {
           setServerToday(data.today);
         }
       } catch {
-        // Фоллбэк: берём дату браузера, если сервер недоступен
-        setServerToday(new Date().toISOString().split('T')[0]);
+        // Фоллбэк: берём дату по UTC+3, если сервер недоступен
+        const now = new Date();
+        const msk = new Date(now.getTime() + (3 * 60 - now.getTimezoneOffset()) * 60000);
+        setServerToday(msk.toISOString().split('T')[0]);
       }
     };
     loadServerToday();

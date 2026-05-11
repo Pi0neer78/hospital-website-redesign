@@ -537,6 +537,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Нельзя записаться на прошедшую дату'}),
                         'isBase64Encoded': False
                     }
+                from datetime import timedelta as td
+                max_date = today_moscow + td(days=13)
+                if appt_date > max_date:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Запись доступна только на 14 дней вперёд'}),
+                        'isBase64Encoded': False
+                    }
                 
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 
