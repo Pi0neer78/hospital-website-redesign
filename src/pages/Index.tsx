@@ -462,6 +462,21 @@ const Index = () => {
           description: appointmentForm.description,
           appointment_id: data.appointment?.id,
         });
+
+        fetch("https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "notify",
+            phone: appointmentForm.patient_phone,
+            patient_name: appointmentForm.patient_name,
+            doctor_name: selectedDoctor?.full_name || "",
+            doctor_specialty: selectedDoctor?.specialization || "",
+            date: selectedDate,
+            time: appointmentForm.appointment_time,
+            description: appointmentForm.description,
+          }),
+        }).catch(() => {});
         setShowSuccessModal(true);
         setQueueRating(0);
         setHasRated(false);

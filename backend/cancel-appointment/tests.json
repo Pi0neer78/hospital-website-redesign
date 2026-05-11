@@ -7,6 +7,15 @@
       "expectedStatus": 200
     },
     {
+      "name": "Notify - valid",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "notify", "phone": "79001234567", "patient_name": "Тест", "doctor_name": "Иванов И.И.", "date": "2026-06-01", "time": "10:00"},
+      "expectedStatus": 200,
+      "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
+    },
+    {
       "name": "Get appointments - missing phone",
       "method": "POST",
       "path": "/",

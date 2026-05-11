@@ -45,9 +45,10 @@ def fmt_time(t) -> str:
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
-    Отмена записи на приём пациентом
-    POST /get-appointments — получить активные записи по телефону (после верификации)
-    POST /cancel — отменить запись по id и телефону + уведомление в MAX
+    Управление записями пациента
+    POST notify — отправить уведомление об успешной записи в MAX
+    POST get-appointments — получить активные записи по телефону (после верификации)
+    POST cancel — отменить запись по id и телефону + уведомление в MAX
     """
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': {**CORS, 'Access-Control-Max-Age': '86400'}, 'body': ''}
@@ -57,6 +58,44 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    if action == 'notify':
+        phone = ''.join(filter(str.isdigit, body.get('phone', '')))
+        patient_name = body.get('patient_name', '')
+        doctor_name = body.get('doctor_name', '')
+        doctor_specialty = body.get('doctor_specialty', '')
+        date = body.get('date', '')
+        time = body.get('time', '')
+        description = body.get('description', '')
+
+        if not phone:
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', **CORS},
+                'body': json.dumps({'error': 'Номер телефона обязателен'})
+            }
+
+        conn.close()
+
+        date_fmt = fmt_date(date)
+        msg = (
+            f"✅ Вы успешно записаны на приём!\n\n"
+            f"📅 Дата: {date_fmt}\n"
+            f"🕐 Время: {time}\n"
+            f"👨‍⚕️ Врач: {doctor_name}"
+            + (f" ({doctor_specialty})" if doctor_specialty else "") +
+            f"\n👤 Пациент: {patient_name}"
+            + (f"\n📋 Описание: {description}" if description else "") +
+            f"\n\nДо встречи! Пожалуйста, не опаздывайте."
+        )
+        send_max_message(phone, msg)
+
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', **CORS},
+            'body': json.dumps({'success': True})
+        }
 
     if action == 'get-appointments':
         phone = ''.join(filter(str.isdigit, body.get('phone', '')))
