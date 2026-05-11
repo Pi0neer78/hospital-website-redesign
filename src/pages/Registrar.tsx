@@ -425,6 +425,23 @@ const Registrar = () => {
             description: newAppointmentDialog.description,
           }
         });
+
+        if (newAppointmentDialog.patientPhone) {
+          fetch("https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "notify",
+              phone: newAppointmentDialog.patientPhone,
+              patient_name: newAppointmentDialog.patientName,
+              doctor_name: selectedDoctor?.full_name || "",
+              doctor_specialty: selectedDoctor?.specialization || "",
+              date: selectedDate,
+              time: newAppointmentDialog.time,
+              description: newAppointmentDialog.description,
+            }),
+          }).catch(() => {});
+        }
         setNewAppointmentDialog({
           open: false,
           patientName: '',
