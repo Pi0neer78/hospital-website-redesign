@@ -431,22 +431,6 @@ const Registrar = () => {
           }
         });
 
-        if (isMaxPhone(newAppointmentDialog.patientPhone)) {
-          fetch("https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              action: "notify",
-              phone: newAppointmentDialog.patientPhone,
-              patient_name: newAppointmentDialog.patientName,
-              doctor_name: selectedDoctor?.full_name || "",
-              doctor_specialty: selectedDoctor?.specialization || "",
-              date: selectedDate,
-              time: newAppointmentDialog.time,
-              description: newAppointmentDialog.description,
-            }),
-          }).catch(() => {});
-        }
         setNewAppointmentDialog({
           open: false,
           patientName: '',
@@ -753,23 +737,6 @@ const Registrar = () => {
           }
         });
 
-        if (isMaxPhone(rescheduleDialog.patient_phone)) {
-          fetch("https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              action: "notify",
-              phone: rescheduleDialog.patient_phone,
-              patient_name: rescheduleDialog.patient_name,
-              doctor_name: selectedDoctor?.full_name || "",
-              doctor_specialty: selectedDoctor?.specialization || "",
-              date: newDate,
-              time: newTime,
-              description: `Запись перенесена с ${oldDate} ${oldTime}`,
-            }),
-          }).catch(() => {});
-        }
-
         setRescheduleDialog(null);
         setRescheduleSelectedDate('');
         setRescheduleSelectedSlot('');
@@ -853,23 +820,6 @@ const Registrar = () => {
             description: cloneDialog.description || '',
           }
         });
-
-        if (isMaxPhone(cloneDialog.patient_phone)) {
-          fetch("https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              action: "notify",
-              phone: cloneDialog.patient_phone,
-              patient_name: cloneDialog.patient_name,
-              doctor_name: cloneDocName,
-              doctor_specialty: cloneDocSpecialty,
-              date: cloneSelectedDate,
-              time: cloneSelectedSlot,
-              description: cloneDialog.description || "",
-            }),
-          }).catch(() => {});
-        }
 
         setCloneDialog(null);
         setCloneSelectedDate('');
