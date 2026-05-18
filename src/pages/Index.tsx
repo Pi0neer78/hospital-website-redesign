@@ -925,16 +925,15 @@ const Index = () => {
                   setIsAppointmentOpen(open);
                 }}
               >
-                <DialogTrigger asChild>
-                  <Button
-                    size="lg"
-                    className="gap-2 shadow-lg hover:shadow-xl transition-shadow w-full sm:w-auto sm:min-w-[200px] bg-blue-900 hover:bg-blue-800"
-                    data-appointment-trigger
-                  >
-                    <Icon name="Calendar" size={20} />
-                    Записаться на прием
-                  </Button>
-                </DialogTrigger>
+                <Button
+                  size="lg"
+                  disabled
+                  className="gap-2 shadow-lg w-full sm:w-auto sm:min-w-[200px] bg-blue-900 opacity-60 cursor-not-allowed"
+                  data-appointment-trigger
+                >
+                  <Icon name="Calendar" size={20} />
+                  Записаться на прием — ВРЕМЕННО НЕДОСТУПНА ДО 22.05.26
+                </Button>
                 <DialogContent
                   className="w-[calc(100vw-16px)] max-w-4xl max-h-[95vh] overflow-y-auto overflow-x-hidden p-3 sm:p-6"
                   onPointerDownOutside={(e) => {
