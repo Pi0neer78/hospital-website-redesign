@@ -238,6 +238,39 @@ def handler(event: dict, context) -> dict:
             'body': json.dumps({'success': True, 'folder': folder, 'results': results, 'datetime': dt_str}),
         }
 
+    if method == 'POST' and action == 'clear_all':
+        conn = get_db()
+        s3 = get_s3()
+        cur = conn.cursor()
+        cur.execute(f'SELECT folder FROM "{SCHEMA}".backup_records')
+        all_folders = [r[0] for r in cur.fetchall()]
+        cur.close()
+
+        try:
+            paginator = s3.get_paginator('list_objects_v2')
+            pages = paginator.paginate(Bucket='files', Prefix='backups/')
+            keys = []
+            for page in pages:
+                for obj in page.get('Contents', []):
+                    keys.append({'Key': obj['Key']})
+            if keys:
+                s3.delete_objects(Bucket='files', Delete={'Objects': keys})
+        except Exception as e:
+            print(f'[clear_all s3 error] {e}')
+
+        cur = conn.cursor()
+        cur.execute(f'DELETE FROM "{SCHEMA}".backup_records')
+        deleted_count = cur.rowcount
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return {
+            'statusCode': 200,
+            'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+            'body': json.dumps({'success': True, 'deleted_records': deleted_count, 'deleted_s3_files': len(keys) if 'keys' in dir() else 0}),
+        }
+
     if method == 'POST' and action == 'scheduled':
         conn = get_db()
         settings = get_backup_settings(conn)
@@ -279,12 +312,17 @@ def handler(event: dict, context) -> dict:
                 results.append({'table': table, 'error': str(e), 'success': False})
 
         save_backup_record(conn, folder, False, results)
+
+        deleted = 0
+        if settings['retention_days'] > 0:
+            deleted = delete_old_records(conn, settings['retention_days'], s3)
+
         conn.close()
 
         return {
             'statusCode': 200,
             'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
-            'body': json.dumps({'success': True, 'folder': folder, 'results': results}),
+            'body': json.dumps({'success': True, 'folder': folder, 'results': results, 'deleted_old': deleted}),
         }
 
     if method == 'GET' and action == 'list':
