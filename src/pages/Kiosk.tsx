@@ -361,17 +361,17 @@ export default function Kiosk() {
   return (
     <div className="min-h-screen bg-white flex flex-col" style={{ fontFamily: "'Arial', sans-serif" }}>
       {/* HEADER */}
-      <div className={`${headerBg} text-white px-6 py-4 shadow-lg flex items-center`}>
-        <div className="flex-1 text-center">
+      <div className={`${headerBg} text-white px-6 py-4 shadow-lg relative flex items-center`}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <div className="text-4xl font-black tracking-widest uppercase mb-1">
             ЭЛЕКТРОННАЯ ОЧЕРЕДЬ
           </div>
           <div className="text-2xl font-semibold opacity-90">{clinicName}</div>
         </div>
-        <div className="text-right shrink-0 ml-4 bg-red-800 rounded-2xl px-5 py-3 min-w-[160px]">
-          <div className="text-2xl font-black tabular-nums">{timeStr}</div>
-          <div className="text-base font-semibold opacity-90 capitalize">{dayStr}</div>
-          <div className="text-sm opacity-75">{dateStr}</div>
+        <div className="ml-auto text-right shrink-0 bg-red-800 rounded-2xl px-5 py-3 min-w-[180px] relative z-10">
+          <div className="text-3xl font-black tabular-nums">{timeStr}</div>
+          <div className="text-lg font-semibold opacity-90 capitalize">{dayStr}</div>
+          <div className="text-base opacity-80">{dateStr}</div>
         </div>
       </div>
 
