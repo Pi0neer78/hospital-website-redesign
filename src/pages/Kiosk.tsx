@@ -259,7 +259,6 @@ export default function Kiosk() {
     setSelectedDoctor(doc);
     loadBulkSlots(doc.id);
     setStep("dates");
-    new Audio("https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/8824efbd-2513-4c45-ad08-c1c513d0a3ed.mp3").play().catch(() => {});
   }
 
   function handleDateSelect(date: string) {
@@ -393,7 +392,7 @@ export default function Kiosk() {
             icon="CalendarPlus"
             label="ЗАПИСАТЬСЯ НА ПРИЁМ"
             color="green"
-            onClick={() => { loadDoctors(); setStep("doctors"); }}
+            onClick={() => { loadDoctors(); setStep("doctors"); new Audio("https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/8824efbd-2513-4c45-ad08-c1c513d0a3ed.mp3").play().catch(() => {}); }}
           />
           <KioskButton icon="CalendarX" label="ОТМЕНИТЬ ЗАПИСЬ" color="red" onClick={() => { resetAll(); setStep("cancel"); }} />
         </div>
