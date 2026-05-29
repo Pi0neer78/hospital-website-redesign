@@ -347,7 +347,7 @@ export default function Kiosk() {
     window.print();
   }
 
-  const headerBg = "bg-red-700";
+  const headerBg = "bg-slate-800";
 
   const [now, setNow] = useState(new Date());
   useEffect(() => {
@@ -368,7 +368,7 @@ export default function Kiosk() {
           </div>
           <div className="text-2xl font-semibold opacity-90">{clinicName}</div>
         </div>
-        <div className="ml-auto text-right shrink-0 bg-red-800 rounded-2xl px-5 py-3 min-w-[180px] relative z-10">
+        <div className="ml-auto text-right shrink-0 bg-slate-700 rounded-2xl px-5 py-3 min-w-[180px] relative z-10">
           <div className="text-3xl font-black tabular-nums">{timeStr}</div>
           <div className="text-lg font-semibold opacity-90 capitalize">{dayStr}</div>
           <div className="text-base opacity-80">{dateStr}</div>
