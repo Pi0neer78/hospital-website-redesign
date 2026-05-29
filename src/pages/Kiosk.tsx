@@ -265,6 +265,7 @@ export default function Kiosk() {
     const info = bulkSlots[date];
     if (!info || info.available_slots?.length === 0) return;
     setSelectedDate(date);
+    new Audio("https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/3cdb7e37-0f30-4595-9e4f-8cfdaef9b1e6.mp3").play().catch(() => {});
     loadTimeSlots(selectedDoctor.id, date);
     setStep("slots");
   }
