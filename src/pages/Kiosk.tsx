@@ -144,6 +144,8 @@ export default function Kiosk() {
 
   const [step, setStep] = useState<KioskStep>("home");
   const [doctors, setDoctors] = useState<any[]>([]);
+  const [doctorPage, setDoctorPage] = useState(0);
+  const DOCTORS_PER_PAGE = 6;
   const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
   const [bulkSlots, setBulkSlots] = useState<Record<string, any>>({});
   const [selectedDate, setSelectedDate] = useState("");
@@ -393,7 +395,7 @@ export default function Kiosk() {
             icon="CalendarPlus"
             label="ЗАПИСАТЬСЯ НА ПРИЁМ"
             color="green"
-            onClick={() => { loadDoctors(); setStep("doctors"); new Audio("https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/8824efbd-2513-4c45-ad08-c1c513d0a3ed.mp3").play().catch(() => {}); }}
+            onClick={() => { loadDoctors(); setDoctorPage(0); setStep("doctors"); new Audio("https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/8824efbd-2513-4c45-ad08-c1c513d0a3ed.mp3").play().catch(() => {}); }}
           />
           <KioskButton icon="CalendarX" label="ОТМЕНИТЬ ЗАПИСЬ" color="red" onClick={() => { resetAll(); setStep("cancel"); }} />
         </div>
@@ -595,7 +597,7 @@ export default function Kiosk() {
 
       {/* DOCTORS */}
       {step === "doctors" && (
-        <div className="flex-1 p-6">
+        <div className="flex-1 flex flex-col p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-3xl font-bold text-gray-800">Выберите врача</h2>
             <button onClick={() => setStep("home")}
@@ -606,30 +608,55 @@ export default function Kiosk() {
           {loadingDoctors ? (
             <div className="flex justify-center items-center h-48 text-2xl text-gray-500">Загрузка...</div>
           ) : (
-            <div className="grid grid-cols-3 gap-5">
-              {doctors.map((doc) => (
-                <button key={doc.id}
-                  onClick={() => handleDoctorSelect(doc)}
-                  className="bg-white border-2 border-gray-200 rounded-2xl p-4 hover:border-blue-500 hover:shadow-xl active:scale-95 transition-all text-left flex flex-col items-center gap-3">
-                  <img
-                    src={doc.photo_url || "https://placehold.co/120x120?text=Фото"}
-                    alt={doc.full_name}
-                    className="w-24 h-24 rounded-full object-cover border-4 border-blue-100"
-                  />
-                  <div className="text-center">
-                    <div className="font-bold text-gray-900 text-lg leading-tight">{doc.full_name}</div>
-                    <div className="text-blue-600 font-semibold mt-1">{doc.position}</div>
-                    {doc.specialization && <div className="text-gray-500 text-sm mt-1">{doc.specialization}</div>}
-                    {doc.work_experience > 0 && <div className="text-gray-400 text-sm">Стаж: {doc.work_experience} лет</div>}
-                    {doc.office_number && <div className="text-gray-500 text-sm">Каб. {doc.office_number}</div>}
+            <div className="flex gap-4 flex-1">
+              {/* Кнопка ВВЕРХ */}
+              <button
+                onClick={() => setDoctorPage((p) => Math.max(0, p - 1))}
+                disabled={doctorPage === 0}
+                className="flex-none flex items-center justify-center w-20 rounded-2xl bg-slate-700 text-white text-5xl disabled:opacity-20 hover:bg-slate-600 active:scale-95 transition-all shadow-lg">
+                ▲
+              </button>
+
+              {/* Список врачей */}
+              <div className="flex-1 grid grid-cols-3 gap-5 content-start">
+                {doctors.slice(doctorPage * DOCTORS_PER_PAGE, (doctorPage + 1) * DOCTORS_PER_PAGE).map((doc) => (
+                  <button key={doc.id}
+                    onClick={() => handleDoctorSelect(doc)}
+                    className="bg-white border-2 border-gray-200 rounded-2xl p-4 hover:border-blue-500 hover:shadow-xl active:scale-95 transition-all text-left flex flex-col items-center gap-3">
+                    <img
+                      src={doc.photo_url || "https://placehold.co/120x120?text=Фото"}
+                      alt={doc.full_name}
+                      className="w-24 h-24 rounded-full object-cover border-4 border-blue-100"
+                    />
+                    <div className="text-center">
+                      <div className="font-bold text-gray-900 text-lg leading-tight">{doc.full_name}</div>
+                      <div className="text-blue-600 font-semibold mt-1">{doc.position}</div>
+                      {doc.specialization && <div className="text-gray-500 text-sm mt-1">{doc.specialization}</div>}
+                      {doc.work_experience > 0 && <div className="text-gray-400 text-sm">Стаж: {doc.work_experience} лет</div>}
+                      {doc.office_number && <div className="text-gray-500 text-sm">Каб. {doc.office_number}</div>}
+                    </div>
+                  </button>
+                ))}
+                {doctors.length === 0 && (
+                  <div className="col-span-3 text-center text-2xl text-gray-500 py-16">
+                    Нет доступных врачей
                   </div>
-                </button>
-              ))}
-              {doctors.length === 0 && (
-                <div className="col-span-3 text-center text-2xl text-gray-500 py-16">
-                  Нет доступных врачей
-                </div>
-              )}
+                )}
+              </div>
+
+              {/* Кнопка ВНИЗ */}
+              <button
+                onClick={() => setDoctorPage((p) => Math.min(Math.ceil(doctors.length / DOCTORS_PER_PAGE) - 1, p + 1))}
+                disabled={doctorPage >= Math.ceil(doctors.length / DOCTORS_PER_PAGE) - 1}
+                className="flex-none flex items-center justify-center w-20 rounded-2xl bg-slate-700 text-white text-5xl disabled:opacity-20 hover:bg-slate-600 active:scale-95 transition-all shadow-lg">
+                ▼
+              </button>
+            </div>
+          )}
+          {/* Счётчик страниц */}
+          {doctors.length > DOCTORS_PER_PAGE && (
+            <div className="text-center mt-4 text-gray-500 text-lg">
+              Страница {doctorPage + 1} из {Math.ceil(doctors.length / DOCTORS_PER_PAGE)}
             </div>
           )}
         </div>
