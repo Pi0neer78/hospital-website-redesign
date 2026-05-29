@@ -375,26 +375,195 @@ export default function Kiosk() {
 
       {/* INSTRUCTION */}
       {step === "instruction" && (
-        <div className="flex-1 flex flex-col items-center p-8 max-w-3xl mx-auto w-full">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">Инструкция по записи</h2>
-          <div className="space-y-4 text-xl text-gray-700 w-full">
-            {[
-              "1. Нажмите «ЗАПИСАТЬСЯ НА ПРИЁМ»",
-              "2. Выберите врача из списка",
-              "3. Выберите удобную дату (ближайшие 14 дней)",
-              "4. Выберите свободное время приёма",
-              "5. Введите ваши данные: ФИО, телефон, СНИЛС, ОМС",
-              "6. Нажмите «Выполнить запись»",
-              "7. Получите талон и сохраните 10-значный код",
-              "8. Код используется для отмены записи",
-            ].map((t) => (
-              <div key={t} className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-500">{t}</div>
-            ))}
+        <div className="flex-1 bg-gradient-to-b from-blue-50 to-white overflow-y-auto">
+          {/* Hero */}
+          <div className="bg-blue-700 text-white text-center py-8 px-6">
+            <div className="text-5xl mb-3">📋</div>
+            <h2 className="text-4xl font-black mb-2">Как записаться на приём?</h2>
+            <p className="text-xl opacity-85">Следуйте простым шагам — это займёт не более 2 минут</p>
           </div>
-          <button onClick={() => setStep("home")}
-            className="mt-8 bg-gray-700 text-white text-2xl font-bold px-10 py-4 rounded-2xl hover:bg-gray-600 active:scale-95 transition-all">
-            ← НАЗАД
-          </button>
+
+          {/* Steps */}
+          <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
+
+            {/* Step 1 */}
+            <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
+                <div className="text-5xl font-black">1</div>
+              </div>
+              <div className="flex-1 p-5 flex items-center gap-5">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 mb-1">Нажмите «ЗАПИСАТЬСЯ НА ПРИЁМ»</div>
+                  <div className="text-lg text-gray-600">На главном экране нажмите большую зелёную кнопку. Откроется список врачей вашей поликлиники.</div>
+                </div>
+                <div className="shrink-0 w-28 h-28 rounded-2xl bg-green-100 flex items-center justify-center text-6xl">🏥</div>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
+                <div className="text-5xl font-black">2</div>
+              </div>
+              <div className="flex-1 p-5 flex items-center gap-5">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 mb-1">Выберите врача</div>
+                  <div className="text-lg text-gray-600">Карточки врачей показывают фото, специализацию и стаж. Нажмите на нужного врача.</div>
+                  <div className="mt-3 bg-blue-50 rounded-xl p-3 border-l-4 border-blue-400">
+                    <div className="text-base font-semibold text-blue-800">💡 Совет: если не знаете к кому обратиться — выберите терапевта</div>
+                  </div>
+                </div>
+                <img src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/7319fb24-6fae-4673-a82f-817cc897cf2f.jpg"
+                  alt="Список врачей" className="shrink-0 w-36 h-28 rounded-2xl object-cover shadow" />
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
+                <div className="text-5xl font-black">3</div>
+              </div>
+              <div className="flex-1 p-5 flex items-center gap-5">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 mb-1">Выберите удобную дату</div>
+                  <div className="text-lg text-gray-600">Показаны ближайшие 14 дней. На каждой ячейке — сколько мест свободно.</div>
+                  <div className="mt-3 flex gap-3">
+                    <div className="bg-green-100 border-2 border-green-400 rounded-xl px-4 py-2 text-center">
+                      <div className="text-2xl font-black text-green-700">5</div>
+                      <div className="text-sm text-green-600">свободно</div>
+                    </div>
+                    <div className="bg-gray-100 border-2 border-gray-300 rounded-xl px-4 py-2 text-center">
+                      <div className="text-sm text-gray-400 mt-1">нет мест</div>
+                    </div>
+                  </div>
+                </div>
+                <img src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/4ddc982a-6b8a-4128-b2a2-b113c4ef8828.jpg"
+                  alt="Выбор даты" className="shrink-0 w-36 h-28 rounded-2xl object-cover shadow" />
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
+                <div className="text-5xl font-black">4</div>
+              </div>
+              <div className="flex-1 p-5 flex items-center gap-5">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 mb-1">Выберите время приёма</div>
+                  <div className="text-lg text-gray-600">Нажмите на свободный временной слот. Занятые и перерывы недоступны для выбора.</div>
+                  <div className="mt-3 flex gap-3 flex-wrap">
+                    <div className="bg-white border-2 border-green-400 rounded-xl px-4 py-2 text-xl font-bold text-gray-800">09:00</div>
+                    <div className="bg-red-50 border-2 border-red-300 rounded-xl px-4 py-2 text-xl font-bold text-red-300 line-through">10:30</div>
+                    <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl px-4 py-2 text-base font-bold text-yellow-500">перерыв</div>
+                  </div>
+                </div>
+                <div className="shrink-0 w-28 h-28 rounded-2xl bg-blue-50 flex items-center justify-center text-6xl">🕐</div>
+              </div>
+            </div>
+
+            {/* Step 5 */}
+            <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
+                <div className="text-5xl font-black">5</div>
+              </div>
+              <div className="flex-1 p-5">
+                <div className="text-2xl font-bold text-gray-900 mb-1">Введите ваши данные</div>
+                <div className="text-lg text-gray-600 mb-3">На экране появится виртуальная клавиатура. Заполните поля:</div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { icon: "👤", label: "ФИО", note: "обязательно", color: "bg-red-50 border-red-300" },
+                    { icon: "📱", label: "Телефон", note: "обязательно", color: "bg-red-50 border-red-300" },
+                    { icon: "🪪", label: "СНИЛС", note: "желательно", color: "bg-yellow-50 border-yellow-300" },
+                    { icon: "💳", label: "Полис ОМС", note: "желательно", color: "bg-yellow-50 border-yellow-300" },
+                  ].map(({ icon, label, note, color }) => (
+                    <div key={label} className={`${color} border-2 rounded-xl px-4 py-2 flex items-center gap-3`}>
+                      <span className="text-2xl">{icon}</span>
+                      <div>
+                        <div className="font-bold text-gray-800">{label}</div>
+                        <div className="text-sm text-gray-500">{note}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Step 6 */}
+            <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
+                <div className="text-5xl font-black">6</div>
+              </div>
+              <div className="flex-1 p-5 flex items-center gap-5">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 mb-1">Нажмите «ВЫПОЛНИТЬ ЗАПИСЬ»</div>
+                  <div className="text-lg text-gray-600">Запись будет сохранена. Распечатайте талон — в нём указаны все данные и код для отмены.</div>
+                </div>
+                <div className="shrink-0 w-28 h-28 rounded-2xl bg-green-100 flex items-center justify-center text-6xl">✅</div>
+              </div>
+            </div>
+
+            {/* Step 7 — ticket */}
+            <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-orange-200 flex">
+              <div className="bg-orange-500 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
+                <div className="text-5xl font-black">7</div>
+              </div>
+              <div className="flex-1 p-5 flex items-center gap-5">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 mb-1">Сохраните талон и код</div>
+                  <div className="text-lg text-gray-600 mb-3">На талоне напечатан уникальный 10-значный код. Сохраните его — он нужен для отмены записи.</div>
+                  <div className="bg-orange-50 border-2 border-orange-400 rounded-2xl p-3 inline-block">
+                    <div className="text-sm text-gray-500 mb-1">Пример кода:</div>
+                    <div className="text-3xl font-black tracking-widest text-red-700 font-mono">3847291056</div>
+                  </div>
+                </div>
+                <img src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/544a075b-04c2-45a7-a142-d352ed4acf80.jpg"
+                  alt="Талон" className="shrink-0 w-36 h-28 rounded-2xl object-cover shadow" />
+              </div>
+            </div>
+
+            {/* Cancel section */}
+            <div className="bg-red-50 rounded-3xl border-2 border-red-300 p-6">
+              <div className="text-2xl font-bold text-red-800 mb-3 flex items-center gap-3">
+                <span className="text-3xl">❌</span> Как отменить запись?
+              </div>
+              <div className="text-lg text-red-700 space-y-2">
+                <div className="flex items-start gap-3">
+                  <span className="bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center font-bold shrink-0 mt-0.5">1</span>
+                  <span>На главном экране нажмите <strong>«ОТМЕНИТЬ ЗАПИСЬ»</strong></span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center font-bold shrink-0 mt-0.5">2</span>
+                  <span>Введите 10-значный код с вашего талона</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center font-bold shrink-0 mt-0.5">3</span>
+                  <span>Нажмите <strong>«ОТМЕНИТЬ ЗАПИСЬ»</strong> — готово</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Note */}
+            <div className="bg-yellow-50 rounded-3xl border-2 border-yellow-300 p-5 flex items-start gap-4">
+              <span className="text-4xl">⚠️</span>
+              <div>
+                <div className="text-xl font-bold text-yellow-800 mb-1">Важно знать</div>
+                <ul className="text-lg text-yellow-700 space-y-1 list-disc list-inside">
+                  <li>Запись возможна на ближайшие 14 дней</li>
+                  <li>Приходите за 10 минут до назначенного времени</li>
+                  <li>При себе иметь паспорт и полис ОМС</li>
+                  <li>Запись активна до начала приёма</li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+
+          <div className="flex justify-center pb-8">
+            <button onClick={() => setStep("home")}
+              className="bg-blue-700 text-white text-2xl font-bold px-14 py-5 rounded-2xl hover:bg-blue-600 active:scale-95 transition-all shadow-lg">
+              ← ВЕРНУТЬСЯ НА ГЛАВНУЮ
+            </button>
+          </div>
         </div>
       )}
 
