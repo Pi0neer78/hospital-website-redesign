@@ -37,13 +37,15 @@ function VirtualKeyboard({
   onKey,
   onBackspace,
   onClose,
+  defaultNumMode = false,
 }: {
   onKey: (k: string) => void;
   onBackspace: () => void;
   onClose: () => void;
+  defaultNumMode?: boolean;
 }) {
   const [caps, setCaps] = useState(false);
-  const [numMode, setNumMode] = useState(false);
+  const [numMode, setNumMode] = useState(defaultNumMode);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t-4 border-blue-600 p-4 z-50 select-none">
@@ -174,7 +176,7 @@ export default function Kiosk() {
   const dates = getDatesRange(14);
 
   useEffect(() => {
-    if (step === "ticket") {
+    if (step === "ticket" || step === "cancel-ticket") {
       setCountdown(30);
       countdownRef.current = setInterval(() => {
         setCountdown((c) => {
@@ -182,6 +184,7 @@ export default function Kiosk() {
             clearInterval(countdownRef.current!);
             setStep("home");
             setTicket(null);
+            setCancelResult(null);
             resetAll();
             return 0;
           }
@@ -338,12 +341,18 @@ export default function Kiosk() {
     if (data.success) {
       setCancelResult(data);
       setCancelError("");
+      setFocusedCancel(false);
+      setStep("cancel-ticket");
     } else {
       setCancelError(data.error || "Ошибка");
     }
   }
 
   function printTicket() {
+    window.print();
+  }
+
+  function printCancelTicket() {
     window.print();
   }
 
@@ -845,8 +854,7 @@ export default function Kiosk() {
       {step === "cancel" && (
         <div className="flex-1 flex flex-col items-center justify-center p-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-8">Отмена записи</h2>
-          {!cancelResult ? (
-            <div className={`w-full max-w-md ${focusedCancel ? "pb-72" : ""}`}>
+          <div className={`w-full max-w-md ${focusedCancel ? "pb-72" : ""}`}>
               <label className="block text-xl font-semibold text-gray-700 mb-2">Введите 10-значный код с талона:</label>
               <input
                 readOnly
@@ -870,26 +878,51 @@ export default function Kiosk() {
               </div>
               {focusedCancel && (
                 <VirtualKeyboard
+                  defaultNumMode={true}
                   onKey={(k) => { if (/\d/.test(k) && cancelCode.length < 10) setCancelCode((c) => c + k); }}
                   onBackspace={() => setCancelCode((c) => c.slice(0, -1))}
                   onClose={() => setFocusedCancel(false)}
                 />
               )}
             </div>
-          ) : (
-            <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-8 max-w-md w-full text-center">
-              <div className="text-5xl mb-4">✅</div>
-              <div className="text-2xl font-bold text-green-700 mb-4">Запись успешно отменена</div>
+        </div>
+      )}
+
+      {/* CANCEL TICKET */}
+      {step === "cancel-ticket" && cancelResult && (
+        <div className="flex-1 flex flex-col items-center justify-center p-8">
+          <div className="bg-white border-4 border-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl" id="cancel-ticket">
+            <div className="text-center border-b-2 border-dashed border-gray-400 pb-4 mb-4">
+              <div className="text-sm font-bold text-gray-500 uppercase tracking-widest">Талон об отмене записи</div>
+              <div className="text-xl font-black text-gray-900 mt-1">{clinicName}</div>
+            </div>
+            <div className="space-y-2 text-base">
               <TicketRow label="Врач" value={cancelResult.doctor_name} />
               <TicketRow label="Пациент" value={cancelResult.patient_name} />
               <TicketRow label="Дата" value={formatDateShort(cancelResult.appointment_date)} />
               <TicketRow label="Время" value={cancelResult.appointment_time} />
-              <button onClick={() => { setStep("home"); resetAll(); }}
-                className="mt-6 bg-gray-700 text-white text-xl font-bold px-8 py-3 rounded-2xl hover:bg-gray-600 active:scale-95">
-                НА ГЛАВНУЮ
-              </button>
+              <div className="border-t-2 border-dashed border-gray-400 my-3" />
+              <div className="text-center">
+                <div className="text-2xl font-black text-green-700">✓ ЗАПИСЬ ОТМЕНЕНА</div>
+              </div>
+              <div className="text-center text-xs text-gray-400 mt-3 border-t border-dashed pt-2">
+                Выдан: {new Date().toLocaleString("ru-RU")}
+              </div>
             </div>
-          )}
+          </div>
+          <button onClick={printCancelTicket}
+            className="mt-4 bg-blue-700 text-white text-xl font-bold px-8 py-3 rounded-2xl hover:bg-blue-600 active:scale-95 transition-all print:hidden">
+            🖨 РАСПЕЧАТАТЬ ТАЛОН
+          </button>
+          <div className="mt-6 text-center print:hidden">
+            <div className="text-xl text-gray-600 mb-2">Возврат на главную через:</div>
+            <div className="text-6xl font-black text-red-600">{countdown}</div>
+            <div className="text-gray-500">секунд</div>
+            <button onClick={() => { clearInterval(countdownRef.current!); setStep("home"); setCancelResult(null); resetAll(); }}
+              className="mt-4 bg-gray-700 text-white text-lg font-bold px-8 py-3 rounded-2xl hover:bg-gray-600 active:scale-95 transition-all">
+              НА ГЛАВНУЮ
+            </button>
+          </div>
         </div>
       )}
 
@@ -897,8 +930,8 @@ export default function Kiosk() {
       <style>{`
         @media print {
           body * { visibility: hidden !important; }
-          #ticket, #ticket * { visibility: visible !important; }
-          #ticket {
+          #ticket, #ticket *, #cancel-ticket, #cancel-ticket * { visibility: visible !important; }
+          #ticket, #cancel-ticket {
             position: fixed !important;
             top: 0; left: 0;
             width: 80mm !important;
@@ -921,9 +954,9 @@ function KioskButton({ icon, label, color, onClick }: { icon: string; label: str
   return (
     <button
       onClick={onClick}
-      className={`${colors[color]} text-white text-4xl font-black px-16 py-8 rounded-3xl border-b-8 active:border-b-2 active:translate-y-1 transition-all shadow-xl w-full max-w-2xl flex items-center justify-center gap-6 uppercase tracking-wide`}>
-      <Icon name={icon as any} size={48} />
-      {label}
+      className={`${colors[color]} text-white text-4xl font-black px-12 py-8 rounded-3xl border-b-8 active:border-b-2 active:translate-y-1 transition-all shadow-xl w-full max-w-2xl flex items-center justify-start gap-8 uppercase tracking-wide`}>
+      <span className="shrink-0"><Icon name={icon as any} size={48} /></span>
+      <span className="flex-1 text-center">{label}</span>
     </button>
   );
 }
