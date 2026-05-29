@@ -22,6 +22,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Docs from "./pages/Docs";
 import Vote from "./pages/Vote";
 import DoctorRating from "./pages/DoctorRating";
+import Kiosk from "./pages/Kiosk";
 import UpdateBanner from "@/components/UpdateBanner";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
           <Route path="/docs" element={<Docs />} />
           <Route path="/vote" element={<Vote />} />
           <Route path="/rating" element={<DoctorRating />} />
+          <Route path="/kiosk" element={<Kiosk />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

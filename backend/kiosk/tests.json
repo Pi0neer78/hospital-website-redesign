@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Cancel with invalid code",
+      "method": "POST",
+      "path": "/?action=cancel",
+      "body": {"code": "0000000000"},
+      "expectedStatus": 404,
+      "expectedBody": {"error": "Запись с таким кодом не найдена"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
