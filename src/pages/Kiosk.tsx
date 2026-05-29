@@ -349,14 +349,30 @@ export default function Kiosk() {
 
   const headerBg = "bg-red-700";
 
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(id);
+  }, []);
+  const dateStr = now.toLocaleDateString("ru-RU", { day: "2-digit", month: "long", year: "numeric" });
+  const dayStr = now.toLocaleDateString("ru-RU", { weekday: "long" });
+  const timeStr = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+
   return (
     <div className="min-h-screen bg-white flex flex-col" style={{ fontFamily: "'Arial', sans-serif" }}>
       {/* HEADER */}
-      <div className={`${headerBg} text-white text-center py-6 px-4 shadow-lg`}>
-        <div className="text-4xl font-black tracking-widest uppercase mb-1">
-          ЭЛЕКТРОННАЯ ОЧЕРЕДЬ
+      <div className={`${headerBg} text-white px-6 py-4 shadow-lg flex items-center`}>
+        <div className="flex-1 text-center">
+          <div className="text-4xl font-black tracking-widest uppercase mb-1">
+            ЭЛЕКТРОННАЯ ОЧЕРЕДЬ
+          </div>
+          <div className="text-2xl font-semibold opacity-90">{clinicName}</div>
         </div>
-        <div className="text-2xl font-semibold opacity-90">{clinicName}</div>
+        <div className="text-right shrink-0 ml-4 bg-red-800 rounded-2xl px-5 py-3 min-w-[160px]">
+          <div className="text-2xl font-black tabular-nums">{timeStr}</div>
+          <div className="text-base font-semibold opacity-90 capitalize">{dayStr}</div>
+          <div className="text-sm opacity-75">{dateStr}</div>
+        </div>
       </div>
 
       {/* HOME */}
