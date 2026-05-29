@@ -240,7 +240,13 @@ export default function Kiosk() {
         `${URLS.appointments}?action=available-slots&doctor_id=${doctorId}&date=${date}`
       );
       const data = await r.json();
-      setTimeSlots(data.all_slots || []);
+      if (data.all_slots && data.all_slots.length > 0) {
+        setTimeSlots(data.all_slots);
+      } else if (data.available_slots) {
+        setTimeSlots(data.available_slots.map((t: string) => ({ time: t, status: "available", available: true })));
+      } else {
+        setTimeSlots([]);
+      }
     } finally {
       setLoadingTimes(false);
     }
