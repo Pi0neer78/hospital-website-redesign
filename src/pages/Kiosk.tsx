@@ -46,36 +46,36 @@ function VirtualKeyboard({
   const [numMode, setNumMode] = useState(false);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t-4 border-blue-600 p-3 z-50 select-none">
+    <div className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t-4 border-blue-600 p-4 z-50 select-none">
       {!numMode ? (
         <>
-          <div className="flex justify-center gap-1 mb-1">
+          <div className="flex justify-center gap-1.5 mb-1.5">
             {NUM_ROW.map((k) => (
               <button key={k} onClick={() => onKey(k)}
-                className="bg-gray-700 text-white rounded px-3 py-2 text-lg font-bold hover:bg-blue-600 active:scale-95 transition-transform min-w-[40px]">
+                className="bg-gray-700 text-white rounded-lg px-4 py-2.5 text-xl font-bold hover:bg-blue-600 active:scale-95 transition-transform min-w-[48px]">
                 {k}
               </button>
             ))}
             <button onClick={() => onKey("-")}
-              className="bg-gray-700 text-white rounded px-3 py-2 text-lg font-bold hover:bg-blue-600 active:scale-95 min-w-[40px]">-</button>
+              className="bg-gray-700 text-white rounded-lg px-4 py-2.5 text-xl font-bold hover:bg-blue-600 active:scale-95 min-w-[48px]">-</button>
           </div>
           {RU_ROWS.map((row, ri) => (
-            <div key={ri} className="flex justify-center gap-1 mb-1">
+            <div key={ri} className="flex justify-center gap-1.5 mb-1.5">
               {ri === 2 && (
                 <button onClick={() => setCaps(!caps)}
-                  className={`rounded px-3 py-2 text-sm font-bold transition-all min-w-[60px] ${caps ? "bg-blue-600 text-white" : "bg-gray-600 text-white"}`}>
+                  className={`rounded-lg px-4 py-2.5 text-base font-bold transition-all min-w-[72px] ${caps ? "bg-blue-600 text-white" : "bg-gray-600 text-white"}`}>
                   ⇧
                 </button>
               )}
               {row.map((k) => (
                 <button key={k} onClick={() => onKey(caps ? k.toUpperCase() : k)}
-                  className="bg-gray-700 text-white rounded px-3 py-2 text-lg hover:bg-blue-600 active:scale-95 transition-transform min-w-[40px]">
+                  className="bg-gray-700 text-white rounded-lg px-4 py-2.5 text-xl hover:bg-blue-600 active:scale-95 transition-transform min-w-[48px]">
                   {caps ? k.toUpperCase() : k}
                 </button>
               ))}
               {ri === 2 && (
                 <button onClick={onBackspace}
-                  className="bg-red-700 text-white rounded px-3 py-2 text-sm font-bold hover:bg-red-500 active:scale-95 min-w-[60px]">
+                  className="bg-red-700 text-white rounded-lg px-4 py-2.5 text-base font-bold hover:bg-red-500 active:scale-95 min-w-[72px]">
                   ⌫
                 </button>
               )}
@@ -83,30 +83,30 @@ function VirtualKeyboard({
           ))}
         </>
       ) : (
-        <div className="flex justify-center gap-2 mb-2 flex-wrap">
+        <div className="flex justify-center gap-2.5 mb-2.5 flex-wrap">
           {["0","1","2","3","4","5","6","7","8","9","+","-","(",")"," "].map((k) => (
             <button key={k} onClick={() => onKey(k)}
-              className="bg-gray-700 text-white rounded px-4 py-3 text-xl font-bold hover:bg-blue-600 active:scale-95 transition-transform min-w-[50px]">
+              className="bg-gray-700 text-white rounded-lg px-5 py-3.5 text-2xl font-bold hover:bg-blue-600 active:scale-95 transition-transform min-w-[60px]">
               {k === " " ? "␣" : k}
             </button>
           ))}
           <button onClick={onBackspace}
-            className="bg-red-700 text-white rounded px-4 py-3 text-xl font-bold hover:bg-red-500 active:scale-95 min-w-[60px]">
+            className="bg-red-700 text-white rounded-lg px-5 py-3.5 text-2xl font-bold hover:bg-red-500 active:scale-95 min-w-[72px]">
             ⌫
           </button>
         </div>
       )}
-      <div className="flex justify-center gap-2 mt-1">
+      <div className="flex justify-center gap-2.5 mt-1.5">
         <button onClick={() => setNumMode(!numMode)}
-          className="bg-gray-600 text-white rounded px-4 py-2 text-sm font-semibold hover:bg-gray-500">
+          className="bg-gray-600 text-white rounded-lg px-5 py-2.5 text-base font-semibold hover:bg-gray-500">
           {numMode ? "🔤 Буквы" : "🔢 Цифры"}
         </button>
         <button onClick={() => onKey(" ")}
-          className="bg-gray-700 text-white rounded px-16 py-2 text-sm hover:bg-blue-600">
+          className="bg-gray-700 text-white rounded-lg px-20 py-2.5 text-base hover:bg-blue-600">
           ПРОБЕЛ
         </button>
         <button onClick={onClose}
-          className="bg-green-700 text-white rounded px-4 py-2 text-sm font-semibold hover:bg-green-600">
+          className="bg-green-700 text-white rounded-lg px-5 py-2.5 text-base font-semibold hover:bg-green-600">
           ✓ Готово
         </button>
       </div>
