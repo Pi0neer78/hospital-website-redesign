@@ -359,7 +359,7 @@ export default function Kiosk() {
   const timeStr = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="min-h-screen bg-white flex flex-col" style={{ fontFamily: "'Arial', sans-serif" }}>
+    <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Arial', sans-serif", backgroundImage: "url('https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/c7868ef0-6b83-40fe-a940-7c2e5e256e4f.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }}>
       {/* HEADER */}
       <div className={`${headerBg} text-white px-6 py-4 shadow-lg relative flex items-center`}>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
