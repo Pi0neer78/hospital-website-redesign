@@ -147,6 +147,7 @@ export default function Kiosk() {
   const [doctorPage, setDoctorPage] = useState(0);
   const DOCTORS_PER_PAGE = 6;
   const instructionScrollRef = useRef<HTMLDivElement>(null);
+  const [instrPage, setInstrPage] = useState(0);
   const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
   const [bulkSlots, setBulkSlots] = useState<Record<string, any>>({});
   const [selectedDate, setSelectedDate] = useState("");
@@ -407,46 +408,12 @@ export default function Kiosk() {
       )}
 
       {/* INSTRUCTION */}
-      {step === "instruction" && (
-        <div className="flex-1 flex flex-col relative overflow-hidden">
-          {/* Фиксированная кнопка На главную */}
-          <button
-            onClick={() => setStep("home")}
-            className="absolute top-4 left-4 z-10 bg-slate-700 text-white text-lg font-bold px-5 py-3 rounded-2xl hover:bg-slate-600 active:scale-95 transition-all shadow-lg">
-            ← НА ГЛАВНУЮ
-          </button>
-
-          {/* Кнопка ВВЕРХ */}
-          <button
-            onClick={() => instructionScrollRef.current?.scrollBy({ top: -300, behavior: "smooth" })}
-            className="absolute right-4 top-1/2 -translate-y-[calc(50%+40px)] z-10 w-16 h-24 flex items-center justify-center rounded-2xl bg-slate-700 text-white text-4xl shadow-lg hover:bg-slate-600 active:scale-95 transition-all">
-            ▲
-          </button>
-
-          {/* Кнопка ВНИЗ */}
-          <button
-            onClick={() => instructionScrollRef.current?.scrollBy({ top: 300, behavior: "smooth" })}
-            className="absolute right-4 top-1/2 translate-y-[calc(50%-40px)] z-10 w-16 h-24 flex items-center justify-center rounded-2xl bg-slate-700 text-white text-4xl shadow-lg hover:bg-slate-600 active:scale-95 transition-all">
-            ▼
-          </button>
-
-          {/* Скроллируемый контент */}
-          <div ref={instructionScrollRef} className="flex-1 overflow-y-auto bg-gradient-to-b from-blue-50 to-white">
-          {/* Hero */}
-          <div className="bg-blue-700 text-white text-center py-8 px-6 pl-48">
-            <div className="text-5xl mb-3">📋</div>
-            <h2 className="text-4xl font-black mb-2">Как записаться на приём?</h2>
-            <p className="text-xl opacity-85">Следуйте простым шагам — это займёт не более 2 минут</p>
-          </div>
-
-          {/* Steps */}
-          <div className="max-w-5xl mx-auto px-6 pr-24 py-8 space-y-6">
-
-            {/* Step 1 */}
+      {step === "instruction" && (() => {
+        const instrPages = [
+          // Страница 1
+          <div key="p1" className="space-y-5">
             <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
-              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
-                <div className="text-5xl font-black">1</div>
-              </div>
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]"><div className="text-5xl font-black">1</div></div>
               <div className="flex-1 p-5 flex items-center gap-5">
                 <div className="flex-1">
                   <div className="text-2xl font-bold text-gray-900 mb-1">Нажмите «ЗАПИСАТЬСЯ НА ПРИЁМ»</div>
@@ -455,12 +422,8 @@ export default function Kiosk() {
                 <div className="shrink-0 w-28 h-28 rounded-2xl bg-green-100 flex items-center justify-center text-6xl">🏥</div>
               </div>
             </div>
-
-            {/* Step 2 */}
             <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
-              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
-                <div className="text-5xl font-black">2</div>
-              </div>
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]"><div className="text-5xl font-black">2</div></div>
               <div className="flex-1 p-5 flex items-center gap-5">
                 <div className="flex-1">
                   <div className="text-2xl font-bold text-gray-900 mb-1">Выберите врача</div>
@@ -469,40 +432,28 @@ export default function Kiosk() {
                     <div className="text-base font-semibold text-blue-800">💡 Совет: если не знаете к кому обратиться — выберите терапевта</div>
                   </div>
                 </div>
-                <img src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/7319fb24-6fae-4673-a82f-817cc897cf2f.jpg"
-                  alt="Список врачей" className="shrink-0 w-36 h-28 rounded-2xl object-cover shadow" />
+                <img src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/7319fb24-6fae-4673-a82f-817cc897cf2f.jpg" alt="Список врачей" className="shrink-0 w-36 h-28 rounded-2xl object-cover shadow" />
               </div>
             </div>
-
-            {/* Step 3 */}
             <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
-              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
-                <div className="text-5xl font-black">3</div>
-              </div>
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]"><div className="text-5xl font-black">3</div></div>
               <div className="flex-1 p-5 flex items-center gap-5">
                 <div className="flex-1">
                   <div className="text-2xl font-bold text-gray-900 mb-1">Выберите удобную дату</div>
                   <div className="text-lg text-gray-600">Показаны ближайшие 14 дней. На каждой ячейке — сколько мест свободно.</div>
                   <div className="mt-3 flex gap-3">
-                    <div className="bg-green-100 border-2 border-green-400 rounded-xl px-4 py-2 text-center">
-                      <div className="text-2xl font-black text-green-700">5</div>
-                      <div className="text-sm text-green-600">свободно</div>
-                    </div>
-                    <div className="bg-gray-100 border-2 border-gray-300 rounded-xl px-4 py-2 text-center">
-                      <div className="text-sm text-gray-400 mt-1">нет мест</div>
-                    </div>
+                    <div className="bg-green-100 border-2 border-green-400 rounded-xl px-4 py-2 text-center"><div className="text-2xl font-black text-green-700">5</div><div className="text-sm text-green-600">свободно</div></div>
+                    <div className="bg-gray-100 border-2 border-gray-300 rounded-xl px-4 py-2 text-center"><div className="text-sm text-gray-400 mt-1">нет мест</div></div>
                   </div>
                 </div>
-                <img src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/4ddc982a-6b8a-4128-b2a2-b113c4ef8828.jpg"
-                  alt="Выбор даты" className="shrink-0 w-36 h-28 rounded-2xl object-cover shadow" />
+                <img src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/4ddc982a-6b8a-4128-b2a2-b113c4ef8828.jpg" alt="Выбор даты" className="shrink-0 w-36 h-28 rounded-2xl object-cover shadow" />
               </div>
             </div>
-
-            {/* Step 4 */}
+          </div>,
+          // Страница 2
+          <div key="p2" className="space-y-5">
             <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
-              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
-                <div className="text-5xl font-black">4</div>
-              </div>
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]"><div className="text-5xl font-black">4</div></div>
               <div className="flex-1 p-5 flex items-center gap-5">
                 <div className="flex-1">
                   <div className="text-2xl font-bold text-gray-900 mb-1">Выберите время приёма</div>
@@ -516,12 +467,8 @@ export default function Kiosk() {
                 <div className="shrink-0 w-28 h-28 rounded-2xl bg-blue-50 flex items-center justify-center text-6xl">🕐</div>
               </div>
             </div>
-
-            {/* Step 5 */}
             <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
-              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
-                <div className="text-5xl font-black">5</div>
-              </div>
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]"><div className="text-5xl font-black">5</div></div>
               <div className="flex-1 p-5">
                 <div className="text-2xl font-bold text-gray-900 mb-1">Введите ваши данные</div>
                 <div className="text-lg text-gray-600 mb-3">На экране появится виртуальная клавиатура. Заполните поля:</div>
@@ -534,35 +481,27 @@ export default function Kiosk() {
                   ].map(({ icon, label, note, color }) => (
                     <div key={label} className={`${color} border-2 rounded-xl px-4 py-2 flex items-center gap-3`}>
                       <span className="text-2xl">{icon}</span>
-                      <div>
-                        <div className="font-bold text-gray-800">{label}</div>
-                        <div className="text-sm text-gray-500">{note}</div>
-                      </div>
+                      <div><div className="font-bold text-gray-800">{label}</div><div className="text-sm text-gray-500">{note}</div></div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-
-            {/* Step 6 */}
             <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
-              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
-                <div className="text-5xl font-black">6</div>
-              </div>
+              <div className="bg-blue-600 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]"><div className="text-5xl font-black">6</div></div>
               <div className="flex-1 p-5 flex items-center gap-5">
                 <div className="flex-1">
                   <div className="text-2xl font-bold text-gray-900 mb-1">Нажмите «ВЫПОЛНИТЬ ЗАПИСЬ»</div>
-                  <div className="text-lg text-gray-600">Запись будет сохранена. Распечатайте талон — в нём указаны все данные и код для отмены.</div>
+                  <div className="text-lg text-gray-600">Запись будет сохранена. Талон распечатается автоматически — в нём указаны все данные и код для отмены.</div>
                 </div>
                 <div className="shrink-0 w-28 h-28 rounded-2xl bg-green-100 flex items-center justify-center text-6xl">✅</div>
               </div>
             </div>
-
-            {/* Step 7 — ticket */}
+          </div>,
+          // Страница 3
+          <div key="p3" className="space-y-5">
             <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-orange-200 flex">
-              <div className="bg-orange-500 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]">
-                <div className="text-5xl font-black">7</div>
-              </div>
+              <div className="bg-orange-500 text-white flex flex-col items-center justify-center px-6 py-4 min-w-[90px]"><div className="text-5xl font-black">7</div></div>
               <div className="flex-1 p-5 flex items-center gap-5">
                 <div className="flex-1">
                   <div className="text-2xl font-bold text-gray-900 mb-1">Сохраните талон и код</div>
@@ -572,33 +511,24 @@ export default function Kiosk() {
                     <div className="text-3xl font-black tracking-widest text-red-700 font-mono">3847291056</div>
                   </div>
                 </div>
-                <img src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/544a075b-04c2-45a7-a142-d352ed4acf80.jpg"
-                  alt="Талон" className="shrink-0 w-36 h-28 rounded-2xl object-cover shadow" />
+                <img src="https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/544a075b-04c2-45a7-a142-d352ed4acf80.jpg" alt="Талон" className="shrink-0 w-36 h-28 rounded-2xl object-cover shadow" />
               </div>
             </div>
-
-            {/* Cancel section */}
             <div className="bg-red-50 rounded-3xl border-2 border-red-300 p-6">
-              <div className="text-2xl font-bold text-red-800 mb-3 flex items-center gap-3">
-                <span className="text-3xl">❌</span> Как отменить запись?
-              </div>
+              <div className="text-2xl font-bold text-red-800 mb-3 flex items-center gap-3"><span className="text-3xl">❌</span> Как отменить запись?</div>
               <div className="text-lg text-red-700 space-y-2">
-                <div className="flex items-start gap-3">
-                  <span className="bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center font-bold shrink-0 mt-0.5">1</span>
-                  <span>На главном экране нажмите <strong>«ОТМЕНИТЬ ЗАПИСЬ»</strong></span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center font-bold shrink-0 mt-0.5">2</span>
-                  <span>Введите 10-значный код с вашего талона</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center font-bold shrink-0 mt-0.5">3</span>
-                  <span>Нажмите <strong>«ОТМЕНИТЬ ЗАПИСЬ»</strong> — готово</span>
-                </div>
+                {[
+                  "На главном экране нажмите «ОТМЕНИТЬ ЗАПИСЬ»",
+                  "Введите 10-значный код с вашего талона",
+                  "Нажмите «ОТМЕНИТЬ ЗАПИСЬ» — готово",
+                ].map((txt, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center font-bold shrink-0 mt-0.5">{i + 1}</span>
+                    <span dangerouslySetInnerHTML={{ __html: txt.replace(/«([^»]+)»/g, '<strong>«$1»</strong>') }} />
+                  </div>
+                ))}
               </div>
             </div>
-
-            {/* Note */}
             <div className="bg-yellow-50 rounded-3xl border-2 border-yellow-300 p-5 flex items-start gap-4">
               <span className="text-4xl">⚠️</span>
               <div>
@@ -611,18 +541,54 @@ export default function Kiosk() {
                 </ul>
               </div>
             </div>
+          </div>,
+        ];
+        const iPage = instrPage;
+        const setIPage = setInstrPage;
+        return (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Фиксированная шапка инструкции */}
+            <div className="bg-blue-700 text-white px-6 py-4 flex items-center justify-between shrink-0">
+              <button
+                onClick={() => setStep("home")}
+                className="bg-blue-900 hover:bg-blue-800 active:scale-95 text-white text-xl font-bold px-6 py-3 rounded-2xl transition-all shadow-lg">
+                ← НА ГЛАВНУЮ
+              </button>
+              <div className="text-center">
+                <div className="text-3xl font-black">📋 Как записаться на приём?</div>
+                <div className="text-lg opacity-85">Следуйте простым шагам — это займёт не более 2 минут</div>
+              </div>
+              <div className="text-right text-blue-200 text-lg font-semibold min-w-[120px]">
+                Страница {iPage + 1} / {instrPages.length}
+              </div>
+            </div>
 
-          </div>
+            {/* Контент страницы + кнопки */}
+            <div className="flex-1 flex gap-4 p-6 overflow-hidden bg-gradient-to-b from-blue-50 to-white">
+              {/* Кнопка ВВЕРХ */}
+              <button
+                onClick={() => setIPage((p) => Math.max(0, p - 1))}
+                disabled={iPage === 0}
+                className="flex-none flex items-center justify-center w-20 rounded-2xl bg-slate-700 text-white text-5xl disabled:opacity-20 hover:bg-slate-600 active:scale-95 transition-all shadow-lg">
+                ▲
+              </button>
 
-          <div className="flex justify-center pb-8">
-            <button onClick={() => setStep("home")}
-              className="bg-blue-700 text-white text-2xl font-bold px-14 py-5 rounded-2xl hover:bg-blue-600 active:scale-95 transition-all shadow-lg">
-              ← ВЕРНУТЬСЯ НА ГЛАВНУЮ
-            </button>
+              {/* Страница */}
+              <div className="flex-1 overflow-y-auto">
+                {instrPages[iPage]}
+              </div>
+
+              {/* Кнопка ВНИЗ */}
+              <button
+                onClick={() => setIPage((p) => Math.min(instrPages.length - 1, p + 1))}
+                disabled={iPage === instrPages.length - 1}
+                className="flex-none flex items-center justify-center w-20 rounded-2xl bg-slate-700 text-white text-5xl disabled:opacity-20 hover:bg-slate-600 active:scale-95 transition-all shadow-lg">
+                ▼
+              </button>
+            </div>
           </div>
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* DOCTORS */}
       {step === "doctors" && (
