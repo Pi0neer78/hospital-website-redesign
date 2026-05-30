@@ -179,6 +179,7 @@ export default function Kiosk() {
 
   useEffect(() => {
     if (step === "ticket" || step === "cancel-ticket") {
+      setTimeout(() => window.print(), 500);
       setCountdown(30);
       countdownRef.current = setInterval(() => {
         setCountdown((c) => {
@@ -863,11 +864,6 @@ export default function Kiosk() {
               </div>
             </div>
           </div>
-
-          <button onClick={printTicket}
-            className="mt-4 bg-blue-700 text-white text-xl font-bold px-8 py-3 rounded-2xl hover:bg-blue-600 active:scale-95 transition-all print:hidden">
-            🖨 РАСПЕЧАТАТЬ ТАЛОН
-          </button>
 
           <div className="mt-6 text-center print:hidden">
             <div className="text-xl text-gray-600 mb-2">Возврат на главную через:</div>
