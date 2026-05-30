@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 
 const URLS = {
@@ -178,15 +178,31 @@ export default function Kiosk() {
   const [focusedCancel, setFocusedCancel] = useState(false);
 
   const dates = getDatesRange(14);
-  const navigate = useNavigate();
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stepRef = useRef(step);
+  useEffect(() => { stepRef.current = step; }, [step]);
 
   useEffect(() => {
+    function onIdle() {
+      if (stepRef.current !== "home") {
+        setStep("home");
+        setSelectedDoctor(null);
+        setSelectedDate("");
+        setSelectedTime("");
+        setBulkSlots({});
+        setTimeSlots([]);
+        setForm({ patient_name: "", patient_phone: "", patient_snils: "", patient_oms: "", description: "" });
+        setTicket(null);
+        setCancelResult(null);
+        setCancelCode("");
+        setCancelError("");
+        setInstrPage(0);
+        setDoctorPage(0);
+      }
+    }
     function resetIdleTimer() {
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      idleTimerRef.current = setTimeout(() => {
-        navigate("/kiosk");
-      }, 60000);
+      idleTimerRef.current = setTimeout(onIdle, 60000);
     }
     const events = ["mousedown", "touchstart", "keydown", "pointermove"];
     events.forEach((e) => window.addEventListener(e, resetIdleTimer));
@@ -195,7 +211,7 @@ export default function Kiosk() {
       events.forEach((e) => window.removeEventListener(e, resetIdleTimer));
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     if (step === "ticket" || step === "cancel-ticket") {
