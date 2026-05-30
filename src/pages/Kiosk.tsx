@@ -326,6 +326,7 @@ export default function Kiosk() {
           description: form.description,
         });
         setStep("ticket");
+        new Audio("https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adbe219a-6161-4a92-a194-bf06272aea78.mp3").play().catch(() => {});
       }
     } finally {
       setSubmitting(false);
