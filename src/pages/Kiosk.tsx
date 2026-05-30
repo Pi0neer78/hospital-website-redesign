@@ -146,6 +146,7 @@ export default function Kiosk() {
   const [doctors, setDoctors] = useState<any[]>([]);
   const [doctorPage, setDoctorPage] = useState(0);
   const DOCTORS_PER_PAGE = 6;
+  const instructionScrollRef = useRef<HTMLDivElement>(null);
   const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
   const [bulkSlots, setBulkSlots] = useState<Record<string, any>>({});
   const [selectedDate, setSelectedDate] = useState("");
@@ -407,16 +408,39 @@ export default function Kiosk() {
 
       {/* INSTRUCTION */}
       {step === "instruction" && (
-        <div className="flex-1 bg-gradient-to-b from-blue-50 to-white overflow-y-auto">
+        <div className="flex-1 flex flex-col relative overflow-hidden">
+          {/* Фиксированная кнопка На главную */}
+          <button
+            onClick={() => setStep("home")}
+            className="absolute top-4 left-4 z-10 bg-slate-700 text-white text-lg font-bold px-5 py-3 rounded-2xl hover:bg-slate-600 active:scale-95 transition-all shadow-lg">
+            ← НА ГЛАВНУЮ
+          </button>
+
+          {/* Кнопка ВВЕРХ */}
+          <button
+            onClick={() => instructionScrollRef.current?.scrollBy({ top: -300, behavior: "smooth" })}
+            className="absolute right-4 top-1/2 -translate-y-[calc(50%+40px)] z-10 w-16 h-24 flex items-center justify-center rounded-2xl bg-slate-700 text-white text-4xl shadow-lg hover:bg-slate-600 active:scale-95 transition-all">
+            ▲
+          </button>
+
+          {/* Кнопка ВНИЗ */}
+          <button
+            onClick={() => instructionScrollRef.current?.scrollBy({ top: 300, behavior: "smooth" })}
+            className="absolute right-4 top-1/2 translate-y-[calc(50%-40px)] z-10 w-16 h-24 flex items-center justify-center rounded-2xl bg-slate-700 text-white text-4xl shadow-lg hover:bg-slate-600 active:scale-95 transition-all">
+            ▼
+          </button>
+
+          {/* Скроллируемый контент */}
+          <div ref={instructionScrollRef} className="flex-1 overflow-y-auto bg-gradient-to-b from-blue-50 to-white">
           {/* Hero */}
-          <div className="bg-blue-700 text-white text-center py-8 px-6">
+          <div className="bg-blue-700 text-white text-center py-8 px-6 pl-48">
             <div className="text-5xl mb-3">📋</div>
             <h2 className="text-4xl font-black mb-2">Как записаться на приём?</h2>
             <p className="text-xl opacity-85">Следуйте простым шагам — это займёт не более 2 минут</p>
           </div>
 
           {/* Steps */}
-          <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
+          <div className="max-w-5xl mx-auto px-6 pr-24 py-8 space-y-6">
 
             {/* Step 1 */}
             <div className="bg-white rounded-3xl shadow-lg overflow-hidden border border-blue-100 flex">
@@ -595,6 +619,7 @@ export default function Kiosk() {
               className="bg-blue-700 text-white text-2xl font-bold px-14 py-5 rounded-2xl hover:bg-blue-600 active:scale-95 transition-all shadow-lg">
               ← ВЕРНУТЬСЯ НА ГЛАВНУЮ
             </button>
+          </div>
           </div>
         </div>
       )}
