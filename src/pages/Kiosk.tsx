@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 
 const URLS = {
@@ -178,6 +178,25 @@ export default function Kiosk() {
   const [focusedCancel, setFocusedCancel] = useState(false);
 
   const dates = getDatesRange(14);
+  const navigate = useNavigate();
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function resetIdleTimer() {
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = setTimeout(() => {
+      navigate("/kiosk");
+    }, 60000);
+  }
+
+  useEffect(() => {
+    const events = ["mousedown", "touchstart", "keydown"];
+    events.forEach((e) => window.addEventListener(e, resetIdleTimer));
+    resetIdleTimer();
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, resetIdleTimer));
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (step === "ticket" || step === "cancel-ticket") {
@@ -379,19 +398,21 @@ export default function Kiosk() {
   return (
     <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Arial', sans-serif", backgroundImage: "url('https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/c7868ef0-6b83-40fe-a940-7c2e5e256e4f.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }}>
       {/* HEADER */}
-      <div className={`${headerBg} text-white px-6 py-4 shadow-lg relative flex items-center`}>
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <div className="text-4xl font-black tracking-widest uppercase mb-1">
-            ЭЛЕКТРОННАЯ ОЧЕРЕДЬ
+      {step !== "instruction" && (
+        <div className={`${headerBg} text-white px-6 py-4 shadow-lg relative flex items-center`}>
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <div className="text-4xl font-black tracking-widest uppercase mb-1">
+              ЭЛЕКТРОННАЯ ОЧЕРЕДЬ
+            </div>
+            <div className="text-2xl font-semibold opacity-90">{clinicName}</div>
           </div>
-          <div className="text-2xl font-semibold opacity-90">{clinicName}</div>
+          <div className="ml-auto text-right shrink-0 bg-slate-700 rounded-2xl px-5 py-3 min-w-[180px] relative z-10">
+            <div className="text-3xl font-black tabular-nums">{timeStr}</div>
+            <div className="text-lg font-semibold opacity-90 capitalize">{dayStr}</div>
+            <div className="text-base opacity-80">{dateStr}</div>
+          </div>
         </div>
-        <div className="ml-auto text-right shrink-0 bg-slate-700 rounded-2xl px-5 py-3 min-w-[180px] relative z-10">
-          <div className="text-3xl font-black tabular-nums">{timeStr}</div>
-          <div className="text-lg font-semibold opacity-90 capitalize">{dayStr}</div>
-          <div className="text-base opacity-80">{dateStr}</div>
-        </div>
-      </div>
+      )}
 
       {/* HOME */}
       {step === "home" && (
