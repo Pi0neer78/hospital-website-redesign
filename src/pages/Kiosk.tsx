@@ -276,6 +276,7 @@ export default function Kiosk() {
   function handleTimeSelect(time: string) {
     setSelectedTime(time);
     setStep("form");
+    new Audio("https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/d4939085-cff0-4fdb-935f-b04954217dcc.mp3").play().catch(() => {});
   }
 
   function handleKey(k: string) {
