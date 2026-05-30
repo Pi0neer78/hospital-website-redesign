@@ -181,22 +181,21 @@ export default function Kiosk() {
   const navigate = useNavigate();
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function resetIdleTimer() {
-    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-    idleTimerRef.current = setTimeout(() => {
-      navigate("/kiosk");
-    }, 60000);
-  }
-
   useEffect(() => {
-    const events = ["mousedown", "touchstart", "keydown"];
+    function resetIdleTimer() {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = setTimeout(() => {
+        navigate("/kiosk");
+      }, 60000);
+    }
+    const events = ["mousedown", "touchstart", "keydown", "pointermove"];
     events.forEach((e) => window.addEventListener(e, resetIdleTimer));
     resetIdleTimer();
     return () => {
       events.forEach((e) => window.removeEventListener(e, resetIdleTimer));
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (step === "ticket" || step === "cancel-ticket") {
