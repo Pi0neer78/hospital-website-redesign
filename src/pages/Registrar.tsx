@@ -441,7 +441,17 @@ const Registrar = () => {
           time: ''
         });
         setSelectedDate('');
+        setAvailableSlots([]);
+        bulkSlotsCacheRef.current = {};
         loadAppointments(selectedDoctor.id);
+        if (selectedDoctor) {
+          const cached = doctorCacheRef.current[selectedDoctor.id];
+          if (cached) {
+            await generateAvailableDatesWith(selectedDoctor.id, cached.schedules, cached.calendar);
+          } else {
+            await loadSchedulesAndCalendar(selectedDoctor.id);
+          }
+        }
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось создать запись", variant: "destructive" });
       }
