@@ -211,7 +211,7 @@ const Faq = () => {
                   <Icon name="Mail" size={20} className="text-primary" />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Email</p>
-                    <p className="text-base font-bold break-all">antrasit_1gorbolnica@mail.ru</p>
+                    <p className="text-base font-bold break-all">antracit_cgmb@minzdrav.lpr-reg.ru</p>
                   </div>
                 </div>
                 <Button variant="outline" className="w-full" asChild>

@@ -237,7 +237,7 @@ export default function PrivacyPolicy() {
                   { label: "Юридический адрес", value: "294613, Российская Федерация, Луганская Народная Республика, город Антрацит, улица Толстоусова, дом 1" },
                   { label: "ИНН / КПП", value: "9410006450 / 941001001" },
                   { label: "ОГРН", value: "1229400055631" },
-                  { label: "Email для обращений по ПДн", value: "antrasit_1gorbolnica@mail.ru" },
+                  { label: "Email для обращений по ПДн", value: "antracit_cgmb@minzdrav.lpr-reg.ru" },
                   { label: "Телефон", value: "+7-857-312-51-02" },
                 ].map((row) => (
                   <div key={row.label} className="bg-muted/50 rounded-lg p-3">

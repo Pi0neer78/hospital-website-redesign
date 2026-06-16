@@ -289,7 +289,7 @@ const HowToBook = () => {
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Email:</h4>
-                <p className="text-muted-foreground">antrasit_1gorbolnica@mail.ru</p>
+                <p className="text-muted-foreground">antracit_cgmb@minzdrav.lpr-reg.ru</p>
               </div>
               <div>
                 <h4 className="font-semibold mb-2">Режим работы:</h4>

@@ -2596,7 +2596,7 @@ const Index = () => {
                       />
                       <div>
                         <p className="text-base break-all">
-                          antrasit_1gorbolnica@mail.ru
+                          antracit_cgmb@minzdrav.lpr-reg.ru
                         </p>
                       </div>
                     </div>
