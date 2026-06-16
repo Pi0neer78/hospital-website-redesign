@@ -198,6 +198,46 @@ const MDoctor = () => {
     });
   };
 
+  const iwImportDocx = async (file: File, onContent: (html: string) => void) => {
+    toast({title: 'Конвертация...', description: 'Обрабатываем Word-документ'});
+    const arrayBuffer = await file.arrayBuffer();
+
+    const mammoth = await new Promise<any>((resolve, reject) => {
+      if ((window as any).mammoth) { resolve((window as any).mammoth); return; }
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js';
+      script.onload = () => resolve((window as any).mammoth);
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+
+    const result = await mammoth.convertToHtml(
+      { arrayBuffer },
+      {
+        styleMap: [
+          "p[style-name='Heading 1'] => h2:fresh",
+          "p[style-name='Heading 2'] => h3:fresh",
+          "p[style-name='Heading 3'] => h4:fresh",
+          "b => strong",
+          "i => em",
+        ],
+        convertImage: mammoth.images.imgElement(async (image: any) => {
+          const b64 = await image.read('base64');
+          const url = await iwUploadImage(new File(
+            [Uint8Array.from(atob(b64), c => c.charCodeAt(0))],
+            'img',
+            { type: image.contentType }
+          ));
+          return { src: url };
+        }),
+      }
+    );
+
+    if (result.messages.length) console.warn('Mammoth warnings:', result.messages);
+    toast({title: 'Готово', description: 'Документ успешно импортирован'});
+    onContent(result.value);
+  };
+
   const loadDoctors = async () => {
     try {
       const response = await fetch(`${API_URLS.doctors}?action=get_all`);
@@ -2166,6 +2206,20 @@ const MDoctor = () => {
                           setIwPostDialog(s => ({...s, content: s.content + tag}));
                           toast({title: 'Готово', description: 'Изображение добавлено'});
                         } catch { toast({title: 'Ошибка', description: 'Не удалось загрузить', variant: 'destructive'}); }
+                      }} />
+                    </label>
+                    <label className="px-2 py-1 text-xs font-bold border rounded hover:bg-white bg-white/60 shadow-sm cursor-pointer flex items-center gap-1" title="Импортировать из Word (.docx)">
+                      <span>📄</span>
+                      <span>Word</span>
+                      <input type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className="hidden" onChange={async e => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        e.target.value = '';
+                        try {
+                          await iwImportDocx(file, (html) => {
+                            setIwPostDialog(s => ({...s, content: s.content ? s.content + '\n' + html : html}));
+                          });
+                        } catch { toast({title: 'Ошибка', description: 'Не удалось импортировать документ', variant: 'destructive'}); }
                       }} />
                     </label>
                   </div>
