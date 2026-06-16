@@ -23,6 +23,7 @@ const API_URLS = {
   sendMax: 'https://functions.poehali.dev/2c30c595-bb80-4a76-ada9-ce851777ada2',
   registry: 'https://functions.poehali.dev/e644fdea-011f-4d16-b984-98838c4e6c69',
   doctorReport: 'https://functions.poehali.dev/8c48472a-a65f-4daf-9336-5a0454915673',
+  infowall: 'https://functions.poehali.dev/26562310-a6de-40d5-8adf-e1c8ad768c74',
 };
 
 const MDoctor = () => {
@@ -82,6 +83,120 @@ const MDoctor = () => {
   const [logEntries, setLogEntries] = useState<any[]>([]);
   const [logLoading, setLogLoading] = useState(false);
   const [registryStats, setRegistryStats] = useState<Record<string, number>>({});
+
+  // Инфостена
+  const [iwSections, setIwSections] = useState<any[]>([]);
+  const [iwTopics, setIwTopics] = useState<any[]>([]);
+  const [iwPosts, setIwPosts] = useState<any[]>([]);
+  const [iwActiveSectionId, setIwActiveSectionId] = useState<number | null>(null);
+  const [iwActiveTopicId, setIwActiveTopicId] = useState<number | null>(null);
+  const [iwLoading, setIwLoading] = useState(false);
+  // Диалоги разделов
+  const [iwSectionDialog, setIwSectionDialog] = useState<{open: boolean; mode: 'create'|'edit'; id?: number; title: string; description: string}>({open: false, mode: 'create', title: '', description: ''});
+  // Диалоги тем
+  const [iwTopicDialog, setIwTopicDialog] = useState<{open: boolean; mode: 'create'|'edit'; id?: number; title: string}>({open: false, mode: 'create', title: ''});
+  // Диалоги постов
+  const [iwPostDialog, setIwPostDialog] = useState<{open: boolean; mode: 'create'|'edit'; id?: number; content: string}>({open: false, mode: 'create', content: ''});
+
+  const iwLoadSections = async () => {
+    setIwLoading(true);
+    const r = await fetch(`${API_URLS.infowall}?action=get_sections`);
+    const d = await r.json();
+    setIwSections(d.sections || []);
+    setIwLoading(false);
+  };
+
+  const iwLoadTopics = async (sectionId: number) => {
+    const r = await fetch(`${API_URLS.infowall}?action=get_topics&section_id=${sectionId}`);
+    const d = await r.json();
+    setIwTopics(d.topics || []);
+    setIwPosts([]);
+    setIwActiveTopicId(null);
+  };
+
+  const iwLoadPosts = async (topicId: number) => {
+    const r = await fetch(`${API_URLS.infowall}?action=get_posts&topic_id=${topicId}`);
+    const d = await r.json();
+    setIwPosts(d.posts || []);
+  };
+
+  const iwSaveSection = async () => {
+    const { mode, id, title, description } = iwSectionDialog;
+    if (!title.trim()) return;
+    if (mode === 'create') {
+      await fetch(`${API_URLS.infowall}?action=create_section`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({title, description})});
+    } else {
+      await fetch(`${API_URLS.infowall}?action=update_section`, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, title, description})});
+    }
+    setIwSectionDialog({open: false, mode: 'create', title: '', description: ''});
+    iwLoadSections();
+  };
+
+  const iwDeleteSection = async (id: number) => {
+    if (!confirm('Удалить раздел и все его темы и посты?')) return;
+    await fetch(`${API_URLS.infowall}?action=delete_section`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id})});
+    setIwActiveSectionId(null);
+    setIwTopics([]);
+    setIwPosts([]);
+    setIwActiveTopicId(null);
+    iwLoadSections();
+  };
+
+  const iwSaveTopic = async () => {
+    const { mode, id, title } = iwTopicDialog;
+    if (!title.trim() || !iwActiveSectionId) return;
+    if (mode === 'create') {
+      await fetch(`${API_URLS.infowall}?action=create_topic`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({section_id: iwActiveSectionId, title})});
+    } else {
+      await fetch(`${API_URLS.infowall}?action=update_topic`, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, title})});
+    }
+    setIwTopicDialog({open: false, mode: 'create', title: ''});
+    iwLoadTopics(iwActiveSectionId);
+  };
+
+  const iwDeleteTopic = async (id: number) => {
+    if (!confirm('Удалить тему и все её посты?')) return;
+    await fetch(`${API_URLS.infowall}?action=delete_topic`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id})});
+    if (iwActiveSectionId) iwLoadTopics(iwActiveSectionId);
+    setIwActiveTopicId(null);
+    setIwPosts([]);
+  };
+
+  const iwSavePost = async () => {
+    const { mode, id, content } = iwPostDialog;
+    if (!content.trim() || !iwActiveTopicId) return;
+    if (mode === 'create') {
+      await fetch(`${API_URLS.infowall}?action=create_post`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({topic_id: iwActiveTopicId, content})});
+    } else {
+      await fetch(`${API_URLS.infowall}?action=update_post`, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, content})});
+    }
+    setIwPostDialog({open: false, mode: 'create', content: ''});
+    iwLoadPosts(iwActiveTopicId);
+  };
+
+  const iwDeletePost = async (id: number) => {
+    if (!confirm('Удалить этот пост?')) return;
+    await fetch(`${API_URLS.infowall}?action=delete_post`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id})});
+    if (iwActiveTopicId) iwLoadPosts(iwActiveTopicId);
+  };
+
+  const iwUploadImage = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const b64 = (e.target?.result as string).split(',')[1];
+        const r = await fetch(`${API_URLS.infowall}?action=upload_image`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({image_base64: b64, content_type: file.type}),
+        });
+        const d = await r.json();
+        if (d.url) resolve(d.url);
+        else reject(new Error('Upload failed'));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
 
   const loadDoctors = async () => {
     try {
@@ -646,7 +761,7 @@ const MDoctor = () => {
 
       <main className="container mx-auto px-4 py-4">
         <Tabs defaultValue="doctors" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5 max-w-3xl mx-auto h-10">
+          <TabsList className="grid w-full grid-cols-6 max-w-4xl mx-auto h-10">
             <TabsTrigger value="doctors" className="py-1.5">
               <Icon name="Users" className="mr-2" size={16} />
               Врачи
@@ -666,6 +781,10 @@ const MDoctor = () => {
             <TabsTrigger value="ratings" className="py-1.5">
               <Icon name="Star" className="mr-2" size={16} />
               Голосование
+            </TabsTrigger>
+            <TabsTrigger value="infowall" className="py-1.5" onClick={() => iwLoadSections()}>
+              <Icon name="Layout" className="mr-2" size={16} />
+              Инфостена
             </TabsTrigger>
           </TabsList>
 
@@ -1830,6 +1949,249 @@ const MDoctor = () => {
 
           <TabsContent value="ratings">
             <RatingsStats />
+          </TabsContent>
+
+          <TabsContent value="infowall">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Колонка разделов */}
+              <Card>
+                <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Icon name="Layers" size={16} />
+                    Разделы
+                  </CardTitle>
+                  <Button size="sm" onClick={() => setIwSectionDialog({open: true, mode: 'create', title: '', description: ''})}>
+                    <Icon name="Plus" size={14} className="mr-1" />
+                    Добавить
+                  </Button>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  {iwLoading ? (
+                    <div className="py-8 flex justify-center"><Icon name="Loader2" size={24} className="animate-spin text-muted-foreground" /></div>
+                  ) : iwSections.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">Нет разделов. Создайте первый!</p>
+                  ) : (
+                    <div className="space-y-1 mt-1">
+                      {iwSections.map(s => (
+                        <div
+                          key={s.id}
+                          className={`flex items-center justify-between p-2.5 rounded-lg cursor-pointer border transition-all ${iwActiveSectionId === s.id ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-muted border-transparent'}`}
+                          onClick={() => { setIwActiveSectionId(s.id); setIwActiveTopicId(null); setIwPosts([]); iwLoadTopics(s.id); }}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold truncate">{s.title}</p>
+                            {s.description && <p className={`text-xs truncate ${iwActiveSectionId === s.id ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{s.description}</p>}
+                          </div>
+                          <div className="flex gap-1 ml-2 shrink-0">
+                            <button className="p-1 rounded hover:bg-black/10" onClick={e => { e.stopPropagation(); setIwSectionDialog({open: true, mode: 'edit', id: s.id, title: s.title, description: s.description || ''}); }}>
+                              <Icon name="Pencil" size={13} />
+                            </button>
+                            <button className="p-1 rounded hover:bg-red-500/20 text-red-500" onClick={e => { e.stopPropagation(); iwDeleteSection(s.id); }}>
+                              <Icon name="Trash2" size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Колонка тем */}
+              <Card>
+                <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Icon name="FileText" size={16} />
+                    Темы
+                  </CardTitle>
+                  {iwActiveSectionId && (
+                    <Button size="sm" onClick={() => setIwTopicDialog({open: true, mode: 'create', title: ''})}>
+                      <Icon name="Plus" size={14} className="mr-1" />
+                      Добавить
+                    </Button>
+                  )}
+                </CardHeader>
+                <CardContent className="pt-0">
+                  {!iwActiveSectionId ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">Выберите раздел</p>
+                  ) : iwTopics.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">Нет тем. Создайте первую!</p>
+                  ) : (
+                    <div className="space-y-1 mt-1">
+                      {iwTopics.map(t => (
+                        <div
+                          key={t.id}
+                          className={`flex items-center justify-between p-2.5 rounded-lg cursor-pointer border transition-all ${iwActiveTopicId === t.id ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-muted border-transparent'}`}
+                          onClick={() => { setIwActiveTopicId(t.id); iwLoadPosts(t.id); }}
+                        >
+                          <p className="text-sm font-medium flex-1 truncate">{t.title}</p>
+                          <div className="flex gap-1 ml-2 shrink-0">
+                            <button className="p-1 rounded hover:bg-black/10" onClick={e => { e.stopPropagation(); setIwTopicDialog({open: true, mode: 'edit', id: t.id, title: t.title}); }}>
+                              <Icon name="Pencil" size={13} />
+                            </button>
+                            <button className="p-1 rounded hover:bg-red-500/20 text-red-500" onClick={e => { e.stopPropagation(); iwDeleteTopic(t.id); }}>
+                              <Icon name="Trash2" size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Колонка контента */}
+              <Card>
+                <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Icon name="AlignLeft" size={16} />
+                    Содержимое
+                  </CardTitle>
+                  {iwActiveTopicId && (
+                    <Button size="sm" onClick={() => setIwPostDialog({open: true, mode: 'create', content: ''})}>
+                      <Icon name="Plus" size={14} className="mr-1" />
+                      Добавить
+                    </Button>
+                  )}
+                </CardHeader>
+                <CardContent className="pt-0">
+                  {!iwActiveTopicId ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">Выберите тему</p>
+                  ) : iwPosts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">Нет контента. Добавьте пост!</p>
+                  ) : (
+                    <div className="space-y-3 mt-1 max-h-[500px] overflow-y-auto">
+                      {iwPosts.map(p => (
+                        <div key={p.id} className="border rounded-lg p-3 relative group">
+                          <div className="prose prose-sm max-w-none text-sm leading-relaxed" dangerouslySetInnerHTML={{__html: p.content}} />
+                          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button className="p-1 rounded bg-white shadow border hover:bg-muted" onClick={() => setIwPostDialog({open: true, mode: 'edit', id: p.id, content: p.content})}>
+                              <Icon name="Pencil" size={13} />
+                            </button>
+                            <button className="p-1 rounded bg-white shadow border hover:bg-red-50 text-red-500" onClick={() => iwDeletePost(p.id)}>
+                              <Icon name="Trash2" size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Диалог раздела */}
+            <Dialog open={iwSectionDialog.open} onOpenChange={o => !o && setIwSectionDialog(s => ({...s, open: false}))}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>{iwSectionDialog.mode === 'create' ? 'Новый раздел' : 'Редактировать раздел'}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3 pt-2">
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Название *</label>
+                    <Input value={iwSectionDialog.title} onChange={e => setIwSectionDialog(s => ({...s, title: e.target.value}))} placeholder="Например: Приказы" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Описание</label>
+                    <Textarea value={iwSectionDialog.description} onChange={e => setIwSectionDialog(s => ({...s, description: e.target.value}))} placeholder="Краткое описание раздела" rows={2} />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" onClick={() => setIwSectionDialog(s => ({...s, open: false}))}>Отмена</Button>
+                    <Button onClick={iwSaveSection}>Сохранить</Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Диалог темы */}
+            <Dialog open={iwTopicDialog.open} onOpenChange={o => !o && setIwTopicDialog(s => ({...s, open: false}))}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>{iwTopicDialog.mode === 'create' ? 'Новая тема' : 'Редактировать тему'}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3 pt-2">
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Название темы *</label>
+                    <Input value={iwTopicDialog.title} onChange={e => setIwTopicDialog(s => ({...s, title: e.target.value}))} placeholder="Название темы" />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" onClick={() => setIwTopicDialog(s => ({...s, open: false}))}>Отмена</Button>
+                    <Button onClick={iwSaveTopic}>Сохранить</Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Диалог поста — полноэкранный редактор */}
+            <Dialog open={iwPostDialog.open} onOpenChange={o => !o && setIwPostDialog(s => ({...s, open: false}))}>
+              <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+                <DialogHeader>
+                  <DialogTitle>{iwPostDialog.mode === 'create' ? 'Новый пост' : 'Редактировать пост'}</DialogTitle>
+                </DialogHeader>
+                <div className="flex-1 overflow-y-auto space-y-3 pt-2">
+                  {/* Панель инструментов форматирования */}
+                  <div className="flex flex-wrap gap-1 p-2 border rounded-lg bg-muted/50">
+                    {[
+                      {label: 'B', title: 'Жирный', tag: '<strong>', close: '</strong>'},
+                      {label: 'I', title: 'Курсив', tag: '<em>', close: '</em>'},
+                      {label: 'U', title: 'Подчёркнутый', tag: '<u>', close: '</u>'},
+                      {label: 'H1', title: 'Заголовок 1', tag: '<h2 style="font-size:1.4em;font-weight:bold;margin:8px 0">', close: '</h2>'},
+                      {label: 'H2', title: 'Заголовок 2', tag: '<h3 style="font-size:1.15em;font-weight:bold;margin:6px 0">', close: '</h3>'},
+                      {label: '¶', title: 'Абзац', tag: '<p style="margin:4px 0">', close: '</p>'},
+                      {label: '—', title: 'Разделитель', tag: '<hr style="margin:8px 0;border-color:#e5e7eb"/>', close: ''},
+                    ].map(btn => (
+                      <button key={btn.label} title={btn.title}
+                        className="px-2 py-1 text-xs font-bold border rounded hover:bg-white bg-white/60 shadow-sm"
+                        onClick={() => {
+                          const ta = document.getElementById('iw-editor') as HTMLTextAreaElement;
+                          if (!ta) return;
+                          const start = ta.selectionStart;
+                          const end = ta.selectionEnd;
+                          const sel = ta.value.substring(start, end);
+                          const ins = btn.tag + sel + btn.close;
+                          const newVal = ta.value.substring(0, start) + ins + ta.value.substring(end);
+                          setIwPostDialog(s => ({...s, content: newVal}));
+                          setTimeout(() => { ta.focus(); ta.setSelectionRange(start + btn.tag.length, start + btn.tag.length + sel.length); }, 0);
+                        }}>{btn.label}</button>
+                    ))}
+                    <label className="px-2 py-1 text-xs font-bold border rounded hover:bg-white bg-white/60 shadow-sm cursor-pointer" title="Вставить изображение">
+                      🖼
+                      <input type="file" accept="image/*" className="hidden" onChange={async e => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          toast({title: 'Загрузка...', description: 'Изображение загружается'});
+                          const url = await iwUploadImage(file);
+                          const tag = `<img src="${url}" alt="Изображение" style="max-width:100%;border-radius:6px;margin:6px 0"/>`;
+                          setIwPostDialog(s => ({...s, content: s.content + tag}));
+                          toast({title: 'Готово', description: 'Изображение добавлено'});
+                        } catch { toast({title: 'Ошибка', description: 'Не удалось загрузить', variant: 'destructive'}); }
+                      }} />
+                    </label>
+                  </div>
+
+                  <Textarea
+                    id="iw-editor"
+                    value={iwPostDialog.content}
+                    onChange={e => setIwPostDialog(s => ({...s, content: e.target.value}))}
+                    placeholder="Введите HTML-текст или используйте кнопки форматирования выше..."
+                    rows={12}
+                    className="font-mono text-xs"
+                  />
+
+                  {iwPostDialog.content && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Предпросмотр:</p>
+                      <div className="border rounded-lg p-3 text-sm leading-relaxed bg-white" dangerouslySetInnerHTML={{__html: iwPostDialog.content}} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2 justify-end pt-3 border-t">
+                  <Button variant="outline" onClick={() => setIwPostDialog(s => ({...s, open: false}))}>Отмена</Button>
+                  <Button onClick={iwSavePost}>Сохранить</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </TabsContent>
         </Tabs>
       </main>

@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Get all sections",
+      "method": "GET",
+      "path": "/?action=get_sections",
+      "expectedStatus": 200,
+      "expectedBody": {"sections": []},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get all data for public page",
+      "method": "GET",
+      "path": "/?action=get_all",
+      "expectedStatus": 200,
+      "expectedBody": {"sections": []},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

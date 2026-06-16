@@ -23,6 +23,7 @@ import Docs from "./pages/Docs";
 import Vote from "./pages/Vote";
 import DoctorRating from "./pages/DoctorRating";
 import Kiosk from "./pages/Kiosk";
+import InfoWall from "./pages/InfoWall";
 import UpdateBanner from "@/components/UpdateBanner";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => (
           <Route path="/vote" element={<Vote />} />
           <Route path="/rating" element={<DoctorRating />} />
           <Route path="/kiosk" element={<Kiosk />} />
+          <Route path="/infowall" element={<InfoWall />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
