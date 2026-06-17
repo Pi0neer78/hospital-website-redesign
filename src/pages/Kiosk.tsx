@@ -870,7 +870,9 @@ export default function Kiosk() {
             </div>
             <div className="space-y-2 text-base">
               <TicketRow label="Врач" value={ticket.doctor.full_name} />
-              <TicketRow label="Специализация" value={ticket.doctor.position} />
+              <TicketRow label="Должность" value={ticket.doctor.position} />
+              {ticket.doctor.specialization && <TicketRow label="Специализация" value={ticket.doctor.specialization} />}
+              {ticket.doctor.work_experience > 0 && <TicketRow label="Стаж" value={`${ticket.doctor.work_experience} лет`} />}
               {ticket.doctor.office_number && <TicketRow label="Кабинет" value={`№ ${ticket.doctor.office_number}`} />}
               <TicketRow label="Дата" value={formatDateShort(ticket.date)} />
               <TicketRow label="Время" value={ticket.time} />
