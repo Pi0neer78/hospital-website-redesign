@@ -983,15 +983,54 @@ export default function Kiosk() {
       {/* PRINT STYLES */}
       <style>{`
         @media print {
-          body * { visibility: hidden !important; }
-          #ticket, #ticket *, #cancel-ticket, #cancel-ticket * { visibility: visible !important; }
-          #ticket, #cancel-ticket {
-            position: fixed !important;
-            top: 0; left: 0;
+          @page {
+            size: 80mm auto;
+            margin: 2mm 1mm;
+          }
+          html, body {
             width: 80mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          body * { visibility: hidden !important; }
+          #ticket, #ticket *, #cancel-ticket, #cancel-ticket * {
+            visibility: visible !important;
+          }
+          #ticket, #cancel-ticket {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 76mm !important;
+            margin: 0 !important;
+            padding: 3mm !important;
             border: none !important;
+            border-radius: 0 !important;
             box-shadow: none !important;
-            font-size: 12pt !important;
+            font-size: 9pt !important;
+            line-height: 1.3 !important;
+          }
+          #ticket .text-4xl, #cancel-ticket .text-4xl {
+            font-size: 18pt !important;
+          }
+          #ticket .text-xl, #cancel-ticket .text-xl {
+            font-size: 11pt !important;
+          }
+          #ticket .space-y-2 > *, #cancel-ticket .space-y-2 > * {
+            margin-top: 1mm !important;
+            margin-bottom: 1mm !important;
+          }
+          #ticket .p-6, #cancel-ticket .p-6 {
+            padding: 2mm !important;
+          }
+          #ticket .pb-4, #cancel-ticket .pb-4 {
+            padding-bottom: 2mm !important;
+          }
+          #ticket .mb-4, #cancel-ticket .mb-4 {
+            margin-bottom: 2mm !important;
+          }
+          #ticket .my-3, #cancel-ticket .my-3 {
+            margin-top: 1.5mm !important;
+            margin-bottom: 1.5mm !important;
           }
         }
       `}</style>
