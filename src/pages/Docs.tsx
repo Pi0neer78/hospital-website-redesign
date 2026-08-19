@@ -70,6 +70,26 @@ const categories: DocCategory[] = [
         title: 'Приложение №3.1. Акт ввода в эксплуатацию',
         url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/9e690b10-6df9-45ec-b818-df08d8b433ee.pdf',
       },
+      {
+        title: 'Приложение №3.3. Отчёт о движении лекарственных средств',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/3dd3178e-23ca-472a-a9d1-fa0df00074bc.pdf',
+      },
+      {
+        title: 'Приложение №3.4. Отчёт о движении медицинского расходного материала и медизделий',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/af26cf0e-09f1-4a89-8cf1-ad4710118dd3.pdf',
+      },
+      {
+        title: 'Приложение №3.5. Отчёт о движении конвертов; Реестр отправленной корреспонденции',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/23101968-ff8e-4815-8267-49fed8612d0e.pdf',
+      },
+      {
+        title: 'Приложение №3.6. Путевой лист (стр. 1)',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/354e0669-c792-4ee2-87df-5a53a4ccfbb8.pdf',
+      },
+      {
+        title: 'Приложение №3.6. Путевой лист (стр. 2)',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/f6cf74f5-df15-4043-8026-229fff2899b0.pdf',
+      },
     ],
   },
 ];
