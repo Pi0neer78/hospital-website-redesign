@@ -90,6 +90,26 @@ const categories: DocCategory[] = [
         title: 'Приложение №3.6. Путевой лист (стр. 2)',
         url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/f6cf74f5-df15-4043-8026-229fff2899b0.pdf',
       },
+      {
+        title: 'Приложение №3.7. Меню-требование на выдачу продуктов питания',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/4b8ab789-1c66-432b-bf5b-2421ab044af7.pdf',
+      },
+      {
+        title: 'Приложение №4. Порядок проведения инвентаризации активов и обязательств учреждений',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/c5053fa5-0887-431a-8cf5-1ec09948a5c3.pdf',
+      },
+      {
+        title: 'Приложение №6. Перечень должностных лиц, имеющих право подписи (утверждения) первичных учётных документов, счетов-фактур, денежных и расчётных документов, финансовых обязательств',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/c22cc3a8-59bf-484a-a633-5ca52c8443d8.pdf',
+      },
+      {
+        title: 'Приложение №8. Положение о приёмке, хранении, выдаче (списании) бланков строгой отчётности',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/34af617a-fc6b-4b8f-b3de-2e3a6daa8c84.pdf',
+      },
+      {
+        title: 'Приложение №9. Перечень должностей сотрудников, ответственных за учёт, хранение и выдачу бланков строгой отчётности',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/88ce3623-db99-4734-9059-01b6394c6f30.pdf',
+      },
     ],
   },
 ];
