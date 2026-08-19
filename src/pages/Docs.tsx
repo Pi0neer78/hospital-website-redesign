@@ -1,6 +1,80 @@
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 
+interface DocItem {
+  title: string;
+  url: string;
+}
+
+interface DocCategory {
+  title: string;
+  icon: string;
+  items: DocItem[];
+}
+
+const categories: DocCategory[] = [
+  {
+    title: 'Учредительные документы',
+    icon: 'Landmark',
+    items: [
+      { title: 'Устав учреждения 08.11.2023 233-ОД', url: 'https://xn--90ad1a1b.xn--p1ai/doc/ustav.pdf' },
+    ],
+  },
+  {
+    title: 'Учетная политика',
+    icon: 'BookOpen',
+    items: [
+      {
+        title: 'Единая учетная политика для централизованной бухгалтерии (2026 г.)',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/667adbf6-7c97-4f45-9c8d-ddfd84bd2c58.pdf',
+      },
+      {
+        title: 'Приказ об утверждении единой учётной политики ГБУЗ «АЦГМБ» ЛНР и ГБУЗ «Антрацитовская городская стоматологическая поликлиника» ЛНР',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/5ab4725e-6d5a-4182-9623-76f34ea63835.pdf',
+      },
+      {
+        title: 'Приложение № 21',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/e9350af6-8292-456e-9d4f-0a11e747ec91.pdf',
+      },
+      {
+        title: 'Приложение № 22',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/28c059c2-0fe5-4ea5-a6c5-2fda1d0cbe96.pdf',
+      },
+      {
+        title: 'Приложение № Протокол заседания комиссии по приёму нефинансовых активов',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/f05733be-50be-4fa2-a3ac-aa226156031e.pdf',
+      },
+    ],
+  },
+];
+
+const DocLink = ({ title, url }: DocItem) => (
+  <a
+    href={url}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="group flex items-center gap-5 p-5 rounded-2xl border border-border bg-white shadow-sm hover:shadow-md hover:border-red-300 transition-all duration-200"
+  >
+    <div className="flex-shrink-0 w-14 h-14 bg-red-50 rounded-xl flex items-center justify-center group-hover:bg-red-100 transition-colors">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-9 h-9">
+        <rect width="40" height="40" rx="8" fill="#E53935" />
+        <path d="M10 8h14l6 6v18H10V8z" fill="white" />
+        <path d="M24 8v6h6" stroke="#E53935" strokeWidth="1.5" fill="none" />
+        <text x="20" y="28" textAnchor="middle" fill="#E53935" fontSize="7" fontWeight="bold" fontFamily="Arial">PDF</text>
+      </svg>
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="font-semibold text-foreground group-hover:text-primary transition-colors text-base leading-snug">
+        {title}
+      </p>
+      <p className="text-sm text-muted-foreground mt-0.5">Формат: PDF · Открыть в новой вкладке</p>
+    </div>
+    <div className="flex-shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
+      <Icon name="ExternalLink" size={18} />
+    </div>
+  </a>
+);
+
 const Docs = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -50,31 +124,20 @@ const Docs = () => {
       </section>
 
       <section className="py-12">
-        <div className="container mx-auto px-4 max-w-3xl">
-          <a
-            href="https://xn--90ad1a1b.xn--p1ai/doc/ustav.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-5 p-5 rounded-2xl border border-border bg-white shadow-sm hover:shadow-md hover:border-red-300 transition-all duration-200"
-          >
-            <div className="flex-shrink-0 w-14 h-14 bg-red-50 rounded-xl flex items-center justify-center group-hover:bg-red-100 transition-colors">
-              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-9 h-9">
-                <rect width="40" height="40" rx="8" fill="#E53935"/>
-                <path d="M10 8h14l6 6v18H10V8z" fill="white"/>
-                <path d="M24 8v6h6" stroke="#E53935" strokeWidth="1.5" fill="none"/>
-                <text x="20" y="28" textAnchor="middle" fill="#E53935" fontSize="7" fontWeight="bold" fontFamily="Arial">PDF</text>
-              </svg>
+        <div className="container mx-auto px-4 max-w-3xl space-y-10">
+          {categories.map((category) => (
+            <div key={category.title}>
+              <div className="flex items-center gap-2 mb-4">
+                <Icon name={category.icon} size={20} className="text-primary" />
+                <h2 className="text-xl font-bold text-foreground">{category.title}</h2>
+              </div>
+              <div className="space-y-3">
+                {category.items.map((item) => (
+                  <DocLink key={item.url} title={item.title} url={item.url} />
+                ))}
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground group-hover:text-primary transition-colors text-base leading-snug">
-                Устав учреждения 08.11.2023 233-ОД
-              </p>
-              <p className="text-sm text-muted-foreground mt-0.5">Формат: PDF · Открыть в новой вкладке</p>
-            </div>
-            <div className="flex-shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
-              <Icon name="ExternalLink" size={18} />
-            </div>
-          </a>
+          ))}
         </div>
       </section>
     </div>
