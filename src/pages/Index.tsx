@@ -1865,16 +1865,7 @@ const Index = () => {
                 </a>
               </Button>
 
-              <Button
-                size="lg"
-                className="gap-2 shadow-lg hover:shadow-xl transition-shadow bg-green-600 hover:bg-green-700 w-full sm:w-auto sm:min-w-[200px]"
-                asChild
-              >
-                <a href="/forum">
-                  <Icon name="Users" size={20} />
-                  Больничный форум
-                </a>
-              </Button>
+              <CancelAppointmentDialog variant="banner" />
             </div>
 
             <a
@@ -2549,8 +2540,17 @@ const Index = () => {
                     Часто задаваемые вопросы
                   </a>
                 </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3"
+                  asChild
+                >
+                  <a href="/forum">
+                    <Icon name="Users" size={20} />
+                    Больничный форум
+                  </a>
+                </Button>
                 <MyAppointmentsDialog />
-                <CancelAppointmentDialog />
               </CardContent>
             </Card>
           </div>

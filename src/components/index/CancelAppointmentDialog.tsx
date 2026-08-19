@@ -32,7 +32,11 @@ function formatDate(d: string) {
   return `${day}.${m}.${y}`;
 }
 
-export default function CancelAppointmentDialog() {
+interface CancelAppointmentDialogProps {
+  variant?: 'card' | 'banner';
+}
+
+export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppointmentDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>('phone');
@@ -163,10 +167,20 @@ export default function CancelAppointmentDialog() {
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetAll(); }}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full justify-start gap-3 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300">
-          <Icon name="CalendarX" size={20} />
-          Отменить запись
-        </Button>
+        {variant === 'banner' ? (
+          <Button
+            size="lg"
+            className="gap-2 shadow-lg hover:shadow-xl transition-shadow bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto sm:min-w-[200px]"
+          >
+            <Icon name="CalendarX" size={20} />
+            Отменить запись
+          </Button>
+        ) : (
+          <Button variant="outline" className="w-full justify-start gap-3 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300">
+            <Icon name="CalendarX" size={20} />
+            Отменить запись
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="max-w-md p-0 overflow-hidden">
