@@ -46,6 +46,32 @@ const categories: DocCategory[] = [
       },
     ],
   },
+  {
+    title: 'Документооборот и инвентаризация',
+    icon: 'FolderKanban',
+    items: [
+      {
+        title: 'Приложение №1 к графику документооборота. Журнал ознакомления сотрудников с графиком электронного документооборота',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/7d10a49e-95a2-4249-9dee-4a06d17dee4c.pdf',
+      },
+      {
+        title: 'Приложение №1 к порядку инвентаризации. Акт инвентаризации резервов предстоящих расходов',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/6dbd2f34-44bb-484b-bf30-12c213f1f595.pdf',
+      },
+      {
+        title: 'Приложение №2 к порядку инвентаризации. Акт инвентаризации доходов будущих периодов',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/b4b1d3c9-4b0f-4cd3-89ef-6a861a09700e.pdf',
+      },
+      {
+        title: 'Приложение №3. Акт выполненных работ (оказанных услуг); Акт о выявленных дефектах оборудования; Книга учёта движения талонов на ГСМ; Признание факта хозяйственной жизни',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/adbdce60-3e60-4d97-9114-a3bf87f3b4b5.pdf',
+      },
+      {
+        title: 'Приложение №3.1. Акт ввода в эксплуатацию',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/9e690b10-6df9-45ec-b818-df08d8b433ee.pdf',
+      },
+    ],
+  },
 ];
 
 const DocLink = ({ title, url }: DocItem) => (
