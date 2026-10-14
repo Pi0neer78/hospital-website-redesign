@@ -94,6 +94,9 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
         setCodeSent(true);
         startCountdown();
         setStep('code');
+        if (data.show_code) {
+          toast({ title: 'Не удалось отправить в MAX', description: `Ваш код: ${data.show_code}. Введите его для подтверждения.` });
+        }
       } else {
         toast({ title: 'Ошибка', description: data.error || 'Не удалось отправить код', variant: 'destructive' });
       }

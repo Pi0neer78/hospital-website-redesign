@@ -86,7 +86,11 @@ export default function MyAppointmentsDialog() {
       const data = await res.json();
       if (res.ok && data.success) {
         setStep("code");
-        setCodeSentModal(true);
+        if (data.show_code) {
+          toast({ title: "Не удалось отправить в MAX", description: `Ваш код: ${data.show_code}. Введите его для подтверждения.` });
+        } else {
+          setCodeSentModal(true);
+        }
       } else {
         toast({ title: "Ошибка", description: data.error || "Не удалось отправить код", variant: "destructive" });
       }

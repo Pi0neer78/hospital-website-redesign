@@ -344,7 +344,14 @@ const Index = () => {
       if (response.ok && data.success) {
         setVerificationStep("code");
         setCodeSentModalPhone(appointmentForm.patient_phone);
-        setCodeSentModalOpen(true);
+        if (data.show_code) {
+          toast({
+            title: "Не удалось отправить в MAX",
+            description: `Ваш код: ${data.show_code}. Введите его для подтверждения.`,
+          });
+        } else {
+          setCodeSentModalOpen(true);
+        }
       } else {
         toast({
           title: "Ошибка",
@@ -577,7 +584,14 @@ const Index = () => {
       if (response.ok && data.success) {
         setComplaintVerificationStep("code");
         setCodeSentModalPhone(complaintForm.phone);
-        setCodeSentModalOpen(true);
+        if (data.show_code) {
+          toast({
+            title: "Не удалось отправить в MAX",
+            description: `Ваш код: ${data.show_code}. Введите его для подтверждения.`,
+          });
+        } else {
+          setCodeSentModalOpen(true);
+        }
       } else {
         toast({
           title: "Ошибка",
