@@ -177,7 +177,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     method='POST'
                 )
                 
-                with urllib.request.urlopen(req, timeout=4) as response:
+                with urllib.request.urlopen(req, timeout=15) as response:
                     result = json.loads(response.read().decode('utf-8'))
                     print(f"DEBUG: GREEN-API Response: {result}")
                     message_sent = True
