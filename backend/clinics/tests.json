@@ -1,0 +1,7 @@
+{
+  "tests": [
+    {"name": "Список отделений", "method": "GET", "path": "/", "expectedStatus": 200, "expectedBody": {"clinics": [{"id": 1, "name": "Центральная городская поликлиника"}]}, "bodyMatcher": "partial"},
+    {"name": "Создание без названия", "method": "POST", "path": "/", "body": {"name": ""}, "expectedStatus": 400},
+    {"name": "Обновление без id", "method": "PUT", "path": "/", "body": {}, "expectedStatus": 400}
+  ]
+}

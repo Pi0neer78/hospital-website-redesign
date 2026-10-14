@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { useClinics } from '@/hooks/useClinics';
+import ClinicsTab from '@/components/admin/ClinicsTab';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +24,7 @@ const API_URLS = {
 };
 
 const Admin = () => {
+  const { clinics, reload: reloadClinics } = useClinics(true);
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginForm, setLoginForm] = useState({ login: '', password: '' });
@@ -1383,9 +1386,10 @@ const Admin = () => {
       <section className="py-6">
         <div className="container mx-auto px-4">
           <Tabs defaultValue="doctors" className="w-full">
-            <TabsList className="grid w-full max-w-5xl mx-auto grid-cols-5 mb-4">
+            <TabsList className="grid w-full max-w-5xl mx-auto grid-cols-6 mb-4">
               <TabsTrigger value="doctors">Врачи</TabsTrigger>
               <TabsTrigger value="registrars">Регистраторы</TabsTrigger>
+              <TabsTrigger value="clinics">Отделения</TabsTrigger>
               <TabsTrigger value="faq">FAQ</TabsTrigger>
               <TabsTrigger value="forum">Форум</TabsTrigger>
               <TabsTrigger value="complaints">Жалобы</TabsTrigger>
@@ -1495,12 +1499,11 @@ const Admin = () => {
                         <SelectValue placeholder="Выберите поликлинику" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Центральная городская поликлиника">
-                          Центральная городская поликлиника
-                        </SelectItem>
-                        <SelectItem value="Детская городская поликлиника">
-                          Детская городская поликлиника
-                        </SelectItem>
+                        {clinics.filter((c) => c.is_active).map((c) => (
+                          <SelectItem key={c.id} value={c.name}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -1683,12 +1686,11 @@ const Admin = () => {
                         <SelectValue placeholder="Выберите поликлинику" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Центральная городская поликлиника">
-                          Центральная городская поликлиника
-                        </SelectItem>
-                        <SelectItem value="Детская городская поликлиника">
-                          Детская городская поликлиника
-                        </SelectItem>
+                        {clinics.filter((c) => c.is_active).map((c) => (
+                          <SelectItem key={c.id} value={c.name}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -1783,14 +1785,14 @@ const Admin = () => {
               </DialogContent>
             </Dialog>
 
-          {['Центральная городская поликлиника', 'Детская городская поликлиника'].map(clinic => {
+          {[...clinics.map((c) => c.name), ...Array.from(new Set(doctors.map((d: any) => d.clinic))).filter((n) => n && !clinics.some((c) => c.name === n))].map(clinic => {
             const clinicDoctors = doctors.filter((d: any) => d.clinic === clinic);
             if (clinicDoctors.length === 0) return null;
             
             return (
               <div key={clinic} className="mb-4">
                 <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                  <Icon name={clinic.includes('Детская') ? 'Baby' : 'Building2'} size={28} className="text-primary" />
+                  <Icon name={clinics.find((c) => c.name === clinic)?.icon || 'Building2'} fallback="Building2" size={28} className="text-primary" />
                   {clinic}
                 </h3>
                 <Card>
@@ -2090,6 +2092,10 @@ const Admin = () => {
           </Dialog>
         </TabsContent>
 
+        <TabsContent value="clinics">
+          <ClinicsTab clinics={clinics} onChange={reloadClinics} />
+        </TabsContent>
+
         <TabsContent value="registrars">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-bold">Управление регистраторами</h2>
@@ -2171,12 +2177,11 @@ const Admin = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Центральная городская поликлиника">
-                          Центральная городская поликлиника
-                        </SelectItem>
-                        <SelectItem value="Детская городская поликлиника">
-                          Детская городская поликлиника
-                        </SelectItem>
+                        {clinics.filter((c) => c.is_active).map((c) => (
+                          <SelectItem key={c.id} value={c.name}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -2327,12 +2332,11 @@ const Admin = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Центральная городская поликлиника">
-                        Центральная городская поликлиника
-                      </SelectItem>
-                      <SelectItem value="Детская городская поликлиника">
-                        Детская городская поликлиника
-                      </SelectItem>
+                      {clinics.filter((c) => c.is_active).map((c) => (
+                        <SelectItem key={c.id} value={c.name}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

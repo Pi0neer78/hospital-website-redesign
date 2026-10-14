@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
+import { useClinics } from '@/hooks/useClinics';
 
 interface AppointmentDialogProps {
   isAppointmentOpen: boolean;
@@ -73,6 +74,7 @@ const AppointmentDialog = ({
   setPhotoModalUrl,
   setPhotoModalOpen,
 }: AppointmentDialogProps) => {
+  const { clinics } = useClinics();
   return (
     <Dialog open={isAppointmentOpen} onOpenChange={(open) => {
       const slotErrorDialog = document.getElementById('slot-error-overlay');
@@ -98,24 +100,17 @@ const AppointmentDialog = ({
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Выберите поликлинику:</h3>
             <div className="grid md:grid-cols-2 gap-4">
-              <Card className="cursor-pointer hover:shadow-xl transition-all hover:border-primary" onClick={() => setSelectedClinic('Центральная городская поликлиника')}>
-                <CardHeader className="text-center">
-                  <div className="w-20 h-20 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                    <Icon name="Building2" size={40} className="text-blue-600" />
-                  </div>
-                  <CardTitle className="text-xl">Центральная городская поликлиника</CardTitle>
-                  <CardDescription className="text-base">Взрослое отделение</CardDescription>
-                </CardHeader>
-              </Card>
-              <Card className="cursor-pointer hover:shadow-xl transition-all hover:border-primary" onClick={() => setSelectedClinic('Детская городская поликлиника')}>
-                <CardHeader className="text-center">
-                  <div className="w-20 h-20 mx-auto bg-pink-100 rounded-full flex items-center justify-center mb-3">
-                    <Icon name="Baby" size={40} className="text-pink-600" />
-                  </div>
-                  <CardTitle className="text-xl">Детская городская поликлиника</CardTitle>
-                  <CardDescription className="text-base">Детское отделение</CardDescription>
-                </CardHeader>
-              </Card>
+              {clinics.map((clinic) => (
+                <Card key={clinic.id} className="cursor-pointer hover:shadow-xl transition-all hover:border-primary" onClick={() => setSelectedClinic(clinic.name)}>
+                  <CardHeader className="text-center">
+                    <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                      <Icon name={clinic.icon || 'Building2'} fallback="Building2" size={40} className="text-primary" />
+                    </div>
+                    <CardTitle className="text-xl">{clinic.name}</CardTitle>
+                    {clinic.description && <CardDescription className="text-base">{clinic.description}</CardDescription>}
+                  </CardHeader>
+                </Card>
+              ))}
             </div>
           </div>
         ) : !selectedDoctor ? (
