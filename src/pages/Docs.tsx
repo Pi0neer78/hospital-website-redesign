@@ -21,6 +21,16 @@ const categories: DocCategory[] = [
     ],
   },
   {
+    title: 'Госпитализация',
+    icon: 'Hospital',
+    items: [
+      {
+        title: 'Положение о порядке плановой госпитализации',
+        url: 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/27ccb629-e12e-41b3-b837-2e2d9913410c.pdf',
+      },
+    ],
+  },
+  {
     title: 'Учетная политика',
     icon: 'BookOpen',
     items: [
