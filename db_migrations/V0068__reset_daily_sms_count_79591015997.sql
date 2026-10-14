@@ -1,0 +1,1 @@
+UPDATE t_p30358746_hospital_website_red.sms_verification_codes SET daily_send_count = 0 WHERE phone_number = '79591015997';

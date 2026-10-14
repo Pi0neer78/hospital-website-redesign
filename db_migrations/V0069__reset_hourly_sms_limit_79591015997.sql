@@ -1,0 +1,1 @@
+UPDATE t_p30358746_hospital_website_red.rate_limit_logs SET created_at = created_at - INTERVAL '2 hours' WHERE endpoint = 'sms-verify' AND fingerprint IN ('+79591015997', '79591015997');
