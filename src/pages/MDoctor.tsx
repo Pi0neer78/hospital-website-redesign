@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import RatingsStats from '@/components/ratings/RatingsStats';
 import * as XLSX from 'xlsx';
+import { prepareInfowallHtml } from '@/utils/infowallHtml';
 
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
@@ -235,7 +236,7 @@ const MDoctor = () => {
 
     if (result.messages.length) console.warn('Mammoth warnings:', result.messages);
     toast({title: 'Готово', description: 'Документ успешно импортирован'});
-    onContent(result.value);
+    onContent(prepareInfowallHtml(result.value));
   };
 
   const loadDoctors = async () => {
@@ -2103,7 +2104,7 @@ const MDoctor = () => {
                     <div className="space-y-3 mt-1 max-h-[500px] overflow-y-auto">
                       {iwPosts.map(p => (
                         <div key={p.id} className="border rounded-lg p-3 relative group">
-                          <div className="prose prose-sm max-w-none text-sm leading-relaxed" dangerouslySetInnerHTML={{__html: p.content}} />
+                          <div className="prose prose-sm max-w-none text-sm leading-relaxed" dangerouslySetInnerHTML={{__html: prepareInfowallHtml(p.content)}} />
                           <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button className="p-1 rounded bg-white shadow border hover:bg-muted" onClick={() => setIwPostDialog({open: true, mode: 'edit', id: p.id, content: p.content})}>
                               <Icon name="Pencil" size={13} />
@@ -2236,7 +2237,7 @@ const MDoctor = () => {
                   {iwPostDialog.content && (
                     <div>
                       <p className="text-xs font-medium text-muted-foreground mb-1">Предпросмотр:</p>
-                      <div className="border rounded-lg p-3 text-sm leading-relaxed bg-white" dangerouslySetInnerHTML={{__html: iwPostDialog.content}} />
+                      <div className="border rounded-lg p-3 text-sm leading-relaxed bg-white" dangerouslySetInnerHTML={{__html: prepareInfowallHtml(iwPostDialog.content)}} />
                     </div>
                   )}
                 </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
+import { prepareInfowallHtml } from "@/utils/infowallHtml";
 
 const INFOWALL_URL = "https://functions.poehali.dev/26562310-a6de-40d5-8adf-e1c8ad768c74";
 
@@ -259,7 +260,7 @@ const InfoWall = () => {
                           [&_p]:my-1.5 [&_strong]:font-bold [&_em]:italic [&_u]:underline
                           [&_hr]:border-border [&_hr]:my-3
                           [&_img]:rounded-lg [&_img]:max-w-full [&_img]:shadow-sm [&_img]:my-2"
-                        dangerouslySetInnerHTML={{ __html: post.content }}
+                        dangerouslySetInnerHTML={{ __html: prepareInfowallHtml(post.content) }}
                       />
                     </div>
                   ))}
