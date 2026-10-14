@@ -1,0 +1,2 @@
+UPDATE t_p30358746_hospital_website_red.sms_verification_codes SET daily_send_count = 0 WHERE phone_number = '79591015997';
+UPDATE t_p30358746_hospital_website_red.rate_limit_logs SET created_at = created_at - INTERVAL '3 hours' WHERE endpoint = 'sms-verify' AND fingerprint IN ('+79591015997', '79591015997') AND created_at > NOW() - INTERVAL '2 hours';
