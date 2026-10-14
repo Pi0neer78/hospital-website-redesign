@@ -22,7 +22,7 @@ def send_max_message(phone: str, message: str):
     clean_phone = ''.join(filter(str.isdigit, phone))
     chat_id = f"{clean_phone}@c.us"
     data = json.dumps({'chatId': chat_id, 'message': message}).encode('utf-8')
-    url = f'https://api.green-api.com/v3/waInstance{instance_id}/sendMessage/{token}'
+    url = f'https://{instance_id[:4]}.api.green-api.com/v3/waInstance{instance_id}/sendMessage/{token}'
     try:
         req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'}, method='POST')
         urllib.request.urlopen(req, timeout=10)

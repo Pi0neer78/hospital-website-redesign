@@ -164,7 +164,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'message': message_text
                 }).encode('utf-8')
                 
-                url = f'https://api.green-api.com/v3/waInstance{green_api_instance_id}/sendMessage/{green_api_token}'
+                url = f'https://{green_api_instance_id[:4]}.api.green-api.com/v3/waInstance{green_api_instance_id}/sendMessage/{green_api_token}'
                 
                 print(f"DEBUG: ChatId: {chat_id}")
             
@@ -177,7 +177,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     method='POST'
                 )
                 
-                with urllib.request.urlopen(req, timeout=15) as response:
+                with urllib.request.urlopen(req, timeout=8) as response:
                     result = json.loads(response.read().decode('utf-8'))
                     print(f"DEBUG: GREEN-API Response: {result}")
                     message_sent = True

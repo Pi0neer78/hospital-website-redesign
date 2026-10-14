@@ -233,7 +233,7 @@ def handle_send_max(conn, body):
             'message': message_text
         }).encode('utf-8')
 
-        url = f'https://api.green-api.com/v3/waInstance{green_api_instance_id}/sendMessage/{green_api_token}'
+        url = f'https://{green_api_instance_id[:4]}.api.green-api.com/v3/waInstance{green_api_instance_id}/sendMessage/{green_api_token}'
 
         try:
             req = urllib.request.Request(

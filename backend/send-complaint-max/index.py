@@ -80,7 +80,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'message': message_text
     }).encode('utf-8')
 
-    url = f'https://api.green-api.com/v3/waInstance{green_api_instance_id}/sendMessage/{green_api_token}'
+    url = f'https://{green_api_instance_id[:4]}.api.green-api.com/v3/waInstance{green_api_instance_id}/sendMessage/{green_api_token}'
 
     req = urllib.request.Request(
         url,
