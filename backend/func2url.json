@@ -7,7 +7,6 @@
   "doctor-rating-results": "https://functions.poehali.dev/81491831-4f51-4dd8-9741-2f03a0c858db",
   "doctor-rating-submit": "https://functions.poehali.dev/3178f682-a308-42f5-b196-996aa7c9d7d0",
   "gallery": "https://functions.poehali.dev/098df0dc-b5e2-4946-9f53-13b7fa2baecc",
-  "soul": "https://functions.poehali.dev/f6093ae1-281c-4312-b1ee-cd0017ed1d41",
   "s3-list-doctors": "https://functions.poehali.dev/ce48468b-d934-4e95-89c4-152362286f4e",
   "backup-cleanup": "https://functions.poehali.dev/69caec0e-b26b-4ac4-9c75-f8b2ad9397f5",
   "backup-cron": "https://functions.poehali.dev/482ed41a-1fba-4667-8786-fbff82ebaeca",
