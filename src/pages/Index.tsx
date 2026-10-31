@@ -28,7 +28,7 @@ import CodeFallbackModal from "@/components/index/CodeFallbackModal";
 import CodeSentModal from "@/components/index/CodeSentModal";
 
 const HOME_BACKGROUND =
-  "https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/c98c8608-d8c5-4718-af87-47fb38582dd8.jpg";
+  "/bg-winter-light.jpg";
 
 const BACKEND_URLS = {
   appointments:
