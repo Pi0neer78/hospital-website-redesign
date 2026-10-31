@@ -111,54 +111,10 @@ const Admin = () => {
       loadForumUsers();
       loadForumTopics();
       loadComplaints();
-      loadChats();
       const adminData = JSON.parse(auth);
       setOperatorName(adminData.full_name || 'Оператор');
     }
   }, []);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    
-    let interval: NodeJS.Timeout | null = null;
-    let isPageVisible = true;
-    
-    const startPolling = () => {
-      if (interval) clearInterval(interval);
-      interval = setInterval(() => {
-        if (isPageVisible) {
-          loadChats(true);
-          if (selectedChat) {
-            loadChatMessages(selectedChat.id, true);
-          }
-        }
-      }, 60000);
-    };
-    
-    const handleVisibilityChange = () => {
-      isPageVisible = !document.hidden;
-      if (isPageVisible) {
-        loadChats(true);
-        if (selectedChat) {
-          loadChatMessages(selectedChat.id, true);
-        }
-        startPolling();
-      } else {
-        if (interval) {
-          clearInterval(interval);
-          interval = null;
-        }
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    startPolling();
-    
-    return () => {
-      if (interval) clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [isAuthenticated, selectedChat]);
 
   useEffect(() => {
     const container = document.getElementById('chat-scroll-anchor');
@@ -189,7 +145,6 @@ const Admin = () => {
         loadForumUsers();
         loadForumTopics();
         loadComplaints();
-        loadChats();
         toast({ title: "Успешный вход", description: `Добро пожаловать, ${data.user.full_name}` });
       } else {
         toast({ title: "Ошибка", description: data.error || "Неверные данные", variant: "destructive" });
