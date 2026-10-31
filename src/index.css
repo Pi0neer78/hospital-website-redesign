@@ -231,3 +231,34 @@
   border-bottom-width: 1px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
+
+.btn-3d::after,
+.rating-btn::after,
+.infowall-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.24) 0%,
+    rgba(255, 255, 255, 0.08) 35%,
+    rgba(0, 0, 0, 0) 60%,
+    rgba(0, 0, 0, 0.16) 100%
+  );
+}
+
+.btn-3d-light::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.7) 0%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(15, 23, 42, 0.09) 100%
+  );
+}
+
+.rating-btn,
+.infowall-btn {
+  position: relative;
+}

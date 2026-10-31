@@ -162,13 +162,13 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
         {variant === 'banner' ? (
           <Button
             size="lg"
-            className="gap-2 shadow-lg hover:shadow-xl transition-shadow bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto sm:min-w-[200px]"
+            className="btn-3d gap-2 bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto sm:min-w-[200px]"
           >
             <Icon name="CalendarX" size={20} />
             Отменить запись
           </Button>
         ) : (
-          <Button variant="outline" className="w-full justify-start gap-3 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300">
+          <Button variant="outline" className="btn-3d btn-3d-light w-full justify-start gap-3 text-red-600 hover:bg-red-50">
             <Icon name="CalendarX" size={20} />
             Отменить запись
           </Button>

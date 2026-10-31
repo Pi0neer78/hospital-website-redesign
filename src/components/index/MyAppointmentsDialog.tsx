@@ -206,7 +206,7 @@ export default function MyAppointmentsDialog() {
     <CodeSentModal open={codeSentModal} phone={phone} onClose={() => setCodeSentModal(false)} />
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetDialog(); }}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full justify-start gap-3">
+        <Button variant="outline" className="btn-3d btn-3d-light w-full justify-start gap-3">
           <Icon name="CalendarSearch" size={20} />
           Просмотреть свои записи
         </Button>
