@@ -5,6 +5,8 @@ from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
 from datetime import datetime, timedelta
 import random
+import hashlib
+import secrets
 import urllib.request
 import urllib.parse
 import smtplib
@@ -401,6 +403,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     "UPDATE t_p30358746_hospital_website_red.sms_verification_codes SET verified = true WHERE phone_number = %s",
                     (clean_phone,)
                 )
+                patient_token = secrets.token_urlsafe(32)
+                cursor.execute(
+                    "DELETE FROM t_p30358746_hospital_website_red.patient_sessions WHERE expires_at < NOW()"
+                )
+                cursor.execute(
+                    "INSERT INTO t_p30358746_hospital_website_red.patient_sessions (token_hash, phone_last10, expires_at) VALUES (%s, %s, NOW() + INTERVAL '30 minutes')",
+                    (hashlib.sha256(patient_token.encode('utf-8')).hexdigest(), clean_phone[-10:])
+                )
                 conn.commit()
                 cursor.close()
                 
@@ -410,7 +420,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({
                         'success': True,
                         'message': 'Телефон успешно подтвержден',
-                        'phone_number': clean_phone
+                        'phone_number': clean_phone,
+                        'patient_token': patient_token
                     }),
                     'isBase64Encoded': False
                 }

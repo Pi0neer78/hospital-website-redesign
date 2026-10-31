@@ -48,6 +48,7 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
   const [selected, setSelected] = useState<Appointment | null>(null);
   const [cancelled, setCancelled] = useState<Appointment | null>(null);
   const [loading, setLoading] = useState(false);
+  const [patientToken, setPatientToken] = useState('');
   const [codeSent, setCodeSent] = useState(false);
 
   function resetAll() {
@@ -59,6 +60,7 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
     setCancelled(null);
     setLoading(false);
     setCodeSent(false);
+    setPatientToken('');
   }
 
   async function handleSendCode() {
@@ -100,7 +102,8 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        await loadAppointments(clean);
+        setPatientToken(data.patient_token || '');
+        await loadAppointments(clean, data.patient_token || '');
       } else {
         toast({ title: 'Неверный код', description: data.error || 'Проверьте код и попробуйте снова', variant: 'destructive' });
       }
@@ -109,12 +112,12 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
     }
   }
 
-  async function loadAppointments(cleanPhone: string) {
+  async function loadAppointments(cleanPhone: string, token: string) {
     setLoading(true);
     try {
       const res = await fetch(CANCEL_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Patient-Token': token },
         body: JSON.stringify({ action: 'get-appointments', phone: cleanPhone }),
       });
       const data = await res.json();
@@ -135,7 +138,7 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
     try {
       const res = await fetch(CANCEL_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Patient-Token': patientToken },
         body: JSON.stringify({ action: 'cancel', appointment_id: selected.id, phone: phone.replace(/\D/g, '') }),
       });
       const data = await res.json();

@@ -33,10 +33,10 @@
       "bodyMatcher": "partial"
     },
     {
-      "name": "Get my appointments by phone",
+      "name": "My appointments without patient token is rejected",
       "method": "GET",
       "path": "/?action=my-appointments&phone=79001234567",
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {},
       "bodyMatcher": "partial"
     },

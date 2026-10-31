@@ -115,7 +115,7 @@ export default function MyAppointmentsDialog() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        await loadAppointments();
+        await loadAppointments(data.patient_token);
       } else {
         toast({ title: "Неверный код", description: data.error || "Проверьте код и попробуйте снова", variant: "destructive" });
       }
@@ -126,11 +126,13 @@ export default function MyAppointmentsDialog() {
     }
   }
 
-  async function loadAppointments() {
+  async function loadAppointments(patientToken: string) {
     setLoading(true);
     try {
       const encoded = encodeURIComponent(phone.trim());
-      const res = await fetch(`${APPOINTMENTS_URL}?action=my-appointments&phone=${encoded}`);
+      const res = await fetch(`${APPOINTMENTS_URL}?action=my-appointments&phone=${encoded}`, {
+        headers: { "X-Patient-Token": patientToken || "" },
+      });
       const data = await res.json();
       if (res.ok) {
         setAppointments(data.appointments || []);

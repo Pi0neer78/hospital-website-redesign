@@ -10,36 +10,71 @@
       "name": "Notify - valid",
       "method": "POST",
       "path": "/",
-      "body": {"action": "notify", "phone": "79001234567", "patient_name": "Тест", "doctor_name": "Иванов И.И.", "date": "2026-06-01", "time": "10:00"},
+      "body": {
+        "action": "notify",
+        "phone": "79001234567",
+        "patient_name": "Тест",
+        "doctor_name": "Иванов И.И.",
+        "date": "2026-06-01",
+        "time": "10:00"
+      },
       "expectedStatus": 200,
-      "expectedBody": {"success": true},
+      "expectedBody": {
+        "success": true
+      },
       "bodyMatcher": "partial"
     },
     {
       "name": "Get appointments - missing phone",
       "method": "POST",
       "path": "/",
-      "body": {"action": "get-appointments", "phone": ""},
+      "body": {
+        "action": "get-appointments",
+        "phone": ""
+      },
       "expectedStatus": 400,
-      "expectedBody": {"error": "Номер телефона обязателен"},
+      "expectedBody": {
+        "error": "Номер телефона обязателен"
+      },
       "bodyMatcher": "partial"
     },
     {
-      "name": "Get appointments - valid phone",
+      "name": "Get appointments without patient token is rejected",
       "method": "POST",
       "path": "/",
-      "body": {"action": "get-appointments", "phone": "79001234567"},
-      "expectedStatus": 200,
-      "expectedBody": {"success": true},
+      "body": {
+        "action": "get-appointments",
+        "phone": "79001234567"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
       "name": "Cancel - missing params",
       "method": "POST",
       "path": "/",
-      "body": {"action": "cancel", "phone": ""},
+      "body": {
+        "action": "cancel",
+        "phone": ""
+      },
       "expectedStatus": 400,
-      "expectedBody": {"error": "Не указан ID записи или телефон"},
+      "expectedBody": {
+        "error": "Не указан ID записи или телефон"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Cancel without patient token is rejected",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "cancel",
+        "appointment_id": 999999,
+        "phone": "79001234567"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     }
   ]

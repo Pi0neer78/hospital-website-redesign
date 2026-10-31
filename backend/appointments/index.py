@@ -61,6 +61,33 @@ def is_staff(event, conn) -> bool:
         cur.close()
 
 
+def patient_phone_ok(event, conn, phone: str) -> bool:
+    """Проверить пропуск пациента: он выдан после кода из мессенджера именно для этого номера"""
+    headers = event.get('headers') or {}
+    token = headers.get('x-patient-token') or headers.get('X-Patient-Token') or ''
+    digits = ''.join(filter(str.isdigit, phone or ''))
+    if not token or len(digits) < 10:
+        return False
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "SELECT 1 FROM t_p30358746_hospital_website_red.patient_sessions WHERE token_hash = %s AND phone_last10 = %s AND expires_at > NOW()",
+            (hashlib.sha256(token.encode('utf-8')).hexdigest(), digits[-10:])
+        )
+        return cur.fetchone() is not None
+    finally:
+        cur.close()
+
+
+def patient_denied():
+    return {
+        'statusCode': 401,
+        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+        'body': json.dumps({'error': 'Подтвердите номер телефона кодом из сообщения'}, ensure_ascii=False),
+        'isBase64Encoded': False
+    }
+
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Управление записями на прием к врачу
@@ -74,7 +101,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token, X-Staff-Token',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token, X-Staff-Token, X-Patient-Token',
                 'Access-Control-Max-Age': '86400'
             },
             'body': '',
@@ -378,6 +405,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Не указан номер телефона'}),
                         'isBase64Encoded': False
                     }
+
+                if not patient_phone_ok(event, conn, phone):
+                    return patient_denied()
                 
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 
