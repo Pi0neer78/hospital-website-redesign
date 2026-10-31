@@ -1,9 +1,45 @@
 import json
+import hashlib
 import os
 import logging
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
+
+def unauthorized():
+    return {
+        'statusCode': 401,
+        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+        'body': json.dumps({'error': 'Требуется вход сотрудника'}, ensure_ascii=False),
+        'isBase64Encoded': False
+    }
+
+
+def is_staff(event, conn) -> bool:
+    """Проверить временный токен сотрудника (врач, регистратор) или администратора"""
+    headers = event.get('headers') or {}
+    token = headers.get('x-staff-token') or headers.get('X-Staff-Token') or headers.get('x-admin-token') or headers.get('X-Admin-Token') or ''
+    if not token:
+        return False
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "SELECT 1 FROM t_p30358746_hospital_website_red.staff_sessions WHERE token_hash = %s AND expires_at > NOW()",
+            (token_hash,)
+        )
+        if cur.fetchone() is not None:
+            return True
+        cur.execute(
+            """SELECT 1 FROM t_p30358746_hospital_website_red.admin_sessions s
+               JOIN t_p30358746_hospital_website_red.admins a ON a.id = s.admin_id
+               WHERE s.token_hash = %s AND s.expires_at > NOW() AND a.is_active = true""",
+            (token_hash,)
+        )
+        return cur.fetchone() is not None
+    finally:
+        cur.close()
+
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
@@ -19,7 +55,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Doctor-Token',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token, X-Staff-Token',
                 'Access-Control-Max-Age': '86400'
             },
             'body': '',
@@ -38,6 +74,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(database_url)
     
     try:
+        if method != 'GET' and not is_staff(event, conn):
+            return unauthorized()
+
         if method == 'GET':
             query_params = event.get('queryStringParameters') or {}
             action = query_params.get('action')

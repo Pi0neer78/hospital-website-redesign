@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { EditAppointmentForm } from '@/components/EditAppointmentForm';
 import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
+import { staffFetch, saveStaffToken, clearStaffToken } from '@/utils/staffFetch';
 import { validateFullName } from '@/utils/validation';
 import NameErrorModal from '@/components/NameErrorModal';
 import FioAutocomplete from '@/components/registrar/FioAutocomplete';
@@ -95,13 +96,15 @@ const Registrar = () => {
 
   useEffect(() => {
     // Загружаем текущую дату с сервера UTC+3
-    fetch(`${API_URLS.appointments}?action=server-time`)
+    staffFetch(`${API_URLS.appointments}?action=server-time`)
       .then(r => r.json())
       .then(d => { if (d.today) setServerToday(d.today); })
       .catch(() => setServerToday(new Date().toISOString().split('T')[0]));
 
     const auth = localStorage.getItem('registrar_auth');
-    if (auth) {
+    if (auth && !localStorage.getItem('staff_token')) {
+      localStorage.removeItem('registrar_auth');
+    } else if (auth) {
       const registrar = JSON.parse(auth);
       setRegistrarInfo(registrar);
       setIsAuthenticated(true);
@@ -182,6 +185,7 @@ const Registrar = () => {
       
       if (response.ok && data.success) {
         localStorage.setItem('registrar_auth', JSON.stringify(data.user));
+        saveStaffToken(data.token);
         setRegistrarInfo(data.user);
         setIsAuthenticated(true);
         loadDoctors(data.user.clinic);
@@ -214,7 +218,7 @@ const Registrar = () => {
 
   const loadSchedules = async (doctorId: number) => {
     try {
-      const response = await fetch(`${API_URLS.schedules}?doctor_id=${doctorId}`);
+      const response = await staffFetch(`${API_URLS.schedules}?doctor_id=${doctorId}`);
       const data = await response.json();
       setSchedules(data.schedules || []);
     } catch (error) {
@@ -225,7 +229,7 @@ const Registrar = () => {
   const loadCalendar = async (doctorId: number) => {
     try {
       const year = new Date().getFullYear();
-      const response = await fetch(`${API_URLS.schedules}?action=calendar&doctor_id=${doctorId}&year=${year}`);
+      const response = await staffFetch(`${API_URLS.schedules}?action=calendar&doctor_id=${doctorId}&year=${year}`);
       const data = await response.json();
       const calendarMap: {[key: string]: {is_working: boolean}} = {};
       (data.calendar || []).forEach((day: any) => {
@@ -249,8 +253,8 @@ const Registrar = () => {
     try {
       const year = new Date().getFullYear();
       const [schedulesRes, calendarRes] = await Promise.all([
-        fetch(`${API_URLS.schedules}?doctor_id=${doctorId}`),
-        fetch(`${API_URLS.schedules}?action=calendar&doctor_id=${doctorId}&year=${year}`)
+        staffFetch(`${API_URLS.schedules}?doctor_id=${doctorId}`),
+        staffFetch(`${API_URLS.schedules}?action=calendar&doctor_id=${doctorId}&year=${year}`)
       ]);
       const [schedulesData, calendarData] = await Promise.all([
         schedulesRes.json(),
@@ -309,7 +313,7 @@ const Registrar = () => {
         const startDateStr = dates[0].date;
         const endDateStr = dates[dates.length - 1].date;
         
-        const response = await fetch(
+        const response = await staffFetch(
           `${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${doctorId}&start_date=${startDateStr}&end_date=${endDateStr}`
         );
         const data = await response.json();
@@ -341,7 +345,7 @@ const Registrar = () => {
   const loadAvailableSlots = async (doctorId: number, date: string) => {
     setIsLoadingSlots(true);
     try {
-      const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorId}&date=${date}`);
+      const response = await staffFetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${doctorId}&date=${date}`);
       const data = await response.json();
       setAvailableSlots(data.available_slots || []);
     } catch (error) {
@@ -359,7 +363,7 @@ const Registrar = () => {
       const endDateObj = new Date(ty, tm - 1, td + 30);
       const endDateStr = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth()+1).padStart(2,'0')}-${String(endDateObj.getDate()).padStart(2,'0')}`;
       
-      const response = await fetch(`${API_URLS.appointments}?action=list&doctor_id=${doctorId}&start_date=${today}&end_date=${endDateStr}`);
+      const response = await staffFetch(`${API_URLS.appointments}?action=list&doctor_id=${doctorId}&start_date=${today}&end_date=${endDateStr}`);
       const data = await response.json();
       setAppointments(data.appointments || []);
     } catch (error) {
@@ -385,7 +389,7 @@ const Registrar = () => {
 
     // ОПТИМИЗАЦИЯ: проверка слота встроена в create_appointment (1 запрос вместо 2)
     try {
-      const response = await fetch(API_URLS.appointments, {
+      const response = await staffFetch(API_URLS.appointments, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -462,7 +466,7 @@ const Registrar = () => {
 
   const handleCancelAppointment = async (appointmentId: number) => {
     try {
-      const response = await fetch(API_URLS.appointments, {
+      const response = await staffFetch(API_URLS.appointments, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -531,7 +535,7 @@ const Registrar = () => {
     const cached = dialogSlotsCacheRef.current[date] ?? bulkSlotsCacheRef.current[date];
     if (cached) { setRescheduleAvailableSlots(cached); return; }
     try {
-      const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${rescheduleDialog.doctor_id}&date=${date}`);
+      const response = await staffFetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${rescheduleDialog.doctor_id}&date=${date}`);
       const data = await response.json();
       const slots = data.available_slots || [];
       dialogSlotsCacheRef.current[date] = slots;
@@ -562,8 +566,8 @@ const Registrar = () => {
       }
       const year = new Date().getFullYear();
       const [schedulesRes, calendarRes] = await Promise.all([
-        fetch(`${API_URLS.schedules}?doctor_id=${doctorId}`),
-        fetch(`${API_URLS.schedules}?action=calendar&doctor_id=${doctorId}&year=${year}`)
+        staffFetch(`${API_URLS.schedules}?doctor_id=${doctorId}`),
+        staffFetch(`${API_URLS.schedules}?action=calendar&doctor_id=${doctorId}&year=${year}`)
       ]);
       const [schedulesData, calendarData] = await Promise.all([
         schedulesRes.json(),
@@ -619,7 +623,7 @@ const Registrar = () => {
     try {
       const startDate = workingDates[0];
       const endDate = workingDates[workingDates.length - 1];
-      const res = await fetch(`${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${doctorId}&start_date=${startDate}&end_date=${endDate}`);
+      const res = await staffFetch(`${API_URLS.appointments}?action=available-slots-bulk&doctor_id=${doctorId}&start_date=${startDate}&end_date=${endDate}`);
       const data = await res.json();
       const slotsByDate = data.slots_by_date || {};
       workingDates.forEach(date => {
@@ -638,7 +642,7 @@ const Registrar = () => {
     if (dialogSlotsCacheRef.current[cacheKey]) { setCloneAvailableSlots(dialogSlotsCacheRef.current[cacheKey]); return; }
     if (!doctorId && bulkSlotsCacheRef.current[date]) { setCloneAvailableSlots(bulkSlotsCacheRef.current[date]); return; }
     try {
-      const response = await fetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${id}&date=${date}`);
+      const response = await staffFetch(`${API_URLS.appointments}?action=available-slots&doctor_id=${id}&date=${date}`);
       const data = await response.json();
       const slots = data.available_slots || [];
       dialogSlotsCacheRef.current[cacheKey] = slots;
@@ -650,7 +654,7 @@ const Registrar = () => {
 
   const logAction = async (actionType: string, details: any) => {
     try {
-      const response = await fetch(API_URLS.registrars, {
+      const response = await staffFetch(API_URLS.registrars, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -711,7 +715,7 @@ const Registrar = () => {
     }
 
     try {
-      const response = await fetch(API_URLS.appointments, {
+      const response = await staffFetch(API_URLS.appointments, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -783,7 +787,7 @@ const Registrar = () => {
     }
 
     try {
-      const response = await fetch(API_URLS.appointments, {
+      const response = await staffFetch(API_URLS.appointments, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -846,6 +850,7 @@ const Registrar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('registrar_auth');
+    clearStaffToken();
     setIsAuthenticated(false);
     setRegistrarInfo(null);
   };

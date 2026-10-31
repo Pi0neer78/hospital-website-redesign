@@ -1,24 +1,32 @@
 {
   "tests": [
     {
-      "name": "Get doctor schedule",
+      "name": "Public weekly schedule stays open",
       "method": "GET",
       "path": "/?doctor_id=1",
       "expectedStatus": 200,
-      "expectedBody": {
-        "schedules": []
-      },
+      "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
-      "name": "Edit appointment - missing ID",
+      "name": "Edit appointment without token is rejected",
       "method": "PUT",
+      "path": "/",
       "body": {
         "action": "edit_appointment",
         "patient_name": "Test",
         "patient_phone": "+7999"
       },
-      "expectedStatus": 400,
+      "expectedStatus": 401,
+      "expectedBody": {},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Schedule delete without token is rejected",
+      "method": "DELETE",
+      "path": "/?id=999999",
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     }
   ]

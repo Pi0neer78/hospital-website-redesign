@@ -25,6 +25,19 @@ def issue_admin_session(conn, admin_id: int, login: str, source: str) -> str:
     return token
 
 
+def issue_staff_session(conn, role: str, user_id: int, login: str) -> str:
+    """Выдать временный токен сотрудника на 12 часов; в базе хранится только отпечаток"""
+    token = secrets.token_urlsafe(32)
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO t_p30358746_hospital_website_red.staff_sessions (token_hash, role, user_id, login, expires_at) VALUES (%s, %s, %s, %s, NOW() + INTERVAL '12 hours')",
+        (hashlib.sha256(token.encode('utf-8')).hexdigest(), role, user_id, login)
+    )
+    conn.commit()
+    cur.close()
+    return token
+
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Аутентификация пользователей
@@ -146,12 +159,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if user:
                     cursor.close()
+                    staff_token = issue_staff_session(conn, 'doctor', user['id'], user['login'])
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({
                             'success': True,
                             'user': dict(user),
+                            'token': staff_token,
                             'type': 'doctor'
                         }),
                         'isBase64Encoded': False
@@ -166,12 +181,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if user:
                     cursor.close()
+                    staff_token = issue_staff_session(conn, 'registrar', user['id'], user['login'])
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({
                             'success': True,
                             'user': dict(user),
+                            'token': staff_token,
                             'type': 'registrar'
                         }),
                         'isBase64Encoded': False

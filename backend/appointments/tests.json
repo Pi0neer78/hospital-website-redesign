@@ -1,10 +1,10 @@
 {
   "tests": [
     {
-      "name": "Get appointments list",
+      "name": "Appointments list without token is rejected",
       "method": "GET",
       "path": "/?doctor_id=1",
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {},
       "bodyMatcher": "partial"
     },
@@ -37,6 +37,26 @@
       "method": "GET",
       "path": "/?action=my-appointments&phone=79001234567",
       "expectedStatus": 200,
+      "expectedBody": {},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Appointment delete without token is rejected",
+      "method": "DELETE",
+      "path": "/?id=999999",
+      "expectedStatus": 401,
+      "expectedBody": {},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Appointment update without token is rejected",
+      "method": "PUT",
+      "path": "/",
+      "body": {
+        "id": 999999,
+        "status": "cancelled"
+      },
+      "expectedStatus": 401,
       "expectedBody": {},
       "bodyMatcher": "partial"
     }

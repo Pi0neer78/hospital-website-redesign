@@ -35,6 +35,32 @@ def unauthorized():
     }
 
 
+def is_staff(event, conn) -> bool:
+    """Проверить временный токен сотрудника (врач, регистратор) или администратора"""
+    headers = event.get('headers') or {}
+    token = headers.get('x-staff-token') or headers.get('X-Staff-Token') or headers.get('x-admin-token') or headers.get('X-Admin-Token') or ''
+    if not token:
+        return False
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "SELECT 1 FROM t_p30358746_hospital_website_red.staff_sessions WHERE token_hash = %s AND expires_at > NOW()",
+            (token_hash,)
+        )
+        if cur.fetchone() is not None:
+            return True
+        cur.execute(
+            """SELECT 1 FROM t_p30358746_hospital_website_red.admin_sessions s
+               JOIN t_p30358746_hospital_website_red.admins a ON a.id = s.admin_id
+               WHERE s.token_hash = %s AND s.expires_at > NOW() AND a.is_active = true""",
+            (token_hash,)
+        )
+        return cur.fetchone() is not None
+    finally:
+        cur.close()
+
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Управление записями на прием к врачу
@@ -48,7 +74,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token, X-Staff-Token',
                 'Access-Control-Max-Age': '86400'
             },
             'body': '',
@@ -457,6 +483,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             else:
+                if not is_staff(event, conn):
+                    return unauthorized()
                 doctor_id = params.get('doctor_id')
                 start_date = params.get('start_date')
                 end_date = params.get('end_date')
@@ -500,6 +528,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             action = body.get('action', 'create')
             
             if action == 'log':
+                if not is_staff(event, conn):
+                    return unauthorized()
                 doctor_id = body.get('doctor_id')
                 user_login = body.get('user_login')
                 action_type = body.get('action_type')
@@ -629,6 +659,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
         
         elif method == 'PUT':
+            if not is_staff(event, conn):
+                return unauthorized()
             body = json.loads(event.get('body', '{}'))
             appointment_id = body.get('id')
             
@@ -729,6 +761,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif method == 'DELETE':
+            if not is_staff(event, conn):
+                return unauthorized()
             params = event.get('queryStringParameters') or {}
             appointment_id = params.get('id')
             

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { staffFetch } from '@/utils/staffFetch';
 import { validateFullName } from '@/utils/validation';
 import NameErrorModal from '@/components/NameErrorModal';
 
@@ -98,7 +99,7 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
 
       console.log('📤 Отправляем на backend:', requestBody);
 
-      const response = await fetch(API_URL, {
+      const response = await staffFetch(API_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)

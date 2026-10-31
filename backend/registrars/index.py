@@ -4,6 +4,32 @@ import os
 import psycopg2
 from datetime import datetime
 
+def is_staff(event, conn) -> bool:
+    """Проверить временный токен сотрудника (врач, регистратор) или администратора"""
+    headers = event.get('headers') or {}
+    token = headers.get('x-staff-token') or headers.get('X-Staff-Token') or headers.get('x-admin-token') or headers.get('X-Admin-Token') or ''
+    if not token:
+        return False
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "SELECT 1 FROM t_p30358746_hospital_website_red.staff_sessions WHERE token_hash = %s AND expires_at > NOW()",
+            (token_hash,)
+        )
+        if cur.fetchone() is not None:
+            return True
+        cur.execute(
+            """SELECT 1 FROM t_p30358746_hospital_website_red.admin_sessions s
+               JOIN t_p30358746_hospital_website_red.admins a ON a.id = s.admin_id
+               WHERE s.token_hash = %s AND s.expires_at > NOW() AND a.is_active = true""",
+            (token_hash,)
+        )
+        return cur.fetchone() is not None
+    finally:
+        cur.close()
+
+
 def is_admin(event, conn) -> bool:
     """Проверить временный токен администратора из заголовка X-Admin-Token"""
     headers = event.get('headers') or {}
@@ -43,7 +69,7 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token'
+                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token, X-Staff-Token'
             },
             'body': ''
         }
@@ -54,7 +80,10 @@ def handler(event: dict, context) -> dict:
     
     try:
         is_log_write = method == 'POST' and json.loads(event.get('body') or '{}').get('action') == 'log'
-        if not is_log_write and not is_admin(event, conn):
+        if is_log_write:
+            if not is_staff(event, conn):
+                return unauthorized()
+        elif not is_admin(event, conn):
             return unauthorized()
 
         if method == 'GET':
