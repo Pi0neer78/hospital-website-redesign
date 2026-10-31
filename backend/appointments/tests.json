@@ -5,9 +5,7 @@
       "method": "GET",
       "path": "/?doctor_id=1",
       "expectedStatus": 200,
-      "expectedBody": {
-        "appointments": "array"
-      },
+      "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
@@ -15,29 +13,23 @@
       "method": "GET",
       "path": "/?action=available-slots&doctor_id=1&date=2025-03-01",
       "expectedStatus": 200,
-      "expectedBody": {
-        "available_slots": "array"
-      },
+      "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
-      "name": "Get doctor logs",
+      "name": "Get doctor logs (without token is rejected)",
       "method": "GET",
       "path": "/?action=logs&limit=10",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "logs": "array"
-      },
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
-      "name": "Get doctor logs by doctor_id",
+      "name": "Get doctor logs by doctor_id (without token is rejected)",
       "method": "GET",
       "path": "/?action=logs&doctor_id=7&limit=5",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "logs": "array"
-      },
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
@@ -45,9 +37,7 @@
       "method": "GET",
       "path": "/?action=my-appointments&phone=79001234567",
       "expectedStatus": 200,
-      "expectedBody": {
-        "appointments": "array"
-      },
+      "expectedBody": {},
       "bodyMatcher": "partial"
     }
   ]

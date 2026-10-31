@@ -14,6 +14,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const getAdminToken = () => localStorage.getItem('admin_token') || '';
 
+const adminFetch = async (url: string, init: RequestInit = {}) => {
+  const res = await fetch(url, {
+    ...init,
+    headers: { ...(init.headers || {}), 'X-Admin-Token': getAdminToken() },
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('admin_auth');
+    localStorage.removeItem('admin_token');
+    window.location.reload();
+  }
+  return res;
+};
+
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
   doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
@@ -148,7 +161,7 @@ const Admin = () => {
 
   const loadRegistrars = async () => {
     try {
-      const response = await fetch(`${API_URLS.registrars}?action=list`);
+      const response = await adminFetch(`${API_URLS.registrars}?action=list`);
       const data = await response.json();
       setRegistrars(data.registrars || []);
     } catch (error) {
@@ -161,7 +174,7 @@ const Admin = () => {
       const url = registrarId 
         ? `${API_URLS.registrars}?action=logs&registrar_id=${registrarId}&limit=500`
         : `${API_URLS.registrars}?action=logs&limit=1000`;
-      const response = await fetch(url);
+      const response = await adminFetch(url);
       const data = await response.json();
       setRegistrarLogs(data.logs || []);
     } catch (error) {
@@ -174,7 +187,7 @@ const Admin = () => {
       const url = doctorId 
         ? `${API_URLS.appointments}?action=logs&doctor_id=${doctorId}&limit=500`
         : `${API_URLS.appointments}?action=logs&limit=1000`;
-      const response = await fetch(url);
+      const response = await adminFetch(url);
       const data = await response.json();
       setDoctorLogs(data.logs || []);
     } catch (error) {
@@ -368,7 +381,7 @@ const Admin = () => {
     e.preventDefault();
     
     try {
-      const response = await fetch(API_URLS.registrars, {
+      const response = await adminFetch(API_URLS.registrars, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -396,7 +409,7 @@ const Admin = () => {
     e.preventDefault();
     
     try {
-      const response = await fetch(API_URLS.registrars, {
+      const response = await adminFetch(API_URLS.registrars, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -423,7 +436,7 @@ const Admin = () => {
 
   const handleToggleRegistrarBlock = async (id: number, isBlocked: boolean) => {
     try {
-      const response = await fetch(API_URLS.registrars, {
+      const response = await adminFetch(API_URLS.registrars, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, is_blocked: !isBlocked }),
@@ -449,7 +462,7 @@ const Admin = () => {
     if (!confirm('Вы уверены, что хотите удалить этого регистратора?')) return;
     
     try {
-      const response = await fetch(API_URLS.registrars, {
+      const response = await adminFetch(API_URLS.registrars, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
@@ -775,7 +788,7 @@ const Admin = () => {
 
   const loadComplaints = async () => {
     try {
-      const response = await fetch(API_URLS.complaints);
+      const response = await adminFetch(API_URLS.complaints);
       const data = await response.json();
       setComplaints(data.complaints || []);
     } catch (error) {

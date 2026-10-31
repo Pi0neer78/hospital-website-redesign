@@ -1,4 +1,5 @@
 import json
+import hashlib
 import os
 import smtplib
 import urllib.request
@@ -16,6 +17,34 @@ CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*'
 }
 
+def is_admin(event, conn) -> bool:
+    """Проверить временный токен администратора из заголовка X-Admin-Token"""
+    headers = event.get('headers') or {}
+    token = headers.get('x-admin-token') or headers.get('X-Admin-Token') or ''
+    if not token:
+        return False
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """SELECT 1 FROM t_p30358746_hospital_website_red.admin_sessions s
+               JOIN t_p30358746_hospital_website_red.admins a ON a.id = s.admin_id
+               WHERE s.token_hash = %s AND s.expires_at > NOW() AND a.is_active = true""",
+            (hashlib.sha256(token.encode('utf-8')).hexdigest(),)
+        )
+        return cur.fetchone() is not None
+    finally:
+        cur.close()
+
+
+def unauthorized():
+    return {
+        'statusCode': 401,
+        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+        'body': json.dumps({'error': 'Требуется вход администратора'}, ensure_ascii=False),
+        'isBase64Encoded': False
+    }
+
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """Реестр пациентов — получение, массовая рассылка email/MAX"""
     method = event.get('httpMethod', 'GET')
@@ -26,7 +55,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token',
                 'Access-Control-Max-Age': '86400'
             },
             'body': '',
@@ -40,6 +69,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn = psycopg2.connect(database_url)
 
     try:
+        if not is_admin(event, conn):
+            return unauthorized()
+
         if method == 'GET':
             params = event.get('queryStringParameters') or {}
             if params.get('action') == 'logs':

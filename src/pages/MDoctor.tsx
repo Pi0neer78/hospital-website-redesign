@@ -16,6 +16,19 @@ import RatingsStats from '@/components/ratings/RatingsStats';
 import * as XLSX from 'xlsx';
 import { prepareInfowallHtml } from '@/utils/infowallHtml';
 
+const mdoctorFetch = async (url: string, init: RequestInit = {}) => {
+  const res = await fetch(url, {
+    ...init,
+    headers: { ...(init.headers || {}), 'X-Admin-Token': localStorage.getItem('mdoctor_token') || '' },
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('mdoctor_token');
+    localStorage.removeItem('mdoctor_user');
+    window.location.reload();
+  }
+  return res;
+};
+
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
   doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
@@ -257,7 +270,7 @@ const MDoctor = () => {
       if (dateFrom) params.append('date_from', dateFrom);
       if (dateTo) params.append('date_to', dateTo);
       
-      const response = await fetch(`${API_URLS.complaints}?${params}`);
+      const response = await mdoctorFetch(`${API_URLS.complaints}?${params}`);
       const data = await response.json();
       if (data.complaints) {
         setComplaints(data.complaints);
@@ -276,7 +289,7 @@ const MDoctor = () => {
       if (registryDateTo) params.append('date_to', registryDateTo);
       params.append('page', String(page));
       params.append('page_size', String(registryPageSize));
-      const response = await fetch(`${API_URLS.registry}?${params}`);
+      const response = await mdoctorFetch(`${API_URLS.registry}?${params}`);
       const data = await response.json();
       if (data.records) {
         setRegistryRecords(data.records);
@@ -297,7 +310,7 @@ const MDoctor = () => {
     }
     setIsSending(true);
     try {
-      const response = await fetch(API_URLS.registry, {
+      const response = await mdoctorFetch(API_URLS.registry, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -336,7 +349,7 @@ const MDoctor = () => {
       const params = new URLSearchParams();
       if (reportDateFrom) params.append('date_from', reportDateFrom);
       if (reportDateTo) params.append('date_to', reportDateTo);
-      const response = await fetch(`${API_URLS.doctorReport}?${params}`);
+      const response = await mdoctorFetch(`${API_URLS.doctorReport}?${params}`);
       const data = await response.json();
       if (data.report) setReportData(data.report);
     } catch {
@@ -355,7 +368,7 @@ const MDoctor = () => {
   const handleRegistryUpdate = async () => {
     if (!editRecord) return;
     try {
-      const response = await fetch(API_URLS.registry, {
+      const response = await mdoctorFetch(API_URLS.registry, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'update', id: editRecord.id, ...editForm })
@@ -382,7 +395,7 @@ const MDoctor = () => {
   const handleRegistryDelete = async (rec: any) => {
     if (!confirm(`Удалить запись "${rec.full_name}"?`)) return;
     try {
-      const response = await fetch(API_URLS.registry, {
+      const response = await mdoctorFetch(API_URLS.registry, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete', id: rec.id })
@@ -411,7 +424,7 @@ const MDoctor = () => {
     if (registrySelected.size === 0) return;
     if (!confirm(`Удалить выбранные записи (${registrySelected.size})?`)) return;
     try {
-      const response = await fetch(API_URLS.registry, {
+      const response = await mdoctorFetch(API_URLS.registry, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete', ids: Array.from(registrySelected) })
@@ -436,7 +449,7 @@ const MDoctor = () => {
       const mdoctorUser = localStorage.getItem('mdoctor_user');
       const adminLogin = mdoctorUser ? JSON.parse(mdoctorUser).login : 'admin';
       
-      await fetch(API_URLS.registry, {
+      await mdoctorFetch(API_URLS.registry, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -457,7 +470,7 @@ const MDoctor = () => {
     try {
       const params = new URLSearchParams({ action: 'logs', limit: '200' });
       if (adminLogin) params.append('admin_login', adminLogin);
-      const response = await fetch(`${API_URLS.registry}?${params}`);
+      const response = await mdoctorFetch(`${API_URLS.registry}?${params}`);
       const data = await response.json();
       if (data.logs) setLogEntries(data.logs);
     } catch {
@@ -552,7 +565,7 @@ const MDoctor = () => {
       const mdoctorUser = localStorage.getItem('mdoctor_user');
       const adminLogin = mdoctorUser ? JSON.parse(mdoctorUser).login : 'admin';
 
-      const response = await fetch(API_URLS.complaints, {
+      const response = await mdoctorFetch(API_URLS.complaints, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -616,7 +629,7 @@ const MDoctor = () => {
         toast({ title: 'Успех', description: 'Ответ отправлен на email пациента' });
         
         // Обновляем статус жалобы с пометкой о дате ответа
-        await fetch(API_URLS.complaints, {
+        await mdoctorFetch(API_URLS.complaints, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -670,7 +683,7 @@ const MDoctor = () => {
         });
         toast({ title: 'Успех', description: 'Ответ отправлен в мессенджер MAX' });
 
-        await fetch(API_URLS.complaints, {
+        await mdoctorFetch(API_URLS.complaints, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -422,7 +422,7 @@ const Security = () => {
     try {
       const params = new URLSearchParams({ action: 'logs', limit: '200' });
       if (adminLogin) params.append('admin_login', adminLogin);
-      const response = await fetch(`${REGISTRY_URL}?${params}`);
+      const response = await backupFetch(`${REGISTRY_URL}?${params}`);
       const data = await response.json();
       if (data.logs) setLogEntries(data.logs);
     } catch {

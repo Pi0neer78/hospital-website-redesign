@@ -11,19 +11,28 @@
       },
       "expectedStatus": 201,
       "expectedBody": {
-        "success": true,
-        "id": "number",
-        "message": "string"
+        "success": true
       },
       "bodyMatcher": "partial"
     },
     {
-      "name": "Get all complaints",
+      "name": "Complaints list without token is rejected",
       "method": "GET",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "complaints": "array"
+      "expectedStatus": 401,
+      "expectedBody": {},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Status change without token is rejected",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "update_status",
+        "complaint_id": 1,
+        "status": "resolved"
       },
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     }
   ]

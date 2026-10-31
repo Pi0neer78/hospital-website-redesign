@@ -1,25 +1,35 @@
 {
   "tests": [
     {
-      "name": "Get registrars list",
+      "name": "Registrars list without token is rejected",
       "method": "GET",
       "path": "/?action=list",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "success": true,
-        "registrars": "array"
-      },
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
-      "name": "Get logs",
+      "name": "Registrar logs without token are rejected",
       "method": "GET",
       "path": "/?action=logs&limit=50",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "success": true,
-        "logs": "array"
+      "expectedStatus": 401,
+      "expectedBody": {},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create registrar without token is rejected",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "create",
+        "full_name": "x",
+        "phone": "1",
+        "login": "x",
+        "password": "x",
+        "clinic": "x"
       },
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     }
   ]
