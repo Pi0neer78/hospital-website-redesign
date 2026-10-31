@@ -942,10 +942,10 @@ const Index = () => {
           <h2 className="font-bold mb-2 text-foreground animate-fade-in text-base md:text-4xl">
             ГБУЗ "Антрацитовская центральная городская многопрофильная больница"
           </h2>
-          <p className="text-sm md:text-lg text-muted-foreground mb-8 animate-fade-in">
+          <p className="text-sm md:text-lg font-semibold text-slate-800 mb-8 animate-fade-in">
             Луганской Народной Республики
           </p>
-          <p className="text-base md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in">
+          <p className="text-base md:text-xl font-medium text-slate-800 mb-8 max-w-2xl mx-auto animate-fade-in">
             Современная медицинская помощь с заботой о каждом пациенте.
             Квалифицированные специалисты и передовые технологии.
           </p>
