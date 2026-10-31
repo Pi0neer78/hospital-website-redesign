@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import SecurityLogin from '@/components/security/SecurityLogin';
 import SecurityStatistics from '@/components/security/SecurityStatistics';
 import AdminManagement from '@/components/security/AdminManagement';
+import BackupProgressDialog from '@/components/security/BackupProgressDialog';
 import * as XLSX from 'xlsx';
 
 const RATE_LIMITER_URL = 'https://functions.poehali.dev/dd760420-6c65-41e9-bd95-171dec0f3ac9';
@@ -72,6 +73,7 @@ const Security = () => {
   const [backupRunning, setBackupRunning] = useState(false);
   const [fullBackupRunning, setFullBackupRunning] = useState(false);
   const [lastBackupResult, setLastBackupResult] = useState<any>(null);
+  const [backupProgress, setBackupProgress] = useState({ done: 0, total: 0, current: '' });
   const [backupFolders, setBackupFolders] = useState<any[]>([]);
   const [backupListLoading, setBackupListLoading] = useState(false);
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
@@ -181,6 +183,16 @@ const Security = () => {
     }
   };
 
+  useEffect(() => {
+    if (!fullBackupRunning) return;
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [fullBackupRunning]);
+
   const postBackup = async (action: string, payload: any) => {
     for (let attempt = 0; attempt < 4; attempt++) {
       try {
@@ -203,8 +215,11 @@ const Security = () => {
     if (!start?.tables) throw new Error('start failed');
     const { folder, tables } = start;
     const results: any[] = [];
+    setBackupProgress({ done: 0, total: tables.length, current: '' });
 
-    for (const table of tables) {
+    for (let i = 0; i < tables.length; i++) {
+      const table = tables[i];
+      setBackupProgress({ done: i, total: tables.length, current: table });
       let offset: number | null = 0;
       while (offset !== null) {
         const part = await postBackup('backup_part', { folder, table, offset });
@@ -217,6 +232,7 @@ const Security = () => {
         setLastBackupResult({ folder, results: [...results], running: true });
       }
     }
+    setBackupProgress({ done: tables.length, total: tables.length, current: 'сохранение записи об архиве' });
 
     await postBackup('backup_finish', { folder, results: results.filter((r) => r.success) });
     return { folder, results };
@@ -226,6 +242,7 @@ const Security = () => {
     if (full) setFullBackupRunning(true);
     else setBackupRunning(true);
     setLastBackupResult(null);
+    if (full) setBackupProgress({ done: 0, total: 0, current: '' });
     try {
       let data: any;
       if (full) {
@@ -1080,6 +1097,13 @@ const Security = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <BackupProgressDialog
+        open={fullBackupRunning}
+        done={backupProgress.done}
+        total={backupProgress.total}
+        current={backupProgress.current}
+      />
     </div>
   );
 };
