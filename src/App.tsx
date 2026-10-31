@@ -25,7 +25,6 @@ import DoctorRating from "./pages/DoctorRating";
 import Kiosk from "./pages/Kiosk";
 import InfoWall from "./pages/InfoWall";
 import UpdateBanner from "@/components/UpdateBanner";
-import VacancyAdBanner from "@/components/VacancyAdBanner";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +35,6 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <VacancyAdBanner />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/structure" element={<Structure />} />
