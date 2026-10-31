@@ -27,6 +27,21 @@ import CancelAppointmentDialog from "@/components/index/CancelAppointmentDialog"
 import CodeFallbackModal from "@/components/index/CodeFallbackModal";
 import CodeSentModal from "@/components/index/CodeSentModal";
 
+const WINTER_BACKGROUNDS = [
+  "https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/c98c8608-d8c5-4718-af87-47fb38582dd8.jpg",
+  "https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/af3c0641-d1a2-4d4e-b9b2-ae8aa1bb5916.jpg",
+];
+
+const pickHomeBackground = () => {
+  const saved = sessionStorage.getItem("home_bg");
+  if (saved && WINTER_BACKGROUNDS.includes(saved)) return saved;
+  const chosen = WINTER_BACKGROUNDS[Math.floor(Math.random() * WINTER_BACKGROUNDS.length)];
+  sessionStorage.setItem("home_bg", chosen);
+  return chosen;
+};
+
+const HOME_BACKGROUND = pickHomeBackground();
+
 const BACKEND_URLS = {
   appointments:
     "https://functions.poehali.dev/b3b698ed-7035-4503-8c49-85be11de75e5",
@@ -716,10 +731,7 @@ const Index = () => {
     <CodeSentModal open={codeSentModalOpen} phone={codeSentModalPhone} onClose={() => setCodeSentModalOpen(false)} />
     <div
       className="min-h-screen bg-gradient-to-b from-background to-muted/30 bg-cover bg-center bg-fixed"
-      style={{
-        backgroundImage:
-          "url(https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/a13c22eb-38b0-4a04-ad65-321b423b3692.jpg)",
-      }}
+      style={{ backgroundImage: `url(${HOME_BACKGROUND})` }}
     >
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
