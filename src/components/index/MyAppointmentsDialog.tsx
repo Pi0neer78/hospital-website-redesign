@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
+import CodeFallbackModal from "@/components/index/CodeFallbackModal";
 import CodeSentModal from "@/components/index/CodeSentModal";
 
 const SMS_VERIFY_URL = "https://functions.poehali.dev/7ea5c6f5-d200-4cc0-b34b-10144a995d69";
@@ -53,6 +54,7 @@ function getStatusLabel(status: string) {
 }
 
 export default function MyAppointmentsDialog() {
+  const [fallbackCode, setFallbackCode] = useState<string | null>(null);
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<"phone" | "code" | "results">("phone");
@@ -87,7 +89,7 @@ export default function MyAppointmentsDialog() {
       if (res.ok && data.success) {
         setStep("code");
         if (data.show_code) {
-          toast({ title: "Не удалось отправить в MAX", description: `Ваш код: ${data.show_code}. Введите его для подтверждения.` });
+          setFallbackCode(String(data.show_code));
         } else {
           setCodeSentModal(true);
         }
@@ -198,6 +200,7 @@ export default function MyAppointmentsDialog() {
 
   return (
     <>
+    <CodeFallbackModal code={fallbackCode} onClose={() => setFallbackCode(null)} />
     <CodeSentModal open={codeSentModal} phone={phone} onClose={() => setCodeSentModal(false)} />
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetDialog(); }}>
       <DialogTrigger asChild>

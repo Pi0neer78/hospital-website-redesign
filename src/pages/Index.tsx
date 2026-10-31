@@ -24,6 +24,7 @@ import { useRateLimiter } from "@/hooks/use-rate-limiter";
 import { useClinics } from "@/hooks/useClinics";
 import MyAppointmentsDialog from "@/components/index/MyAppointmentsDialog";
 import CancelAppointmentDialog from "@/components/index/CancelAppointmentDialog";
+import CodeFallbackModal from "@/components/index/CodeFallbackModal";
 import CodeSentModal from "@/components/index/CodeSentModal";
 
 const BACKEND_URLS = {
@@ -41,6 +42,7 @@ const BACKEND_URLS = {
 };
 
 const Index = () => {
+  const [fallbackCode, setFallbackCode] = useState<string | null>(null);
   const { clinics } = useClinics();
   const { toast } = useToast();
   const { checkRateLimit: checkAppointmentLimit } = useRateLimiter({
@@ -347,10 +349,7 @@ const Index = () => {
         setVerificationStep("code");
         setCodeSentModalPhone(appointmentForm.patient_phone);
         if (data.show_code) {
-          toast({
-            title: "Не удалось отправить в MAX",
-            description: `Ваш код: ${data.show_code}. Введите его для подтверждения.`,
-          });
+          setFallbackCode(String(data.show_code));
         } else {
           setCodeSentModalOpen(true);
         }
@@ -587,10 +586,7 @@ const Index = () => {
         setComplaintVerificationStep("code");
         setCodeSentModalPhone(complaintForm.phone);
         if (data.show_code) {
-          toast({
-            title: "Не удалось отправить в MAX",
-            description: `Ваш код: ${data.show_code}. Введите его для подтверждения.`,
-          });
+          setFallbackCode(String(data.show_code));
         } else {
           setCodeSentModalOpen(true);
         }
@@ -718,6 +714,7 @@ const Index = () => {
 
   return (
     <>
+    <CodeFallbackModal code={fallbackCode} onClose={() => setFallbackCode(null)} />
     <CodeSentModal open={codeSentModalOpen} phone={codeSentModalPhone} onClose={() => setCodeSentModalOpen(false)} />
     <div
       className="min-h-screen bg-gradient-to-b from-background to-muted/30 bg-cover bg-center bg-fixed"

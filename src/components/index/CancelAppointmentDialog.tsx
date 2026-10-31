@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Icon from "@/components/ui/icon";
+import CodeFallbackModal from "@/components/index/CodeFallbackModal";
 import { useToast } from "@/hooks/use-toast";
 
 const SMS_VERIFY_URL = "https://functions.poehali.dev/7ea5c6f5-d200-4cc0-b34b-10144a995d69";
@@ -37,6 +38,7 @@ interface CancelAppointmentDialogProps {
 }
 
 export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppointmentDialogProps) {
+  const [fallbackCode, setFallbackCode] = useState<string | null>(null);
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>('phone');
@@ -77,7 +79,7 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
         setCodeSent(true);
         setStep('code');
         if (data.show_code) {
-          toast({ title: 'Не удалось отправить в MAX', description: `Ваш код: ${data.show_code}. Введите его для подтверждения.` });
+          setFallbackCode(String(data.show_code));
         }
       } else {
         toast({ title: 'Ошибка', description: data.error || 'Не удалось отправить код', variant: 'destructive' });
@@ -150,6 +152,8 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
   }
 
   return (
+    <>
+    <CodeFallbackModal code={fallbackCode} onClose={() => setFallbackCode(null)} />
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetAll(); }}>
       <DialogTrigger asChild>
         {variant === 'banner' ? (
@@ -412,5 +416,6 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
         )}
       </DialogContent>
     </Dialog>
+    </>
   );
 }

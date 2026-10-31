@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import CodeFallbackModal from "@/components/index/CodeFallbackModal";
 import { useRateLimiter } from '@/hooks/use-rate-limiter';
 
 const API_URLS = {
@@ -17,6 +18,7 @@ const API_URLS = {
 };
 
 const Forum = () => {
+  const [fallbackCode, setFallbackCode] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { topicId } = useParams();
@@ -204,11 +206,7 @@ const Forum = () => {
 
       if (response.ok && data.success) {
         if (data.show_code) {
-          toast({
-            title: "Ваш код верификации",
-            description: `Код: ${data.show_code}. Не удалось отправить в MAX, используйте этот код для подтверждения.`,
-            duration: 0,
-          });
+          setFallbackCode(String(data.show_code));
         } else {
           toast({
             title: "Код отправлен в MAX",
@@ -727,6 +725,7 @@ const Forum = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex flex-col">
+      <CodeFallbackModal code={fallbackCode} onClose={() => setFallbackCode(null)} />
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">

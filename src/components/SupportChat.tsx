@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import CodeFallbackModal from "@/components/index/CodeFallbackModal";
 import { useRateLimiter } from '@/hooks/use-rate-limiter';
 
 const CHAT_URL = 'https://functions.poehali.dev/f0120272-0320-4731-8a43-e5c1362e3057';
@@ -18,6 +19,7 @@ interface Message {
 }
 
 const SupportChat = () => {
+  const [fallbackCode, setFallbackCode] = useState<string | null>(null);
   const { toast } = useToast();
   const { checkRateLimit } = useRateLimiter({ 
     endpoint: 'support-chat',
@@ -139,11 +141,7 @@ const SupportChat = () => {
 
       if (response.ok && data.success) {
         if (data.show_code) {
-          toast({
-            title: 'Ваш код верификации',
-            description: `Код: ${data.show_code}. Не удалось отправить в MAX, используйте этот код для подтверждения.`,
-            duration: 0,
-          });
+          setFallbackCode(String(data.show_code));
         } else {
           toast({
             title: 'Код отправлен в MAX',
@@ -307,6 +305,7 @@ const SupportChat = () => {
 
   return (
     <>
+      <CodeFallbackModal code={fallbackCode} onClose={() => setFallbackCode(null)} />
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
