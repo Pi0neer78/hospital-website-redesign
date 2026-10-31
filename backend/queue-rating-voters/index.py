@@ -1,5 +1,6 @@
 import json
 import os
+import hashlib
 import psycopg2
 from datetime import datetime, timedelta
 
@@ -12,7 +13,7 @@ def handler(event, context):
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
@@ -23,6 +24,26 @@ def handler(event, context):
             'statusCode': 405,
             'headers': {'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'error': 'Method not allowed'}, ensure_ascii=False)
+        }
+
+    headers = event.get('headers') or {}
+    token = headers.get('x-admin-token') or headers.get('X-Admin-Token') or ''
+    auth_conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    auth_cur = auth_conn.cursor()
+    auth_cur.execute(
+        """SELECT 1 FROM t_p30358746_hospital_website_red.admin_sessions s
+           JOIN t_p30358746_hospital_website_red.admins a ON a.id = s.admin_id
+           WHERE s.token_hash = %s AND s.expires_at > NOW() AND a.is_active = true""",
+        (hashlib.sha256(token.encode('utf-8')).hexdigest(),)
+    )
+    allowed = bool(token) and auth_cur.fetchone() is not None
+    auth_cur.close()
+    auth_conn.close()
+    if not allowed:
+        return {
+            'statusCode': 401,
+            'headers': {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
+            'body': json.dumps({'error': 'Требуется вход администратора'}, ensure_ascii=False)
         }
 
     params = event.get('queryStringParameters') or {}

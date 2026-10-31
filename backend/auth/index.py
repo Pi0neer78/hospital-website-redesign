@@ -95,12 +95,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         )
                         conn.commit()
                         cursor.close()
+                        mdoctor_token = issue_admin_session(conn, user['id'], user['login'], 'mdoctor')
                         return {
                             'statusCode': 200,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                             'body': json.dumps({
                                 'success': True,
-                                'token': f"mdoctor_{user['id']}",
+                                'token': mdoctor_token,
                                 'user': {'id': user['id'], 'login': user['login'], 'full_name': user['full_name']},
                                 'message': 'Вход выполнен успешно'
                             }),

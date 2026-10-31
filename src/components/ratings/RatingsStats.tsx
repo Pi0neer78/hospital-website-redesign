@@ -58,7 +58,15 @@ const RatingsStats = () => {
     setVotersLoading(true);
     setVoters([]);
     try {
-      const res = await fetch(`${VOTERS_URL}?period=${period}`);
+      const res = await fetch(`${VOTERS_URL}?period=${period}`, {
+        headers: { 'X-Admin-Token': localStorage.getItem('mdoctor_token') || '' },
+      });
+      if (res.status === 401) {
+        localStorage.removeItem('mdoctor_token');
+        localStorage.removeItem('mdoctor_user');
+        window.location.reload();
+        return;
+      }
       const data = await res.json();
       setVoters(data.voters || []);
     } catch (e) {

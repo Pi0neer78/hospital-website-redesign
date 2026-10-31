@@ -1,19 +1,22 @@
 {
   "tests": [
     {
-      "name": "Get voters for all period",
+      "name": "Voters without token are rejected",
       "method": "GET",
       "path": "/?period=all",
-      "expectedStatus": 200,
-      "expectedBody": {"voters": "array"},
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
-      "name": "Get voters for day period",
+      "name": "Voters with fake token are rejected",
       "method": "GET",
       "path": "/?period=day",
-      "expectedStatus": 200,
-      "expectedBody": {"voters": "array"},
+      "headers": {
+        "X-Admin-Token": "mdoctor_1"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     }
   ]

@@ -469,7 +469,10 @@ const MDoctor = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('mdoctor_token');
-    if (token) {
+    if (token && token.startsWith('mdoctor_')) {
+      localStorage.removeItem('mdoctor_token');
+      localStorage.removeItem('mdoctor_user');
+    } else if (token) {
       setIsAuthenticated(true);
       loadDoctors();
       loadComplaints();
