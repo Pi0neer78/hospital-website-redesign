@@ -70,7 +70,7 @@ def handler(event: dict, context) -> dict:
     cur = conn.cursor()
     cur.execute(f'''
         DELETE FROM "{SCHEMA}".backup_records
-        WHERE created_at < %s
+        WHERE created_at < %s AND full_backup = false
         RETURNING folder
     ''', (cutoff,))
     deleted_folders = [r[0] for r in cur.fetchall()]

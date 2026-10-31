@@ -169,7 +169,7 @@ def delete_old_records(conn, retention_days, s3=None):
     cur = conn.cursor()
     cur.execute(f'''
         DELETE FROM "{SCHEMA}".backup_records
-        WHERE created_at < %s
+        WHERE created_at < %s AND full_backup = false
         RETURNING folder
     ''', (cutoff,))
     deleted_folders = [r[0] for r in cur.fetchall()]
@@ -179,6 +179,44 @@ def delete_old_records(conn, retention_days, s3=None):
         for folder in deleted_folders:
             delete_s3_folder(s3, folder)
     return len(deleted_folders)
+
+
+LOG_TABLES = {
+    'doctor_logs': 'журнал действий докторов',
+    'registrar_logs': 'журнал действий регистраторов',
+}
+LOG_BATCH = 8000
+
+
+def logs_cutoff():
+    """Первое число предыдущего месяца (по Москве): всё, что раньше, подлежит удалению"""
+    now = datetime.now(timezone.utc) + timedelta(hours=3)
+    first_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+    return (first_of_month - timedelta(days=1)).replace(day=1)
+
+
+def delete_logs_batch(conn, table, cutoff):
+    for attempt in range(4):
+        try:
+            cur = conn.cursor()
+            cur.execute(f'''
+                DELETE FROM "{SCHEMA}"."{table}"
+                WHERE id IN (
+                    SELECT id FROM "{SCHEMA}"."{table}" WHERE created_at < %s LIMIT {LOG_BATCH}
+                )
+            ''', (cutoff,))
+            deleted = cur.rowcount
+            conn.commit()
+            cur.close()
+            return deleted
+        except psycopg2.errors.QueryCanceled:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+            if attempt == 3:
+                raise
+            time_module.sleep(1.0 * (attempt + 1))
 
 
 def handler(event: dict, context) -> dict:
@@ -246,6 +284,44 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
             'body': json.dumps({'success': True, 'deleted': deleted}),
+        }
+
+    if method == 'POST' and action == 'logs_cleanup_info':
+        cutoff = logs_cutoff()
+        conn = get_db()
+        cur = conn.cursor()
+        tables = []
+        total = 0
+        for table, title in LOG_TABLES.items():
+            cur.execute(f'SELECT count(*) FROM "{SCHEMA}"."{table}" WHERE created_at < %s', (cutoff,))
+            count = cur.fetchone()[0]
+            total += count
+            tables.append({'table': table, 'title': title, 'count': count})
+        cur.close()
+        conn.close()
+        return {
+            'statusCode': 200,
+            'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+            'body': json.dumps({'success': True, 'cutoff': cutoff.strftime('%d.%m.%Y'), 'tables': tables, 'total': total}),
+        }
+
+    if method == 'POST' and action == 'logs_cleanup_step':
+        body = json.loads(event.get('body') or '{}')
+        table = str(body.get('table', ''))
+        if table not in LOG_TABLES:
+            return {
+                'statusCode': 400,
+                'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': 'Unknown table'}),
+            }
+        conn = get_db()
+        deleted = delete_logs_batch(conn, table, logs_cutoff())
+        conn.close()
+        print(f'[logs cleanup] table={table} deleted={deleted}')
+        return {
+            'statusCode': 200,
+            'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+            'body': json.dumps({'success': True, 'table': table, 'deleted': deleted, 'finished': deleted < LOG_BATCH}),
         }
 
     if method == 'POST' and action == 'backup_start':

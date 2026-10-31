@@ -9,6 +9,16 @@ import SecurityLogin from '@/components/security/SecurityLogin';
 import SecurityStatistics from '@/components/security/SecurityStatistics';
 import AdminManagement from '@/components/security/AdminManagement';
 import BackupProgressDialog from '@/components/security/BackupProgressDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import * as XLSX from 'xlsx';
 
 const RATE_LIMITER_URL = 'https://functions.poehali.dev/dd760420-6c65-41e9-bd95-171dec0f3ac9';
@@ -74,6 +84,11 @@ const Security = () => {
   const [fullBackupRunning, setFullBackupRunning] = useState(false);
   const [lastBackupResult, setLastBackupResult] = useState<any>(null);
   const [backupProgress, setBackupProgress] = useState({ done: 0, total: 0, current: '' });
+  const [logsCleanupInfo, setLogsCleanupInfo] = useState<any>(null);
+  const [logsConfirmOpen, setLogsConfirmOpen] = useState(false);
+  const [logsInfoLoading, setLogsInfoLoading] = useState(false);
+  const [logsCleanupRunning, setLogsCleanupRunning] = useState(false);
+  const [logsProgress, setLogsProgress] = useState({ done: 0, total: 0, current: '' });
   const [backupFolders, setBackupFolders] = useState<any[]>([]);
   const [backupListLoading, setBackupListLoading] = useState(false);
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
@@ -184,14 +199,14 @@ const Security = () => {
   };
 
   useEffect(() => {
-    if (!fullBackupRunning) return;
+    if (!fullBackupRunning && !logsCleanupRunning) return;
     const warn = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = '';
     };
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
-  }, [fullBackupRunning]);
+  }, [fullBackupRunning, logsCleanupRunning]);
 
   const postBackup = async (action: string, payload: any) => {
     for (let attempt = 0; attempt < 4; attempt++) {
@@ -270,6 +285,56 @@ const Security = () => {
     } finally {
       if (full) setFullBackupRunning(false);
       else setBackupRunning(false);
+    }
+  };
+
+  const askLogsCleanup = async () => {
+    setLogsInfoLoading(true);
+    const info = await postBackup('logs_cleanup_info', {});
+    setLogsInfoLoading(false);
+    if (!info) {
+      toast({ title: 'Ошибка', description: 'Не удалось получить данные о журналах', variant: 'destructive' });
+      return;
+    }
+    setLogsCleanupInfo(info);
+    setLogsConfirmOpen(true);
+  };
+
+  const runLogsCleanup = async () => {
+    setLogsConfirmOpen(false);
+    const info = logsCleanupInfo;
+    if (!info || info.total === 0) {
+      toast({ title: 'Очистка не нужна', description: `Записей старше ${info?.cutoff} нет` });
+      return;
+    }
+    setLogsCleanupRunning(true);
+    setLogsProgress({ done: 0, total: info.total, current: '' });
+    let deletedTotal = 0;
+    let failed = false;
+    try {
+      for (const t of info.tables) {
+        if (t.count === 0) continue;
+        setLogsProgress({ done: deletedTotal, total: info.total, current: t.title });
+        let finished = false;
+        while (!finished) {
+          const step = await postBackup('logs_cleanup_step', { table: t.table });
+          if (!step) {
+            failed = true;
+            break;
+          }
+          deletedTotal += step.deleted;
+          finished = step.finished;
+          setLogsProgress({ done: Math.min(deletedTotal, info.total), total: info.total, current: t.title });
+        }
+        if (failed) break;
+      }
+      toast({
+        title: failed ? 'Очистка прервана' : 'Журналы очищены',
+        description: `Удалено записей: ${deletedTotal.toLocaleString('ru-RU')}`,
+        variant: failed ? 'destructive' : undefined,
+      });
+    } finally {
+      setLogsCleanupRunning(false);
     }
   };
 
@@ -782,6 +847,25 @@ const Security = () => {
               )}
             </div>
 
+            <div className="bg-white rounded-xl border p-6 space-y-3">
+              <h3 className="text-sm font-semibold flex items-center gap-2">
+                <Icon name="Eraser" size={16} className="text-primary" />
+                Очистка журналов действий
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Удаляются записи журналов докторов и регистраторов старше первого числа предыдущего месяца. Полные архивы баз данных при этом не затрагиваются.
+              </p>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={askLogsCleanup}
+                disabled={logsInfoLoading || logsCleanupRunning || backupRunning || fullBackupRunning}
+              >
+                <Icon name={logsInfoLoading ? 'Loader2' : 'Eraser'} size={14} className={`mr-1.5 ${logsInfoLoading ? 'animate-spin' : ''}`} />
+                {logsInfoLoading ? 'Проверка...' : 'Очистить журналы'}
+              </Button>
+            </div>
+
             <div className="bg-white rounded-xl border p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold flex items-center gap-2">
@@ -1103,6 +1187,43 @@ const Security = () => {
         done={backupProgress.done}
         total={backupProgress.total}
         current={backupProgress.current}
+      />
+
+      <AlertDialog open={logsConfirmOpen} onOpenChange={setLogsConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Произвести чистку журналов операций?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>
+                  Будут удалены все записи журналов докторов и регистраторов до <b>{logsCleanupInfo?.cutoff}</b>. Это действие нельзя отменить.
+                </p>
+                {logsCleanupInfo?.tables?.map((t: any) => (
+                  <p key={t.table}>
+                    {t.title}: <b>{t.count.toLocaleString('ru-RU')}</b> записей
+                  </p>
+                ))}
+                {logsCleanupInfo?.total === 0 && <p>Записей для удаления нет.</p>}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Нет</AlertDialogCancel>
+            <AlertDialogAction onClick={runLogsCleanup} className="bg-red-600 hover:bg-red-700 text-white">
+              Да
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <BackupProgressDialog
+        open={logsCleanupRunning}
+        done={logsProgress.done}
+        total={logsProgress.total}
+        current={logsProgress.current}
+        title="Идёт очистка журналов"
+        unit="Удалено записей"
+        icon="Eraser"
       />
     </div>
   );
