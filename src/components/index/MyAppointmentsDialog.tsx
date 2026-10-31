@@ -14,6 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
 import CodeFallbackModal from "@/components/index/CodeFallbackModal";
 import CodeSentModal from "@/components/index/CodeSentModal";
+import PhoneInput from "@/components/PhoneInput";
+import { usePhoneGuard } from "@/hooks/usePhoneGuard";
 
 const SMS_VERIFY_URL = "https://functions.poehali.dev/7ea5c6f5-d200-4cc0-b34b-10144a995d69";
 const APPOINTMENTS_URL = "https://functions.poehali.dev/b3b698ed-7035-4503-8c49-85be11de75e5";
@@ -58,6 +60,7 @@ export default function MyAppointmentsDialog() {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<"phone" | "code" | "results">("phone");
+  const { guard, dialog: phoneDialog } = usePhoneGuard();
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -75,9 +78,12 @@ export default function MyAppointmentsDialog() {
     setPage(1);
   }
 
-  async function handleSendCode(e: React.FormEvent) {
+  function handleSendCode(e: React.FormEvent) {
     e.preventDefault();
-    if (!phone.trim()) return;
+    guard(phone, sendCode);
+  }
+
+  async function sendCode() {
     setLoading(true);
     try {
       const res = await fetch(SMS_VERIFY_URL, {
@@ -203,6 +209,7 @@ export default function MyAppointmentsDialog() {
   return (
     <>
     <CodeFallbackModal code={fallbackCode} onClose={() => setFallbackCode(null)} />
+    {phoneDialog}
     <CodeSentModal open={codeSentModal} phone={phone} onClose={() => setCodeSentModal(false)} />
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetDialog(); }}>
       <DialogTrigger asChild>
@@ -227,13 +234,7 @@ export default function MyAppointmentsDialog() {
             </p>
             <div className="space-y-2">
               <label className="text-sm font-medium">Номер телефона</label>
-              <Input
-                type="tel"
-                placeholder="+7 (999) 000-00-00"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
+              <PhoneInput value={phone} onChange={setPhone} required />
             </div>
             <Button type="submit" className="w-full" disabled={loading || !phone.trim()}>
               {loading ? (

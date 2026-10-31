@@ -26,6 +26,8 @@ import MyAppointmentsDialog from "@/components/index/MyAppointmentsDialog";
 import CancelAppointmentDialog from "@/components/index/CancelAppointmentDialog";
 import CodeFallbackModal from "@/components/index/CodeFallbackModal";
 import CodeSentModal from "@/components/index/CodeSentModal";
+import PhoneInput from "@/components/PhoneInput";
+import { usePhoneGuard } from "@/hooks/usePhoneGuard";
 
 const HOME_BACKGROUND =
   "https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/af3c0641-d1a2-4d4e-b9b2-ae8aa1bb5916.jpg";
@@ -97,6 +99,7 @@ const Index = () => {
   const [queueRating, setQueueRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [hasRated, setHasRated] = useState(false);
+  const { guard, dialog: phoneDialog } = usePhoneGuard();
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [maxTextIndex, setMaxTextIndex] = useState(0);
@@ -312,8 +315,12 @@ const Index = () => {
     return allSlots[date]?.hasSchedule || false;
   };
 
-  const handleSendVerificationCode = async (e: React.FormEvent) => {
+  const handleSendVerificationCode = (e: React.FormEvent) => {
     e.preventDefault();
+    guard(appointmentForm.patient_phone, sendVerificationCode);
+  };
+
+  const sendVerificationCode = async () => {
 
     const rateLimitCheck = await checkAppointmentLimit();
     if (!rateLimitCheck.allowed) {
@@ -555,8 +562,12 @@ const Index = () => {
     }
   };
 
-  const handleComplaintSendCode = async (e: React.FormEvent) => {
+  const handleComplaintSendCode = (e: React.FormEvent) => {
     e.preventDefault();
+    guard(complaintForm.phone, sendComplaintCode);
+  };
+
+  const sendComplaintCode = async () => {
 
     const rateLimitCheck = await checkComplaintLimit();
     if (!rateLimitCheck.allowed) {
@@ -716,6 +727,7 @@ const Index = () => {
   return (
     <>
     <CodeFallbackModal code={fallbackCode} onClose={() => setFallbackCode(null)} />
+    {phoneDialog}
     <CodeSentModal open={codeSentModalOpen} phone={codeSentModalPhone} onClose={() => setCodeSentModalOpen(false)} />
     <div
       className="min-h-screen bg-gradient-to-b from-background to-muted/30 bg-cover bg-center bg-fixed"
@@ -1579,14 +1591,12 @@ const Index = () => {
                                 }
                                 required
                               />
-                              <Input
-                                placeholder="Телефон (+79991234567)"
-                                type="tel"
+                              <PhoneInput
                                 value={appointmentForm.patient_phone}
-                                onChange={(e) =>
+                                onChange={(v) =>
                                   setAppointmentForm({
                                     ...appointmentForm,
-                                    patient_phone: e.target.value,
+                                    patient_phone: v,
                                   })
                                 }
                                 required
@@ -2311,14 +2321,12 @@ const Index = () => {
                       }
                       required
                     />
-                    <Input
-                      placeholder="Телефон (+79991234567)"
-                      type="tel"
+                    <PhoneInput
                       value={complaintForm.phone}
-                      onChange={(e) =>
+                      onChange={(v) =>
                         setComplaintForm({
                           ...complaintForm,
-                          phone: e.target.value,
+                          phone: v,
                         })
                       }
                       required

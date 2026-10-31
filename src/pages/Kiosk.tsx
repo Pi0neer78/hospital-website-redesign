@@ -2,6 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import Icon from "@/components/ui/icon";
+import { formatPhoneInput } from "@/utils/phone";
+import { usePhoneGuard } from "@/hooks/usePhoneGuard";
 
 const URLS = {
   doctors: "https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688",
@@ -139,6 +141,7 @@ function getDatesRange(days = 14): string[] {
 }
 
 export default function Kiosk() {
+  const { guard, dialog: phoneDialog } = usePhoneGuard();
   const [searchParams] = useSearchParams();
   const kioskId = searchParams.get("id") || "1";
   const clinicName = CLINICS[kioskId] || CLINICS["2"];
@@ -319,12 +322,18 @@ export default function Kiosk() {
 
   function handleKey(k: string) {
     if (!focusedField) return;
-    setForm((f) => ({ ...f, [focusedField]: f[focusedField] + k }));
+    setForm((f) => {
+      const next = f[focusedField] + k;
+      return { ...f, [focusedField]: focusedField === "patient_phone" ? formatPhoneInput(next) : next };
+    });
   }
 
   function handleBackspace() {
     if (!focusedField) return;
-    setForm((f) => ({ ...f, [focusedField]: f[focusedField].slice(0, -1) }));
+    setForm((f) => {
+      const next = f[focusedField].slice(0, -1);
+      return { ...f, [focusedField]: focusedField === "patient_phone" ? formatPhoneInput(next) : next };
+    });
   }
 
   function handleFieldFocus(field: keyof typeof form) {
@@ -332,8 +341,12 @@ export default function Kiosk() {
     setShowKeyboard(true);
   }
 
-  async function handleSubmit() {
+  function handleSubmit() {
     if (!form.patient_name.trim() || !form.patient_phone.trim()) return;
+    guard(form.patient_phone, submitForm);
+  }
+
+  async function submitForm() {
     setSubmitting(true);
     try {
       const r = await fetch(`${URLS.kiosk}?action=create`, {
@@ -413,6 +426,7 @@ export default function Kiosk() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Arial', sans-serif", backgroundImage: "url('https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/files/c7868ef0-6b83-40fe-a940-7c2e5e256e4f.jpg')", backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }}>
+      {phoneDialog}
       {/* HEADER */}
       {step !== "instruction" && (
         <div className={`${headerBg} text-white px-6 py-4 shadow-lg relative flex items-center`}>
@@ -808,7 +822,7 @@ export default function Kiosk() {
           <div className="grid grid-cols-2 gap-4 max-w-3xl">
             {([
               { field: "patient_name", label: "ФИО *", placeholder: "Иванов Иван Иванович" },
-              { field: "patient_phone", label: "Телефон *", placeholder: "+7 (___) ___-__-__" },
+              { field: "patient_phone", label: "Телефон *", placeholder: "+7000-000-00-00" },
               { field: "patient_snils", label: "СНИЛС", placeholder: "000-000-000 00" },
               { field: "patient_oms", label: "Полис ОМС", placeholder: "16 цифр" },
             ] as { field: keyof typeof form; label: string; placeholder: string }[]).map(({ field, label, placeholder }) => (

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import PhoneInput from '@/components/PhoneInput';
 import { useClinics } from '@/hooks/useClinics';
 import ClinicsTab from '@/components/admin/ClinicsTab';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1152,9 +1153,9 @@ const Admin = () => {
                     </div>
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Телефон</label>
-                      <Input
+                      <PhoneInput
                         value={doctorForm.phone}
-                        onChange={(e) => setDoctorForm({ ...doctorForm, phone: e.target.value })}
+                        onChange={(v) => setDoctorForm({ ...doctorForm, phone: v })}
                         className="h-9"
                       />
                     </div>
@@ -1339,9 +1340,9 @@ const Admin = () => {
                     </div>
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Телефон</label>
-                      <Input
+                      <PhoneInput
                         value={editingDoctor?.phone || ''}
-                        onChange={(e) => setEditingDoctor({ ...editingDoctor, phone: e.target.value })}
+                        onChange={(v) => setEditingDoctor({ ...editingDoctor, phone: v })}
                         className="h-9"
                       />
                     </div>
@@ -1851,9 +1852,9 @@ const Admin = () => {
                   </div>
                   <div>
                     <label className="text-sm font-medium">Телефон</label>
-                    <Input
+                    <PhoneInput
                       value={registrarForm.phone}
-                      onChange={(e) => setRegistrarForm({...registrarForm, phone: e.target.value})}
+                      onChange={(v) => setRegistrarForm({...registrarForm, phone: v})}
                       required
                     />
                   </div>
@@ -2007,9 +2008,9 @@ const Admin = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Телефон</label>
-                  <Input
+                  <PhoneInput
                     value={registrarForm.phone}
-                    onChange={(e) => setRegistrarForm({...registrarForm, phone: e.target.value})}
+                    onChange={(v) => setRegistrarForm({...registrarForm, phone: v})}
                     required
                   />
                 </div>

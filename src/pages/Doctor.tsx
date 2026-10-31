@@ -15,6 +15,8 @@ import * as XLSX from 'xlsx';
 import { checkSlotAvailability, showSlotErrorDialog } from '@/utils/slotChecker';
 import { staffFetch, saveStaffToken, clearStaffToken } from '@/utils/staffFetch';
 import { validateFullName } from '@/utils/validation';
+import PhoneInput from '@/components/PhoneInput';
+import { usePhoneGuard } from '@/hooks/usePhoneGuard';
 import { EditAppointmentForm } from '@/components/EditAppointmentForm';
 import NameErrorModal from '@/components/NameErrorModal';
 import { AppointmentContextMenu } from '@/components/AppointmentContextMenu';
@@ -30,6 +32,7 @@ const DAYS_OF_WEEK = ['Понедельник', 'Вторник', 'Среда', 
 
 const Doctor = () => {
   const { toast } = useToast();
+  const { guard, dialog: phoneDialog } = usePhoneGuard();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [doctorInfo, setDoctorInfo] = useState<any>(null);
   const [isRegistrarAccess, setIsRegistrarAccess] = useState(false);
@@ -1888,7 +1891,7 @@ const Doctor = () => {
   const handleCreateNewAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newAppointmentDialog.date || !newAppointmentDialog.time || !newAppointmentDialog.patientName || !newAppointmentDialog.patientPhone) {
+    if (!newAppointmentDialog.date || !newAppointmentDialog.time || !newAppointmentDialog.patientName) {
       toast({ title: "Ошибка", description: "Заполните все обязательные поля", variant: "destructive" });
       return;
     }
@@ -1899,8 +1902,10 @@ const Doctor = () => {
       return;
     }
     setNewAppointmentNameError(null);
+    guard(newAppointmentDialog.patientPhone, submitNewAppointment, true);
+  };
 
-    // ОПТИМИЗАЦИЯ: проверка слота встроена в create_appointment, убираем отдельный запрос
+  const submitNewAppointment = async () => {
     try {
       const response = await staffFetch(API_URLS.appointments, {
         method: 'POST',
@@ -2022,8 +2027,8 @@ const Doctor = () => {
       return;
     }
 
-    if (!otherDoctorDialog.patientName || !otherDoctorDialog.patientPhone) {
-      toast({ title: "Ошибка", description: "Заполните ФИО и телефон пациента", variant: "destructive" });
+    if (!otherDoctorDialog.patientName) {
+      toast({ title: "Ошибка", description: "Заполните ФИО пациента", variant: "destructive" });
       return;
     }
 
@@ -2031,6 +2036,11 @@ const Doctor = () => {
       toast({ title: "Ошибка", description: "Выберите врача", variant: "destructive" });
       return;
     }
+
+    guard(otherDoctorDialog.patientPhone, submitOtherDoctorAppointment, true);
+  };
+
+  const submitOtherDoctorAppointment = async () => {
 
     const slotCheckResult = await checkSlotAvailability(
       API_URLS.appointments,
@@ -4172,6 +4182,7 @@ const Doctor = () => {
         </DialogContent>
       </Dialog>
 
+      {phoneDialog}
       <Dialog open={newAppointmentDialog.open} onOpenChange={(open) => {
         // Проверяем, есть ли модальное окно ошибки слота
         const slotErrorDialog = document.getElementById('slot-error-overlay');
@@ -4287,14 +4298,11 @@ const Doctor = () => {
               </div>
 
               <div>
-                <label className="text-xs font-medium mb-1 block">Телефон *</label>
-                <Input
-                  type="tel"
+                <label className="text-xs font-medium mb-1 block">Телефон (можно оставить пустым)</label>
+                <PhoneInput
                   value={newAppointmentDialog.patientPhone}
-                  onChange={(e) => setNewAppointmentDialog({...newAppointmentDialog, patientPhone: e.target.value})}
-                  placeholder="+79991234567"
+                  onChange={(v) => setNewAppointmentDialog({...newAppointmentDialog, patientPhone: v})}
                   className="h-9 text-sm"
-                  required
                 />
               </div>
             </div>
@@ -4383,7 +4391,7 @@ const Doctor = () => {
               <Button
                 type="submit"
                 className="flex-1"
-                disabled={!newAppointmentDialog.date || !newAppointmentDialog.time || !newAppointmentDialog.patientName || !newAppointmentDialog.patientPhone}
+                disabled={!newAppointmentDialog.date || !newAppointmentDialog.time || !newAppointmentDialog.patientName}
               >
                 <Icon name="UserPlus" size={16} className="mr-2" />
                 Записать
@@ -4526,33 +4534,11 @@ const Doctor = () => {
             </div>
 
             <div>
-              <label className="text-xs font-medium mb-1 block">Телефон</label>
-              <Input
+              <label className="text-xs font-medium mb-1 block">Телефон (можно оставить пустым)</label>
+              <PhoneInput
                 value={otherDoctorDialog.patientPhone}
-                onChange={(e) => {
-                  const digits = e.target.value.replace(/\D/g, '');
-                  let formatted = '';
-                  if (digits.length > 0) {
-                    formatted = '+7';
-                    if (digits.length > 1) {
-                      formatted += ` (${digits.slice(1, 4)}`;
-                      if (digits.length >= 4) {
-                        formatted += `) ${digits.slice(4, 7)}`;
-                        if (digits.length >= 7) {
-                          formatted += `-${digits.slice(7, 9)}`;
-                          if (digits.length >= 9) {
-                            formatted += `-${digits.slice(9, 11)}`;
-                          }
-                        }
-                      }
-                    }
-                  }
-                  setOtherDoctorDialog({...otherDoctorDialog, patientPhone: formatted});
-                }}
-                placeholder="+7 (999) 999-99-99"
+                onChange={(v) => setOtherDoctorDialog({...otherDoctorDialog, patientPhone: v})}
                 className="h-9 text-sm"
-                maxLength={18}
-                required
               />
             </div>
 
@@ -4640,7 +4626,7 @@ const Doctor = () => {
               <Button
                 type="submit"
                 className="flex-1"
-                disabled={!otherDoctorDialog.selectedDoctorId || !otherDoctorDialog.date || !otherDoctorDialog.time || !otherDoctorDialog.patientName || !otherDoctorDialog.patientPhone}
+                disabled={!otherDoctorDialog.selectedDoctorId || !otherDoctorDialog.date || !otherDoctorDialog.time || !otherDoctorDialog.patientName}
               >
                 <Icon name="UserPlus" size={16} className="mr-2" />
                 Записать

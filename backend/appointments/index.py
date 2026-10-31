@@ -1,4 +1,5 @@
 import json
+import re
 import hashlib
 import os
 import logging
@@ -592,7 +593,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             else:
                 doctor_id = body.get('doctor_id')
                 patient_name = body.get('patient_name')
-                patient_phone = body.get('patient_phone')
+                patient_phone = (body.get('patient_phone') or '').strip()
                 patient_snils = body.get('patient_snils', '')
                 patient_oms = body.get('patient_oms', '')
                 appointment_date = body.get('appointment_date')
@@ -601,11 +602,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 created_by = body.get('created_by', 1)
                 skip_slot_check = body.get('skip_slot_check', False)
                 
-                if not all([doctor_id, patient_name, patient_phone, appointment_date, appointment_time]):
+                phone_optional = created_by in (2, 3) and is_staff(event, conn)
+                if not all([doctor_id, patient_name, appointment_date, appointment_time]) or (not patient_phone and not phone_optional):
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({'error': 'Missing required fields'}),
+                        'isBase64Encoded': False
+                    }
+
+                if patient_phone and not re.match(r'^\+7\d{3}-\d{3}-\d{2}-\d{2}$', patient_phone):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Номер должен быть в формате +7000-000-00-00'}),
                         'isBase64Encoded': False
                     }
                 
@@ -670,7 +680,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
                 source_map = {1: 'self', 2: 'doctor', 3: 'registrar'}
                 registry_source = source_map.get(created_by, 'self')
-                upsert_registry(cursor, patient_name, patient_phone, None, registry_source)
+                if patient_phone:
+                    upsert_registry(cursor, patient_name, patient_phone, None, registry_source)
 
                 conn.commit()
                 cursor.close()

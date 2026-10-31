@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import PhoneInput from '@/components/PhoneInput';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -2453,7 +2454,7 @@ const MDoctor = () => {
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">Телефон</label>
-              <Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} className="h-8 text-sm" />
+              <PhoneInput value={editForm.phone} onChange={(v) => setEditForm({ ...editForm, phone: v })} className="h-8 text-sm" />
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">Email</label>

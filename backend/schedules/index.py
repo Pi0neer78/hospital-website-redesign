@@ -355,12 +355,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 oms = body.get('patient_oms', '').strip() if body.get('patient_oms') else None
                 desc = body.get('description', '').strip() if body.get('description') else None
                 
-                if not name or not phone:
+                if not name:
                     cursor.close()
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Name and phone required'}),
+                        'body': json.dumps({'error': 'Name required'}),
                         'isBase64Encoded': False
                     }
                 

@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import Icon from "@/components/ui/icon";
 import CodeFallbackModal from "@/components/index/CodeFallbackModal";
 import { useToast } from "@/hooks/use-toast";
+import PhoneInput from "@/components/PhoneInput";
+import { usePhoneGuard } from "@/hooks/usePhoneGuard";
 
 const SMS_VERIFY_URL = "https://functions.poehali.dev/7ea5c6f5-d200-4cc0-b34b-10144a995d69";
 const CANCEL_URL = "https://functions.poehali.dev/c257bb2b-a49e-4b1c-8507-6c78b99a7f26";
@@ -42,6 +44,7 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>('phone');
+  const { guard, dialog: phoneDialog } = usePhoneGuard();
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -63,12 +66,12 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
     setPatientToken('');
   }
 
-  async function handleSendCode() {
+  function handleSendCode() {
+    guard(phone, resendCode);
+  }
+
+  async function resendCode() {
     const clean = phone.replace(/\D/g, '');
-    if (clean.length < 10) {
-      toast({ title: 'Ошибка', description: 'Введите корректный номер телефона', variant: 'destructive' });
-      return;
-    }
     setLoading(true);
     try {
       const res = await fetch(SMS_VERIFY_URL, {
@@ -156,6 +159,7 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
 
   return (
     <>
+    {phoneDialog}
     <CodeFallbackModal code={fallbackCode} onClose={() => setFallbackCode(null)} />
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetAll(); }}>
       <DialogTrigger asChild>
@@ -193,14 +197,9 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
             <div className="px-6 py-5 space-y-4">
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-gray-700">Номер телефона</label>
-                <Input
-                  placeholder="+7 (___) ___-__-__"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSendCode()}
-                  type="tel"
-                  autoFocus
-                />
+                <div onKeyDown={e => e.key === 'Enter' && handleSendCode()}>
+                  <PhoneInput value={phone} onChange={setPhone} />
+                </div>
                 <p className="text-xs text-gray-500">Код подтверждения придёт в мессенджер MAX</p>
               </div>
               <Button onClick={handleSendCode} disabled={loading} className="w-full bg-red-500 hover:bg-red-600 text-white">
@@ -243,7 +242,7 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
                 Подтвердить
               </Button>
               <div className="text-center">
-                <button onClick={handleSendCode} disabled={loading} className="text-sm text-orange-600 hover:underline">Отправить код повторно</button>
+                <button onClick={resendCode} disabled={loading} className="text-sm text-orange-600 hover:underline">Отправить код повторно</button>
               </div>
               <button onClick={() => setStep('phone')} className="w-full text-sm text-gray-500 hover:text-gray-700">← Изменить номер</button>
             </div>

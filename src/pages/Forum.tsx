@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import CodeFallbackModal from "@/components/index/CodeFallbackModal";
+import PhoneInput from "@/components/PhoneInput";
+import { usePhoneGuard } from "@/hooks/usePhoneGuard";
 import { useRateLimiter } from '@/hooks/use-rate-limiter';
 
 const API_URLS = {
@@ -20,6 +22,7 @@ const API_URLS = {
 const Forum = () => {
   const [fallbackCode, setFallbackCode] = useState<string | null>(null);
   const { toast } = useToast();
+  const { guard, dialog: phoneDialog } = usePhoneGuard();
   const navigate = useNavigate();
   const { topicId } = useParams();
   const { checkRateLimit: checkRegisterLimit } = useRateLimiter({ endpoint: 'forum-register', maxRequestsPerMinute: 3 });
@@ -109,9 +112,12 @@ const Forum = () => {
     }
   };
 
-  const handleSendPhoneCode = async (e: React.FormEvent) => {
+  const handleSendPhoneCode = (e: React.FormEvent) => {
     e.preventDefault();
-    
+    guard(registerForm.phone, sendPhoneCode);
+  };
+
+  const sendPhoneCode = async () => {
     const rateLimitCheck = await checkRegisterLimit();
     if (!rateLimitCheck.allowed) {
       toast({
@@ -725,6 +731,7 @@ const Forum = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex flex-col">
+      {phoneDialog}
       <CodeFallbackModal code={fallbackCode} onClose={() => setFallbackCode(null)} />
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -870,11 +877,9 @@ const Forum = () => {
                           value={registerForm.email}
                           onChange={(e) => setRegisterForm({ ...registerForm, email: e.target.value })}
                         />
-                        <Input
-                          type="tel"
-                          placeholder="Телефон (+79991234567)"
+                        <PhoneInput
                           value={registerForm.phone}
-                          onChange={(e) => setRegisterForm({ ...registerForm, phone: e.target.value })}
+                          onChange={(v) => setRegisterForm({ ...registerForm, phone: v })}
                           required
                         />
                         <Button type="submit" className="w-full" disabled={isSubmitting}>

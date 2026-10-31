@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import PhoneInput from '@/components/PhoneInput';
+import { usePhoneGuard } from '@/hooks/usePhoneGuard';
 import { staffFetch } from '@/utils/staffFetch';
 import { validateFullName } from '@/utils/validation';
 import NameErrorModal from '@/components/NameErrorModal';
@@ -30,6 +32,7 @@ const API_URL = 'https://functions.poehali.dev/6f53f66d-3e47-4e57-93dd-52d63c16d
 
 export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAppointmentFormProps) {
   const { toast } = useToast();
+  const { guard, dialog: phoneDialog } = usePhoneGuard();
   const [editForm, setEditForm] = useState({
     patient_name: appointment.patient_name,
     patient_phone: appointment.patient_phone,
@@ -67,11 +70,11 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
     setEditForm({ ...editForm, oms: formatted });
   };
 
-  const handleSaveEdit = async () => {
-    if (!editForm.patient_name.trim() || !editForm.patient_phone.trim()) {
+  const handleSaveEdit = () => {
+    if (!editForm.patient_name.trim()) {
       toast({
         title: 'Ошибка',
-        description: 'ФИО и телефон обязательны',
+        description: 'ФИО обязательно',
         variant: 'destructive'
       });
       return;
@@ -85,6 +88,10 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
     }
     setNameError(null);
 
+    guard(editForm.patient_phone, saveEdit, true);
+  };
+
+  const saveEdit = async () => {
     setIsSaving(true);
     try {
       const requestBody: any = {
@@ -135,6 +142,7 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
 
   return (
     <div className="space-y-4">
+      {phoneDialog}
       <div>
         <Label htmlFor="edit-name">ФИО пациента *</Label>
         <Input
@@ -151,12 +159,11 @@ export function EditAppointmentForm({ appointment, onSuccess, onCancel }: EditAp
       </div>
 
       <div>
-        <Label htmlFor="edit-phone">Телефон *</Label>
-        <Input
+        <Label htmlFor="edit-phone">Телефон (можно оставить пустым)</Label>
+        <PhoneInput
           id="edit-phone"
           value={editForm.patient_phone}
-          onChange={(e) => setEditForm({ ...editForm, patient_phone: e.target.value })}
-          placeholder="+7 (999) 123-45-67"
+          onChange={(v) => setEditForm({ ...editForm, patient_phone: v })}
         />
       </div>
 

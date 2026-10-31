@@ -17,6 +17,8 @@ import NameErrorModal from '@/components/NameErrorModal';
 import FioAutocomplete from '@/components/registrar/FioAutocomplete';
 import CloneSuccessModal from '@/components/registrar/CloneSuccessModal';
 import AppointmentSuccessModal from '@/components/registrar/AppointmentSuccessModal';
+import PhoneInput from '@/components/PhoneInput';
+import { usePhoneGuard } from '@/hooks/usePhoneGuard';
 
 const isMaxPhone = (phone: string) => {
   const digits = phone.replace(/\D/g, '');
@@ -33,6 +35,7 @@ const API_URLS = {
 
 const Registrar = () => {
   const { toast } = useToast();
+  const { guard, dialog: phoneDialog } = usePhoneGuard();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [registrarInfo, setRegistrarInfo] = useState<any>(null);
   const [loginForm, setLoginForm] = useState({ login: '', password: '' });
@@ -374,7 +377,7 @@ const Registrar = () => {
   const handleCreateAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newAppointmentDialog.patientName || !newAppointmentDialog.patientPhone || !newAppointmentDialog.time || !selectedDate) {
+    if (!newAppointmentDialog.patientName || !newAppointmentDialog.time || !selectedDate) {
       toast({ title: "Ошибка", description: "Заполните все обязательные поля", variant: "destructive" });
       return;
     }
@@ -386,8 +389,10 @@ const Registrar = () => {
       return;
     }
     setNewAppointmentNameError(null);
+    guard(newAppointmentDialog.patientPhone, submitAppointment, true);
+  };
 
-    // ОПТИМИЗАЦИЯ: проверка слота встроена в create_appointment (1 запрос вместо 2)
+  const submitAppointment = async () => {
     try {
       const response = await staffFetch(API_URLS.appointments, {
         method: 'POST',
@@ -1449,11 +1454,10 @@ const Registrar = () => {
                 {newAppointmentNameError && <p className="text-xs text-red-500 mt-1">{newAppointmentNameError}</p>}
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Телефон *</label>
-                <Input
+                <label className="text-xs font-medium text-muted-foreground">Телефон (можно оставить пустым)</label>
+                <PhoneInput
                   value={newAppointmentDialog.patientPhone}
-                  onChange={(e) => setNewAppointmentDialog({ ...newAppointmentDialog, patientPhone: e.target.value })}
-                  required
+                  onChange={(v) => setNewAppointmentDialog({ ...newAppointmentDialog, patientPhone: v })}
                   className="h-9"
                 />
               </div>
@@ -2221,6 +2225,7 @@ const Registrar = () => {
         onClose={() => setCloneSuccessModal({ open: false, data: null })}
       />
 
+      {phoneDialog}
       <AppointmentSuccessModal
         open={appointmentSuccessModal.open}
         data={appointmentSuccessModal.data}
