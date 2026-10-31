@@ -939,13 +939,13 @@ const Index = () => {
             alt="Логотип АЦГМБ ЛНР"
             className="w-[166px] h-[166px] md:w-[332px] md:h-[332px] mx-auto mb-4 md:mb-8 object-contain animate-fade-in mix-blend-multiply rounded-full"
           />
-          <h2 className="font-bold mb-2 text-foreground animate-fade-in text-base md:text-4xl">
+          <h2 className="font-bold mb-2 text-foreground text-glow animate-fade-in text-base md:text-4xl">
             ГБУЗ "Антрацитовская центральная городская многопрофильная больница"
           </h2>
-          <p className="text-sm md:text-lg font-semibold text-slate-800 mb-8 animate-fade-in">
+          <p className="text-sm md:text-lg font-semibold text-slate-800 text-glow mb-8 animate-fade-in">
             Луганской Народной Республики
           </p>
-          <p className="text-base md:text-xl font-medium text-slate-800 mb-8 max-w-2xl mx-auto animate-fade-in">
+          <p className="text-base md:text-xl font-medium text-slate-800 text-glow mb-8 max-w-2xl mx-auto animate-fade-in">
             Современная медицинская помощь с заботой о каждом пациенте.
             Квалифицированные специалисты и передовые технологии.
           </p>

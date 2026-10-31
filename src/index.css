@@ -160,3 +160,14 @@
 .animate-pulse-blue {
   animation: pulse-blue 2s ease-in-out infinite;
 }
+
+.text-glow {
+  text-shadow:
+    -1px -1px 0 rgba(255, 255, 255, 0.95),
+    1px -1px 0 rgba(255, 255, 255, 0.95),
+    -1px 1px 0 rgba(255, 255, 255, 0.95),
+    1px 1px 0 rgba(255, 255, 255, 0.95),
+    0 0 6px rgba(255, 255, 255, 0.95),
+    0 0 14px rgba(255, 255, 255, 0.85),
+    0 0 26px rgba(255, 255, 255, 0.7);
+}
