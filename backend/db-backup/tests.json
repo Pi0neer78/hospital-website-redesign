@@ -1,27 +1,30 @@
 {
   "tests": [
     {
-      "name": "Get backup settings",
+      "name": "Settings without token are rejected",
       "method": "GET",
       "path": "/?action=settings",
-      "expectedStatus": 200,
-      "expectedBody": {"success": true},
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
-      "name": "List backups",
+      "name": "List without token is rejected",
       "method": "GET",
       "path": "/?action=list",
-      "expectedStatus": 200,
-      "expectedBody": {"success": true},
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
-      "name": "List backup folders",
-      "method": "GET",
-      "path": "/?action=list",
-      "expectedStatus": 200,
-      "expectedBody": {"success": true},
+      "name": "Backup without token is rejected",
+      "method": "POST",
+      "path": "/?action=backup",
+      "body": {
+        "full": false
+      },
+      "expectedStatus": 401,
+      "expectedBody": {},
       "bodyMatcher": "partial"
     }
   ]

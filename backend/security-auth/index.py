@@ -2,6 +2,8 @@ import json
 import os
 import psycopg2
 import bcrypt
+import hashlib
+import secrets
 from typing import Dict, Any, Optional
 
 def get_db_connection():
@@ -14,6 +16,24 @@ def verify_password(password: str, password_hash: str) -> bool:
         return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
     except:
         return False
+
+def issue_admin_session(conn, admin_id: int, login: str, source: str) -> str:
+    """Выдать временный токен администратора на 12 часов; в базе хранится только его отпечаток"""
+    token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE t_p30358746_hospital_website_red.admin_sessions SET expires_at = NOW() WHERE expires_at > NOW() AND admin_id = %s AND source = %s AND created_at < NOW() - INTERVAL '12 hours'",
+        (admin_id, source)
+    )
+    cur.execute(
+        "INSERT INTO t_p30358746_hospital_website_red.admin_sessions (token_hash, admin_id, login, source, expires_at) VALUES (%s, %s, %s, %s, NOW() + INTERVAL '12 hours')",
+        (token_hash, admin_id, login, source)
+    )
+    conn.commit()
+    cur.close()
+    return token
+
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -117,12 +137,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn.commit()
         cursor.close()
         
+        session_token = issue_admin_session(conn, admin_id, admin_login, 'security')
         return {
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({
                 'success': True,
-                'token': password_hash,
+                'token': session_token,
                 'admin': {
                     'id': admin_id,
                     'login': admin_login,

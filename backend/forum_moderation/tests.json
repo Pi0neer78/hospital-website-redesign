@@ -1,24 +1,21 @@
 {
   "tests": [
     {
-      "name": "Get all users (admin)",
+      "name": "Users without token are rejected",
       "method": "GET",
       "path": "/?action=getUsers",
-      "headers": {
-        "X-Admin-Token": "admin123"
-      },
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {},
       "bodyMatcher": "partial"
     },
     {
-      "name": "Get all topics (admin)",
+      "name": "Old shared token no longer works",
       "method": "GET",
       "path": "/?action=getTopics",
       "headers": {
         "X-Admin-Token": "admin123"
       },
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {},
       "bodyMatcher": "partial"
     }

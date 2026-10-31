@@ -2,6 +2,7 @@ import json
 import os
 import psycopg2
 import bcrypt
+import hashlib
 from typing import Dict, Any, Optional
 from datetime import datetime
 
@@ -16,9 +17,10 @@ def verify_admin_token(token: str, conn) -> Optional[Dict[str, Any]]:
     
     cursor = conn.cursor()
     try:
+        token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
         cursor.execute(
-            "SELECT id, login, email, is_active FROM t_p30358746_hospital_website_red.admins WHERE password_hash = %s AND is_active = true",
-            (token,)
+            "SELECT a.id, a.login, a.email, a.is_active FROM t_p30358746_hospital_website_red.admin_sessions s JOIN t_p30358746_hospital_website_red.admins a ON a.id = s.admin_id WHERE s.token_hash = %s AND s.expires_at > NOW() AND a.is_active = true",
+            (token_hash,)
         )
         result = cursor.fetchone()
         if result:

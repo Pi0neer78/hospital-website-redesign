@@ -67,6 +67,7 @@ const DoctorRating = () => {
       const data = await res.json();
       if (data.success) {
         localStorage.setItem('admin_auth', JSON.stringify(data.user));
+        localStorage.setItem('admin_token', data.token || '');
         setIsAuth(true);
       } else {
         setAuthError(data.error || 'Неверный логин или пароль');
@@ -155,7 +156,7 @@ const DoctorRating = () => {
             <Button size="sm" variant="outline" onClick={handlePrint} className="gap-1">
               <Icon name="Printer" size={15} /> Печать
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => { localStorage.removeItem('admin_auth'); setIsAuth(false); }} className="gap-1 text-muted-foreground">
+            <Button size="sm" variant="ghost" onClick={() => { localStorage.removeItem('admin_auth'); localStorage.removeItem('admin_token'); setIsAuth(false); }} className="gap-1 text-muted-foreground">
               <Icon name="LogOut" size={15} /> Выйти
             </Button>
           </div>

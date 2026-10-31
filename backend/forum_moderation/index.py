@@ -1,13 +1,32 @@
 import json
 import os
+import hashlib
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
 
-def check_admin(token: str) -> bool:
-    """Проверка админского токена из админ-панели"""
-    stored_token = os.environ.get('ADMIN_TOKEN', 'admin123')
-    return token == stored_token
+def check_admin(token: str, database_url: str) -> bool:
+    """Проверка временного токена администратора по таблице сессий"""
+    if not token or not database_url:
+        return False
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    conn = psycopg2.connect(database_url)
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT 1 FROM t_p30358746_hospital_website_red.admin_sessions s
+            JOIN t_p30358746_hospital_website_red.admins a ON a.id = s.admin_id
+            WHERE s.token_hash = %s AND s.expires_at > NOW() AND a.is_active = true
+            """,
+            (token_hash,)
+        )
+        found = cur.fetchone() is not None
+        cur.close()
+        return found
+    finally:
+        conn.close()
+
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
@@ -49,7 +68,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     headers = event.get('headers') or {}
     admin_token = headers.get('x-admin-token') or headers.get('X-Admin-Token')
     
-    if not admin_token or not check_admin(admin_token):
+    if not admin_token or not check_admin(admin_token, os.environ.get('DATABASE_URL')):
         return {
             'statusCode': 401,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

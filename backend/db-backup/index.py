@@ -7,6 +7,8 @@ import os
 import csv
 import io
 import tempfile
+import hashlib
+import secrets
 import time as time_module
 import boto3
 import psycopg2
@@ -219,6 +221,36 @@ def delete_logs_batch(conn, table, cutoff):
             time_module.sleep(1.0 * (attempt + 1))
 
 
+PUBLIC_ACTIONS = {'scheduled'}
+
+
+def verify_admin(event, conn) -> bool:
+    """Проверить временный токен администратора из заголовка X-Admin-Token"""
+    headers = event.get('headers') or {}
+    token = headers.get('x-admin-token') or headers.get('X-Admin-Token')
+    if not token:
+        return False
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            f'''
+            SELECT 1 FROM "{SCHEMA}".admin_sessions s
+            JOIN "{SCHEMA}".admins a ON a.id = s.admin_id
+            WHERE s.token_hash = %s AND s.expires_at > NOW() AND a.is_active = true
+            ''',
+            (token_hash,)
+        )
+        return cur.fetchone() is not None
+    finally:
+        cur.close()
+
+
+def new_archive_folder(name):
+    """Папка архива с непредсказуемым сегментом в пути, чтобы файлы нельзя было найти по угадыванию адреса"""
+    return f"backups/{secrets.token_urlsafe(16)}/{name}"
+
+
 def handler(event: dict, context) -> dict:
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': CORS_HEADERS, 'body': ''}
@@ -226,6 +258,19 @@ def handler(event: dict, context) -> dict:
     method = event.get('httpMethod', 'GET')
     params = event.get('queryStringParameters') or {}
     action = params.get('action', '')
+
+    if action not in PUBLIC_ACTIONS:
+        auth_conn = get_db()
+        try:
+            allowed = verify_admin(event, auth_conn)
+        finally:
+            auth_conn.close()
+        if not allowed:
+            return {
+                'statusCode': 401,
+                'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': 'Требуется вход администратора'}),
+            }
 
     if method == 'GET' and action == 'settings':
         conn = get_db()
@@ -326,7 +371,7 @@ def handler(event: dict, context) -> dict:
 
     if method == 'POST' and action == 'backup_start':
         now = datetime.now(timezone.utc) + timedelta(hours=3)
-        folder = f"backups/полный_архив_{now.strftime('%Y-%m-%d_%H-%M-%S')}"
+        folder = new_archive_folder(f"полный_архив_{now.strftime('%Y-%m-%d_%H-%M-%S')}")
         conn = get_db()
         cur = conn.cursor()
         cur.execute('SELECT tablename FROM pg_tables WHERE schemaname = %s ORDER BY tablename', (SCHEMA,))
@@ -349,7 +394,7 @@ def handler(event: dict, context) -> dict:
         cur.execute('SELECT 1 FROM pg_tables WHERE schemaname = %s AND tablename = %s', (SCHEMA, table))
         known = cur.fetchone()
         cur.close()
-        if not known or not folder.startswith('backups/'):
+        if not known or not folder.startswith('backups/') or '..' in folder:
             conn.close()
             return {
                 'statusCode': 400,
@@ -385,9 +430,9 @@ def handler(event: dict, context) -> dict:
         dt_str = now.strftime('%Y-%m-%d_%H-%M-%S')
 
         if full:
-            folder = f'backups/полный_архив_{dt_str}'
+            folder = new_archive_folder(f'полный_архив_{dt_str}')
         else:
-            folder = f'backups/{dt_str}'
+            folder = new_archive_folder(dt_str)
 
         conn = get_db()
         s3 = get_s3()
@@ -483,7 +528,7 @@ def handler(event: dict, context) -> dict:
             }
 
         dt_str = now.strftime('%Y-%m-%d_%H-%M-%S')
-        folder = f'backups/{dt_str}'
+        folder = new_archive_folder(dt_str)
         s3 = get_s3()
         results = []
 
@@ -508,7 +553,7 @@ def handler(event: dict, context) -> dict:
         return {
             'statusCode': 200,
             'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
-            'body': json.dumps({'success': True, 'folder': folder, 'results': results, 'deleted_old': deleted}),
+            'body': json.dumps({'success': True, 'tables_saved': sum(1 for r in results if r.get('success')), 'tables_failed': sum(1 for r in results if not r.get('success')), 'deleted_old': deleted}),
         }
 
     if method == 'GET' and action == 'list':
@@ -526,7 +571,7 @@ def handler(event: dict, context) -> dict:
 
         folders = []
         for row in rows:
-            folder_name = row[0].replace('backups/', '', 1)
+            folder_name = row[0].rsplit('/', 1)[-1]
             raw = row[4]
             files_data = raw if isinstance(raw, list) else (json.loads(raw) if raw else [])
             files = [

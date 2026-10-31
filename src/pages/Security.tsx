@@ -27,6 +27,21 @@ const ADMIN_MANAGEMENT_URL = 'https://functions.poehali.dev/41b28850-cf23-4959-9
 const REGISTRY_URL = 'https://functions.poehali.dev/e644fdea-011f-4d16-b984-98838c4e6c69';
 const DB_BACKUP_URL = 'https://functions.poehali.dev/44a9271b-91c3-434f-a4ed-a10b64718f46';
 
+const backupFetch = async (url: string, init: RequestInit = {}) => {
+  const res = await fetch(url, {
+    ...init,
+    headers: {
+      ...(init.headers || {}),
+      'X-Admin-Token': localStorage.getItem('security_token') || '',
+    },
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('security_token');
+    window.location.reload();
+  }
+  return res;
+};
+
 interface EndpointStat {
   endpoint: string;
   total_requests: number;
@@ -134,7 +149,7 @@ const Security = () => {
   const loadBackupList = async () => {
     setBackupListLoading(true);
     try {
-      const res = await fetch(`${DB_BACKUP_URL}?action=list`);
+      const res = await backupFetch(`${DB_BACKUP_URL}?action=list`);
       const data = await res.json();
       if (data.success) setBackupFolders(data.folders);
     } catch {
@@ -147,7 +162,7 @@ const Security = () => {
   const loadBackupSettings = async () => {
     setBackupSettingsLoading(true);
     try {
-      const res = await fetch(`${DB_BACKUP_URL}?action=settings`);
+      const res = await backupFetch(`${DB_BACKUP_URL}?action=settings`);
       const data = await res.json();
       if (data.success) setBackupSettings(data.settings);
     } catch {
@@ -160,7 +175,7 @@ const Security = () => {
   const saveBackupSettings = async () => {
     setBackupSettingsLoading(true);
     try {
-      await fetch(`${DB_BACKUP_URL}?action=settings`, {
+      await backupFetch(`${DB_BACKUP_URL}?action=settings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(backupSettings),
@@ -180,7 +195,7 @@ const Security = () => {
     }
     setCleanupRunning(true);
     try {
-      const res = await fetch(`${DB_BACKUP_URL}?action=cleanup`, {
+      const res = await backupFetch(`${DB_BACKUP_URL}?action=cleanup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ retention_days: backupSettings.retention_days }),
@@ -212,7 +227,7 @@ const Security = () => {
   const postBackup = async (action: string, payload: any) => {
     for (let attempt = 0; attempt < 4; attempt++) {
       try {
-        const res = await fetch(`${DB_BACKUP_URL}?action=${action}`, {
+        const res = await backupFetch(`${DB_BACKUP_URL}?action=${action}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -264,7 +279,7 @@ const Security = () => {
       if (full) {
         data = await runFullBackup();
       } else {
-        const res = await fetch(`${DB_BACKUP_URL}?action=backup`, {
+        const res = await backupFetch(`${DB_BACKUP_URL}?action=backup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ full }),
@@ -445,6 +460,11 @@ const Security = () => {
         },
       });
 
+      if (response.status === 401) {
+        localStorage.removeItem('security_token');
+        window.location.reload();
+        return;
+      }
       if (response.ok) {
         const data = await response.json();
         setAdmins(data.admins);

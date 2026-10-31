@@ -12,6 +12,8 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+const getAdminToken = () => localStorage.getItem('admin_token') || '';
+
 const API_URLS = {
   auth: 'https://functions.poehali.dev/b51b3f73-d83d-4a55-828e-5feec95d1227',
   doctors: 'https://functions.poehali.dev/68f877b2-aeda-437a-ad67-925a3414d688',
@@ -90,7 +92,9 @@ const Admin = () => {
 
   useEffect(() => {
     const auth = localStorage.getItem('admin_auth');
-    if (auth) {
+    if (auth && !localStorage.getItem('admin_token')) {
+      localStorage.removeItem('admin_auth');
+    } else if (auth) {
       setIsAuthenticated(true);
       loadDoctors();
       loadRegistrars();
@@ -115,6 +119,7 @@ const Admin = () => {
       
       if (response.ok && data.success) {
         localStorage.setItem('admin_auth', JSON.stringify(data.user));
+        localStorage.setItem('admin_token', data.token || '');
         setIsAuthenticated(true);
         loadDoctors();
         loadRegistrars();
@@ -650,6 +655,7 @@ const Admin = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('admin_auth');
+    localStorage.removeItem('admin_token');
     setIsAuthenticated(false);
   };
 
@@ -780,7 +786,7 @@ const Admin = () => {
   const loadForumUsers = async () => {
     try {
       const response = await fetch(`${API_URLS.forumModeration}?action=getUsers`, {
-        headers: { 'X-Admin-Token': 'admin123' },
+        headers: { 'X-Admin-Token': getAdminToken() },
       });
       const data = await response.json();
       setForumUsers(data.users || []);
@@ -792,7 +798,7 @@ const Admin = () => {
   const loadForumTopics = async () => {
     try {
       const response = await fetch(`${API_URLS.forumModeration}?action=getTopics`, {
-        headers: { 'X-Admin-Token': 'admin123' },
+        headers: { 'X-Admin-Token': getAdminToken() },
       });
       const data = await response.json();
       setForumTopics(data.topics || []);
@@ -812,7 +818,7 @@ const Admin = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Token': 'admin123',
+          'X-Admin-Token': getAdminToken(),
         },
         body: JSON.stringify({ user_id: userId, reason }),
       });
@@ -837,7 +843,7 @@ const Admin = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Token': 'admin123',
+          'X-Admin-Token': getAdminToken(),
         },
         body: JSON.stringify({ user_id: userId }),
       });
@@ -869,7 +875,7 @@ const Admin = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Token': 'admin123',
+          'X-Admin-Token': getAdminToken(),
         },
         body: JSON.stringify({ topic_id: topicId, reason }),
       });
@@ -971,7 +977,7 @@ const Admin = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Token': 'admin123',
+          'X-Admin-Token': getAdminToken(),
         },
         body: JSON.stringify({ topic_id: topicId }),
       });
@@ -997,7 +1003,7 @@ const Admin = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Token': 'admin123',
+          'X-Admin-Token': getAdminToken(),
         },
         body: JSON.stringify({ topic_id: topicId }),
       });

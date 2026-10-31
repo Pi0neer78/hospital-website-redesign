@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import psycopg2
@@ -12,8 +13,8 @@ def verify_admin_token(token: str, conn) -> bool:
     cursor = conn.cursor()
     try:
         cursor.execute(
-            "SELECT id FROM t_p30358746_hospital_website_red.admins WHERE password_hash = %s AND is_active = true",
-            (token,)
+            "SELECT a.id FROM t_p30358746_hospital_website_red.admin_sessions s JOIN t_p30358746_hospital_website_red.admins a ON a.id = s.admin_id WHERE s.token_hash = %s AND s.expires_at > NOW() AND a.is_active = true",
+            (hashlib.sha256(token.encode('utf-8')).hexdigest(),)
         )
         result = cursor.fetchone()
         return result is not None

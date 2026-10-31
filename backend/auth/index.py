@@ -2,8 +2,28 @@ import json
 import os
 import psycopg2
 import bcrypt
+import hashlib
+import secrets
 from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
+
+def issue_admin_session(conn, admin_id: int, login: str, source: str) -> str:
+    """Выдать временный токен администратора на 12 часов; в базе хранится только его отпечаток"""
+    token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE t_p30358746_hospital_website_red.admin_sessions SET expires_at = NOW() WHERE expires_at > NOW() AND admin_id = %s AND source = %s AND created_at < NOW() - INTERVAL '12 hours'",
+        (admin_id, source)
+    )
+    cur.execute(
+        "INSERT INTO t_p30358746_hospital_website_red.admin_sessions (token_hash, admin_id, login, source, expires_at) VALUES (%s, %s, %s, %s, NOW() + INTERVAL '12 hours')",
+        (token_hash, admin_id, login, source)
+    )
+    conn.commit()
+    cur.close()
+    return token
+
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
@@ -89,7 +109,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             elif user_type == 'admin':
                 cursor.execute(
-                    "SELECT id, login, full_name, password_hash FROM admins WHERE login = %s",
+                    "SELECT id, login, full_name, password_hash FROM admins WHERE login = %s AND is_active = true",
                     (login,)
                 )
                 user = cursor.fetchone()
@@ -103,12 +123,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     
                     if password_match:
                         cursor.close()
+                        admin_token = issue_admin_session(conn, user['id'], user['login'], 'admin')
                         return {
                             'statusCode': 200,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                             'body': json.dumps({
                                 'success': True,
                                 'user': {'id': user['id'], 'login': user['login'], 'full_name': user['full_name']},
+                                'token': admin_token,
                                 'type': 'admin'
                             }),
                             'isBase64Encoded': False
