@@ -182,7 +182,14 @@ const Admin = () => {
       if (response.ok && data.success) {
         localStorage.setItem('admin_auth', JSON.stringify(data.user));
         setIsAuthenticated(true);
+        setOperatorName(data.user.full_name || 'Оператор');
         loadDoctors();
+        loadRegistrars();
+        loadFaqs();
+        loadForumUsers();
+        loadForumTopics();
+        loadComplaints();
+        loadChats();
         toast({ title: "Успешный вход", description: `Добро пожаловать, ${data.user.full_name}` });
       } else {
         toast({ title: "Ошибка", description: data.error || "Неверные данные", variant: "destructive" });
