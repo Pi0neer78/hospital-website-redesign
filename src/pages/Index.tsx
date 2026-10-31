@@ -967,7 +967,7 @@ const Index = () => {
                 <DialogTrigger asChild>
                   <Button
                     size="lg"
-                    className="gap-2 shadow-lg hover:shadow-xl transition-shadow w-full sm:w-auto sm:min-w-[200px] bg-blue-900 hover:bg-blue-800"
+                    className="btn-3d gap-2 w-full sm:w-auto sm:min-w-[200px] bg-blue-900 hover:bg-blue-800"
                     data-appointment-trigger
                   >
                     <Icon name="Calendar" size={20} />
@@ -1846,7 +1846,7 @@ const Index = () => {
 
               <Button
                 size="lg"
-                className="gap-2 shadow-lg hover:shadow-xl transition-shadow bg-red-600 hover:bg-red-700 w-full sm:w-auto sm:min-w-[200px]"
+                className="btn-3d gap-2 bg-red-600 hover:bg-red-700 w-full sm:w-auto sm:min-w-[200px]"
                 asChild
               >
                 <a href="#complaints">
@@ -1892,7 +1892,7 @@ const Index = () => {
             <a href="/about">
               <Button
                 size="lg"
-                className="text-lg px-12 py-7 h-auto shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                className="btn-3d text-lg px-12 py-7 h-auto"
               >
                 <Icon name="Info" size={24} className="mr-3" />
                 Информация о нас
@@ -2264,7 +2264,7 @@ const Index = () => {
             Полная информация о поликлиниках, амбулаториях, отделениях и службах
             больницы
           </p>
-          <Button asChild size="lg" className="gap-2">
+          <Button asChild size="lg" className="btn-3d gap-2">
             <a href="/structure">
               <Icon name="Building2" size={20} />
               Посмотреть полную структуру
@@ -2368,7 +2368,7 @@ const Index = () => {
                     </p>
                     <Button
                       type="submit"
-                      className="w-full"
+                      className="btn-3d w-full"
                       disabled={isSubmitting || !complaintGdprConsent}
                     >
                       {isSubmitting
@@ -2488,7 +2488,7 @@ const Index = () => {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full"
+                      className="btn-3d w-full"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? "Отправка..." : "Отправить обращение"}
@@ -2512,7 +2512,7 @@ const Index = () => {
               <CardContent className="space-y-3">
                 <Button
                   variant="outline"
-                  className="w-full justify-start gap-3"
+                  className="btn-3d btn-3d-light w-full justify-start gap-3"
                   asChild
                 >
                   <a href="#contacts">
@@ -2522,7 +2522,7 @@ const Index = () => {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full justify-start gap-3"
+                  className="btn-3d btn-3d-light w-full justify-start gap-3"
                   asChild
                 >
                   <a href="/faq">
@@ -2532,7 +2532,7 @@ const Index = () => {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full justify-start gap-3"
+                  className="btn-3d btn-3d-light w-full justify-start gap-3"
                   asChild
                 >
                   <a href="/forum">
