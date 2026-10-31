@@ -88,6 +88,7 @@ const Security = () => {
   const [logsConfirmOpen, setLogsConfirmOpen] = useState(false);
   const [logsInfoLoading, setLogsInfoLoading] = useState(false);
   const [logsCleanupRunning, setLogsCleanupRunning] = useState(false);
+  const [backupBeforeCleanup, setBackupBeforeCleanup] = useState(true);
   const [logsProgress, setLogsProgress] = useState({ done: 0, total: 0, current: '' });
   const [backupFolders, setBackupFolders] = useState<any[]>([]);
   const [backupListLoading, setBackupListLoading] = useState(false);
@@ -306,6 +307,29 @@ const Security = () => {
     if (!info || info.total === 0) {
       toast({ title: 'Очистка не нужна', description: `Записей старше ${info?.cutoff} нет` });
       return;
+    }
+    if (backupBeforeCleanup) {
+      setFullBackupRunning(true);
+      setBackupProgress({ done: 0, total: 0, current: '' });
+      let backupOk = false;
+      try {
+        const backup = await runFullBackup();
+        backupOk = backup.results.length > 0 && backup.results.every((r: any) => r.success);
+        setLastBackupResult(backup);
+        loadBackupList();
+      } catch {
+        backupOk = false;
+      } finally {
+        setFullBackupRunning(false);
+      }
+      if (!backupOk) {
+        toast({
+          title: 'Очистка отменена',
+          description: 'Полный архив не удалось создать без ошибок, журналы не тронуты',
+          variant: 'destructive',
+        });
+        return;
+      }
     }
     setLogsCleanupRunning(true);
     setLogsProgress({ done: 0, total: info.total, current: '' });
@@ -1204,6 +1228,17 @@ const Security = () => {
                   </p>
                 ))}
                 {logsCleanupInfo?.total === 0 && <p>Записей для удаления нет.</p>}
+                {logsCleanupInfo?.total > 0 && (
+                  <label className="flex items-start gap-2 pt-2 cursor-pointer text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={backupBeforeCleanup}
+                      onChange={(e) => setBackupBeforeCleanup(e.target.checked)}
+                      className="mt-0.5 h-4 w-4"
+                    />
+                    <span>Сначала сделать полный архив баз данных (рекомендуется). Если архив не создастся, журналы не будут удалены.</span>
+                  </label>
+                )}
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
