@@ -18,7 +18,6 @@ const API_URLS = {
   faq: 'https://functions.poehali.dev/fb5160e8-f170-4c21-97a9-3afbcb6f78a9',
   forumModeration: 'https://functions.poehali.dev/70286923-439c-45b7-9744-403f0827a0c1',
   complaints: 'https://functions.poehali.dev/a6c04c63-0223-4bcc-b146-24acdef33536',
-  chat: 'https://functions.poehali.dev/f0120272-0320-4731-8a43-e5c1362e3057',
   registrars: 'https://functions.poehali.dev/bda47195-c96f-4fb7-b72c-59d877add3c2',
   appointments: 'https://functions.poehali.dev/b3b698ed-7035-4503-8c49-85be11de75e5',
 };
@@ -65,17 +64,6 @@ const Admin = () => {
   const [complaints, setComplaints] = useState([]);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [chats, setChats] = useState([]);
-  const [archivedChats, setArchivedChats] = useState([]);
-  const [selectedChat, setSelectedChat] = useState<any>(null);
-  const [chatMessages, setChatMessages] = useState([]);
-  const [operatorMessage, setOperatorMessage] = useState('');
-  const [operatorName, setOperatorName] = useState('');
-  const [newChatsCount, setNewChatsCount] = useState(0);
-  const [lastMessageCount, setLastMessageCount] = useState<{[key: number]: number}>({});
-  const lastMessageCountRef = useRef<{[key: number]: number}>({});
-  const [previousChatCount, setPreviousChatCount] = useState(0);
-  const [showArchived, setShowArchived] = useState(false);
   const [registrars, setRegistrars] = useState([]);
   const [registrarForm, setRegistrarForm] = useState({
     full_name: '',
@@ -99,7 +87,6 @@ const Admin = () => {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegistrarPassword, setShowRegistrarPassword] = useState(false);
   const [showRegistrarEditPassword, setShowRegistrarEditPassword] = useState(false);
-  const notificationSound = typeof Audio !== 'undefined' ? new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUQ0PVqzn7bViFg==') : null;
 
   useEffect(() => {
     const auth = localStorage.getItem('admin_auth');
@@ -111,17 +98,8 @@ const Admin = () => {
       loadForumUsers();
       loadForumTopics();
       loadComplaints();
-      const adminData = JSON.parse(auth);
-      setOperatorName(adminData.full_name || 'Оператор');
     }
   }, []);
-
-  useEffect(() => {
-    const container = document.getElementById('chat-scroll-anchor');
-    if (container && chatMessages.length > 0) {
-      container.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [chatMessages]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,7 +116,6 @@ const Admin = () => {
       if (response.ok && data.success) {
         localStorage.setItem('admin_auth', JSON.stringify(data.user));
         setIsAuthenticated(true);
-        setOperatorName(data.user.full_name || 'Оператор');
         loadDoctors();
         loadRegistrars();
         loadFaqs();
@@ -1036,245 +1013,6 @@ const Admin = () => {
     } catch (error) {
       toast({ title: "Ошибка", description: "Проблема с подключением", variant: "destructive" });
     }
-  };
-
-  const loadChats = async (silent = false) => {
-    try {
-      const response = await fetch(`${API_URLS.chat}?action=get-chats`);
-      const data = await response.json();
-      const newChats = data.chats || [];
-      
-      let hasNewMessages = false;
-      const newCount = newChats.filter((chat: any) => {
-        const prevCount = lastMessageCountRef.current[chat.id];
-        const currentCount = chat.patient_message_count;
-        
-        if (prevCount !== undefined && currentCount > prevCount) {
-          hasNewMessages = true;
-          lastMessageCountRef.current[chat.id] = currentCount;
-          return true;
-        }
-        return false;
-      }).length;
-      
-      if (silent && hasNewMessages) {
-        if (notificationSound) {
-          notificationSound.play().catch(err => console.log('Sound play failed:', err));
-        }
-      }
-      
-      if (!silent) {
-        setNewChatsCount(newCount);
-      }
-      
-      setChats(newChats);
-      setPreviousChatCount(newChats.length);
-      setLastMessageCount({ ...lastMessageCountRef.current });
-    } catch (error) {
-      console.error('Failed to load chats:', error);
-    }
-  };
-
-  const loadArchivedChats = async () => {
-    try {
-      const response = await fetch(`${API_URLS.chat}?action=get-chats&status=closed`);
-      const data = await response.json();
-      setArchivedChats(data.chats || []);
-    } catch (error) {
-      console.error('Failed to load archived chats:', error);
-    }
-  };
-
-  const loadChatMessages = async (chatId: number, silent = false) => {
-    try {
-      const response = await fetch(`${API_URLS.chat}?action=get-messages&chat_id=${chatId}`);
-      const data = await response.json();
-      setChatMessages(data.messages || []);
-      
-      if (!silent) {
-        const patientMessagesCount = data.messages.filter((m: any) => m.sender_type === 'patient').length;
-        lastMessageCountRef.current = {
-          ...lastMessageCountRef.current,
-          [chatId]: patientMessagesCount
-        };
-        setLastMessageCount(prev => ({
-          ...prev,
-          [chatId]: patientMessagesCount
-        }));
-      }
-    } catch (error) {
-      console.error('Failed to load messages:', error);
-    }
-  };
-
-  const handleSendOperatorMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!operatorMessage.trim() || !selectedChat) return;
-
-    try {
-      const response = await fetch(API_URLS.chat, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'send-message',
-          chat_id: selectedChat.id,
-          sender_type: 'operator',
-          sender_name: operatorName,
-          message: operatorMessage,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setOperatorMessage('');
-        loadChatMessages(selectedChat.id);
-        loadChats();
-      }
-    } catch (error) {
-      toast({ title: "Ошибка", description: "Не удалось отправить сообщение", variant: "destructive" });
-    }
-  };
-
-  const handleCloseChat = async (chatId: number) => {
-    try {
-      const response = await fetch(API_URLS.chat, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'close-chat',
-          chat_id: chatId,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast({ title: "Успешно", description: "Чат закрыт" });
-        setSelectedChat(null);
-        loadChats();
-      }
-    } catch (error) {
-      toast({ title: "Ошибка", description: "Не удалось закрыть чат", variant: "destructive" });
-    }
-  };
-
-  const exportChatToText = (chat: any, messages: any[]) => {
-    const lines = [];
-    lines.push('=' .repeat(60));
-    lines.push('ИСТОРИЯ ЧАТА СЛУЖБЫ ПОДДЕРЖКИ');
-    lines.push('ГБУЗ Антрацитовская ЦГМБ ЛНР');
-    lines.push('=' .repeat(60));
-    lines.push('');
-    lines.push(`Пациент: ${chat.patient_name}`);
-    lines.push(`Телефон: ${chat.patient_phone || 'Не указан'}`);
-    lines.push(`Дата создания: ${new Date(chat.created_at).toLocaleString('ru-RU')}`);
-    if (chat.status === 'closed') {
-      lines.push(`Дата закрытия: ${new Date(chat.updated_at).toLocaleString('ru-RU')}`);
-    }
-    lines.push(`Статус: ${chat.status === 'active' ? 'Активен' : 'Закрыт'}`);
-    lines.push('');
-    lines.push('-'.repeat(60));
-    lines.push('СООБЩЕНИЯ');
-    lines.push('-'.repeat(60));
-    lines.push('');
-    
-    if (messages.length === 0) {
-      lines.push('Нет сообщений');
-    } else {
-      messages.forEach((msg: any, idx: number) => {
-        lines.push(`[${new Date(msg.created_at).toLocaleString('ru-RU')}]`);
-        lines.push(`${msg.sender_type === 'patient' ? 'Пациент' : 'Оператор'}: ${msg.sender_name}`);
-        lines.push(msg.message);
-        if (idx < messages.length - 1) {
-          lines.push('');
-        }
-      });
-    }
-    
-    lines.push('');
-    lines.push('=' .repeat(60));
-    lines.push(`Экспортировано: ${new Date().toLocaleString('ru-RU')}`);
-    lines.push('=' .repeat(60));
-    
-    return lines.join('\n');
-  };
-
-  const handleExportChat = () => {
-    if (!selectedChat || !chatMessages) return;
-    
-    const textContent = exportChatToText(selectedChat, chatMessages);
-    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `chat_${selectedChat.patient_name}_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    toast({ title: "Успешно", description: "Чат экспортирован в текстовый файл" });
-  };
-
-  const handleExportAllChats = async () => {
-    const chatsToExport = showArchived ? archivedChats : chats;
-    
-    if (chatsToExport.length === 0) {
-      toast({ title: "Ошибка", description: "Нет чатов для экспорта", variant: "destructive" });
-      return;
-    }
-    
-    const lines = [];
-    lines.push('=' .repeat(80));
-    lines.push('ЭКСПОРТ ВСЕХ ЧАТОВ СЛУЖБЫ ПОДДЕРЖКИ');
-    lines.push('ГБУЗ Антрацитовская ЦГМБ ЛНР');
-    lines.push('=' .repeat(80));
-    lines.push('');
-    lines.push(`Тип: ${showArchived ? 'Архивные чаты' : 'Активные чаты'}`);
-    lines.push(`Всего чатов: ${chatsToExport.length}`);
-    lines.push(`Дата экспорта: ${new Date().toLocaleString('ru-RU')}`);
-    lines.push('');
-    lines.push('=' .repeat(80));
-    lines.push('');
-    
-    for (let i = 0; i < chatsToExport.length; i++) {
-      const chat = chatsToExport[i];
-      
-      try {
-        const response = await fetch(`${API_URLS.chat}?action=get-messages&chat_id=${chat.id}`);
-        const data = await response.json();
-        const messages = data.messages || [];
-        
-        lines.push('');
-        lines.push(`ЧАТ ${i + 1} из ${chatsToExport.length}`);
-        lines.push('');
-        lines.push(exportChatToText(chat, messages));
-        lines.push('');
-        lines.push('');
-        
-        if (i < chatsToExport.length - 1) {
-          lines.push('\n' + '═'.repeat(80) + '\n');
-        }
-      } catch (error) {
-        lines.push(`Ошибка загрузки чата ${chat.patient_name}`);
-        lines.push('');
-      }
-    }
-    
-    const textContent = lines.join('\n');
-    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    const fileName = showArchived ? 'archived_chats' : 'active_chats';
-    link.download = `${fileName}_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    toast({ title: "Успешно", description: `Экспортировано ${chatsToExport.length} чатов` });
   };
 
   if (!isAuthenticated) {

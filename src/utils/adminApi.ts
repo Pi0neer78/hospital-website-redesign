@@ -3,7 +3,6 @@ const API_URLS = {
   faq: 'https://functions.poehali.dev/fb5160e8-f170-4c21-97a9-3afbcb6f78a9',
   forumModeration: 'https://functions.poehali.dev/70286923-439c-45b7-9744-403f0827a0c1',
   complaints: 'https://functions.poehali.dev/a6c04c63-0223-4bcc-b146-24acdef33536',
-  chat: 'https://functions.poehali.dev/f0120272-0320-4731-8a43-e5c1362e3057',
   registrars: 'https://functions.poehali.dev/bda47195-c96f-4fb7-b72c-59d877add3c2',
   appointments: 'https://functions.poehali.dev/a7f148cd-e1c2-40e3-9762-cc8b2bc2dffb',
 };
@@ -48,18 +47,6 @@ export const loadComplaints = async (dateFrom?: string, dateTo?: string) => {
   const response = await fetch(url);
   const data = await response.json();
   return data.complaints || [];
-};
-
-export const loadChats = async (showArchived: boolean) => {
-  const response = await fetch(`${API_URLS.chat}?status=${showArchived ? 'archived' : 'active'}`);
-  const data = await response.json();
-  return data.chats || [];
-};
-
-export const loadChatMessages = async (chatId: number) => {
-  const response = await fetch(`${API_URLS.chat}?chat_id=${chatId}`);
-  const data = await response.json();
-  return data.messages || [];
 };
 
 export const loadRegistrarLogs = async (registrarId?: number, filters?: any) => {
