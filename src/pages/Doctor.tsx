@@ -434,6 +434,7 @@ const Doctor = () => {
         loadSchedules(data.user.id);
         loadDailySchedules(data.user.id);
         loadAppointments(data.user.id);
+        loadCalendar(data.user.id, selectedYear);
         toast({ title: "Успешный вход", description: `Добро пожаловать, ${data.user.full_name}` });
       } else {
         toast({ title: "Ошибка", description: data.error || "Неверные данные", variant: "destructive" });
@@ -1716,7 +1717,9 @@ const Doctor = () => {
       const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
       const dayOfWeek = (date.getDay() + 6) % 7;
       
-      const hasSchedule = schedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
+      const hasWeekly = schedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
+      const dailyForDate = dailySchedules.find((s: any) => String(s.schedule_date).slice(0, 10) === dateStr);
+      const hasSchedule = dailyForDate ? !!dailyForDate.is_active : hasWeekly;
       const calendarOverride = calendarData[dateStr];
       const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
       
@@ -1772,7 +1775,9 @@ const Doctor = () => {
       const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
       const dayOfWeek = (date.getDay() + 6) % 7;
       
-      const hasSchedule = schedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
+      const hasWeekly = schedules.some((s: any) => s.day_of_week === dayOfWeek && s.is_active);
+      const dailyForDate = dailySchedules.find((s: any) => String(s.schedule_date).slice(0, 10) === dateStr);
+      const hasSchedule = dailyForDate ? !!dailyForDate.is_active : hasWeekly;
       const calendarOverride = calendarData[dateStr];
       const isWorking = calendarOverride !== undefined ? calendarOverride.is_working : hasSchedule;
       
