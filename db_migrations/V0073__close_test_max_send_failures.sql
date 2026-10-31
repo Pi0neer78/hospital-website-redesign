@@ -1,0 +1,1 @@
+UPDATE t_p30358746_hospital_website_red.max_send_failures SET emailed_at = NOW() WHERE problem LIKE 'ТЕСТ%' AND emailed_at IS NULL;

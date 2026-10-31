@@ -46,44 +46,93 @@ def record_request(conn, ip_address: str, phone_number: str):
     cursor.close()
 
 ALERT_EMAIL = 'andrew_korobko@mail.ru'
+DIGEST_INTERVAL_MINUTES = 10
+FAILURES_TABLE = 't_p30358746_hospital_website_red.max_send_failures'
 
 
 def mask_phone(phone: str) -> str:
     return phone[:4] + '***' + phone[-3:] if len(phone) > 7 else '***'
 
 
-def send_alert_email(context_obj, phone: str, problem: str, details: str):
-    """Отправить письмо с логом ошибки отправки кода в MAX"""
+def hide_secrets(text: str) -> str:
+    for secret in (os.environ.get('GREEN_API_TOKEN'), os.environ.get('GREEN_API_INSTANCE_ID'), os.environ.get('SMTP_PASSWORD')):
+        if secret:
+            text = text.replace(secret, '***')
+    return text
+
+
+def record_failure(conn, context_obj, phone: str, problem: str, details: str):
+    """Сохранить сбой отправки кода в MAX и отправить сводку, если пора"""
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            f"INSERT INTO {FAILURES_TABLE} (phone_masked, problem, details, request_id) VALUES (%s, %s, %s, %s)",
+            (mask_phone(phone), problem[:500], hide_secrets(details)[:2000], str(getattr(context_obj, 'request_id', '-')))
+        )
+        conn.commit()
+        cur.close()
+    except Exception as db_error:
+        conn.rollback()
+        print(f'ALERT: не удалось сохранить сбой: {type(db_error).__name__}')
+        return
+    flush_failure_digest(conn)
+
+
+def flush_failure_digest(conn):
+    """Отправить одно письмо со всеми накопленными сбоями, не чаще раза в 10 минут"""
     smtp_user = os.environ.get('SMTP_USER')
     smtp_password = os.environ.get('SMTP_PASSWORD')
     if not smtp_user or not smtp_password:
-        print('ALERT: SMTP не настроен, письмо не отправлено')
         return
-    secrets = [os.environ.get('GREEN_API_TOKEN'), os.environ.get('GREEN_API_INSTANCE_ID'), smtp_password]
-    for secret in secrets:
-        if secret:
-            details = details.replace(secret, '***')
-    text = (
-        f"Не удалось отправить код подтверждения в MAX.\n\n"
-        f"Время: {datetime.now().strftime('%d.%m.%Y %H:%M:%S')} (серверное)\n"
-        f"Номер: {mask_phone(phone)}\n"
-        f"Проблема: {problem}\n"
-        f"ID запроса: {getattr(context_obj, 'request_id', '-')}\n\n"
-        f"Подробности:\n{details}\n\n"
-        f"Пациенту при этом код показан на экране."
-    )
-    msg = MIMEText(text, 'plain', 'utf-8')
-    msg['From'] = os.environ.get('FROM_EMAIL', smtp_user)
-    msg['To'] = ALERT_EMAIL
-    msg['Subject'] = 'Ошибка отправки кода в MAX'
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    claimed_ids = []
     try:
+        cur.execute(
+            f"UPDATE {FAILURES_TABLE} SET emailed_at = NOW() "
+            f"WHERE emailed_at IS NULL "
+            f"AND NOT EXISTS (SELECT 1 FROM {FAILURES_TABLE} WHERE emailed_at > NOW() - INTERVAL '{DIGEST_INTERVAL_MINUTES} minutes') "
+            f"RETURNING id, created_at, phone_masked, problem, details, request_id"
+        )
+        rows = sorted(cur.fetchall(), key=lambda r: r['created_at'])[:100]
+        conn.commit()
+        if not rows:
+            return
+        claimed_ids = [int(r['id']) for r in rows]
+
+        lines = [
+            f"Не удалось отправить код подтверждения в MAX. Сбоев: {len(rows)}.",
+            f"Период: {rows[0]['created_at'].strftime('%d.%m.%Y %H:%M:%S')} - {rows[-1]['created_at'].strftime('%d.%m.%Y %H:%M:%S')} (серверное время).",
+            "Пациентам в этих случаях код был показан на экране.",
+            "",
+        ]
+        for i, r in enumerate(rows, 1):
+            lines.append(f"{i}. {r['created_at'].strftime('%H:%M:%S')} | номер {r['phone_masked']} | {r['problem']}")
+            lines.append(f"   Подробности: {r['details']}")
+            lines.append(f"   ID запроса: {r['request_id']}")
+            lines.append("")
+
+        msg = MIMEText("\n".join(lines), 'plain', 'utf-8')
+        msg['From'] = os.environ.get('FROM_EMAIL', smtp_user)
+        msg['To'] = ALERT_EMAIL
+        msg['Subject'] = f'Ошибки отправки кодов в MAX: {len(rows)}'
+
         with smtplib.SMTP(os.environ.get('SMTP_SERVER', 'smtp.gmail.com'), int(os.environ.get('SMTP_PORT', '587')), timeout=2) as server:
             server.starttls()
             server.login(smtp_user, smtp_password)
             server.send_message(msg)
-        print('ALERT: письмо об ошибке отправлено')
+        print(f'ALERT: сводка отправлена, сбоев: {len(rows)}')
     except Exception as mail_error:
-        print(f'ALERT: не удалось отправить письмо: {type(mail_error).__name__}')
+        print(f'ALERT: сводка не отправлена: {type(mail_error).__name__}')
+        try:
+            conn.rollback()
+            if claimed_ids:
+                ids = ','.join(str(i) for i in claimed_ids)
+                cur.execute(f"UPDATE {FAILURES_TABLE} SET emailed_at = NULL WHERE id IN ({ids})")
+                conn.commit()
+        except Exception:
+            conn.rollback()
+    finally:
+        cur.close()
 
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -124,6 +173,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     ip_address = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
     
     try:
+        if action in ('send', 'verify'):
+            flush_failure_digest(conn)
+
         if action == 'send':
             phone_number = body.get('phone_number', '').strip()
             
@@ -233,7 +285,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         message_sent = False
                         show_code_on_screen = True
                         print(f"DEBUG: аккаунт GREEN-API в состоянии {state}")
-                        send_alert_email(context, clean_phone, f'аккаунт GREEN-API не авторизован (состояние: {state})', f'GREEN-API принял сообщение, но не может его доставить. Ответ на отправку: {result}')
+                        record_failure(conn, context, clean_phone, f'аккаунт GREEN-API не авторизован (состояние: {state})', f'GREEN-API принял сообщение, но не может его доставить. Ответ на отправку: {result}')
                 except Exception as state_error:
                     print(f"DEBUG: getStateInstance недоступен: {type(state_error).__name__}")
                     
@@ -243,13 +295,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 show_code_on_screen = True
                 print(f"Не удалось отправить через GREEN-API, показываем код на экране")
-                send_alert_email(context, clean_phone, f'GREEN-API вернул ошибку HTTP {e.code}', error_body)
+                record_failure(conn, context, clean_phone, f'GREEN-API вернул ошибку HTTP {e.code}', error_body)
                 
             except Exception as e:
                 print(f"DEBUG: Exception: {type(e).__name__}: {str(e)}")
                 show_code_on_screen = True
                 print(f"Ошибка отправки через GREEN-API, показываем код на экране")
-                send_alert_email(context, clean_phone, f'сбой при обращении к GREEN-API ({type(e).__name__})', str(e))
+                record_failure(conn, context, clean_phone, f'сбой при обращении к GREEN-API ({type(e).__name__})', str(e))
             
             if existing_record:
                 today = datetime.now().date()
