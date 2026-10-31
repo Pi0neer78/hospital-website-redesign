@@ -181,21 +181,72 @@ const Security = () => {
     }
   };
 
+  const postBackup = async (action: string, payload: any) => {
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        const res = await fetch(`${DB_BACKUP_URL}?action=${action}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) return await res.json();
+      } catch {
+        // повторим попытку
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
+    }
+    return null;
+  };
+
+  const runFullBackup = async () => {
+    const start = await postBackup('backup_start', {});
+    if (!start?.tables) throw new Error('start failed');
+    const { folder, tables } = start;
+    const results: any[] = [];
+
+    for (const table of tables) {
+      let offset: number | null = 0;
+      while (offset !== null) {
+        const part = await postBackup('backup_part', { folder, table, offset });
+        if (!part) {
+          results.push({ table, success: false, error: 'Не удалось выгрузить таблицу' });
+          break;
+        }
+        results.push(part);
+        offset = part.next_offset ?? null;
+        setLastBackupResult({ folder, results: [...results], running: true });
+      }
+    }
+
+    await postBackup('backup_finish', { folder, results: results.filter((r) => r.success) });
+    return { folder, results };
+  };
+
   const runBackup = async (full: boolean) => {
     if (full) setFullBackupRunning(true);
     else setBackupRunning(true);
     setLastBackupResult(null);
     try {
-      const res = await fetch(`${DB_BACKUP_URL}?action=backup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ full }),
-      });
-      const data = await res.json();
+      let data: any;
+      if (full) {
+        data = await runFullBackup();
+      } else {
+        const res = await fetch(`${DB_BACKUP_URL}?action=backup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ full }),
+        });
+        data = await res.json();
+      }
       setLastBackupResult(data);
       const ok = data.results?.filter((r: any) => r.success).length || 0;
       const total = data.results?.length || 0;
-      toast({ title: full ? 'Полный архив создан' : 'Архив создан', description: `Архивировано таблиц: ${ok}/${total}` });
+      const failed = total - ok;
+      toast({
+        title: failed > 0 ? 'Архив создан с ошибками' : full ? 'Полный архив создан' : 'Архив создан',
+        description: `Архивировано файлов: ${ok}/${total}`,
+        variant: failed > 0 ? 'destructive' : undefined,
+      });
       loadBackupList();
     } catch {
       toast({ title: 'Ошибка', description: 'Не удалось выполнить архивирование', variant: 'destructive' });

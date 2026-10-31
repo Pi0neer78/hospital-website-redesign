@@ -6,6 +6,8 @@ import json
 import os
 import csv
 import io
+import tempfile
+import time as time_module
 import boto3
 import psycopg2
 from datetime import datetime, time, timedelta, timezone
@@ -33,29 +35,81 @@ def get_db():
     return psycopg2.connect(os.environ['DATABASE_URL'])
 
 
-def table_to_csv(conn, table_name):
-    cur = conn.cursor()
-    cur.execute(f'SELECT * FROM "{SCHEMA}"."{table_name}"')
-    rows = cur.fetchall()
-    cols = [desc[0] for desc in cur.description]
-    cur.close()
-    buf = io.StringIO()
-    writer = csv.writer(buf)
-    writer.writerow(cols)
-    writer.writerows(rows)
-    return buf.getvalue(), len(rows)
+PAGE_SIZE = 5000
+PAGES_PER_CALL = 4
 
 
-def upload_csv(s3, key, content):
-    encoded = content.encode('utf-8')
-    s3.put_object(
-        Bucket='files',
-        Key=key,
-        Body=encoded,
-        ContentType='text/csv; charset=utf-8',
-    )
+def fetch_page(conn, table_name, offset):
+    for attempt in range(4):
+        try:
+            cur = conn.cursor()
+            cur.execute(f'SELECT * FROM "{SCHEMA}"."{table_name}" ORDER BY ctid LIMIT {PAGE_SIZE} OFFSET {offset}')
+            rows = cur.fetchall()
+            header = [d[0] for d in cur.description]
+            cur.close()
+            return rows, header
+        except psycopg2.errors.QueryCanceled:
+            if attempt == 3:
+                raise
+            time_module.sleep(1.0 * (attempt + 1))
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+
+
+def backup_table_part(conn, s3, table_name, folder, offset):
+    """Выгрузить часть таблицы (до PAGES_PER_CALL страниц) в CSV и вернуть, где продолжить"""
+    part = offset // (PAGE_SIZE * PAGES_PER_CALL) + 1
+    file_table = table_name if part == 1 else f'{table_name}_часть_{part}'
+    key = f'{folder}/{file_table}.csv'
+    row_count = 0
+    next_offset = None
+    with tempfile.TemporaryFile(mode='w+b') as tmp:
+        text = io.TextIOWrapper(tmp, encoding='utf-8', newline='', write_through=True)
+        writer = csv.writer(text)
+        header_written = False
+        current = offset
+        for _ in range(PAGES_PER_CALL):
+            rows, header = fetch_page(conn, table_name, current)
+            if not header_written:
+                writer.writerow(header)
+                header_written = True
+            writer.writerows(rows)
+            row_count += len(rows)
+            current += PAGE_SIZE
+            if len(rows) < PAGE_SIZE:
+                break
+        else:
+            next_offset = current
+        text.flush()
+        size = tmp.tell()
+        tmp.seek(0)
+        s3.put_object(Bucket='files', Key=key, Body=tmp, ContentLength=size, ContentType='text/csv; charset=utf-8')
+        text.detach()
     url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
-    return url, len(encoded)
+    if next_offset is not None:
+        rows, _ = fetch_page(conn, table_name, next_offset)
+        if not rows:
+            next_offset = None
+    return {'table': file_table, 'rows': row_count, 'url': url, 'size': size, 'success': True, 'next_offset': next_offset}
+
+
+def backup_table(conn, s3, table_name, key):
+    offset = 0
+    total_rows = 0
+    total_size = 0
+    folder = key.rsplit('/', 1)[0]
+    url = ''
+    while True:
+        r = backup_table_part(conn, s3, table_name, folder, offset)
+        total_rows += r['rows']
+        total_size += r['size']
+        url = r['url'] if offset == 0 else url
+        if r['next_offset'] is None:
+            break
+        offset = r['next_offset']
+    return url, total_size, total_rows
 
 
 def get_backup_settings(conn):
@@ -194,6 +248,59 @@ def handler(event: dict, context) -> dict:
             'body': json.dumps({'success': True, 'deleted': deleted}),
         }
 
+    if method == 'POST' and action == 'backup_start':
+        now = datetime.now(timezone.utc) + timedelta(hours=3)
+        folder = f"backups/полный_архив_{now.strftime('%Y-%m-%d_%H-%M-%S')}"
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('SELECT tablename FROM pg_tables WHERE schemaname = %s ORDER BY tablename', (SCHEMA,))
+        tables = [row[0] for row in cur.fetchall()]
+        cur.close()
+        conn.close()
+        return {
+            'statusCode': 200,
+            'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+            'body': json.dumps({'success': True, 'folder': folder, 'tables': tables}),
+        }
+
+    if method == 'POST' and action == 'backup_part':
+        body = json.loads(event.get('body') or '{}')
+        table = str(body.get('table', ''))
+        folder = str(body.get('folder', ''))
+        offset = int(body.get('offset', 0))
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('SELECT 1 FROM pg_tables WHERE schemaname = %s AND tablename = %s', (SCHEMA, table))
+        known = cur.fetchone()
+        cur.close()
+        if not known or not folder.startswith('backups/'):
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': 'Bad table or folder'}),
+            }
+        result = backup_table_part(conn, get_s3(), table, folder, offset)
+        conn.close()
+        return {
+            'statusCode': 200,
+            'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+            'body': json.dumps(result),
+        }
+
+    if method == 'POST' and action == 'backup_finish':
+        body = json.loads(event.get('body') or '{}')
+        folder = str(body.get('folder', ''))
+        results = body.get('results', [])
+        conn = get_db()
+        save_backup_record(conn, folder, True, results)
+        conn.close()
+        return {
+            'statusCode': 200,
+            'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+            'body': json.dumps({'success': True}),
+        }
+
     if method == 'POST' and action == 'backup':
         body = json.loads(event.get('body') or '{}')
         full = body.get('full', False)
@@ -221,11 +328,14 @@ def handler(event: dict, context) -> dict:
 
         for table in tables:
             try:
-                csv_content, row_count = table_to_csv(conn, table)
                 key = f'{folder}/{table}.csv'
-                url, size = upload_csv(s3, key, csv_content)
+                url, size, row_count = backup_table(conn, s3, table, key)
                 results.append({'table': table, 'rows': row_count, 'url': url, 'size': size, 'success': True})
             except Exception as e:
+                try:
+                    conn.rollback()
+                except Exception:
+                    conn = get_db()
                 print(f'[backup error] table={table} error={e}')
                 results.append({'table': table, 'error': str(e), 'success': False})
 
@@ -303,11 +413,11 @@ def handler(event: dict, context) -> dict:
 
         for table in BACKUP_TABLES:
             try:
-                csv_content, row_count = table_to_csv(conn, table)
                 key = f'{folder}/{table}.csv'
-                url, size = upload_csv(s3, key, csv_content)
+                url, size, row_count = backup_table(conn, s3, table, key)
                 results.append({'table': table, 'rows': row_count, 'url': url, 'size': size, 'success': True})
             except Exception as e:
+                conn.rollback()
                 print(f'[scheduled error] table={table} error={e}')
                 results.append({'table': table, 'error': str(e), 'success': False})
 
