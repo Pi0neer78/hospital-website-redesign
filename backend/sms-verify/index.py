@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 import random
 import urllib.request
 import urllib.parse
+import smtplib
+from email.mime.text import MIMEText
 
 def check_rate_limit(conn, ip_address: str, phone_number: str) -> tuple:
     """Проверка rate limit для SMS"""
@@ -42,6 +44,47 @@ def record_request(conn, ip_address: str, phone_number: str):
     )
     conn.commit()
     cursor.close()
+
+ALERT_EMAIL = 'andrew_korobko@mail.ru'
+
+
+def mask_phone(phone: str) -> str:
+    return phone[:4] + '***' + phone[-3:] if len(phone) > 7 else '***'
+
+
+def send_alert_email(context_obj, phone: str, problem: str, details: str):
+    """Отправить письмо с логом ошибки отправки кода в MAX"""
+    smtp_user = os.environ.get('SMTP_USER')
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    if not smtp_user or not smtp_password:
+        print('ALERT: SMTP не настроен, письмо не отправлено')
+        return
+    secrets = [os.environ.get('GREEN_API_TOKEN'), os.environ.get('GREEN_API_INSTANCE_ID'), smtp_password]
+    for secret in secrets:
+        if secret:
+            details = details.replace(secret, '***')
+    text = (
+        f"Не удалось отправить код подтверждения в MAX.\n\n"
+        f"Время: {datetime.now().strftime('%d.%m.%Y %H:%M:%S')} (серверное)\n"
+        f"Номер: {mask_phone(phone)}\n"
+        f"Проблема: {problem}\n"
+        f"ID запроса: {getattr(context_obj, 'request_id', '-')}\n\n"
+        f"Подробности:\n{details}\n\n"
+        f"Пациенту при этом код показан на экране."
+    )
+    msg = MIMEText(text, 'plain', 'utf-8')
+    msg['From'] = os.environ.get('FROM_EMAIL', smtp_user)
+    msg['To'] = ALERT_EMAIL
+    msg['Subject'] = 'Ошибка отправки кода в MAX'
+    try:
+        with smtplib.SMTP(os.environ.get('SMTP_SERVER', 'smtp.gmail.com'), int(os.environ.get('SMTP_PORT', '587')), timeout=2) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            server.send_message(msg)
+        print('ALERT: письмо об ошибке отправлено')
+    except Exception as mail_error:
+        print(f'ALERT: не удалось отправить письмо: {type(mail_error).__name__}')
+
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
@@ -182,6 +225,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     result = json.loads(response.read().decode('utf-8'))
                     print(f"DEBUG: GREEN-API Response: {result}")
                     message_sent = True
+
+                try:
+                    with urllib.request.urlopen(f'{base_url}/getStateInstance/{green_api_token}', timeout=1.5) as state_resp:
+                        state = json.loads(state_resp.read().decode('utf-8')).get('stateInstance')
+                    if state != 'authorized':
+                        message_sent = False
+                        show_code_on_screen = True
+                        print(f"DEBUG: аккаунт GREEN-API в состоянии {state}")
+                        send_alert_email(context, clean_phone, f'аккаунт GREEN-API не авторизован (состояние: {state})', f'GREEN-API принял сообщение, но не может его доставить. Ответ на отправку: {result}')
+                except Exception as state_error:
+                    print(f"DEBUG: getStateInstance недоступен: {type(state_error).__name__}")
                     
             except urllib.error.HTTPError as e:
                 error_body = e.read().decode('utf-8')
@@ -189,11 +243,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 show_code_on_screen = True
                 print(f"Не удалось отправить через GREEN-API, показываем код на экране")
+                send_alert_email(context, clean_phone, f'GREEN-API вернул ошибку HTTP {e.code}', error_body)
                 
             except Exception as e:
                 print(f"DEBUG: Exception: {type(e).__name__}: {str(e)}")
                 show_code_on_screen = True
                 print(f"Ошибка отправки через GREEN-API, показываем код на экране")
+                send_alert_email(context, clean_phone, f'сбой при обращении к GREEN-API ({type(e).__name__})', str(e))
             
             if existing_record:
                 today = datetime.now().date()
