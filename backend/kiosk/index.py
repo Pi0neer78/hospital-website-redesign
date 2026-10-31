@@ -3,7 +3,7 @@
 """
 import json
 import os
-import random
+import secrets
 import string
 import psycopg2
 from datetime import datetime, timezone, timedelta
@@ -22,7 +22,15 @@ def get_db():
 
 
 def generate_code():
-    return ''.join(random.choices(string.digits, k=10))
+    return ''.join(secrets.choice(string.digits) for _ in range(10))
+
+
+MAX_FAILED_CANCELS = 10
+FAIL_WINDOW_MINUTES = 15
+
+
+def client_ip(event):
+    return ((event.get('requestContext') or {}).get('identity') or {}).get('sourceIp') or 'unknown'
 
 
 def handler(event: dict, context) -> dict:
@@ -115,6 +123,21 @@ def handler(event: dict, context) -> dict:
 
         conn = get_db()
         cur = conn.cursor()
+        ip = client_ip(event)
+        cur.execute(f'''
+            SELECT COUNT(*) FROM "{SCHEMA}".rate_limit_logs
+            WHERE ip_address = %s AND endpoint = 'kiosk-cancel-fail'
+            AND created_at > NOW() - INTERVAL '{FAIL_WINDOW_MINUTES} minutes'
+        ''', (ip,))
+        if cur.fetchone()[0] >= MAX_FAILED_CANCELS:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 429,
+                'headers': {**CORS_HEADERS, 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': 'Слишком много неверных попыток. Подождите 15 минут или обратитесь в регистратуру.'}),
+            }
+
         cur.execute(f'''
             SELECT ic.appointment_id, a.status, a.appointment_date, a.appointment_time,
                    a.patient_name, d.full_name
@@ -126,6 +149,10 @@ def handler(event: dict, context) -> dict:
         row = cur.fetchone()
 
         if not row:
+            cur.execute(f'''
+                INSERT INTO "{SCHEMA}".rate_limit_logs (ip_address, endpoint) VALUES (%s, 'kiosk-cancel-fail')
+            ''', (ip,))
+            conn.commit()
             cur.close()
             conn.close()
             return {

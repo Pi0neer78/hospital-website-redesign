@@ -4,9 +4,26 @@
       "name": "Cancel with invalid code",
       "method": "POST",
       "path": "/?action=cancel",
-      "body": {"code": "0000000000"},
+      "body": {
+        "code": "0000000000"
+      },
       "expectedStatus": 404,
-      "expectedBody": {"error": "Запись с таким кодом не найдена"},
+      "expectedBody": {
+        "error": "Запись с таким кодом не найдена"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create without required fields is rejected",
+      "method": "POST",
+      "path": "/?action=create",
+      "body": {
+        "patient_name": "x"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
       "bodyMatcher": "partial"
     }
   ]
