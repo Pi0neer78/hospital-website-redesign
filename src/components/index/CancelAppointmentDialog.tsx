@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -47,8 +47,6 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
   const [cancelled, setCancelled] = useState<Appointment | null>(null);
   const [loading, setLoading] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
-  const [countdown, setCountdown] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   function resetAll() {
     setStep('phone');
@@ -59,21 +57,6 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
     setCancelled(null);
     setLoading(false);
     setCodeSent(false);
-    setCountdown(0);
-    if (timerRef.current) clearInterval(timerRef.current);
-  }
-
-  function startCountdown() {
-    setCountdown(60);
-    timerRef.current = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current!);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
   }
 
   async function handleSendCode() {
@@ -92,7 +75,6 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
       const data = await res.json();
       if (res.ok && data.success) {
         setCodeSent(true);
-        startCountdown();
         setStep('code');
         if (data.show_code) {
           toast({ title: 'Не удалось отправить в MAX', description: `Ваш код: ${data.show_code}. Введите его для подтверждения.` });
@@ -254,11 +236,7 @@ export default function CancelAppointmentDialog({ variant = 'card' }: CancelAppo
                 Подтвердить
               </Button>
               <div className="text-center">
-                {countdown > 0 ? (
-                  <p className="text-sm text-gray-500">Повторная отправка через {countdown} сек.</p>
-                ) : (
-                  <button onClick={handleSendCode} className="text-sm text-orange-600 hover:underline">Отправить код повторно</button>
-                )}
+                <button onClick={handleSendCode} disabled={loading} className="text-sm text-orange-600 hover:underline">Отправить код повторно</button>
               </div>
               <button onClick={() => setStep('phone')} className="w-full text-sm text-gray-500 hover:text-gray-700">← Изменить номер</button>
             </div>
