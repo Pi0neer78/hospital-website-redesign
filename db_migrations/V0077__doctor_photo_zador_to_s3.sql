@@ -1,0 +1,1 @@
+UPDATE t_p30358746_hospital_website_red.doctors SET photo_url = 'https://cdn.poehali.dev/projects/317e44da-9a2a-46c7-91b6-a5c7dee19b28/bucket/6a5f36d6-6c77-42a5-a6c5-ccd01a1cd81e.jpg' WHERE photo_url = 'http://цгмб.рф/img/zador.jpg';
