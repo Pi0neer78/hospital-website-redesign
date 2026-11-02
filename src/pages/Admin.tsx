@@ -610,7 +610,11 @@ const Admin = () => {
           const data = await response.json();
 
           if (response.ok && data.url) {
-            setDoctorForm({ ...doctorForm, photo_url: data.url });
+            if (editingDoctor) {
+              setEditingDoctor({ ...editingDoctor, photo_url: data.url });
+            } else {
+              setDoctorForm({ ...doctorForm, photo_url: data.url });
+            }
             toast({ title: "Успешно", description: "Фото загружено" });
           } else {
             toast({ title: "Ошибка", description: "Не удалось загрузить файл", variant: "destructive" });
