@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import DoctorAvatar from "@/components/doctor/DoctorAvatar";
 import { useState, useEffect, useRef } from "react";
 import {
   Card,
@@ -1084,13 +1085,7 @@ const Index = () => {
                                       }}
                                     />
                                   ) : (
-                                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                      <Icon
-                                        name="User"
-                                        size={24}
-                                        className="text-primary"
-                                      />
-                                    </div>
+                                    <DoctorAvatar name={doctor.full_name} className="w-12 h-12 rounded-lg flex-shrink-0" textClassName="text-base" />
                                   )}
                                   <div className="flex-1 min-w-0 space-y-0.5">
                                     <p className="font-semibold text-xs leading-tight line-clamp-2">
@@ -1177,13 +1172,7 @@ const Index = () => {
                                 }}
                               />
                             ) : (
-                              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                <Icon
-                                  name="User"
-                                  size={24}
-                                  className="text-primary"
-                                />
-                              </div>
+                              <DoctorAvatar name={selectedDoctor.full_name} className="w-12 h-12 rounded-full" textClassName="text-base" />
                             )}
                             <div>
                               <h3 className="font-semibold">
@@ -1237,9 +1226,7 @@ const Index = () => {
                                 }}
                               />
                             ) : (
-                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                <Icon name="User" size={20} className="text-primary" />
-                              </div>
+                              <DoctorAvatar name={selectedDoctor.full_name} className="w-10 h-10 rounded-full flex-shrink-0" textClassName="text-sm" />
                             )}
                             <div className="min-w-0 flex-1">
                               <h3 className="font-semibold text-sm leading-tight">
@@ -1329,13 +1316,7 @@ const Index = () => {
                               }}
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Icon
-                                name="User"
-                                size={24}
-                                className="text-primary"
-                              />
-                            </div>
+                            <DoctorAvatar name={selectedDoctor.full_name} className="w-12 h-12 rounded-full" textClassName="text-base" />
                           )}
                           <div>
                             <h3 className="font-semibold">
@@ -1388,13 +1369,7 @@ const Index = () => {
                               }}
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Icon
-                                name="User"
-                                size={24}
-                                className="text-primary"
-                              />
-                            </div>
+                            <DoctorAvatar name={selectedDoctor.full_name} className="w-12 h-12 rounded-full" textClassName="text-base" />
                           )}
                           <div>
                             <h3 className="font-semibold">
@@ -1450,9 +1425,7 @@ const Index = () => {
                             }}
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <Icon name="User" size={20} className="text-primary" />
-                          </div>
+                          <DoctorAvatar name={selectedDoctor.full_name} className="w-10 h-10 rounded-full flex-shrink-0" textClassName="text-sm" />
                         )}
                         <div className="min-w-0">
                           <h3 className="font-semibold text-sm truncate">

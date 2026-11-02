@@ -1,3 +1,4 @@
+import DoctorAvatar from "@/components/doctor/DoctorAvatar";
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
@@ -215,9 +216,7 @@ const Vote = () => {
                 {selectedDoctor.photo_url ? (
                   <img src={selectedDoctor.photo_url} alt={selectedDoctor.full_name} className="w-16 h-16 rounded-full object-cover" />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Icon name="User" size={28} className="text-primary" />
-                  </div>
+                  <DoctorAvatar name={selectedDoctor.full_name} className="w-16 h-16 rounded-full" textClassName="text-xl" />
                 )}
                 <div>
                   <p className="font-bold text-lg leading-tight">{selectedDoctor.full_name}</p>
@@ -269,9 +268,7 @@ const Vote = () => {
                             {doc.photo_url ? (
                               <img src={doc.photo_url} alt={doc.full_name} className="w-16 h-16 rounded-full object-cover group-hover:scale-105 transition-transform" />
                             ) : (
-                              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-                                <Icon name="User" size={28} className="text-primary" />
-                              </div>
+                              <DoctorAvatar name={doc.full_name} className="w-16 h-16 rounded-full" textClassName="text-xl" />
                             )}
                             <div className="flex-1">
                               <p className="font-semibold text-sm leading-tight mb-1">{doc.full_name}</p>

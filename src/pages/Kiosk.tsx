@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import DoctorAvatar from "@/components/doctor/DoctorAvatar";
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import Icon from "@/components/ui/icon";
@@ -669,11 +670,15 @@ export default function Kiosk() {
                   <button key={doc.id}
                     onClick={() => handleDoctorSelect(doc)}
                     className="bg-white border-2 border-gray-200 rounded-2xl p-4 hover:border-blue-500 hover:shadow-xl active:scale-95 transition-all text-left flex flex-col items-center gap-3">
-                    <img
-                      src={doc.photo_url || "https://placehold.co/120x120?text=Фото"}
-                      alt={doc.full_name}
-                      className="w-24 h-24 rounded-full object-cover border-4 border-blue-100"
-                    />
+                    {doc.photo_url ? (
+                      <img
+                        src={doc.photo_url}
+                        alt={doc.full_name}
+                        className="w-24 h-24 rounded-full object-cover border-4 border-blue-100"
+                      />
+                    ) : (
+                      <DoctorAvatar name={doc.full_name} className="w-24 h-24 rounded-full border-4 border-blue-100" textClassName="text-3xl" />
+                    )}
                     <div className="text-center">
                       <div className="font-bold text-gray-900 text-lg leading-tight">{doc.full_name}</div>
                       <div className="text-blue-600 font-semibold mt-1">{doc.position}</div>

@@ -1,3 +1,4 @@
+import DoctorAvatar from "@/components/doctor/DoctorAvatar";
 import { useState, useEffect, useRef } from 'react';
 import PhoneInput from '@/components/PhoneInput';
 import { useClinics } from '@/hooks/useClinics';
@@ -1558,9 +1559,7 @@ const Admin = () => {
                                   </div>
                                 </div>
                               ) : (
-                                <div className="w-14 h-16 rounded-lg bg-primary/10 flex items-center justify-center">
-                                  <Icon name="User" size={24} className="text-primary" />
-                                </div>
+                                <DoctorAvatar name={doctor.full_name} className="w-14 h-16 rounded-lg" textClassName="text-lg" />
                               )}
                             </TableCell>
                             <TableCell 

@@ -1,3 +1,4 @@
+import DoctorAvatar from "@/components/doctor/DoctorAvatar";
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -1022,9 +1023,7 @@ const Registrar = () => {
                           }}
                         />
                       ) : (
-                        <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <Icon name="User" size={40} className="text-primary" />
-                        </div>
+                        <DoctorAvatar name={doctor.full_name} className="w-24 h-24 rounded-lg flex-shrink-0" textClassName="text-3xl" />
                       )}
                       <Button
                         variant="default"
@@ -1423,9 +1422,7 @@ const Registrar = () => {
                 }}
               />
             ) : (
-              <div className="w-24 h-24 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Icon name="User" size={40} className="text-primary" />
-              </div>
+              <DoctorAvatar name={selectedDoctor?.full_name} className="w-24 h-24 rounded-lg flex-shrink-0" textClassName="text-3xl" />
             )}
             <div className="space-y-1 text-sm flex-1">
               <p><strong>Врач:</strong> {selectedDoctor?.full_name}</p>

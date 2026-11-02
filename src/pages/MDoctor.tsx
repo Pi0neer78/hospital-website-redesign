@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import DoctorAvatar from "@/components/doctor/DoctorAvatar";
 import PhoneInput from '@/components/PhoneInput';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1010,6 +1011,9 @@ const MDoctor = () => {
                                         className="w-10 h-10 object-cover cursor-pointer rounded"
                                       />
                                     </div>
+                                  )}
+                                  {!doctor.photo_url && (
+                                    <DoctorAvatar name={doctor.full_name} className="w-10 h-10 rounded" textClassName="text-sm" />
                                   )}
                                 </TableCell>
                                 <TableCell className="py-2">
